@@ -3958,3 +3958,27 @@ Die Mastery-Progression war **mock-getrieben**: ein täglicher pg_cron-Job (`inc
 Sauberer Beta-Zustand ohne Mock-getriebene Vanity-Anzeige. `card-tier-*`-CSS (mit `card-holographic` verwoben) bewusst belassen (inert). Reaktivierung = eigener Produkt-Slice (Engine ist da). Knowledge: `errors-frontend.md` Removal-5.-Achse (ungetypte Test-Fixtures + DB-Mock-Cron-Writer vor Column-DROP prüfen).
 
 **Re-Visit-Trigger:** falls ein echtes Spieler-Bindungs-/Loyalitäts-Feature geplant wird — die erhaltene Engine (Fantasy/Content-XP) als Fundament prüfen.
+
+---
+
+## D103 — PRODUCT: Cold-Start-Liquidität der Plattform-Topf-RAUS-Kanäle = Genesis-Seed + manueller Trigger (kein Hard-Gate-Stillstand, kein Fallback-Mint)
+
+**Datum:** 2026-06-25 · **Status:** ✅ Aktiv · **Category:** PRODUCT (Money/Treasury) · **Kontext:** Slice 376 (E3 RAUS-Kanal #1, Monats-Liga). Anil-Entscheid 2026-06-25 (AskUserQuestion). Setzt das Muster für ALLE künftigen Topf-RAUS-Kanäle.
+
+### Problem
+Der zirkuläre Modell-Shift (D96: Fees REIN → Rewards RAUS aus `platform_treasury` statt zu minten) kollidiert in der Beta mit der Realität: Fees tröpfeln in Cent-Beträgen, der Topf stand bei **3.297 cents** (~33 Credits), während die Monats-Liga **3.400.000 cents** (34.000 Credits)/Monat braucht. „Aus dem Topf zahlen" + „auto-Cron" + „harter Deckungs-Check" = die Liga zahlt **nie** etwas, solange die Fees den Topf nicht real füllen.
+
+### Entscheidung (CEO/Anil)
+1. **Genesis-Seed** statt Hard-Gate-Stillstand: einmaliges, source-getaggtes Anschub-Kapital in den Topf (`book_platform_treasury('credit','genesis',…)`, Slice 376 = 500.000 Credits, deckt ~14,7 Monate Liga). Das ist ein **bewusstes, einmaliges, sichtbares** Minting in den Topf — NICHT der laufende Fehlbetrags-Mint pro Auszahlung (verworfen, würde das zirkuläre Modell dauerhaft aufweichen).
+2. **Deckungs-Check bleibt hart** (kein Negativ-Topf, kein Teil-Payout) — greift nach dem Seed aber praktisch nie in der Beta. Korrektheit für den Tag, an dem Fees tragen müssen.
+3. **Manueller Trigger statt Cron** für den ersten RAUS-Kanal: der Admin klickt den Monatsabschluss bewusst (kontrollierter Payout in der Beta). Auto-Cron = eigener Folge-Slice, wenn sich das Topf-Modell gesetzt hat.
+
+### Alternativen erwogen
+- **Hybrid (Topf zuerst, Fehlbetrag minten):** verworfen — Liga zahlt zwar immer, aber das Modell ist nie wirklich zirkulär; laufendes verstecktes Minting.
+- **Hart-Gate ohne Seed (Liga ruht bis Topf voll):** verworfen — sauberstes Modell, aber monatelang 0 Rewards = totes Engagement in der Beta.
+- **Rewards an Topf-Größe koppeln (Auszahlung = was der Topf trägt):** verworfen — selbstregulierend, aber Reward-Höhe schwankt extrem und ist in der Beta winzig (Cent-Beträge).
+
+### Auswirkung
+Muster für **alle weiteren RAUS-Kanäle** (Slice 4 BeScout-Events, künftige): bei Cold-Start einmaliger Genesis-Seed in den Topf + Deckungs-Check hart + Trigger erst manuell. Credits sind in Phase 1 wertloses Spielgeld (D99) → der Seed ist kein finanzielles Risiko, nur Modell-Integrität. Quelle WIE: `docs/knowledge/domain/treasury.md` + Plan `worklog/notes/358-platform-treasury-epic.md`.
+
+**Re-Visit-Trigger:** wenn die echten Fees den monatlichen RAUS-Bedarf real decken (Topf wächst nachhaltig) → Genesis-Anteil wird irrelevant, Auto-Cron kann scharf geschaltet werden. Spätestens vor Coin-Phase (D99 Phase 2) neu bewerten, da Credits dann Wert tragen.

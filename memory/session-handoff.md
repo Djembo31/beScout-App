@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 01:05)
+# Session Handoff — Auto (2026-06-25 01:38)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -9,6 +9,9 @@
 ```
 
 ## Session Commits: 10
+- 3e3d225a docs(knowledge): reward-ranking.md — Monatsliga zahlt aus dem Topf (Slice 376)
+- 910ae41e feat(treasury): Monats-Liga zahlt aus dem Plattform-Topf (E3 RAUS-Kanal #1, Slice 376)
+- 3980740a docs(decision): D102 — DPC-Mastery-Feature entfernt (Dormant-Mock) + Session-Handoff
 - cffddcdc docs: Reste-Runde 2026-06-25 abgeschlossen (373/374/375) + #4/#5 zurückgestellt
 - ab1581c1 refactor(gamification): DPC-Mastery-Feature entfernt + Mock-Cron gestoppt (Slice 375)
 - 5ff7510a fix(i18n): Compliance-Sweep eventCurrency/Tickets-"Währung" → D99-neutral (Slice 374)
@@ -16,9 +19,6 @@
 - b032f6c3 chore(handoff): Session-Close 2026-06-24 — 371 + 372 DONE, next E3 Slice 3
 - 264d4ac5 docs(372): LOG + Proof + S372-Pattern — BuyModal Self-Heal VOLL-DONE
 - 4a7c868f fix(market): BuyModal Freshness-Gate self-heal — kein Dauer-Hang bei "Saldo wird aktualisiert" (Slice 372)
-- 26245d48 test(371): Live-Playwright AC1/AC2 PASS — Header zeigt Credit-Abzug sofort (Wallet-Invalidate)
-- cf29377d chore(handoff): Session-Close 2026-06-24 — 370 + 371 DONE
-- 71bd7b84 fix(community): Wallet-Key invalidieren nach Poll-Vote/Research-Unlock (U-1)
 
 <!-- auto:handoff-end -->
 
@@ -26,9 +26,19 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = `cffddcdc` (Reste-Runde 373/374/375 DONE + Doc-Reconcile). Letzter Money-Feature-Baseline = Slice 365 (Fees REIN komplett).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal, main == origin/main, tsc clean.** Alles committet & gepusht.
+**Status: idle. HEAD = `3e3d225a` (Slice 376 DONE + Knowledge-Reconcile).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal, main == origin/main, tsc clean.** Alles committet & gepusht.
 
-## 🎯 HIER ANKNÜPFEN — E3 Slice 3 (Monats-Liga e2e), erster RAUS-Kanal aus dem Topf
+## 🎯 HIER ANKNÜPFEN — E3 Slice 4 (BeScout-Events aus dem Topf), zweiter RAUS-Kanal
+
+**➡️ NÄCHSTER SLICE = E3 Slice 4 — BeScout-Events aus dem Topf** (Money/CEO-Scope, selbst bauen §3): `type='bescout'`-Events zahlen Prize aus `platform_treasury` (`debit`) statt zu minten — mirror Slice 331 Club-Event-Escrow. Löst `treasury.md §7 „bescout mintet weiter" ab. **Money-Muster (Pflicht): Live-`pg_get_functiondef` der Event-Prize-/Settle-RPC VOR Spec (D87).** Gleiche Bausteine wie 376: inline `book_platform_treasury('debit',…)` + Deckungs-Check unter Singleton-Row-Lock (book schützt NICHT gegen Negativ) + ggf. Genesis-Seed-Muster (D103) bei Cold-Start. Danach Slice 5 Wettkampf-Darstellung + Ranking-Konsolidierung. Plan-Anker `worklog/notes/358-platform-treasury-epic.md`.
+
+### ✅ Session 2026-06-25 (Nachmittag) — Slice 376 DONE (E3 RAUS-Kanal #1, Money/CEO)
+- **376** (`910ae41e` + Knowledge `3e3d225a`): **Monats-Liga zahlt aus dem Plattform-Topf.** `close_monthly_liga` zog Rewards bisher per reinem Minten (34.000 Credits/Monat); jetzt **zero-sum** per `book_platform_treasury('debit','monthly_liga',v_total_paid,…)` (EINE Buchung nach Payout-Loop, Debit=actual-paid). **Deckungs-Check** inline unter Singleton-Row-Lock (Befund D87: `book_platform_treasury` hat KEINEN Negativ-Guard; `get_platform_balance` admin-only+json → inline SUM); `RAISE insufficient_treasury` rollt Snapshot-Inserts zurück → Monat retry-bar. **overall-Bug behoben:** `[2]=manager` → echter **Median** `(a+b+c)-GREATEST-LEAST`. **Genesis-Seed 500.000 Credits** (source-CHECK um `'genesis'` gewidert, idempotent) → Topf live **50.003.297 cents**. Reward-Konstanten byte-identisch, KEIN src-Change. Reviewer CONCERNS→Money PASS-grade. Force-Rollback-Smoke (Zero-Sum/Median/insufficient/Idempotenz) `worklog/proofs/376-money-smoke.txt`.
+- **CEO-Entscheid (Anil, AskUserQuestion) → D103:** Cold-Start = **Genesis-Seed + manueller Trigger** (kein Cron, kein Fallback-Mint, kein Hard-Gate-Stillstand). Muster für ALLE künftigen RAUS-Kanäle.
+- **⏸ Bewusst aufgeschoben (eigene Folge-Slices, kein Blocker):** (a) **Liga-Cron** (Auto-Monatsabschluss; Anil: erst manuell) · (b) **Live-Standing-Board-UI** (laufender Monat als Anreiz; `useMonthlyLeaderboard`+`getMonthlyLeaderboard` liegen bereit aber 0 UI-Konsumenten, `getMonthlyLeaderboard` hat console.error+return → bei Verkabelung swallow→throw heilen).
+- **⚠️ Uhren-Artefakt:** Maschinen-Uhr läuft 1 Tag hinter `currentDate` (Hook-„heute"=2026-06-24). Knowledge-Files brauchen `updated: <Maschinen-heute>` sonst blockt `audit:knowledge:check` HARD. Bei Doc-Edit ggf. das vom Hook genannte Datum nehmen.
+
+### ✅ Vorherige Reste-Runde 2026-06-25 (373/374/375) — DONE
 
 ### ✅ Session 2026-06-25 — „kleine Reste"-Runde (373/374/375), alle gepusht
 - **373** (`5293cdf9`) Floor-Label-Vereinheitlichung: 11 i18n-Keys + 2 hardcoded SellModalCore + Metadata + 3 PlayerKPIs → „Marktpreis"/„Piyasa Fiyatı"; `clubSaleFixed`-Compliance. Reviewer PASS.
