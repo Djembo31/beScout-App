@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 22:42)
+# Session Handoff — Auto (2026-06-24 23:45)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -9,16 +9,16 @@
 ```
 
 ## Session Commits: 10
+- 264d4ac5 docs(372): LOG + Proof + S372-Pattern — BuyModal Self-Heal VOLL-DONE
+- 4a7c868f fix(market): BuyModal Freshness-Gate self-heal — kein Dauer-Hang bei "Saldo wird aktualisiert" (Slice 372)
+- 26245d48 test(371): Live-Playwright AC1/AC2 PASS — Header zeigt Credit-Abzug sofort (Wallet-Invalidate)
+- cf29377d chore(handoff): Session-Close 2026-06-24 — 370 + 371 DONE
+- 71bd7b84 fix(community): Wallet-Key invalidieren nach Poll-Vote/Research-Unlock (U-1)
 - 93784396 test(e2e): Slice 370 UI-Walk — Poll + Research Fee-REIN per echtem Klick bewiesen
 - 8ec307be test(e2e): Slice 370 — Fees-REIN-Sweep ②–⑤ live bewiesen (IPO/Poll/Research/Bounty → Topf)
 - d466ccbe chore(handoff): Session-Close 2026-06-24 — Slice 369 komplett (push-fix + AC5 live), 370 next
 - 092357b1 test(369): add AC5 Playwright screenshot (push 200 visual proof)
 - 196f166e test(369): AC5 live-bewiesen — /api/push 200 statt 500 bei echtem Buy (Playwright)
-- abfd36bd docs(369): Tracker-Reconcile + Post-Deploy-Proof — Slice 369 DONE, next 370
-- 6b1f7b23 fix(push): /api/push 500 Fail-Safe + VAPID-Secret-Heal (Slice 369, E2E T-2)
-- e396010d docs(tracker): 368d/e/f in MASTERPLAN + TODO nachgezogen — 368-Wertmodell-Serie komplett
-- da9ea409 chore(368e): post-deploy Playwright-Proof — Markteintritt == Dein Einstieg (eine Quelle) PASS
-- aa651775 chore(trading): 368f Phase 2 — DROP initial_listing_price + Trigger-Sentinel-Rewrite
 
 <!-- auto:handoff-end -->
 
@@ -26,23 +26,26 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = `71bd7b84` (Slice 371 Code DONE). Letzter Money-Feature-Baseline = Slice 365 (Fees REIN komplett).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal, main == origin/main, tsc clean.** Alles committet & gepusht.
+**Status: idle. HEAD = `264d4ac5` (Slice 372 voll-DONE). Letzter Money-Feature-Baseline = Slice 365 (Fees REIN komplett).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal, main == origin/main, tsc clean.** Alles committet & gepusht.
 
-## 🎯 HIER ANKNÜPFEN — erst Slice 371 Playwright-Verify, dann E3 Slice 3
+## 🎯 HIER ANKNÜPFEN — E3 Slice 3 (Monats-Liga e2e), erster RAUS-Kanal aus dem Topf
 
-**⏳ ERSTER SCHRITT (5 Min): Slice 371 Live-Playwright AC1/AC2.** Code ist gepusht, Vercel baut von main. Auf bescout.net als `jarvis-qa@bescout.net` (`JarvisQA2026!`): frische Poll + Research seeden (Rezept s.u.), im Community-Feed Vote/Unlock klicken → **Header-Credit-Anzeige muss SOFORT −10 CR zeigen (ohne Reload)**. Vor dem Fix (370-UI-Walk) blieb sie stale. Proof-File `worklog/proofs/371-wallet-invalidate.txt` ergänzen, dann 371 voll-DONE.
+**371 + 372 sind beide voll-DONE (inkl. Live-Proof). Nächster großer Money-Track = E3 Slice 3.**
 
-**370 ✅ KOMPLETT** (E2E-Sweep „Fees REIN" ②–⑤): Alle 5 Plattform-Fee-Quellen real in den Topf bewiesen — RPC-Ebene (Seed+Impersonation) UND UI-Walk (Playwright): ② IPO 500 (369-Buy-Modal) · ③ Poll 200/400 · ④ Research 200/400 · ⑤ Bounty 50 · trading 1512. **Topf nach UI-Walk = 2862 Cents.** Zero-Sum je Quelle ✓, Doppel-Approve money-safe reject ✓. Proofs `370-fees-rein-sweep.txt` (RPC) + `370-ui-fees-rein.txt` + 2 PNGs. **⑤ Bounty-Approval-UI noch offen** (braucht Club-Admin-Login kede5 — Creds fehlen, Anil-Action wenn UI-Durchlauf gewünscht).
+**➡️ NÄCHSTER SLICE = E3 Slice 3 — Monats-Liga e2e** (erster RAUS-Kanal aus dem Topf): `close_monthly_liga` zahlt Rewards per `debit` aus dem Topf (statt Minting) + Deckungs-Check + Idempotenz. Lebt heute, mintet 34.000/Mt, 0 Snapshots. Preflight `worklog/notes/357-preflight-monthly-leaderboard.md`, Plan `worklog/notes/358-platform-treasury-epic.md`. **Money-Muster: Live-`pg_get_functiondef` der Liga-RPC VOR Spec (D87).** Sequenz danach: 4 BeScout-Events → 5 Wettkampf-Darstellung.
 
-**371 ✅ Code DONE** (U-1 Header-Staleness aus 370-UI-Walk): `useCommunityActions.handleCastPollVote`/`handleUnlockResearch` invalidieren jetzt `qk.wallet.all`. tsc+72 vitest grün, Money-Logik unberührt. Pattern S371 → `errors-frontend.md`. **Nur Live-Playwright-Verify offen (s.o.).**
+**Alternativ (kleinere E4-Reste, kein Blocker):** 368-Label-Rest (Floor-Wording-Keys, `368c-e2e-trading-findings.md`) · Compliance-Sweep eventCurrency/Tickets-„Währung" → D99-Wording · 367-F#3 DPC-Mastery-Leaderboard Mock→Pro (`hold_days`-Seed). T-1 Cold-Start-Liquidität = Produkt-Entscheid (Anil).
 
-**DANACH = E3 Slice 3 — Monats-Liga e2e** (erster RAUS-Kanal aus dem Topf): `close_monthly_liga` zahlt Rewards per `debit` aus dem Topf (statt Minting) + Deckungs-Check + Idempotenz. Preflight `357-preflight-monthly-leaderboard.md`, Plan `358-platform-treasury-epic.md`. Money-Muster: Live-`pg_get_functiondef` VOR Spec (D87). Sequenz danach: 4 BeScout-Events → 5 Wettkampf-Darstellung.
+### ✅ Diese Session (2026-06-24 spät) — 371 + 372 DONE
+- **371 ✅ VOLL-DONE** (`26245d48`): Live-Playwright AC1/AC2 PASS — Header zeigt nach Poll-Vote (11.708,27→11.698,27) + Research-Unlock (→11.688,27) SOFORT −10 CR ohne Reload, DB-reconciled. Pattern S371 in errors-frontend.md.
+- **372 ✅ VOLL-DONE** (`4a7c868f` Fix + `264d4ac5` LOG): BuyModal-Hänger „Saldo wird aktualisiert…" gefixt (E4-Rest C / war 368c-F3). **Root-Cause war NICHT „Tippen vs +/−" (Timing-Artefakt)**, sondern: `useIsBalanceFresh` zeitbasiert (`<30s`) + Modal-Open triggert keinen Wallet-Refetch (Query schon via TopBar gemountet, `staleTime:0`) → stale bleibt für immer stale → Button dauerhaft disabled. Fix: `useWallet.refetch` exponiert + BuyForm-`useEffect`-Self-Heal bei `balanceStale`. Money byte-identisch. Reviewer PASS. **Live Vorher/Nachher bewiesen** (Tiren-Modal: 43s+ stuck → ~3s Self-Heal) + echter Buy reconciled. Pattern S372 → errors-frontend.md.
 
-### Geseedete Live-Artefakte aus Slice 370 (permanent, NICHT aufräumen — E2E-Beweis)
-- Topf-Ledger (append-only): bounty 50 · ipo 500 · poll 400 · research 400 · trading 1512 = **2862 Cents**.
-- Polls (nailoku): `d8737497…` (E2E, voted) · `c39609f3…` (UI, voted). Research (nailoku): `42ea702d…` (E2E, unlocked) · `ef06557d…` (UI, unlocked). Bounty (nailoku, Bandırmaspor): `ee25724d…` approved, Submission `54a62b32…`.
-- **3 offene IPOs** (Hatayspor, `kede5`): Rakhim `e4784b96…` @50 · Yiğit `b51dd4be…` @100 · Muhammed Gönülaçar `8f715d63…` @125. Sell-Orders: Tiren @10 · Sarıcalı @125 · Crociata @550.
-- Actor-IDs: jarvis-qa `535bbcaf-f33c-4c66-8861-b15cbff2e136` (~11.708 CR) · nailoku `b6c51aae-d950-4009-b68d-f1c93efa5fcf` · kede5 (Admin) `3c580b9e-1cf0-4c14-8f9e-e0ce1bb46f9f`. Project-ID `skzjfhvgccaeplydsunz`.
+### Geseedete Live-Artefakte (permanent, NICHT aufräumen — E2E-Beweis)
+- **Topf-Ledger (append-only):** Stand zuletzt + 372-Buy = letzter Eintrag `trading:35` (Tiren-Buy). 370-Bestand: bounty 50 · ipo 500 · poll 400+200 · research 400+200 · trading 1512+35.
+- **371-VERIFY (consumed):** Poll `4415ed77…` (jarvis voted, Option A), Research `90a1bcbc…` (jarvis unlocked). 370er: Polls `d8737497…`/`c39609f3…`, Research `42ea702d…`/`ef06557d…`, Bounty `ee25724d…` (alle nailoku).
+- **372-Buy:** jarvis-qa hält jetzt **1× Muhammed Tiren** (`05f7a1a2-e70b-4327-accd-5f90f84d6f7e`); dessen 10-CR-Order (`17b3842d…`, @bot001) ist **filled**. Verbleibende kaufbare Sell-Orders: Sarıcalı `886d0013…` @125 · Crociata `157a1a78…` @550.
+- **3 offene IPOs** (Hatayspor, `kede5`): Rakhim `e4784b96…` @50 · Yiğit `b51dd4be…` @100 · Muhammed Gönülaçar `8f715d63…` @125.
+- Actor-IDs: jarvis-qa `535bbcaf-f33c-4c66-8861-b15cbff2e136` (~11.678 CR nach 372-Buy) · nailoku `b6c51aae-d950-4009-b68d-f1c93efa5fcf` · kede5 (Admin) `3c580b9e-1cf0-4c14-8f9e-e0ce1bb46f9f`. Project-ID `skzjfhvgccaeplydsunz`. Login `jarvis-qa@bescout.net` / `JarvisQA2026!`.
 
 ### 🔑 Seed-Rezept (wiederverwendbar für ③ Poll / ④ Research / ⑤ Bounty) — codifiziert in `.claude/rules/testing.md`
 Money-RPC via Supabase-MCP `execute_sql` callen + `auth.uid()`-Guard umgehen durch JWT-sub-Impersonation in DERSELBEN Transaktion:
