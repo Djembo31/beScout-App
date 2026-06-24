@@ -1,24 +1,21 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 13:40)
+# Session Handoff — Auto (2026-06-24 14:49)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
 ## Session Commits: 10
+- eb820b1f chore(tracker): Slice 367 done + 368 next (E4 Schritt 3)
+- 7b650a4f fix(gamification): E4 Diamond-Hands-Cluster — Rename + echte Hold-Logik + Konfetti-Gate (Slice 367, T-3)
+- 627e3e96 docs(notes): T-3 Diamond-Hands Root-Cause verifiziert (geseedete dpc_mastery.hold_days, Slice 367 Vorbereitung)
+- e3181795 docs(knowledge): treasury.md verified-against trading.md @ 2026-06-24 (beide auf D99 abgeglichen, Slice 366)
+- 1b7b7ae8 chore(tracker): E4 Schritt 1+2 done in MASTERPLAN + TODO reconciled (Slice 366)
+- eba47650 docs(money): E4 Doc-Glattzug — Money-Modell-Doku auf D99 ausgerichtet (Slice 366, Schritt 2)
+- b52e8b09 docs(decision): D99 OFFEN-Punkte ratifiziert (E4 Schritt 1)
 - fe1bd24a docs(decision): D99 — $SCOUT-Phasenmodell (SSOT) + Money-Modell-Drift-Inventur + E4 Cleanup-Epic
 - f297a361 feat(treasury): Bounty-Fee REIN in Plattform-Topf (Slice 365, E3-2e) — Fees-REIN KOMPLETT 5/5
 - bb7d8f34 docs(spec): Slice 365 Bounty-Fee REIN — BUILD-ready Spec + Resume-Anker (E3-2e)
-- 95022eda feat(treasury): Research-Fee REIN in Plattform-Topf (Slice 364, E3-2d)
-- bf27dc5a chore(handoff): Resume-Anker auf Slice 364 Research-Fee REIN (363 done)
-- 59b10862 docs(knowledge): 4 verify-drift Findings abgeräumt (re-verify nach Slice 338/363)
-- 14af7fc9 docs(knowledge): polls.md — 20%-Plattform-Anteil fließt seit Slice 363 in den Topf (D88)
-- 7d029401 feat(treasury): Polls-Fee REIN in Plattform-Topf (Slice 363, E3-2c)
-- 2022a7ca docs(spec): Slice 363 Polls-Fee REIN — BUILD-ready Spec + Resume-Anker (E3-2c)
-- f2a3ef78 chore(worklog): active.md auf Slice 362 (Resume-Anker)
 
 <!-- auto:handoff-end -->
 
@@ -26,37 +23,26 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = Slice 365 (Bounty-Fee REIN). Letzte Money-Feature-Baseline = Slice 365 (E3-2e).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet & gepusht.
+**Status: idle. HEAD = Slice 367 (Diamond-Hands-Fix). Letzter Money-Feature-Baseline = Slice 365 (Fees REIN komplett).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet & gepusht (HEAD `eb820b1f`).
 
-> **Session 2026-06-24 (Forts.):** 365 Bounty-Fee REIN ✅ (E3-2e, **LETZTE Fee-Quelle**) — `approve_bounty_submission(uuid,uuid,text)`→`book_platform_treasury('credit','bounty',v_platform_fee,v_sub.bounty_id,'Bounty-Fee')`, inline NACH Einreicher-Payout + Status-Updates VOR finalem success-RETURN, `IF v_platform_fee>0`-Guard. `v_platform_fee` global berechnet → **EINE Buchung deckt alle 3 Zahlungspfade** (user/club-escrow/club-nonescrow). Doppelbuchung ausgeschlossen: `trg_bounties_settle` bei 'completed' bewegt kein Geld (nur Flag). Fee-Konstante `(v_reward*500)/10000`=5 % verbatim (S356), Header bewusst OHNE `SET search_path` (Original erhalten, `no_search_path_drift`-Assert), AR-44 anon=false. Force-Rollback-Smoke PASS (Pfad 1 user_bounty: Topf +50, Zero-Sum 950+50, 1 Ledger-Row, Rollback sauber). Reviewer PASS (1 NIT optional/nicht umgesetzt). treasury.md §10 + Epic-Note + MASTERPLAN + TODO reconciled.
+## 🎯 HIER ANKNÜPFEN — E4 Schritt 3, NÄCHSTER = Slice 368 (ipo_price-Data-Drift, Money/CEO)
 
-## 🎯 E3 Slice 2 „FEES REIN" KOMPLETT (5/5 Quellen + P2P)
-> Trading (358) · IPO (360) · Polls (363) · Research (364) · **Bounty (365)** + P2P (358). **ALLE** Plattform-Fee-Ströme fließen real in den BeScout-Topf (voller Auffang 100 %, D98, je Zero-Sum live bewiesen). Topf live jetzt bei **35 Cents** (1 echter Trade aus dem E2E-Durchlauf, source 'trading').
+**E4 = Money-Modell-Glattzug + Mock→Pro-Härtung (D99). Plan-Anker `worklog/notes/366-e4-money-model-cleanup-epic.md`.** Stand:
+- ✅ **Schritt 1 — D99 ratifiziert** (`b52e8b09`): Naming **„Credits"** jetzt (`$SCOUT`=ICO-Coin später, „BSD" deprecatet) · Einheit **1 Credit = 100 cents** (Speicher), ICO-Wert 1 Credit = 0,01 € (Phase 2, nie heute user-facing) · Phasen **sequenziell 1/2/3** · CASP = schnellster sicherer Weg zum ICO (Route CASP vs MiCA Title II = Anwalt) · Pricing **1 Card = MV/1.000 Credits** (= MV/100.000 € ICO-Peg, **kein 100×-Widerspruch**, am Live-Code bewiesen). SSOT = **D99** (`memory/decisions.md`).
+- ✅ **Schritt 2 — Doc-Glattzug** (Slice 366, `eba47650`): ~40+ Stellen + Compliance-Skills (beScout-business/plan-legal-review .claude+.agents) + SYSTEM-DESIGN auf D99; CONCEPT-DPC-ECONOMY Selbstwiderspruch geheilt; `grep $SCOUT|BSD messages/` = 0. Proof `366-drift-grep.txt`.
+- ✅ **Schritt 3 / Bug T-3 — Slice 367 Diamond-Hands** (`7b650a4f`): Rename **„Treuer Sammler"/„Sadık Koleksiyoncu"** (Key `diamond_hands` code-intern) über 4 Surfaces (messages DE+TR, achievements.ts +icon ⏳, DB `achievement_definitions` Migration 20260624190000) + **Hold-Logik** in `social.ts` aus `holdings.created_at` (qty>0, älteste Position; Zombie-Trigger S025 = Position-Start) STATT geseedetem `dpc_mastery.hold_days` + **Konfetti-Gate** `category!=='trading'`. Reviewer PASS. Knowledge: gamification.md +2 Patterns (Achievement nie aus Mock-Spalte · Konfetti-Dual-Path).
 
-## ⚠️ NEUE PRIO (Anil, 2026-06-24) — E4 Money-Modell-Glattzug + Mock→Pro-E2E-Härtung (D99). **HIER KNÜPFT ANIL AN.**
+**← NÄCHSTER: Slice 368 = P-4 `ipo_price`-Data-Drift (Money, CEO-Scope, §3 selbst bauen).**
+- **Problem:** Nicht-Top-Spieler haben falsche `ipo_price` (eingefroren bei Launch, nicht bei MV-Änderung nachgezogen). Douglas Willian MV 500K steht bei **10 statt ~500 Credits**; Top-Spieler (Mbappé) korrekt. Kanon: `ipo_price_cents = MV_EUR/10` (= MV/1.000 Credits).
+- **⚠️ WARTET AUF ANIL-GO:** ändert **echte Live-Preise**, gegen die Tester handeln → nicht ungefragt migrieren. **Vorgehen (mit Anil abgestimmt):** ZUERST `/impact` + Live-Daten-Analyse zeigen (wie viele Spieler betroffen, welche haben offene Orders/Holdings, Blast-Radius), DANN Migrations-Plan vorlegen, ERST auf Anil-Go auf Prod schreiben. Money-Muster: Live-`pg_get_functiondef`/SELECT VOR Spec (D87).
+- **Alternative (Anil-Wahl):** zuerst die leichteren Bugs — **369** T-2 `/api/push → 500` beim Kauf · **370** E2E-Sweep ② IPO → ③ Poll → ④ Research → ⑤ Bounty (je Seed + echter UI-Trigger; Browser war jarvis-qa; Seed-Muster `place_sell_order` etc. in `worklog/notes/365-e2e-findings.md`). **T-1** Cold-Start leerer Markt = **Produkt-Entscheid** (Dauer-IPO/Seed-Orderbuch, eigener Slice).
 
-**Auslöser:** Wir haben begonnen, alle 5 Fee-Quellen per **echtem E2E auf bescout.net** durchzuspielen (jarvis kauft real). **Schon der erste Trade (① Trading) deckte massig Drift + Bugs auf** → Beleg, dass „Mock→Pro" eine gezielte Härtungs-Welle braucht. Anil-Ansage: erst sauber glattziehen, alles im Plan, dann gezielt fixen.
+**367-Follow-ups (non-blocking, aus Reviewer):** F#1 „ohne zu verkaufen"-Semantik — Teilverkauf resettet `created_at` NICHT (nur Full-Sell auf qty=0) → mit Anil klären ob Description entschärfen. F#2 Regression-Tests für Hold-Logik (Buy→kein Unlock / 31d→Unlock). F#3 DPC-Mastery-Leaderboard (`mastery.ts`) zeigt weiter geseedetes `hold_days`-Mock → eigener Mock→Pro-Slice.
 
-**① Trading ✅ live bewiesen:** Topf 0→35 Cents (3,5 % von 1000). Funde:
-- 🔴 **T-3 „Diamond Hands"-Achievement** (HIGH): verbotenes Meme-Coin-Wort (business.md) + **Logikbug** (sofort beim Kauf vergeben statt nach 30 Tagen) + Konfetti-auf-Trade (no-confetti-Regel). Screenshot `365e2e-1-trading-diamondhands.png`.
-- 🟡 **T-2** `POST /api/push → 500` beim Kauf · 🟢 **T-1** Cold-Start leerer Markt (0 IPOs/0 Orders → neuer User kann nichts kaufen) · 🔴 **P-4** `ipo_price`-MV-Drift (Douglas MV 500K = 10 statt ~500 Credits; Top-Spieler korrekt).
+**Geseedete Live-Artefakte (E2E ①, permanent):** demo-admin 4 Cards Douglas Willian, jarvis 1 Card, 1 Trade-Tx, Pot 35 Cents (source 'trading').
 
-**🟣 M-5 = systemischer Money-Modell-Drift → geklärt als D99.** Lange Anil-Diskussion: $SCOUT-Einheiten/Phasen-Modell war über ~40 Doc-Stellen widersprüchlich (BSD/$SCOUT/Credits, Faktor-100-€, Phasen 1/3/4 vs 1/2, CASP-Strategie-Konflikt).
-
-**→ D99 (`memory/decisions.md`) = neue SSOT, decided (Kern):**
-- Pilot/Beta: $SCOUT/Credits = **wertloses Spielgeld, kein €-Wert**, nicht kauf-/auszahlbar. Echter Coin-Wert **erst ICO** (nach Lizenz).
-- Echtes Geld rein nur via **Founder-Pässe** (kein Gewinnversprechen).
-- €-Bezug = **ICO-Zeit, nicht heute** (überall so markieren, user-facing nie €).
-- **Early-Adopter-Bonus diskretionär:** Aktivität jetzt mitloggen, beim ICO **nach Ermessen** in Token würdigen — **nie vorab versprechen** (sonst Finanzinstrument).
-
-**SCHRITT 1 (Anil zuerst): D99-OFFEN-Punkte ratifizieren** — KEIN Doc-Massen-Edit vorher:
-- **Naming:** user-facing „Credits" (CTO-Empfehlung, Compliance) vs „$SCOUT" überall (Anils Bauchgefühl)? + „BSD" deprecaten + Code-Vokabular vereinheitlichen.
-- Einheiten-Vokabular (intern cent / Anzeige Credits=cents/100) · Phasen-Nummerierung 1/3/4↔1/2 · CASP-Strategie (scout-launch-strategie.md vs Phasen-Docs) · Card-Pricing-Fairness (MV/1.000 vs 10%/10.000-Cards).
-
-**SCHRITT 2:** Doku auf D99 glattziehen — Checkliste `worklog/notes/365-money-model-drift-inventory.md` (~40 Stellen, 5 Kategorien, gruppiert).
-**SCHRITT 3:** E2E-Sweep zu Ende: ② IPO → ③ Poll → ④ Research → ⑤ Bounty (je Seed + echter UI-Trigger, Bug-Jagd) + Funde fixen. Stand/Methode: `worklog/notes/365-e2e-findings.md`. Browser war als jarvis-qa eingeloggt; Seed-Muster (place_sell_order etc.) im Findings-File.
-
-**Geseedete Live-Artefakte (E2E ①, permanent):** demo-admin 4 Cards Douglas Willian, jarvis 1 Card, 1 Trade-Tx, Pot 35 Cents.
+## ✅ E3 „Fees REIN" KOMPLETT (5/5 + P2P) — Trading 358 · IPO 360 · Polls 363 · Research 364 · Bounty 365
+> Alle Plattform-Fee-Ströme fließen real in den BeScout-Topf (voller Auffang 100 %, D98, je Zero-Sum live bewiesen). Topf live bei 35 Cents.
 
 ## ➡️ DANACH (zurückgestellt): E3 Slice 3 — Monats-Liga e2e (erster RAUS-Kanal)
 - `close_monthly_liga` zahlt Rewards per `debit` aus dem Topf (statt Minting) + Deckungs-Check + Idempotenz. Lebt heute, mintet 34.000/Mt, 0 Snapshots. UI: Live-Standing + Cron + `overall`-Median-Fix. Preflight `357-preflight-monthly-leaderboard.md`. Plan `358-platform-treasury-epic.md`. Money-Muster: Live-`pg_get_functiondef` VOR Spec (D87).
