@@ -2,16 +2,16 @@
 
 ```
 status: idle
-slice: 360
-title: ✅ DONE — IPO-Fee REIN in Plattform-Topf (E3-2b)
+slice: 362
+title: ✅ DONE — platformAdmin chunked/paginated Reads (player_count Live-Bug + 5 HIGH silent-fail)
 stage: LOG complete
 size: S
-slice-type: Migration (Money-RPC) + Test
-spec: worklog/specs/360-ipo-fee-rein.md
-impact: skipped (additive Inline-Buchung, 0 Consumer-Contract-Change, kein Schema-Shape-Change)
-proof: worklog/proofs/360-money-smoke.txt
-review: worklog/reviews/360-review.md (PASS, 2 NIT informativ)
-next: E3 restliche Fee-Quellen REIN (Polls/Research/Bounty)
+slice-type: Service
+spec: inline (Crash-Recovery-Nebenbefund-Kette 360→361→362)
+impact: skipped (1 Service-File, 2 Caller verifiziert)
+proof: worklog/proofs/362-platformadmin-chunked.txt
+review: worklog/reviews/362-review.md (PASS, 2 NIT, NIT#1 adressiert)
+next: E3 restliche Fee-Quellen REIN (Polls/Research/Bounty) — Money/CEO-Scope, selbst
 ```
 
 ## Kontext
@@ -22,6 +22,7 @@ next: E3 restliche Fee-Quellen REIN (Polls/Research/Bounty)
 
 ## Zuletzt
 
+- **Slice 362** ✅ — platformAdmin chunked/paginated Reads (1e3c9abc): getAllClubs.player_count Live-Bug (4472 vs 1000-Cap) + 5 HIGH silent-fail geklärt, Baseline 170/77/93.
+- **Slice 361** ✅ — AdminTreasuryTab Promise.allSettled → logSilentRejects (890926cc).
+- **Slice 360** ✅ — IPO-Fee REIN Plattform-Topf (E3-2b, 81ec6e0b).
 - **Slice 359** ✅ — accept_offer side='sell' repariert ('offer_buy' in CHECK).
-- **Slice 358** ✅ — Fees REIN Trading (E3-2, fb31c6b6).
-- **Slice 357** ✅ — Plattform-Treasury Topf-Fundament.
