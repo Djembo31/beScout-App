@@ -33,7 +33,6 @@ interface TradingTabProps {
   openBids: OfferWithDetails[];
   holdingQty: number;
   holderCount: number;
-  mastery?: { level: number; xp: number } | null;
   onAcceptBid?: (offerId: string) => void;
   acceptingBidId?: string | null;
   onOpenOfferModal?: () => void;
@@ -45,7 +44,7 @@ interface TradingTabProps {
 function TradingTabInner({
   player, trades, allSellOrders, tradesLoading,
   profileMap, userId, dpcAvailable,
-  openBids, holdingQty, holderCount, mastery,
+  openBids, holdingQty, holderCount,
   onAcceptBid, acceptingBidId, onOpenOfferModal,
   isRestrictedAdmin, playerResearch, onBuyClick,
 }: TradingTabProps) {
@@ -136,7 +135,6 @@ function TradingTabInner({
           floorPrice={player.prices.floor ?? 0}
           trades={trades}
           userId={userId}
-          mastery={mastery}
         />
       )}
 

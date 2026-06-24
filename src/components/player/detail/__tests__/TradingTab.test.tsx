@@ -213,7 +213,6 @@ const defaultProps = {
   openBids: [] as OfferWithDetails[],
   holdingQty: 0,
   holderCount: 10,
-  mastery: null,
   onAcceptBid: undefined as ((offerId: string) => void) | undefined,
   acceptingBidId: null as string | null,
   onOpenOfferModal: undefined as (() => void) | undefined,

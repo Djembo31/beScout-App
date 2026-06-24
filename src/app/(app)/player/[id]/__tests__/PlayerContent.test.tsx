@@ -132,10 +132,6 @@ vi.mock('@/lib/services/profiles', () => ({
   getProfilesByIds: vi.fn(() => Promise.resolve({})),
 }));
 
-vi.mock('@/lib/services/mastery', () => ({
-  MASTERY_LEVEL_LABELS: ['Novice', 'Apprentice', 'Expert', 'Master', 'Legend'],
-  MASTERY_XP_THRESHOLDS: [0, 100, 500, 2000, 10000],
-}));
 
 vi.mock('@/lib/utils', () => ({
   fmtScout: vi.fn((n: number) => String(n)),
@@ -179,9 +175,6 @@ vi.mock('@/lib/queries/trades', () => ({
   usePlayerTrades: vi.fn(() => ({ data: [], isLoading: false })),
 }));
 
-vi.mock('@/lib/queries/mastery', () => ({
-  useDpcMastery: vi.fn(() => ({ data: null })),
-}));
 
 // ============================================
 // Custom Hook Mocks
@@ -208,7 +201,6 @@ vi.mock('@/components/player/detail/hooks', () => ({
     tradesLoading: false,
     activeIpo: null,
     userIpoPurchased: 0,
-    masteryData: null,
     pbtTreasury: null,
     matchTimelineData: [],
     matchTimelineLoading: false,
@@ -415,7 +407,6 @@ const baseDetailData: any = {
   tradesLoading: false,
   activeIpo: null,
   userIpoPurchased: 0,
-  masteryData: null,
   pbtTreasury: null,
   matchTimelineData: [],
   matchTimelineLoading: false,

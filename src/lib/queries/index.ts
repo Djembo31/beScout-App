@@ -26,7 +26,6 @@ export { useSponsor } from './sponsors';
 export { useSponsorStats } from './sponsorStats';
 export { useClubFixtures } from './fixtures';
 export { useScoutScores, useScoreRoadClaims } from './gamification';
-export { useDpcMastery, useUserMasteryAll } from './mastery';
 export { useAirdropLeaderboard, useAirdropStats } from './airdrop';
 export { usePlayerScoutingSummaries, useTopScouts, useScoutingStats, useClubPrestige, useGlobalTopScouts } from './scouting';
 export { useMissionHints } from './missions';

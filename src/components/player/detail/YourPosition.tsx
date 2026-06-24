@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
-import { MASTERY_XP_THRESHOLDS } from '@/lib/services/mastery';
 import type { PublicTrade } from '@/types';
 
 interface YourPositionProps {
@@ -12,11 +11,10 @@ interface YourPositionProps {
   floorPrice: number;
   trades: PublicTrade[];
   userId: string;
-  mastery?: { level: number; xp: number } | null;
 }
 
 export default function YourPosition({
-  holdingQty, floorPrice, trades, mastery,
+  holdingQty, floorPrice, trades,
 }: YourPositionProps) {
   const t = useTranslations('playerDetail');
   const totalValue = holdingQty * floorPrice;
@@ -44,23 +42,12 @@ export default function YourPosition({
 
   const pnlColor = pnl != null ? (pnl.pct >= 0 ? 'text-green-400' : 'text-red-400') : 'text-white/40';
 
-  const masteryProgress = useMemo(() => {
-    if (!mastery || mastery.level >= 5) return null;
-    const threshold = MASTERY_XP_THRESHOLDS[mastery.level] || 1;
-    return Math.min((mastery.xp / threshold) * 100, 100);
-  }, [mastery]);
-
   if (holdingQty <= 0) return null;
 
   return (
     <div className="bg-surface-minimal rounded-xl border border-divider p-4">
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-bold text-white/50 uppercase tracking-wider">{t('positionTitle')}</span>
-        {mastery && (
-          <span className="px-2 py-0.5 rounded-lg bg-gold/15 text-gold text-[10px] font-black border border-gold/25">
-            Lv {mastery.level}
-          </span>
-        )}
       </div>
       <div className="grid grid-cols-3 gap-3">
         <div>
@@ -87,17 +74,6 @@ export default function YourPosition({
           )}
         </div>
       </div>
-      {mastery && masteryProgress != null && (
-        <div className="mt-3">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] text-white/30">{t('positionMastery')}</span>
-            <span className="text-[10px] font-mono text-white/30">{mastery.xp} / {MASTERY_XP_THRESHOLDS[mastery.level] || 'MAX'} XP</span>
-          </div>
-          <div className="h-1.5 rounded-full bg-surface-base overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-gold/40 to-gold/20 transition-colors" style={{ width: `${masteryProgress}%` }} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

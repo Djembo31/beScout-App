@@ -244,15 +244,6 @@ describe('TradingCardFrame', () => {
     expect(screen.getByText('24M')).toBeInTheDocument();
   });
 
-  // 16. mastery level adds tier class
-  it('mastery level adds tier class to container', () => {
-    const { container } = renderWithProviders(
-      <TradingCardFrame {...PROPS} masteryLevel={3} />,
-    );
-    const outer = container.firstElementChild;
-    expect(outer).toHaveClass('card-tier-3');
-  });
-
   // 17. L5 appearance bar percentage
   it('calculates L5 appearance bar percentage correctly', () => {
     renderWithProviders(<TradingCardFrame {...PROPS} l5Apps={3} />);
@@ -284,15 +275,5 @@ describe('TradingCardFrame', () => {
     const dashes = screen.getAllByText('\u2014');
     // L15 shows dash + 3 stats (goals, assists, matches) = 4 dashes
     expect(dashes.length).toBeGreaterThanOrEqual(3);
-  });
-
-  // Additional: mastery level capped at 5
-  it('caps mastery level class at tier 5', () => {
-    const { container } = renderWithProviders(
-      <TradingCardFrame {...PROPS} masteryLevel={10} />,
-    );
-    const outer = container.firstElementChild;
-    expect(outer).toHaveClass('card-tier-5');
-    expect(outer).not.toHaveClass('card-tier-10');
   });
 });

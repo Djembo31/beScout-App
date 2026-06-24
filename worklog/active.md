@@ -2,6 +2,34 @@
 
 ```
 status: idle
+slice: 375
+title: ✅ DONE — DPC-Mastery-Feature entfernt + Mock-Cron gestoppt + tote hold_days-Spalte gedroppt
+stage: LOG complete
+size: M
+slice-type: UI-Removal + Migration
+spec: worklog/specs/375-remove-dpc-mastery.md
+impact: inline (Spec §3+§4, grep-verifizierte Consumer + Live-DB)
+proof: worklog/proofs/375-remove-mastery.txt (AC1-AC7 PASS, tsc clean, 100 vitest grün, DB: 0 Crons/0 Mock-Fn/hold_days weg, Engine intakt)
+review: worklog/reviews/375-review.md (reviewer CONCERNS→7 LOW/NIT alle adressiert→effektiv PASS)
+result: 6 UI-Anzeige-Stellen + Prop-Kette (7 Files) entfernt, orphan queries/services/mastery.ts gelöscht, Barrel+qk.mastery+USER_SCOPED bereinigt, 5 Test-Files. Migration: Mock-Cron unscheduled + increment_mastery_hold_days() + hold_days-Spalte gedroppt. Echte Engine (award_mastery_xp Fantasy/Content + freeze/unfreeze) + Tabelle reversibel erhalten. Netto −112 LoC.
+
+## Reste-Queue (Anil: „alle nach und nach")
+1. ✅ 373 Floor-Label-Vereinheitlichung (5293cdf9)
+2. ✅ 374 Compliance-Sweep eventCurrency/Tickets (5ff7510a)
+3. ✅ 375 DPC-Mastery-Feature entfernt
+4. → Topf-Card-Visual (357) ← NÄCHSTER
+5. ⑤ Bounty-Approval-UI (kede5-Creds: 12345 / 123456 / test123)
+
+--- 374 (vorheriger, DONE) ---
+status: idle
+slice: 374
+title: ✅ DONE — Compliance-Sweep eventCurrency/Tickets-„Währung" → D99-neutral („Einheit"/„Birim")
+stage: LOG complete
+size: XS
+slice-type: i18n (Compliance)
+
+--- 374 (vorheriger, DONE) ---
+status: idle
 slice: 374
 title: ✅ DONE — Compliance-Sweep eventCurrency/Tickets-„Währung" → D99-neutral („Einheit"/„Birim")
 stage: LOG complete

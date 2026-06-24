@@ -7,7 +7,6 @@ import type {
   DbPbtTreasury, DbLiquidationEvent, OfferWithDetails,
   PostWithAuthor, ResearchPostWithAuthor,
 } from '@/types';
-import type { DbDpcMastery } from '@/lib/services/mastery';
 import type { MatchTimelineEntry, PlayerGameweekScore } from '@/features/fantasy/services/scoring.queries';
 
 // React Query hooks
@@ -29,7 +28,6 @@ import {
 import { usePlayerResearch } from '@/lib/queries/research';
 import { usePlayerTrades } from '@/lib/queries/trades';
 import { useHoldingLocks } from '@/lib/queries/events';
-import { useDpcMastery } from '@/lib/queries/mastery';
 import { useWatchlist } from '@/lib/queries/watchlist';
 
 type Tab = 'trading' | 'performance' | 'community';
@@ -54,7 +52,6 @@ export interface PlayerDetailData {
   tradesLoading: boolean;
   activeIpo: DbIpo | null | undefined;
   userIpoPurchased: number;
-  masteryData: DbDpcMastery | null | undefined;
   pbtTreasury: DbPbtTreasury | null | undefined;
 
   // Performance
@@ -107,7 +104,6 @@ export function usePlayerDetailData(
   const { data: holderCountData } = usePlayerHolderCount(belowFoldReady ? playerId : undefined);
   const { data: watcherCountData } = useWatcherCount(belowFoldReady ? playerId : undefined);
   const { data: tradesData, isLoading: tradesLoading } = usePlayerTrades(belowFoldReady ? playerId : undefined);
-  const { data: masteryData } = useDpcMastery(belowFoldReady ? userId : undefined, playerId);
   const { data: matchTimelineData, isLoading: matchTimelineLoading } = usePlayerMatchTimeline(playerId, 15, belowFoldReady);
   const { data: liquidationEvent } = useLiquidationEvent(playerId, belowFoldReady);
 
@@ -194,7 +190,6 @@ export function usePlayerDetailData(
     tradesLoading,
     activeIpo,
     userIpoPurchased,
-    masteryData,
     pbtTreasury,
     matchTimelineData: matchTimelineData ?? [],
     matchTimelineLoading,

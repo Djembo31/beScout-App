@@ -41,9 +41,6 @@ vi.mock('@/lib/queries/events', () => ({
   useHoldingLocks: vi.fn(() => ({ data: undefined })),
 }));
 
-vi.mock('@/lib/queries/mastery', () => ({
-  useDpcMastery: vi.fn(() => ({ data: undefined })),
-}));
 
 vi.mock('@/lib/queries/watchlist', () => ({
   useWatchlist: vi.fn(() => ({ data: undefined })),
@@ -116,7 +113,6 @@ import {
   usePlayerMatchTimeline,
 } from '@/lib/queries/misc';
 import { usePlayerTrades } from '@/lib/queries/trades';
-import { useDpcMastery } from '@/lib/queries/mastery';
 
 // ============================================
 // Test wrapper

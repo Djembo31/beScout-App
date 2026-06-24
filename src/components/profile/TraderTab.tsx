@@ -9,12 +9,10 @@ import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
 import { getRelativeTime } from '@/lib/activityHelpers';
-import { useUserMasteryAll } from '@/lib/queries/mastery';
 import ScoreProgress from './ScoreProgress';
 import { useTranslations, useLocale } from 'next-intl';
 import type { Pos, DbUserStats, UserTradeWithPlayer } from '@/types';
 import type { HoldingRow } from '@/types';
-import type { DbDpcMastery } from '@/lib/services/mastery';
 
 // ============================================
 // TYPES
@@ -33,17 +31,6 @@ interface TraderTabProps {
 // ============================================
 // HELPERS
 // ============================================
-
-/** Render mastery stars: ★ filled, ☆ empty, max 5 */
-function MasteryStars({ level }: { level: number }) {
-  const filled = Math.min(Math.max(level, 0), 5);
-  const empty = 5 - filled;
-  return (
-    <span className="text-[10px] text-gold/80 tracking-tight" aria-label={`Mastery Level ${filled}`}>
-      {'★'.repeat(filled)}{'☆'.repeat(empty)}
-    </span>
-  );
-}
 
 /** Compute win rate: trades where user sold at price > avg_buy_price of their holdings */
 function computeWinRate(
@@ -73,20 +60,9 @@ export default function TraderTab({
   targetHandle,
 }: TraderTabProps) {
   const tp = useTranslations('profile');
-  const tg = useTranslations('gamification');
   const ta = useTranslations('activity');
   const locale = useLocale();
 
-  const { data: masteryRows = [] } = useUserMasteryAll(userId);
-
-  // Mastery lookup by player_id
-  const masteryMap = useMemo(() => {
-    const map = new Map<string, DbDpcMastery>();
-    for (const m of masteryRows) {
-      map.set(m.player_id, m);
-    }
-    return map;
-  }, [masteryRows]);
 
   // Holdings avg buy price map for win rate
   const holdingsAvgMap = useMemo(() => {
@@ -122,17 +98,6 @@ export default function TraderTab({
 
   // Recent 5 trades
   const recentTradesSlice = useMemo(() => recentTrades.slice(0, 5), [recentTrades]);
-
-  // Mastery summary — group by level
-  const masterySummary = useMemo(() => {
-    const grouped = new Map<number, number>();
-    for (const m of masteryRows) {
-      grouped.set(m.level, (grouped.get(m.level) ?? 0) + 1);
-    }
-    // Sort descending by level
-    return Array.from(grouped.entries())
-      .sort((a, b) => b[0] - a[0]);
-  }, [masteryRows]);
 
   const isEmpty = holdings.length === 0 && recentTrades.length === 0;
 
@@ -224,7 +189,6 @@ export default function TraderTab({
           </div>
           <div className="space-y-1">
             {topHoldings.map(h => {
-              const mastery = masteryMap.get(h.player_id);
               const valueCents = h.quantity * h.player.floor_price;
               return (
                 <Link
@@ -250,7 +214,6 @@ export default function TraderTab({
                     />
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {mastery && <MasteryStars level={mastery.level} />}
                     <div className="text-right">
                       <div className="text-[13px] font-mono font-bold tabular-nums text-white/80">
                         {h.quantity}x
@@ -323,27 +286,6 @@ export default function TraderTab({
         </Card>
       )}
 
-      {/* 5. DPC Mastery Summary */}
-      {masterySummary.length > 0 && (
-        <Card className="p-4 md:p-5">
-          <h3 className="font-black text-sm mb-3">{tp('dpcMasteryLabel')}</h3>
-          <div className="space-y-2">
-            {masterySummary.map(([level, count]) => (
-              <div key={level} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <MasteryStars level={level} />
-                  <span className="text-[13px] text-white/60">
-                    {tg(`mastery.level${level}`)}
-                  </span>
-                </div>
-                <span className="text-[13px] font-mono font-bold tabular-nums text-white/80">
-                  {count} SCs
-                </span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
     </div>
   );
 }

@@ -305,12 +305,6 @@ export const qk = {
     clubLeaderboard: (clubId: string) => ['gamification', 'clubLeaderboard', clubId] as const,
   },
 
-  // ── DPC Mastery ──
-  mastery: {
-    byUserPlayer: (uid: string, pid: string) => ['mastery', uid, pid] as const,
-    byUser: (uid: string) => ['mastery', 'all', uid] as const,
-  },
-
   // ── Airdrop ──
   airdrop: {
     score: (uid: string) => ['airdrop', 'score', uid] as const,

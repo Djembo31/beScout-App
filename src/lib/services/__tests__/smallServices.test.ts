@@ -1,6 +1,6 @@
 /**
  * Combined tests for small services:
- * pbt, mastery, mysteryBox, feedback, streaks, welcomeBonus
+ * pbt, mysteryBox, feedback, streaks, welcomeBonus
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mockSupabase, mockTable, mockRpc, resetMocks } from '@/test/mocks/supabase';
@@ -13,7 +13,6 @@ vi.mock('@/lib/services/tickets', () => ({ creditTickets: vi.fn().mockResolvedVa
 vi.mock('@/lib/services/missions', () => ({ triggerMissionProgress: vi.fn() }));
 
 import { getPbtForPlayer, getPbtTransactions, getFeeConfig, getAllFeeConfigs } from '../pbt';
-import { MASTERY_XP_THRESHOLDS, MASTERY_LEVEL_LABELS, getXpForNextLevel, getDpcMastery, getUserMasteryAll } from '../mastery';
 import { openMysteryBox, getMysteryBoxHistory } from '../mysteryBox';
 import { submitFeedback } from '../feedback';
 import { recordLoginStreak } from '../streaks';
@@ -90,60 +89,6 @@ describe('getAllFeeConfigs', () => {
 });
 
 
-// ============================================
-// Mastery
-// ============================================
-describe('MASTERY_XP_THRESHOLDS', () => {
-  it('has 5 thresholds', () => {
-    expect(MASTERY_XP_THRESHOLDS).toEqual([0, 25, 75, 175, 350]);
-  });
-});
-
-describe('MASTERY_LEVEL_LABELS', () => {
-  it('has 6 labels (empty + 5 levels)', () => {
-    expect(MASTERY_LEVEL_LABELS).toHaveLength(6);
-    expect(MASTERY_LEVEL_LABELS[1]).toBe('Neuling');
-    expect(MASTERY_LEVEL_LABELS[5]).toBe('Legende');
-  });
-});
-
-describe('getXpForNextLevel', () => {
-  it('returns threshold for level', () => {
-    expect(getXpForNextLevel(1)).toBe(25);
-    expect(getXpForNextLevel(4)).toBe(350);
-  });
-  it('returns 0 for max level', () => {
-    expect(getXpForNextLevel(5)).toBe(0);
-    expect(getXpForNextLevel(6)).toBe(0);
-  });
-});
-
-describe('getDpcMastery', () => {
-  it('returns mastery for user+player', async () => {
-    mockTable('dpc_mastery', { user_id: 'u1', player_id: 'p1', level: 3, xp: 100 });
-    const result = await getDpcMastery('u1', 'p1');
-    expect(result?.level).toBe(3);
-  });
-  it('throws on DB error', async () => {
-    mockTable('dpc_mastery', null, { message: 'err' });
-    await expect(getDpcMastery('u1', 'p1')).rejects.toThrow('err');
-  });
-});
-
-describe('getUserMasteryAll', () => {
-  it('returns all mastery entries', async () => {
-    mockTable('dpc_mastery', [{ level: 5, xp: 400 }, { level: 2, xp: 50 }]);
-    expect(await getUserMasteryAll('u1')).toHaveLength(2);
-  });
-  it('throws on DB error', async () => {
-    mockTable('dpc_mastery', null, { message: 'err' });
-    await expect(getUserMasteryAll('u1')).rejects.toThrow('err');
-  });
-  it('returns [] when null', async () => {
-    mockTable('dpc_mastery', null);
-    expect(await getUserMasteryAll('u1')).toEqual([]);
-  });
-});
 
 // ============================================
 // MysteryBox

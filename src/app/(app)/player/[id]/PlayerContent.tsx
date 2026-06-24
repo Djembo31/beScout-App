@@ -215,7 +215,6 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           onLimitClick={undefined}
           onSetPriceAlert={alerts.handleSetPriceAlert}
           onRemovePriceAlert={alerts.handleRemovePriceAlert}
-          masteryLevel={data.masteryData?.level ?? 0}
           matchTimeline={data.matchTimelineData}
           floorSource={
             trading.isIPO
@@ -243,7 +242,6 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
             openBids={data.openBids}
             holdingQty={data.holdingQty}
             holderCount={data.holderCount}
-            mastery={data.masteryData && data.holdingQty > 0 ? { level: data.masteryData.level, xp: data.masteryData.xp } : null}
             onAcceptBid={guardedAcceptBid}
             acceptingBidId={trading.acceptingBidId}
             onOpenOfferModal={tradingRegionGuard.allowed ? guardedOpenOfferModal : undefined}

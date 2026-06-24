@@ -1,0 +1,69 @@
+=== Slice 375 PROOF — DPC-Mastery-Feature entfernt + Mock-Cron gestoppt ===
+Datum: Thu Jun 25 00:50:05     2026
+
+=== AC1: keine user-facing Mastery-Anzeige mehr (src, ohne Tests) ===
+0 Treffer PASS
+(Hinweis: AirdropScoreCard barMastery = anderes Feature (Airdrop-Score-Dim) — bleibt)
+
+=== AC2: orphan-Dateien gelöscht + Barrel bereinigt ===
+  ls: cannot access 'src/lib/queries/mastery.ts': No such file or directory
+  ls: cannot access 'src/lib/services/mastery.ts': No such file or directory
+  Barrel-Export entfernt PASS
+
+=== AC3-AC6 DB (MCP-verifiziert 2026-06-25) ===
+  mastery_crons=0 (AC3 PASS) · mock_fn increment_mastery_hold_days=0 (AC4 PASS)
+  hold_days-Spalte=0 (AC5 PASS) · dpc_mastery Rest-Spalten=11
+  ENGINE INTAKT (AC6 PASS): award_mastery_xp=1 · fn_mastery_on_trade=1
+
+=== AC7: tsc ===
+tsc clean PASS
+
+=== AC7: vitest (6 betroffene Files) ===
+[2m      Tests [22m [1m[32m100 passed[39m[22m[90m (100)[39m
+[2m   Start at [22m 00:50:23
+[2m   Duration [22m 16.44s[2m (transform 1.60s, setup 4.26s, import 8.47s, tests 7.39s, environment 23.39s)[22m
+
+
+=== git diff --stat ===
+warning: in the working copy of 'memory/session-handoff.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/app/(app)/player/[id]/__tests__/PlayerContent.test.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/player/detail/PlayerHero.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/player/detail/TradingCardFrame.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/player/detail/TradingTab.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/player/detail/YourPosition.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/player/detail/__tests__/TradingCardFrame.test.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/player/detail/__tests__/TradingTab.test.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/profile/TraderTab.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/profile/__tests__/TraderTab.test.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/components/providers/QueryProvider.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'src/lib/queries/index.ts', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'worklog/active.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'supabase/migrations/20260625120000_remove_mastery_mock_cron_and_hold_days.sql', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'worklog/proofs/375-remove-mastery.txt', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'worklog/reviews/375-review.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'worklog/specs/375-remove-dpc-mastery.md', LF will be replaced by CRLF the next time Git touches it
+ memory/session-handoff.md                          |  9 +-
+ src/app/(app)/player/[id]/PlayerContent.tsx        |  2 -
+ .../player/[id]/__tests__/PlayerContent.test.tsx   |  9 --
+ src/components/player/detail/PlayerHero.tsx        |  4 +-
+ src/components/player/detail/TradingCardFrame.tsx  |  6 +-
+ src/components/player/detail/TradingTab.tsx        |  4 +-
+ src/components/player/detail/YourPosition.tsx      | 26 +-----
+ .../detail/__tests__/TradingCardFrame.test.tsx     | 19 -----
+ .../player/detail/__tests__/TradingTab.test.tsx    |  1 -
+ .../hooks/__tests__/usePlayerDetailData.test.ts    |  4 -
+ .../player/detail/hooks/usePlayerDetailData.ts     |  5 --
+ src/components/profile/TraderTab.tsx               | 58 -------------
+ .../profile/__tests__/TraderTab.test.tsx           |  3 -
+ src/components/providers/QueryProvider.tsx         |  1 -
+ src/lib/queries/index.ts                           |  1 -
+ src/lib/queries/keys.ts                            |  6 --
+ src/lib/queries/mastery.ts                         | 27 ------
+ src/lib/services/__tests__/smallServices.test.ts   | 57 +------------
+ src/lib/services/mastery.ts                        | 57 -------------
+ ...0000_remove_mastery_mock_cron_and_hold_days.sql | 13 +++
+ worklog/active.md                                  | 12 +++
+ worklog/proofs/375-remove-mastery.txt              | 21 +++++
+ worklog/reviews/375-review.md                      | 24 ++++++
+ worklog/specs/375-remove-dpc-mastery.md            | 99 ++++++++++++++++++++++
+ 24 files changed, 178 insertions(+), 290 deletions(-)

@@ -56,7 +56,6 @@ const USER_SCOPED_DOMAINS = new Set([
   'offers',
   'transactions',
   'social',
-  'mastery',
   'cosmetics',
   'mystery-box',
   'tickets',

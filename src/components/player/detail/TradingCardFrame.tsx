@@ -47,7 +47,6 @@ interface TradingCardFrameProps {
   backData?: CardBackData;
   age?: number;
   country?: string;
-  masteryLevel?: number;
   league?: string;
   leagueShort?: string;
   leagueLogoUrl?: string;
@@ -147,7 +146,7 @@ const formatMV = (v: number) => {
 
 function TradingCardFrameInner({
   first, last, pos, club, shirtNumber, imageUrl, l5, matches, l5Apps = 0, l15Apps = 0, edition, className = '', backData,
-  age, country, masteryLevel, league, leagueShort, leagueLogoUrl,
+  age, country, league, leagueShort, leagueLogoUrl,
 }: TradingCardFrameProps) {
   const tp = useTranslations('player');
   const [flipped, setFlipped] = useState(false);
@@ -174,10 +173,9 @@ function TradingCardFrameInner({
   const initials = `${first?.[0] ?? ''}${last?.[0] ?? ''}`;
 
   const handleClick = canFlip ? () => setFlipped(f => !f) : undefined;
-  const tierClass = masteryLevel && masteryLevel > 0 ? `card-tier-${Math.min(masteryLevel, 5)}` : '';
 
   return (
-    <div className={cn('relative card-entrance rounded-2xl', tierClass, className)}>
+    <div className={cn('relative card-entrance rounded-2xl', className)}>
       {/* Perspective Provider */}
       <div style={{ perspective: '600px' }}>
         {/* Tilt + Flip Container */}

@@ -14,9 +14,6 @@ vi.mock('@/lib/utils', () => ({
 vi.mock('@/lib/services/players', () => ({ centsToBsd: (n: number) => n / 100 }));
 vi.mock('@/lib/services/wallet', () => ({ formatScout: (n: number) => `${n} CR` }));
 vi.mock('@/lib/activityHelpers', () => ({ getRelativeTime: () => '2h ago' }));
-vi.mock('@/lib/queries/mastery', () => ({
-  useUserMasteryAll: () => ({ data: [] }),
-}));
 vi.mock('@/components/ui', () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   Button: ({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) => <button onClick={onClick}>{children}</button>,

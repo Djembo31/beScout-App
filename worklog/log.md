@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 375 | 2026-06-25 | refactor(gamification): DPC-Mastery-Feature entfernt + Mock-Cron gestoppt (F#3 / Dormant-Feature)
+- Stage-Chain: SPEC (`375-remove-dpc-mastery.md`, M) → IMPACT inline (§3+§4 grep + Live-DB) → BUILD → REVIEW (`375-review.md` reviewer CONCERNS→7 LOW/NIT alle adressiert→PASS) → PROVE → LOG.
+- **Kontext (F#3 aus Slice 367 + Anil-Dormant-Feature-Entscheid 2026-06-25):** Live-DB-Investigation deckte auf, dass DPC-Mastery mock-getrieben ist: täglicher Cron `increment_mastery_hold_days()` (`0 3 * * *`) gab JEDEM nicht-frozen Holding **+1 XP/+1 hold_day pro Tag** → Level steigen durch bloßes Halten (2503/2536 Rows xp>0 bei nur 890 Trades). User-sichtbar als Mock-Stern-Level (TraderTab) + „Lv X"+XP-Bar (YourPosition) + card-tier-Glow. Anil-Entscheid: Feature entfernen (echte Engine erhalten).
+- **Code (7 Files + 5 Tests):** Alle 6 Anzeige-Stellen + Prop-Kette zurückgebaut (PlayerContent→PlayerHero→TradingCardFrame, →TradingTab→YourPosition, TraderTab MasteryStars+Summary-Card, usePlayerDetailData-Fetch). Orphan `queries/mastery.ts` + `services/mastery.ts` gelöscht, Barrel-Export + `qk.mastery` + `USER_SCOPED_DOMAINS`-Eintrag bereinigt. Netto −112 LoC.
+- **Migration (`20260625120000`, applied):** `cron.unschedule` (Mock-Cron) + `DROP FUNCTION increment_mastery_hold_days()` + `ALTER TABLE dpc_mastery DROP COLUMN hold_days`. Reihenfolge cron→fn→column. **Echte Engine + Tabelle bleiben** (reversibel): `award_mastery_xp` (Fantasy/Content-Trigger) + `fn_mastery_on_trade` (freeze/unfreeze), 11 Rest-Spalten.
+- **Proof:** `worklog/proofs/375-remove-mastery.txt` — AC1 (0 UI-Treffer), AC2 (Dateien weg), AC3-AC6 DB (0 Crons/0 Mock-Fn/hold_days weg/Engine=1), AC7 (tsc clean + 100 vitest grün).
+- **Knowledge:** errors-frontend.md — Removal-5.-Achse: ungetypte Test-Fixtures (any-Objekte/extra-Props) sind tsc-unsichtbar + vom `grep -v __tests__`-Self-Verify ausgeschlossen → Symbol-grep bei Removal MUSS `__tests__` einschließen; `qk.*`+USER_SCOPED = eigene Achsen (S267).
+- **Anil-Entscheid:** Reste-Queue „alle nach und nach" → nächster Rest #4 Topf-Card-Visual (357). card-tier-CSS bewusst belassen (mit card-holographic verwoben, inert).
+
 ## 374 | 2026-06-25 | fix(i18n): Compliance-Sweep eventCurrency/Tickets-„Währung" → D99-neutral
 - Stage-Chain: SPEC (`374-compliance-currency-sweep.md`, XS) → IMPACT skipped (reine i18n-Values, 0 Code) → BUILD → REVIEW (`374-review.md` self-review PASS, XS Wording-Values) → PROVE (grep-ACs + JSON valid) → LOG.
 - **Problem (D99/business.md):** Credits sind explizit keine Währung, dennoch `eventCurrency`-Label „Währung"/„Waehrung" (3× DE inkonsistent, 3× TR „Para birimi") + `glossary.terms.tickets.description` framt Tickets user-facing als „Zweitwaehrung"/„ikinci para birimi".

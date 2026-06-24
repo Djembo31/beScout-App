@@ -38,7 +38,6 @@ interface PlayerHeroProps {
   onRemovePriceAlert: () => void;
   onLimitClick?: () => void;
   holdingQty: number;
-  masteryLevel?: number;
   matchTimeline?: MatchTimelineEntry[];
   /** Quelle des angezeigten Floor-Preises (Slice 368c — Anzeige-Wahrheit):
    *  'ipo' = laufender Erstverkauf · 'order' = niedrigste offene Order · 'lastSale' = letzter Verkauf (keine Angebote). */
@@ -49,7 +48,7 @@ function PlayerHeroInner({
   player, isIPO, activeIpo, holderCount, watcherCount,
   isWatchlisted, priceAlert,
   onToggleWatchlist, onShare, onBuyClick, onSellClick,
-  onSetPriceAlert, onRemovePriceAlert, onLimitClick, holdingQty, masteryLevel,
+  onSetPriceAlert, onRemovePriceAlert, onLimitClick, holdingQty,
   matchTimeline, floorSource,
 }: PlayerHeroProps) {
   const t = useTranslations('player');
@@ -190,7 +189,6 @@ function PlayerHeroInner({
               age={player.age}
               country={player.country}
               backData={backData}
-              masteryLevel={masteryLevel}
               league={player.league}
               leagueShort={player.leagueShort}
               leagueLogoUrl={player.leagueLogoUrl}
