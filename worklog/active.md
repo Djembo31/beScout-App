@@ -2,9 +2,26 @@
 
 ```
 status: idle
-slice: 368c
-title: ✅ DONE — Floor-Orderbuch transparent + manipulationssicher (Preis-Band ÷3..×3 + Floor-Quelle + Label-Vereinheitlichung)
-stage: LOG complete
+slice: 368e
+title: Einstiegspreis-SSOT (3 Spalten → 1: ipo_price) — SPEC bereit, wartet auf Anil-Approval
+stage: SPEC
+size: L
+slice-type: Migration + Service + UI
+spec: worklog/specs/368e-entry-price-ssot.md (Anil: „Strukturproblem grundsätzlich angehen")
+impact: 17 Reader-Files (Spec §4) — /impact vor BUILD
+proof: (offen)
+review: (offen — Pflicht, Money)
+next: BUILD 368e nach Approval. Offene Anil-Qs in Spec §7 (Portfolio-Basis, DROP-Timing, RewardsTab-Umkehr).
+
+--- erledigt diese Session ---
+368c DONE (committed 1dcff8bd): Floor-Band ÷3..×3 + Floor-Quelle + Label (Teil).
+368d DONE: BuyModal „Gesamt"-Wahrheit (Menge/Preis an aktive Order, 3×11=33-Lüge weg). Reviewer PASS. proof/review da.
+DATEN-FIX (E2E-entdeckt, Anil-flagged): 19 grobe Preis-Ausreißer → MV/1000 (ipo+ipos+last+floor), Douglas 10→500 live-verifiziert. + 2964 initial_listing_price → MV/1000 (Scope-Overreach, jetzt von 368e koordiniert). → 368e konsolidiert auf 1 Quelle.
+
+--- 368c (vorheriger Slice, DONE) ---
+prev-slice: 368c
+prev-title: ✅ DONE — Floor-Orderbuch transparent + manipulationssicher (Preis-Band ÷3..×3 + Floor-Quelle + Label-Vereinheitlichung)
+prev-stage: LOG complete
 size: M
 slice-type: Migration (Money-RPC) + Service + UI
 spec: worklog/specs/368c-floor-orderbook-transparency.md

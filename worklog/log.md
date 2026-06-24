@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 368d | 2026-06-24 | fix(trading): BuyModal „Gesamt"-Wahrheit — Menge/Preis an aktive Order binden (3×11=33-Lüge)
+- Stage-Chain: SPEC (inline, E2E-Fund) → BUILD (1 File) → REVIEW (`worklog/reviews/368d-review.md`, reviewer **PASS**, 2 NIT) → PROVE → LOG.
+- **Bug (live E2E):** Player-Detail-Kaufdialog ohne explizit gewählte Order nahm günstigsten Preis, erlaubte Menge bis Orderbuch-SUMME, rechnete `Menge×günstigster Preis` → 3×11=33 CR obwohl nur 2 zu 11 da. buy_player_sc füllt nur günstigste Order (kappt auf 2). Anzeige-Lüge (D100-Klasse).
+- **Fix:** `BuyModal.tsx` — Preis + Max-Menge an die aktive Order (selected ?? cheapest) gebunden statt `transferAvailable`-Summe. `marketMaxQty=min(activeRemaining, affordableAtActivePrice)`. onBuy-Signatur/RPC unberührt.
+- **Proof:** `worklog/proofs/368d-buymodal-total-truth.txt` (Logik-Trace) + tsc clean. Live-Playwright offen post-Deploy.
+- **Money-Flow byte-identisch** (buy_player_sc/buy_from_order/Fees/recalc). Reine Client-Begrenzung.
+
 ## 368c | 2026-06-24 | feat(trading): Floor-Orderbuch transparent + manipulationssicher (Preis-Band ÷3..×3 + Floor-Quelle + Label-Vereinheitlichung)
 - Stage-Chain: SPEC (`worklog/specs/368c-*.md`, M, Money/CEO) → IMPACT (in Spec §3/§4) → BUILD (Migration→Service→UI) → REVIEW (`worklog/reviews/368c-review.md`, reviewer **PASS**, 3 LOW nicht-blockierend) → PROVE → LOG.
 - **Kontext (E4, D100 Teil 3/3):** Zwei Floor-Lücken. (A) **Manipulation:** `place_sell_order` hatte nur Preis-OBERgrenze (`get_price_cap`=3×Anker), keine Untergrenze außer ≥1 Cent → eine 1-Credit-Lowball-Order ließ den angezeigten Floor abstürzen (falscher Wert-Anker). (B) **Anzeige-Lüge:** Floor-Label sagte immer „günstigstes Angebot", obwohl `recalc_floor_price` auch IPO-Preis / letzten Verkauf liefert; Labels uneinheitlich („Floor"/„Marktpreis"/„Markt Floor").

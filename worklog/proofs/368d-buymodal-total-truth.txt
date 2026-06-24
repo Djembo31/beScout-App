@@ -1,0 +1,38 @@
+Slice 368d — BuyModal „Gesamt"-Wahrheit — PROOF
+Datum: 2026-06-24 · Money-Display (§3) · CEO-flagged (Anil: „warum sehe ich wieder 33 CR")
+
+══ BUG (live entdeckt, E2E 368c) ══
+Player-Detail Kaufdialog (BuyModal.tsx). Orderbuch: 2×@11, 2×@13 (demo-admin).
+KEINE Order explizit gewählt (Standard) → BuyForm nahm:
+  priceCents = floorCents (= günstigster Preis 11)
+  maxQty     = marketMaxQty = min(transferAvailable=4, affordable)  ← Orderbuch-SUMME über alle Preise
+→ Menge 3 erlaubt, „Gesamt" = 3 × 11 = 33 CR. FALSCH: zu 11 gibt es nur 2 Stück.
+Realer Kauf (buy_player_sc) füllt nur die günstigste Order, kappt still auf 2 → zahlt 22, nicht 33.
+= Anzeige-Lüge (Klasse D100/368b-c „angezeigte Zahl ≠ Wahrheit").
+
+══ FIX (chirurgisch, kein Money-Flow-Change) ══
+Standard-Kauf trifft die GÜNSTIGSTE nicht-eigene Order (buy_player_sc, qty auf deren Rest gekappt).
+Also Preis UND Max-Menge an die aktive Order binden (gewählt, sonst günstigste):
+  cheapestOrder   = userFilteredOrders[0]
+  activeOrder     = selectedOrder ?? cheapestOrder
+  activePriceCents= activeOrder.price
+  activeRemaining = activeOrder.quantity - filled_qty
+  marketMaxQty    = min(activeRemaining, affordableAtActivePrice)
+BuyForm: priceCents=activePriceCents, maxQty=marketMaxQty, canAfford gegen activePriceCents,
+onBuy(qty, selectedOrder?.id) UNVERÄNDERT (default → buy_player_sc cheapest; explizit → buy_from_order).
+transferAvailable bleibt nur für Header-Angebots-Zählung.
+
+══ ERGEBNIS (Logik-Trace, Beispiel 2×@11 + 2×@13) ══
+VORHER: kein Pick → max 4 @ 11 → Menge 3 → „Gesamt 33 CR" (Lüge), real 2/22.
+NACHHER: kein Pick → activeOrder=11er(Rest 2) → max 2 @ 11 → „Gesamt" max 22 CR (= real). ✅
+        Order 13 explizit gewählt → max 2 @ 13 → „Gesamt" max 26 CR (= real). ✅
+Mehr als die günstigste Order kaufen = bewusst Order-Wahl/Folgekauf (buy_player_sc sweept NICHT — RPC unverändert).
+
+══ VERIFY ══
+tsc --noEmit: clean.
+Live-Playwright post-Deploy: Orderbuch 2×@11 re-seeden → BuyModal Standard zeigt „max. 2" (nicht 4),
+Menge>2 nicht wählbar, „Gesamt" = Menge×11 ≤ 22. (offen bis Vercel-Deploy von main.)
+
+══ Money-Flow unberührt ══
+buy_player_sc / buy_from_order / Fees / floor_price-Recalc / book_platform_treasury: 0 Änderung.
+Reine Anzeige-/Eingabe-Begrenzung im Client. RPC war + bleibt autoritativ (kappte schon immer).

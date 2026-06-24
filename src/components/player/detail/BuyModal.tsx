@@ -180,9 +180,18 @@ export default function BuyModal({
   // Market derived values
   const floorCents = Math.round((player.prices.floor ?? 0) * 100);
   const floorBsd = player.prices.floor ?? 0;
-  const marketMaxQty = hasMarket
-    ? Math.min(transferAvailable, balanceCents !== null ? Math.floor(balanceCents / Math.max(floorCents, 1)) : 0)
-    : 0;
+  // S368 display-truth (Anil): ein Standard-Kauf (ohne explizit gewählte Order) trifft via
+  // buy_player_sc die GÜNSTIGSTE nicht-eigene Order und kappt die Menge auf DEREN Restmenge.
+  // Preis UND Max-Menge müssen daher an die aktive Order (gewählt, sonst günstigste) gebunden
+  // sein — NICHT an die Orderbuch-Summe. Sonst lügt "Gesamt" (Menge × Floor obwohl nur N zu
+  // Floor existieren, z.B. 3×11=33 CR statt real max 2×11=22). transferAvailable bleibt nur
+  // für die Angebots-Zählung im Header.
+  const cheapestOrder = userFilteredOrders[0] ?? null;
+  const activeOrder = selectedOrder ?? cheapestOrder;
+  const activePriceCents = activeOrder ? activeOrder.price : floorCents;
+  const activeRemaining = activeOrder ? (activeOrder.quantity - activeOrder.filled_qty) : 0;
+  const affordableQty = balanceCents !== null ? Math.floor(balanceCents / Math.max(activePriceCents, 1)) : 0;
+  const marketMaxQty = hasMarket ? Math.min(activeRemaining, affordableQty) : 0;
 
   return (
     <Dialog
@@ -336,12 +345,12 @@ export default function BuyModal({
 
                   <div className="p-3">
                     <BuyForm
-                      priceBsd={selectedOrder ? centsToBsd(selectedOrder.price) : floorBsd}
-                      priceCents={selectedOrder ? selectedOrder.price : floorCents}
-                      maxQty={selectedOrder ? (selectedOrder.quantity - selectedOrder.filled_qty) : marketMaxQty}
+                      priceBsd={centsToBsd(activePriceCents)}
+                      priceCents={activePriceCents}
+                      maxQty={marketMaxQty}
                       balanceCents={balanceCents}
                       isBuying={buying}
-                      canAfford={balanceCents !== null && balanceCents >= (selectedOrder ? selectedOrder.price : floorCents)}
+                      canAfford={balanceCents !== null && balanceCents >= activePriceCents}
                       label={t('buy')}
                       icon={<Target className="size-4" aria-hidden="true" />}
                       onBuy={(qty) => onBuy(qty, selectedOrder?.id)}

@@ -1,14 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 17:53)
+# Session Handoff — Auto (2026-06-24 18:50)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 2 Files
 ```
  M memory/session-handoff.md
+?? worklog/notes/368c-e2e-trading-findings.md
 ```
 
-## Session Commits: 10
+## Session Commits: 8
+- 1dcff8bd feat(trading): 368c Floor manipulationssicher + transparent — Preis-Band ÷3..×3, Floor-Quelle, Label-Vereinheitlichung
 - af5cda4c docs(learning): S368b Display-Anker-aus-Source-of-Truth-Pattern + Handoff-Resume-Anker auf 368c
 - 7e786d33 chore(368b): post-deploy visual proof — Einstieg 461 CR (echte Erst-IPO), CSF €-frei
 - d931da6e chore(tracker): 368b done in MASTERPLAN/TODO/handoff — NÄCHSTER 368c (Floor-Orderbuch + Floor-Labels)
@@ -16,9 +18,6 @@
 - 74bafa54 chore(tracker): 368 reframed (D100 Wertmodell) — 368a done, 368b/c next
 - b6b63c67 docs(decision): D100 — Scout-Card-Wertmodell als Kanon (Slice 368a, E4)
 - 9d5b12d5 chore(handoff): Resume-Anker auf Slice 368 (ipo_price-Drift, wartet auf Anil-Go) — E4 Schritt 1+2+367 done
-- eb820b1f chore(tracker): Slice 367 done + 368 next (E4 Schritt 3)
-- 7b650a4f fix(gamification): E4 Diamond-Hands-Cluster — Rename + echte Hold-Logik + Konfetti-Gate (Slice 367, T-3)
-- 627e3e96 docs(notes): T-3 Diamond-Hands Root-Cause verifiziert (geseedete dpc_mastery.hold_days, Slice 367 Vorbereitung)
 
 <!-- auto:handoff-end -->
 
@@ -57,7 +56,13 @@
 
 ✅ **368c DONE** (Reviewer PASS, 3 LOW): Floor manipulationssicher + transparent. CEO-Entscheid (Anil): symmetrisches Preis-Band **min=Anker÷3, max=Anker×3** → neue `get_price_floor = get_price_cap/9`; `place_sell_order` lehnt Lowball mit `minPriceExceeded` ab (Live-Smoke: 100<333 reject, 333/500 pass, 4000 maxCap). Schon vorhandener Schutz live-bestätigt (Selbst-Handel/Reziprok-Ping-Pong/20-24h/10-h/Cap/Club-Admin). `PlayerHero.floorSource` → Sublabel quellen-ehrlich (offene Order→„Günstigstes Angebot"/keine→„Letzter Verkauf"). Alle Floor-Labels user-facing → „Marktpreis"/„Piyasa Fiyatı". Money-Pfad (buy/Fees/Topf) byte-identisch. AR-44-Fix: get_price_floor anon REVOKEd. **AC7 Playwright-Sublabel offen post-Deploy.** Sybil-Ring (3+ Accounts) = bewusst eigener späterer Slice (braucht Identitäts-Signale, Phase-2).
 
-**← NÄCHSTER: Slice 369 — `/api/push → 500` beim Order-Fill** (VAPID/Payload? Trade lief durch, kein Block — aber 500 still). Danach 370 E2E-Sweep ② IPO → ③ Poll → ④ Research → ⑤ Bounty (Seed-Muster `365-e2e-findings.md`, Browser jarvis-qa). **T-1** Cold-Start leerer Markt = Produkt-Entscheid (eigener Slice).
+### ✅ Diese Session (2026-06-24 nachmittag): E2E-Trading-Härtung + Preis-Wahrheit
+- **368c live-verifiziert** (jarvis-qa, bescout.net): Preis-Band reject/pass, Floor-Quelle-Sublabel beide Richtungen, Buy-Orderbuch (günstigste zuerst, Floor-Bewegung), Sell-Lifecycle, P2P-Offer — alle PASS. Funde in `worklog/notes/368c-e2e-trading-findings.md`.
+- **368d DONE** (BuyModal „Gesamt"-Wahrheit, Reviewer PASS): Menge/Preis an aktive Order gebunden, 3×11=33-Lüge weg. Money-Flow unberührt. (committet diese Session.)
+- **🔴 ANIL-FLAGGED PREIS-BUG + DATEN-FIX:** 500K-Spieler zeigte 10–11 statt 500. Ursache: kaputte Seed-Preise + **drei** driftende „Einstiegs"-Spalten (`ipo_price`/`ipos.price`/`initial_listing_price`). Sofort-Fix (CEO-approved „grobe Ausreißer"): **19 Spieler → MV/1000** (ipo+ipos+last+floor), Douglas live = 500 ✅. **Overreach (offengelegt):** `initial_listing_price` 2964 Zeilen → MV/1000 (war breit kaputt) → 648 Mismatches.
+- **← NÄCHSTER: Slice 368e — Einstiegspreis-SSOT** (`worklog/specs/368e-entry-price-ssot.md`, Anil: „Strukturproblem grundsätzlich angehen"). `ipo_price` = EINE Quelle; alle 3 Spalten angleichen + UI-Reader (TradingTab/RewardsTab/useManagerData) umstellen + `initial_listing_price` deprecaten + Re-Drift-Guard. **Spec wartet auf Approval. Offene Anil-Qs (§7):** Portfolio-Basis (ipo vs avg_buy_price), DROP-Timing, RewardsTab-368b-Umkehr bestätigen. **/impact (17 Reader) vor BUILD. Money → Reviewer Pflicht.**
+- **Danach (gestapelt):** 369 `/api/push→500` beim Order-Fill (live bestätigt) · 368-Label-Rest (F1/F2 + ~11 „Floor"-Keys + 2 hardcoded, `368c-e2e-trading-findings.md`) · F3 BuyModal getippte-Menge-Hänger · 370 E2E ②–⑤.
+- **Residual QA-State:** jarvisqa hält 3 Douglas-Cards, Douglas last/floor=500. Orderbuch/Offers aufgeräumt.
 
 **367-Follow-ups (non-blocking, aus Reviewer):** F#1 „ohne zu verkaufen"-Semantik — Teilverkauf resettet `created_at` NICHT (nur Full-Sell auf qty=0) → mit Anil klären ob Description entschärfen. F#2 Regression-Tests für Hold-Logik (Buy→kein Unlock / 31d→Unlock). F#3 DPC-Mastery-Leaderboard (`mastery.ts`) zeigt weiter geseedetes `hold_days`-Mock → eigener Mock→Pro-Slice.
 
