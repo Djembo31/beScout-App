@@ -40,5 +40,25 @@ Nach erfolgreichem Buy: Console-Error `Failed to load resource: 500 @ /api/push`
 ## T7 IPO — N/A diese Session
 Keine aktive IPO live (0 open/early_access/announced). IPO = Festpreis (`buy_from_ipo`), orderbuch-/band-unabhängig. Gehört zum 370-E2E-Sweep (mit Seed).
 
+## 🗂️ MASTER-FOLLOW-UP-LISTE (alle Test-Auffälligkeiten → Slice-Home) — für frische Session
+| # | Auffälligkeit | Status / Slice-Home |
+|---|---|---|
+| A | **Preis-Level falsch** (500K-Spieler zeigt 10–11 statt 500) | ✅ Sofort-Fix: 19 Ausreißer → MV/1000 (Douglas live=500). Strukturell → **368e** (approved-to-build). |
+| B | **3 driftende Einstiegs-Spalten** (ipo_price/ipos.price/initial_listing_price) | **368e** SSOT (=ipo_price), Entscheidungen §7 geklärt. |
+| C | **„33 CR"-Anzeige-Lüge** im Kaufdialog | ✅ **368d DONE** (committet e7048d84). |
+| D | **F1** Quick-Stat-Label „Floor" (TradingQuickStats) statt „Marktpreis" | offen → **368-Label-Rest-Slice**. |
+| E | **F2** Sell-Modal HARTCODIERTE „Floor"-Strings (SellModalCore.tsx:246,262, kein i18n) | offen → **368-Label-Rest-Slice** (+ i18n-Verstoß). |
+| F | **Label-Vereinheitlichung unvollständig** (~11 „Floor"-Keys + 2 hardcoded + page.tsx-Metadata) | offen → **368-Label-Rest-Slice** (volle Inventur oben). |
+| G | **F3** Buy-Modal hängt bei DIREKT GETIPPTER Menge („Saldo wird aktualisiert…" ewig, Button disabled; +/− ok) | offen → **eigener kleiner Slice** (Mengen-Input + balanceStale-Hook). |
+| H | **F4** `/api/push → 500` beim Order-Fill (still, Trade läuft durch) | offen → **Slice 369** (war eh geplant, jetzt live bestätigt). |
+| I | „Markteintritt" könnte +4900% rechnen (initial_listing 10 vs floor 500) | ✅ durch Daten-Fix entschärft; final via **368e**. |
+| J | „Club Sale · Festpreis" englisch (clubSaleFixed) | NIT (368c-Review) → **368-Label-Rest-Slice**. |
+| K | floorPriceTooltip pre-existing (Nutzung prüfen) | NIT (368c-Review) → mit 368-Label-Rest mitnehmen. |
+| L | **D100-Präzisierung nötig (D101):** „kein Daten-Update" galt nur für kleine legit Abweichungen; grobe Seed-Ausreißer + Mehrfach-Quellen SIND Bugs. | DISTILL in **368e** (memory/decisions.md D101 + trading.md/treasury.md). |
+| M | AC7 368c Playwright-Sublabel-Proof | offen post-Deploy (war schon live im E2E gesehen: „Letzter Verkauf"/„Günstigstes Angebot" beide PASS). |
+| N | T7 IPO-Festpreis (`buy_from_ipo`) live | keine aktive IPO → **Slice 370** E2E-Sweep (mit Seed). |
+
+**Anil-Entscheid 2026-06-24:** alle obigen BUILD-Arbeiten in **frischer Session**. 368e-Entscheidungen (Portfolio=avg_buy_price · RewardsTab→ipo_price · initial_listing erst deprecaten) geklärt.
+
 ## Residual-State (QA-Accounts, akzeptiert)
 jarvisqa hält jetzt 3 Douglas-Cards (war 1), demo-admin 2 (war 4), last_price 10→11, +1 Trade, Plattform-Topf +Fee. Echte Test-Trades, nicht rückgebucht (append-only). Orderbuch + Offers wieder leer (aufgeräumt).

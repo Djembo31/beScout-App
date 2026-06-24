@@ -1,15 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 18:50)
+# Session Handoff — Auto (2026-06-24 19:19)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
-```
- M memory/session-handoff.md
-?? worklog/notes/368c-e2e-trading-findings.md
-```
+## Working Tree: Clean
 
 ## Session Commits: 8
+- e7048d84 fix(trading): 368d BuyModal "Gesamt"-Wahrheit + E2E-Härtung + 368e Einstiegspreis-SSOT-Spec
 - 1dcff8bd feat(trading): 368c Floor manipulationssicher + transparent — Preis-Band ÷3..×3, Floor-Quelle, Label-Vereinheitlichung
 - af5cda4c docs(learning): S368b Display-Anker-aus-Source-of-Truth-Pattern + Handoff-Resume-Anker auf 368c
 - 7e786d33 chore(368b): post-deploy visual proof — Einstieg 461 CR (echte Erst-IPO), CSF €-frei
@@ -17,7 +14,6 @@
 - 17306c09 feat(player): 368b Scout-Card-Anzeige-Wahrheit (RewardsTab) — Einstieg<-Erst-IPO/"—", 4 Zahlen trennen, CSF €->Credits
 - 74bafa54 chore(tracker): 368 reframed (D100 Wertmodell) — 368a done, 368b/c next
 - b6b63c67 docs(decision): D100 — Scout-Card-Wertmodell als Kanon (Slice 368a, E4)
-- 9d5b12d5 chore(handoff): Resume-Anker auf Slice 368 (ipo_price-Drift, wartet auf Anil-Go) — E4 Schritt 1+2+367 done
 
 <!-- auto:handoff-end -->
 

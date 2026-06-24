@@ -57,10 +57,11 @@ Drei Spalten kodieren „den Einstiegs-/Erstpreis", sollten übereinstimmen, tun
 5. Portfolio-„Wertentwicklung" rechnet auf definierter Basis (ipoPrice ODER avg_buy_price — Anil-Entscheid), kein +4900%-Artefakt.
 6. tsc + vitest grün; betroffene Tests angepasst.
 
-## 7. Open-Questions (Anil)
-1. Portfolio-„Wertentwicklung"-Basis: `ipo_price` (since-launch) ODER `holdings.avg_buy_price` (echtes User-P&L)? (Empfehlung: avg_buy_price = ehrlicher.)
-2. `initial_listing_price` SOFORT droppen (eigener Slice) oder erst deprecaten + nightly-Guard?
-3. RewardsTab „Einstieg" wirklich von ipos.price auf ipo_price umstellen (368b-Umkehr) — bestätigen.
+## 7. Open-Questions (Anil) — ✅ ENTSCHIEDEN (2026-06-24)
+1. ✅ **Portfolio-„Wertentwicklung"-Basis = `holdings.avg_buy_price`** (echtes User-P&L, ehrlicher). NICHT ipo_price.
+2. ✅ **RewardsTab „Einstieg" von `ipos.price` → `ipo_price` umstellen** (368b-Umkehr bestätigt — eine Quelle).
+3. ✅ **`initial_listing_price` erst DEPRECATEN + Re-Drift-Guard, DROP COLUMN in eigenem Folge-Slice** (nicht sofort).
+**→ Alle BUILD-Blocker geklärt. Slice 368e ist approved-to-build in der nächsten (frischen) Session.**
 
 ## 8. Proof-Plan
 - SQL: Mismatch-Count=0 + Douglas/Manaj-Stichprobe.
