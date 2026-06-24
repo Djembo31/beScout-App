@@ -3,13 +3,13 @@
 ```
 status: idle
 slice: 371
-title: ✅ DONE (Code) — Wallet-Invalidate nach Poll-Vote/Research-Unlock (U-1 Fix), Playwright-Verify next session
+title: ✅ VOLL-DONE — Wallet-Invalidate nach Poll-Vote/Research-Unlock (U-1 Fix) + Live-Playwright AC1/AC2 PASS
 stage: LOG complete
 size: XS
 slice-type: UI (Bug-Fix, money-nah)
 spec: worklog/specs/371-wallet-invalidate-community.md
 fix: useCommunityActions.ts — handleCastPollVote + handleUnlockResearch invalidieren jetzt qk.wallet.all (Header-Credit-Anzeige war nach Belastung stale bis Reload). Money-Logik unberührt (nur Cache).
-proof: tsc clean + 72 vitest grün (useCommunityActions) + diff. ⏳ Live-Playwright AC1/AC2 (Header zeigt sofort −10 CR) = erster Schritt nächste Session (Vercel baut von main nach Push).
+proof: tsc clean + 72 vitest grün (useCommunityActions) + diff. ✅ Live-Playwright AC1/AC2 PASS (bescout.net, jarvis-qa): Poll-Vote 11.708,27→11.698,27 + Research-Unlock →11.688,27, je SOFORT ohne Reload, DB-reconciled (−20 CR exakt). Proofs: 371-wallet-invalidate.txt + 371-ac1/ac2-*.png.
 review: self-review (XS, performance.md invalidateQueries-nach-Writes, money-Logik unberührt)
 knowledge: errors-frontend.md Navigator — Money-Community-Mutation muss Wallet-Key invalidieren.
 

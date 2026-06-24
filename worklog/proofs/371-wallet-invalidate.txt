@@ -17,7 +17,24 @@ src/components/community/hooks/useCommunityActions.ts:
   handleUnlockResearch deps:        + queryClient, tErrors (S170 exhaustive-deps)
 Kein RPC/Service/Migration berührt.
 
-=== ⏳ AC1/AC2 — Live-Playwright (nächste Session, nach Vercel-Deploy von main) ===
-Erwartung: nach Poll-Vote bzw. Research-Unlock aus dem Community-Feed zeigt der TopBar-Credit-Wert
-sofort −10 CR (ohne Reload). Heute (vor Fix, Slice 370 UI-Walk): blieb stale bis Reload — Evidence
-worklog/proofs/370-ui-fees-rein.txt (jarvis 11.728,27 unverändert trotz DB −10/−10).
+=== ✅ AC1/AC2 — Live-Playwright (2026-06-24, bescout.net, jarvis-qa) — PASS ===
+Vercel-Deploy von main (Commit 71bd7b84) live. Seed via Supabase-MCP (frische, ungenutzte Artefakte):
+  Poll     4415ed77-b5eb-44ba-a63d-2c24bbe2a6db  [371-VERIFY] cost 10 CR (source=user, nailoku)
+  Research 90a1bcbc-3888-4a6c-aa06-d8045178e602  [371-VERIFY] price 10 CR (nailoku)
+
+DB-Baseline jarvis-qa (535bbcaf…): balance = 1.170.827 cents = 11.708,27 CR  (== Header vor Aktion).
+
+AC1 — Poll-Vote im Feed (Option A geklickt):
+  Header SOFORT 11.708,27 → 11.698,27 (−10 CR), OHNE Reload.  Screenshot 371-ac1-poll-vote-header.png
+AC2 — Research-Unlock im Feed („Freischalten" → „Ja, freischalten" bestätigt):
+  Header SOFORT 11.698,27 → 11.688,27 (−10 CR), OHNE Reload.  Screenshot 371-ac2-research-unlock-header.png
+
+DB-Reconcile nach beiden Aktionen:
+  jarvis balance = 1.168.827 cents = 11.688,27 CR  (== Header, exakt −20 CR vs. Baseline)
+  poll_voted = 1 · research_unlocked = 1
+  Δ = −2.000 cents = −10 (Poll) −10 (Research). Zero Console-Errors während des gesamten Walks.
+
+Vorher (ohne Fix, Slice 370 UI-Walk): Header blieb stale bis Reload — worklog/proofs/370-ui-fees-rein.txt
+(jarvis 11.728,27 unverändert trotz DB −10/−10). Fix = qk.wallet.all-Invalidate in beiden Handlern.
+
+=== SLICE 371 VOLL-DONE — AC1+AC2+AC3+AC4 alle grün. ===
