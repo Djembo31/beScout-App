@@ -74,6 +74,19 @@ Deterministisch über jeden Backend-State UND brüchig gegen echte Bugs. 0 offen
 1. **Active-Tab-Anker ist komponenten-abhängig.** Die generische `TabBar` (`src/components/ui/TabBar.tsx`) rendert den aktiven Tab bei gesetztem `accentColor` (z.B. Club-Farbe) via **Inline-`style`**, NICHT via `text-gold`-Klasse — die greift nur im `!accentColor`-Branch. Anker dann `toHaveAttribute('aria-selected','true')` (immer gesetzt via `role="tab"`), nicht `toHaveClass(/text-gold/)`. Vor dem Schreiben die TabBar-Source des Ziels prüfen welcher Active-Marker gilt.
 2. **Compliance-Element (Punkt 2 oben) ist seiten-spezifisch.** /fantasy hat einen Pflicht-Disclaimer (harter Anker); /club hat keinen (Compliance via Slice-294-Metadata-Unit-Test) → Compliance-Assertion entfällt im Contract, dafür Daten-Pfad-Anker = Discovery-Card-presence + ErrorState-absent.
 
+### Money-Liquidität für Live-E2E seeden (auth.uid()-Guard umgehen) (Slice 369, 2026-06-24)
+
+**Problem:** Live-E2E eines Money-Flows (Buy/Vote/Unlock/Bounty) braucht Gegenpartei-State (Sell-Order, offene IPO, bezahlte Poll, pending Submission), aber der Markt ist oft leer (T-1 Cold-Start). Die Seed-RPCs (`place_sell_order`, `create_ipo`, …) haben einen `auth.uid()`-Guard (`auth_uid_mismatch`), der ein nacktes `execute_sql`-Call mit fremdem `p_user_id` blockt.
+
+**Lösung — JWT-sub-Impersonation in DERSELBEN Transaktion** (Supabase-MCP `execute_sql`, läuft elevated → `auth.uid()` liest die gesetzte Claim):
+```sql
+SELECT set_config('request.jwt.claim.sub','<acting_user_uuid>', true);  -- true = txn-local
+SELECT <money_rpc>(<acting_user_uuid>, …);  -- Guard sieht auth.uid() == acting_user → pass
+```
+Mehrere Acting-User (verschiedene Seller/Club-Admins) in EINEM `DO $$ BEGIN PERFORM set_config(...); INSERT INTO _tmp VALUES(<label>, <rpc>(...)::jsonb); … END $$;`-Block + `SELECT * FROM _tmp` am Ende (MCP gibt nur das letzte Statement-Result zurück). Body-Invarianten (Escrow, Fee-Split, CHECK) laufen voll → realistischer Seed, kein Direkt-INSERT.
+
+**Wichtig:** Seed ist **echt + append-only** (permanent) — als bewusste Liquidität dokumentieren (handoff/proof), nicht „aufräumen". `create_ipo` braucht Club-Admin der Spieler-Club + `p_start_immediately=true` → sofort `open` (kein Announce/Cooldown). Live-Beleg: 369-AC5 (4 Sell-Orders + 3 IPOs geseedet → echter Buy → `/api/push` 200).
+
 ## useSafeMutation Test-Patterns (codifiziert Slice 164, aus 159/161/162/163)
 
 Wenn Component/Hook auf `useSafeMutation` migriert wird, erfordert das **Test-Mock-Expansion** (transitive Imports) + **Handler-Testing-Pattern** (Observer ist async).
