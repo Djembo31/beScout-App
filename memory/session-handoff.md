@@ -1,14 +1,13 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 02:54)
+# Session Handoff — Auto (2026-06-24 03:08)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
-## Session Commits: 8
+## Session Commits: 9
+- 5fb85eee chore(worklog): Slice 359 Commit-Hash
+- 8826d067 fix(trading): accept_offer side='sell' repariert — 'offer_buy' in transactions_type_check (Slice 359)
 - b655d4b4 chore(worklog): Slice 358 LOG-Abschluss (active->idle, Commit-Hash)
 - fb31c6b6 feat(treasury): Fees REIN Trading — Plattform-Fee in den Topf (E3-2, D96/D98)
 - 4a5043bd docs(decision): D97 — Plattform-Topf Saldo-Mechanik (Variante A) + Slice-357-Handoff
@@ -16,7 +15,6 @@
 - 43a7ff1b docs(decision): D96 — Plattform-Treasury (BeScout-Topf) Epic
 - dd43756e docs(handoff): Session-Ende Slice 356 + Preflight Monthly-Leaderboard (nächste Session)
 - 8b8fb124 chore(audit): re-baseline silent-fail 81->82 HIGH (Slice 356 bounded .in())
-- 84b369c5 feat(polls): Exklusive Treue-Umfragen (min_fan_rank_tier-Tor) + 80/20-Fee-Heal (Slice 356)
 
 <!-- auto:handoff-end -->
 
@@ -24,7 +22,7 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = Slice 358 (E3-2 Fees REIN Trading).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet.
+**Status: idle. HEAD = Slice 359 (`5fb85eee`, offer_buy-CHECK-Fix). Letzte Feature-Baseline = Slice 358 (E3-2 Fees REIN Trading, `fb31c6b6`).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet.
 
 ## ➡️ NÄCHSTER BAU: E3 — restliche Fee-Quellen REIN (IPO/Polls/Research/Bounty, je eigener Slice; Money/CEO §3)
 > **E3-1 Fundament ✅ (357) + E3-2 Trading ✅ (358) LIVE.** Trading-Fees (Orderbuch `buy_player_sc`+`buy_from_order`→'trading', P2P `accept_offer`→'p2p') fließen jetzt real in den Topf. Policy **D98: voller Auffang 100 %** (gilt für alle weiteren Quellen).
