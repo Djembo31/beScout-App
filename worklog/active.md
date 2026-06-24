@@ -11,7 +11,7 @@ spec: worklog/specs/365-bounty-fee-rein.md
 impact: skipped (additive Inline-Buchung, 0 Consumer-Contract-Change, kein Schema-Shape-Change)
 proof: worklog/proofs/365-money-smoke.txt (PASS — pot_delta=50, zero_sum=t, rollback sauber)
 review: worklog/reviews/365-review.md (PASS, 1 NIT optional/nicht umgesetzt)
-next: **E3 Slice 2 „Fees REIN" KOMPLETT (5/5).** Nächster = E3 Slice 3 Monats-Liga e2e (RAUS-Kanal), dann Slice 4 BeScout-Events, Slice 5 Wettkampf-Darstellung. Anker: worklog/notes/358-platform-treasury-epic.md.
+next: **⚠️ NEUE PRIO (Anil, 2026-06-24): E4 Money-Modell-Glattzug + Mock→Pro-E2E-Härtung (D99).** Der Slice-365-E2E-Durchlauf (1 echter Trade) deckte systemischen Money-Modell-Drift + mehrere Bugs auf. **Schritt 1 (Anil knüpft an):** D99-OFFEN-Punkte ratifizieren (Naming Credits↔$SCOUT · Einheiten-Vokabular · Phasen-Nummerierung · CASP-Strategie · Pricing-Fairness) — KEIN Doc-Massen-Edit vorher. **Schritt 2:** Doku auf D99 glattziehen (Checkliste `worklog/notes/365-money-model-drift-inventory.md`). **Schritt 3:** E2E-Sweep ②IPO→③Poll→④Research→⑤Bounty zu Ende + Bug-Fixes (`worklog/notes/365-e2e-findings.md`). DANACH zurück zu E3 Slice 3 Monats-Liga e2e. SSOT = D99 (`memory/decisions.md`).
 ```
 
 ## Kontext
