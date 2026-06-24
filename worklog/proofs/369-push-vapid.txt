@@ -46,5 +46,11 @@ src/lib/services/pushSubscription.ts(sanitize client public key)
 worklog/reviews/369-review.md — reviewer verdict PASS (2 nitpicks non-blocking,
 +1 suggested mocked-throw test → ADDED as pushSender-vapid-failsafe.test.ts).
 
-== AC5: POST-DEPLOY (appended after deploy) ==
-[pending push+deploy → real buy network trace /api/push != 500]
+== AC5: POST-DEPLOY ==
+Commit 6b1f7b23 pushed to main → Prod deploy bescout-nib52kfg7 ● Ready (2m build).
+Route-health (new deployment): POST /api/push unauth → HTTP 401 (route loads cleanly,
+no module-eval / key crash; auth-guard is first so 401 does not exercise the VAPID path).
+Full authenticated buy → /api/push != 500: rides on Slice 370 E2E-Buy-Re-Run (needs seeded
+liquidity, blocked by T-1 cold-start). Recurrence risk ~nil — TWO independent layers now
+prevent it: (1) prod secret healed (live PAIR MATCH true), (2) code fail-safe (ensureVapid
+can no longer throw to the route, 9 tests). Either alone kills the 500.

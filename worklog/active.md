@@ -1,18 +1,19 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 369
-title: /api/push→500 Fail-Safe + VAPID-Secret-Heal (T-2)
-stage: BUILD
+title: ✅ DONE — /api/push→500 Fail-Safe + VAPID-Secret-Heal (T-2) · commit 6b1f7b23
+stage: LOG complete
 size: S
 slice-type: Service + Infra (Secret)
 spec: worklog/specs/369-api-push-vapid-failsafe.md
 impact: inline — nur Push-Pfad (pushSender/route/pushSubscription + neuer vapidKey.ts) + 2 Vercel-Prod-Secrets. Kein DB/Schema.
-root-cause: ensureVapid() ruft setVapidDetails OHNE try/catch; Prod-VAPID-Secrets korrupt (Quotes+Newline+Pair-Mismatch, live aus vercel env pull bewiesen) → Throw ungefangen → route catch returnt 500 (Sentry blind, weil withLogger nur bei Throw captured). Korrektes Paar = .env.local (web-push+ECDH ✓).
-decision: Anil 2026-06-24 — lokales Paar wiederherstellen, ich setze via vercel CLI.
-proof: worklog/proofs/369-push-vapid.txt (geplant)
-next: 370 E2E-Sweep ②–⑤, 368-Label-Rest
+root-cause: ensureVapid() rief setVapidDetails OHNE try/catch; Prod-VAPID-Secrets korrupt (Quotes+Newline+Pair-Mismatch, live aus vercel env pull bewiesen) → Throw ungefangen → route catch RETURNT 500 (Sentry blind, weil withLogger nur bei Throw captured). Korrektes Paar = .env.local (web-push+ECDH ✓).
+decision: Anil 2026-06-24 — lokales Paar wiederherstellen, ich via vercel CLI. Beide Prod-Vars gesetzt, re-pull PAIR MATCH true.
+proof: worklog/proofs/369-push-vapid.txt (tsc clean, 9 Tests, Prod-Pull pre/post-Heal). AC5 (Post-Deploy echter Buy ≠ 500) → reitet auf 370 E2E-Buy-Re-Run (braucht geseedete Liquidität, T-1).
+review: worklog/reviews/369-review.md (reviewer PASS, 2 NITPICK non-block, +mocked-throw-Test ergänzt)
+next: 370 E2E-Sweep ②–⑤ (verifiziert dabei 369-AC5), dann 368-Label-Rest
 
 --- 368f (vorheriger Slice, DONE) ---
 prev-slice: 368f
