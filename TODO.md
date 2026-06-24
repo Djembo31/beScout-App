@@ -26,6 +26,8 @@
 - Backlog aus 346-Review: Teaser-RPC oberes LIMIT-Cap (`LEAST(...,50)`) · posts-INSERT-Policy `club_admins`-Härtung (pre-existing).
 
 ## 🟡 P1 — als Nächstes
+- **U-1 Header-Guthaben-Staleness (Slice 370 UI-Walk):** nach Poll-Vote/Research-Unlock aus dem Community-Feed aktualisiert sich die Header-Credit-Anzeige nicht sofort (DB korrekt, korrigiert bei Reload). Fix: Wallet-Query-Key nach `castCommunityPollVote`/`unlockResearch`-Mutation invalidieren (performance.md). Trading-Pfad gegenchecken. Kleiner Slice. Evidence `worklog/proofs/370-ui-fees-rein.txt`.
+- **⑤ Bounty-Approval per UI** noch offen (Slice 370): braucht Club-Admin-Login (kede5-Creds) — Fee-REIN ist RPC-bewiesen, UI-Durchlauf sobald Admin-Creds verfügbar.
 - **Aufräum-Haken aus FRE-Investigation (2026-06-18):**
   - ✅ **`csf_multiplier` raus** — erledigt Slice 348 (aus TS + RPC + DROP COLUMN).
   - **Fan-Rang aktualisiert verzögert** (nur nach Event-Scoring/Cron, kein Trigger auf Abo/Holdings — reward-ranking.md W2-A). Follow zählt seit FRE-2 (345) mit Recalc-Trigger; Abo/Holdings noch verzögert. Bei Bedarf recalc-Frage konkret entscheiden (vgl. D92 Re-Visit).

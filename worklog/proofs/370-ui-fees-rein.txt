@@ -1,0 +1,46 @@
+Slice 370 — UI-Walk „Fees REIN" (Playwright gegen bescout.net, Login Jarvis QA)
+Datum: 2026-06-24 (Nachtrag auf Anil-Frage „per Playwright abgecheckt?")
+Zweck: nicht nur RPC-Ebene, sondern echter Klick-Weg (Button → Confirm → Erfolg → Console)
+       + DB-Verifikation, dass der UI-Klick die Fee real in den Topf bucht.
+
+Frische Seed-Artefakte (nailoku, da jarvis die E2E-RPC-Artefakte schon verbraucht hatte):
+- Poll     c39609f3-… „[370-UI] Welcher Neuzugang überzeugt am meisten?" cost 1000
+- Research ef06557d-… „[370-UI] Scout-Report: Aufsteiger der Rückrunde"  price 1000
+
+=== ③ POLL — echter UI-Vote ===
+Flow: /community → Feed-Karte „Bezahlte Umfrage" → Klick Option „Neuzugang A".
+Ergebnis-UI: Toast „Stimme abgegeben!", Karte → „Abgestimmt / 1 Stimme / Neuzugang A 100%".
+Console: 0 errors.
+DB-Verify: pot source='poll' 200 → 400 (+200 = 20 %); jarvis 1.172.827 → 1.171.827 (−1000); community_poll_votes.amount_paid=1000.
+Screenshot: 370-ui-poll-voted.png. → Fee-REIN über echten Button bewiesen. ✅
+
+=== ④ RESEARCH — echter UI-Unlock ===
+Flow: /community → Research-Karte → „Freischalten für 10 Credits" → Inline-Confirm
+      „10 Credits werden von deinem Wallet abgezogen" → „Ja, freischalten".
+Ergebnis-UI: voller Bericht sichtbar, unlock_count 0→1, Bewertungs-Sterne aktiviert (vorher disabled).
+Console: 0 errors.
+DB-Verify: pot source='research' 200 → 400 (+200 = 20 %); jarvis 1.171.827 → 1.170.827 (−1000).
+Screenshot: 370-ui-research-unlocked.png. → Fee-REIN über echten Button bewiesen. ✅
+
+=== ② IPO — UI bereits in 369-AC5 ===
+Echter Buy über das Kaufen-Modal (Rakhim-IPO → buy_from_ipo) → pot source='ipo' 500. (Proof 369-ac5-push-200.png.)
+
+=== ⑤ BOUNTY — Admin-Aktion, UI nicht durchführbar (Creds-Limit) ===
+approve_bounty_submission ist eine Club-Admin-Aktion (kede5). Es liegen nur jarvis-qa-Creds vor,
+kein kede5-Passwort → Approval-UI nicht ausführbar. Fee-REIN bleibt RPC-bewiesen (Topf source='bounty' 50, 5 %).
+Offen für einen späteren UI-Durchlauf, sobald Admin-Login verfügbar.
+
+=== 🟡 FUND U-1 (UI-Staleness, MEDIUM/UX, KEIN Geld-Bug) ===
+Nach Poll-Vote UND Research-Unlock aus dem Community-Feed aktualisiert sich die Guthaben-Anzeige
+im Header NICHT sofort (blieb 11.728,27). DB war jederzeit korrekt; nach Seiten-Reload zeigt der
+Header 11.708,27 (= −20 CR, beide Aktionen). Ursache: Wallet-Query-Key wird nach den
+Mutationen castCommunityPollVote / unlockResearch nicht invalidiert (performance.md: „invalidateQueries
+nach Writes"). Money-sicher, aber verwirrend (User zahlt, sieht alten Stand). → Follow-up-Slice
+(kleines invalidate auf wallet-Key in beiden Mutations-Hooks). Verwandt mit Trading-Pfad-Verhalten prüfen.
+
+=== TOPF-LEDGER nach UI-Walk ===
+bounty 50 · ipo 500 · poll 400 · research 400 · trading 1512  → SUM 2862 Cents.
+
+=== ERGEBNIS ===
+Konsumenten-Fee-Flows ② IPO / ③ Poll / ④ Research per echtem UI-Klick Ende-zu-Ende bewiesen (Fee real im Topf,
+0 Console-Errors). ⑤ Bounty (Admin) RPC-bewiesen, UI offen (Creds). 1 UX-Fund U-1 (Header-Staleness) für Follow-up.

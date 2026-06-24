@@ -9,10 +9,11 @@ size: S
 slice-type: Verify (Money, CEO-Scope)
 spec: worklog/specs/370-e2e-fees-rein-sweep.md
 impact: skipped (kein Schema/Service-Edit — reine Live-Verifikation bestehender Fee-RPCs)
-result: ② IPO 500 (369-AC5) · ③ Poll 200 · ④ Research 200 · ⑤ Bounty 50 · trading 1512 = SUM 2462. Zero-Sum je Quelle ✓, Doppel-Approve money-safe reject ✓. Keine Fee-Booking-Bugs, kein Prod-Code.
-proof: worklog/proofs/370-fees-rein-sweep.txt
+result: RPC-Ebene: ② IPO 500 (369-AC5) · ③ Poll 200 · ④ Research 200 · ⑤ Bounty 50 · trading 1512. Zero-Sum je Quelle ✓, Doppel-Approve money-safe reject ✓. **UI-Walk-Nachtrag (Playwright):** ② IPO (369-Buy-Modal) + ③ Poll + ④ Research per echtem UI-Klick bewiesen (Fee real im Topf, 0 Console-Errors); ⑤ Bounty = Admin-Approval, RPC-bewiesen (kede5-Creds fehlen für UI). Topf nach UI-Walk = 2862 Cents.
+proof: worklog/proofs/370-fees-rein-sweep.txt (RPC) + worklog/proofs/370-ui-fees-rein.txt + 370-ui-poll-voted.png + 370-ui-research-unlocked.png (UI)
 review: worklog/reviews/370-review.md (self-review PASS — kein Prod-Code)
-next: E3 Slice 3 — Monats-Liga e2e (erster RAUS-Kanal aus dem Topf). Plus offen: T-1 Cold-Start-Liquidität (Produkt), 368-Label-Rest, Topf-Card-Visual (357).
+finding: 🟡 U-1 (MEDIUM/UX) — Header-Guthaben aktualisiert nach Poll-Vote/Research-Unlock aus dem Feed nicht sofort (DB korrekt, korrigiert bei Reload); Wallet-Query-Key nicht invalidiert → kleiner Follow-up-Slice.
+next: E3 Slice 3 — Monats-Liga e2e (erster RAUS-Kanal aus dem Topf). Plus offen: U-1 Header-Invalidate, ⑤ Bounty-Approval-UI (Admin-Creds), T-1 Cold-Start-Liquidität (Produkt), 368-Label-Rest, Topf-Card-Visual (357).
 
 --- 369 (vorheriger Slice, DONE) ---
 prev-slice: 369
