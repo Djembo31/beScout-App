@@ -1,0 +1,48 @@
+Slice 362 — platformAdmin chunked/paginated Reads — PROOF
+==========================================================
+Datum: 2026-06-24
+Typ: Service-Hardening (PostgREST 1000-row-cap + .in()-URL-Limit)
+File: src/lib/services/platformAdmin.ts (getAllClubs, getAllUsers)
+
+[1] LIVE-BUG BEWIESEN (getAllClubs.player_count)
+----------------------------------------------------------------
+SELECT correct_total_players, old_capped_read, clubs_with_players:
+  correct_total_players = 4472   (players WHERE club_id IS NOT NULL)
+  old_capped_read       = 1000   (PostgREST hard-cap der alten ungepaginierten .in())
+  clubs_with_players    = 134
+=> Alte getAllClubs las .in('club_id', alle134) ohne .range() → still bei 1000
+   Rows gekappt → player_count für die meisten Clubs MASSIV zu niedrig (Live-Bug,
+   nicht latent). club_followers = 21 (unkritisch, für Konsistenz mitgefixt).
+
+[2] FIX
+----------------------------------------------------------------
+getAllClubs (followers + players): .range(offset, offset+999)-PAGE-Loop bis
+  rows.length < PAGE, explizites `if (err) throw`. Mirror club.ts:getClubsWithStats.
+  + Null-Guard `if (p.club_id)` (Reviewer-NIT #1, 1:1-Mirror).
+  Caller AdminClubsTab.loadClubs() hat try/catch → throw safe.
+getAllUsers (wallets/holdings/user_stats): Input-Chunking CHUNK=100 über
+  userIds.slice(...), weil `limit` caller-kontrolliert. Graceful-degrade BEIBEHALTEN
+  (kein throw) — Caller AdminUsersTab.loadUsers hat KEIN try/catch.
+
+[3] AUDIT (silent-fail HIGH-Reduktion)
+----------------------------------------------------------------
+VORHER (Baseline): 175 total, 82 HIGH, 93 MEDIUM  (5× .in() HIGH in platformAdmin.ts)
+NACHHER:           170 total, 77 HIGH, 93 MEDIUM  (0 platformAdmin-Findings)
+  -> 5 HIGH geklärt (3 strukturell via .range()/CHUNK, 2 via ehrlichen
+     CHUNK-bounded-Hinweis-Kommentaren — idSlice ≤100 nachweislich URL-safe).
+  .audit-baseline.json auf 170/77/93 re-baselined (Verbesserung gelockt).
+
+[4] TESTS / TSC
+----------------------------------------------------------------
+npx tsc --noEmit -> exit 0
+vitest (platformAdmin-treasury + club + AdminUsersTab): 103 passed (kein Regress).
+Kein neuer Pagination-Unit-Test: Fix mirror-t exakt das bereits getestete
+club.ts:getClubsWithStats; Live-SQL (4472 vs 1000) ist stärkerer Beweis als Mock.
+
+[5] REVIEW
+----------------------------------------------------------------
+worklog/reviews/362-review.md — verdict PASS, 2 NITs (NIT#1 adressiert, NIT#2 N/A).
+Bekanntes Edge (Reviewer #4): holdings-Result-Cap innerhalb 100-User-Chunk —
+kein Live-Trigger (limit=50), dokumentiert, nicht im Slice gefixt.
+
+VERDICT: player_count-Live-Bug behoben, 5 HIGH silent-fail geklärt, Audit re-baselined.

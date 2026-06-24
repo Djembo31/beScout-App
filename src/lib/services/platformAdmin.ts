@@ -95,30 +95,37 @@ export async function getAllUsers(limit = 50, offset = 0, search?: string): Prom
   const userIds = profiles.map(p => p.id);
   if (userIds.length === 0) return [];
 
-  // Fetch balances
-  const { data: wallets } = await supabase
-    .from('wallets')
-    .select('user_id, balance')
-    .in('user_id', userIds);
-  const balanceMap = new Map((wallets ?? []).map(w => [w.user_id, w.balance as number]));
-
-  // Fetch holdings count
-  const { data: holdings } = await supabase
-    .from('holdings')
-    .select('user_id, quantity')
-    .in('user_id', userIds)
-    .gt('quantity', 0);
+  // Slice 362: Input-Chunking — `limit` ist caller-kontrolliert, große Page → .in()-Liste über
+  // PostgREST-URL-Limit (~400 UUIDs) → silent undefined. CHUNK hält jede .in()-Liste sicher.
+  // Graceful-degrade beibehalten (Caller AdminUsersTab hat kein try/catch → kein throw hier).
+  const CHUNK = 100;
+  const balanceMap = new Map<string, number>();
   const holdingsCountMap = new Map<string, number>();
-  (holdings ?? []).forEach(h => {
-    holdingsCountMap.set(h.user_id, (holdingsCountMap.get(h.user_id) ?? 0) + 1);
-  });
+  const tradesMap = new Map<string, number>();
+  for (let i = 0; i < userIds.length; i += CHUNK) {
+    const idSlice = userIds.slice(i, i + CHUNK);
 
-  // Fetch trade count (approximate from user_stats)
-  const { data: stats } = await supabase
-    .from('user_stats')
-    .select('user_id, trades_count')
-    .in('user_id', userIds);
-  const tradesMap = new Map((stats ?? []).map(s => [s.user_id, s.trades_count as number]));
+    const { data: wallets } = await supabase
+      .from('wallets')
+      .select('user_id, balance')
+      .in('user_id', idSlice);
+    (wallets ?? []).forEach(w => balanceMap.set(w.user_id, w.balance as number));
+
+    // idSlice ist CHUNK-bounded (≤100) → .in()-Liste URL-safe.
+    const { data: holdings } = await supabase
+      .from('holdings')
+      .select('user_id, quantity')
+      .in('user_id', idSlice)
+      .gt('quantity', 0);
+    (holdings ?? []).forEach(h => holdingsCountMap.set(h.user_id, (holdingsCountMap.get(h.user_id) ?? 0) + 1));
+
+    // idSlice ist CHUNK-bounded (≤100) → .in()-Liste URL-safe.
+    const { data: stats } = await supabase
+      .from('user_stats')
+      .select('user_id, trades_count')
+      .in('user_id', idSlice);
+    (stats ?? []).forEach(s => tradesMap.set(s.user_id, s.trades_count as number));
+  }
 
   return profiles.map(p => ({
     id: p.id,
@@ -251,25 +258,37 @@ export async function getAllClubs(): Promise<AdminClub[]> {
   // Slice 326 Wave B: league (Display-Name) aus league_id ableiten (clubs.league gedroppt).
   if (clubIds.length === 0) return clubs.map(c => ({ ...c, league: getLeagueById(c.league_id)?.name ?? '', follower_count: 0, player_count: 0 }));
 
+  // Slice 362: chunked Result-Read (PostgREST 1000-row hard cap) + explizite Fehler-Propagation.
+  // players_with_club ~4.5k > 1000 → vorher silent undercount in player_count. Mirror club.ts:getClubsWithStats.
+  const PAGE = 1000;
+
   // Fetch follower counts
-  const { data: followers } = await supabase
-    .from('club_followers')
-    .select('club_id')
-    .in('club_id', clubIds);
   const followerMap = new Map<string, number>();
-  (followers ?? []).forEach(f => {
-    followerMap.set(f.club_id, (followerMap.get(f.club_id) ?? 0) + 1);
-  });
+  for (let offset = 0; ; offset += PAGE) {
+    const { data, error: fErr } = await supabase
+      .from('club_followers')
+      .select('club_id')
+      .in('club_id', clubIds)
+      .range(offset, offset + PAGE - 1);
+    if (fErr) throw new Error(`getAllClubs followers: ${fErr.message}`);
+    const rows = data ?? [];
+    for (const f of rows) followerMap.set(f.club_id, (followerMap.get(f.club_id) ?? 0) + 1);
+    if (rows.length < PAGE) break;
+  }
 
   // Fetch player counts
-  const { data: players } = await supabase
-    .from('players')
-    .select('club_id')
-    .in('club_id', clubIds);
   const playerMap = new Map<string, number>();
-  (players ?? []).forEach(p => {
-    playerMap.set(p.club_id, (playerMap.get(p.club_id) ?? 0) + 1);
-  });
+  for (let offset = 0; ; offset += PAGE) {
+    const { data, error: pErr } = await supabase
+      .from('players')
+      .select('club_id')
+      .in('club_id', clubIds)
+      .range(offset, offset + PAGE - 1);
+    if (pErr) throw new Error(`getAllClubs players: ${pErr.message}`);
+    const rows = data ?? [];
+    for (const p of rows) if (p.club_id) playerMap.set(p.club_id, (playerMap.get(p.club_id) ?? 0) + 1);
+    if (rows.length < PAGE) break;
+  }
 
   return clubs.map(c => ({
     ...c,

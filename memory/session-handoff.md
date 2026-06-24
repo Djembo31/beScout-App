@@ -1,11 +1,14 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 09:48)
+# Session Handoff — Auto (2026-06-24 10:00)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
-## Session Commits: 2
+## Session Commits: 5
+- 1daed134 chore(worklog): Slice 361 LOG-Eintrag
+- 890926cc fix(observability): AdminTreasuryTab Promise.allSettled → logSilentRejects (Slice 361)
+- 8578e7f6 chore(worklog): Commit-Hashes für Slices 339-347 + 357 nachgetragen
 - 847e15a3 chore(worklog): Slice 360 Commit-Hash
 - 81ec6e0b feat(treasury): IPO-Fee REIN in Plattform-Topf (E3-2b, D96/D98)
 
