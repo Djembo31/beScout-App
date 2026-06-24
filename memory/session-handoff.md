@@ -1,14 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 16:17)
+# Session Handoff — Auto (2026-06-24 16:42)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 3 Files
 ```
  M memory/session-handoff.md
+ M worklog/active.md
+?? worklog/specs/368b-scout-card-display-truth.md
 ```
 
 ## Session Commits: 10
+- 74bafa54 chore(tracker): 368 reframed (D100 Wertmodell) — 368a done, 368b/c next
 - b6b63c67 docs(decision): D100 — Scout-Card-Wertmodell als Kanon (Slice 368a, E4)
 - 9d5b12d5 chore(handoff): Resume-Anker auf Slice 368 (ipo_price-Drift, wartet auf Anil-Go) — E4 Schritt 1+2+367 done
 - eb820b1f chore(tracker): Slice 367 done + 368 next (E4 Schritt 3)
@@ -18,7 +21,6 @@
 - 1b7b7ae8 chore(tracker): E4 Schritt 1+2 done in MASTERPLAN + TODO reconciled (Slice 366)
 - eba47650 docs(money): E4 Doc-Glattzug — Money-Modell-Doku auf D99 ausgerichtet (Slice 366, Schritt 2)
 - b52e8b09 docs(decision): D99 OFFEN-Punkte ratifiziert (E4 Schritt 1)
-- fe1bd24a docs(decision): D99 — $SCOUT-Phasenmodell (SSOT) + Money-Modell-Drift-Inventur + E4 Cleanup-Epic
 
 <!-- auto:handoff-end -->
 
@@ -53,13 +55,9 @@
 
 ✅ **368a DONE** (`b6b63c67`): Kanon festgehalten — D100 + INDEX-Range D1–D100 + `treasury.md §1b` + `.claude/rules/trading.md`-Korrektur (alte „Fix=MV/10"-To-Do raus). Reviewer PASS, kein Code/kein Daten-UPDATE. **Spec der ganzen Serie: `docs/plans/2026-06-24-scout-card-value-model-spec.md`.**
 
-**← NÄCHSTER: Slice 368b — Anzeige-Wahrheit (UI, gering-Risiko).**
-- „Dein Einstieg"/Erstverkauf liest `ipos.price` der Erst-IPO (neuer kleiner Service/Query), Fallback „—".
-- ipoPrice / MV / aktueller Marktpreis klar trennen + erklären; Floor-Labels vereinheitlichen; CSF-Reward-Basis korrekt.
-- Hauptfiles: `RewardsTab.tsx`, `PlayerHero.tsx`, `TradingTab.tsx`, `StickyDashboardStrip.tsx`, `TradingCardFrame.tsx` (Card-Back), `Glossary.tsx`, `messages/{de,tr}.json`.
-- **Open-Q (vor BUILD klären):** „—"-Fall = nur Einstieg-Feld ausblenden ODER ganzen Reward-Block?
+✅ **368b DONE** (`17306c09`): RewardsTab-Anzeige-Wahrheit. „Dein Einstieg" liest jetzt echten **Erst-IPO-Preis** (`ipos.price`, frühestes Row) via neuem `getFirstIpoPrice`+`useFirstIpoPrice` statt `players.ipo_price` (Slice-114-vergiftet); kein IPO → **„—" nur im Einstieg-Feld** (MV+Meilensteine bleiben — Anil-Entscheid). +2 InfoTooltips (MV-Referenz vs. Eintritts-Anker). **CSF-Tooltips DE+TR von € → Credits** (user-facing € verboten). Reviewer **PASS** (2 LOW, #1 Service-Test gefixt). tsc 0, 133 Tests. Spec `worklog/specs/368b-scout-card-display-truth.md`. **OFFEN: visueller Playwright-Proof gegen bescout.net post-Deploy** (UI deployt von main).
 
-**DANN: Slice 368c — Floor = transparentes Orderbuch.**
+**← NÄCHSTER: Slice 368c — Floor = transparentes Orderbuch (inkl. Floor-Label-Vereinheitlichung, bewusst von 368b hierher verschoben).**
 - Floor zeigt **Quelle** („niedrigste offene Order" vs. „letzter Verkauf, keine Angebote") + **Anti-Manipulation** (Mini-Order-Crash verhindern). `recalc_floor_price`-Kaskade prüfen/anpassen. `OrderbookSummary.tsx` (Best Bid/Ask) ist da, aber NICHT mit `prices.floor` verknüpft.
 - **Open-Q (Anil, CEO):** Anti-Manipulations-Regel — Mindest-Order-Größe vs. %-Schwelle vs. Median-Filter.
 
