@@ -11,7 +11,7 @@ spec: inline — S305/324 Column-DROP-Pattern
 impact: nur players-Loader (PLAYER_SELECT_COLS). Phase 1 Code (e3f132dd, deployed) + Phase 2 Migration 20260624210000.
 proof: worklog/proofs/368f-drop-initial-listing-price.txt
 review: self-review (display-only, money byte-identisch, S305/324 Pattern)
-next: 368e post-Deploy Playwright (RewardsTab==TradingTab==Chart-Linie); dann 369 /api/push→500, 368-Label-Rest, 370 E2E ②–⑤.
+next: 369 /api/push→500, 368-Label-Rest, 370 E2E ②–⑤. (368e Playwright ✅ PASS — Markteintritt==Dein Einstieg, 500/500 + 800/800 live; Console-Errors = transiente Fetch-Noise, nicht 368e.)
 
 --- 368e (vorheriger Slice, DONE) ---
 prev-slice: 368e
