@@ -1,0 +1,52 @@
+Slice 360 — IPO-Fee REIN in Plattform-Topf — PROOF
+====================================================
+Datum: 2026-06-24
+Typ: Money-RPC (Migration) — Force-Rollback-Smoke + Live-functiondef-Verify
+RPC: buy_from_ipo(uuid,uuid,integer)
+Policy: D98 (voller Auffang 100 %), source 'ipo' (CHECK deckt bereits)
+
+[1] BOOKING-ZEILE LIVE (nach apply_migration 360_ipo_fee_rein)
+----------------------------------------------------------------
+SELECT pg_get_functiondef('public.buy_from_ipo(uuid,uuid,integer)'::regprocedure)
+       LIKE '%book_platform_treasury(''credit'', ''ipo''%';
+  -> booking_present = true
+
+[2] source-CHECK deckt 'ipo' (KEINE CHECK-Migration nötig)
+----------------------------------------------------------------
+platform_treasury_ledger_source_check =
+  CHECK (source = ANY (ARRAY['trading','ipo','poll','research','bounty','p2p','monthly_liga','bescout_event']))
+
+[3] FORCE-ROLLBACK MONEY-SMOKE (self-contained, temp-IPO in BEGIN...ROLLBACK)
+----------------------------------------------------------------
+Technik (358): temp-IPO + set_config('request.jwt.claim.sub', user, true) für auth.uid()-Guard,
+Topf-Saldo aus Ledger-SUM (get_platform_balance ist Admin-gated), RAISE EXCEPTION → voller Rollback.
+User: 557d1145-... (Wallet 200.000.000), qty=10, price=1000 cents/SC, total_cost=10000.
+
+SMOKE_RESULT:
+  pot_before=0  pot_after=1000  pot_delta=1000          <- AC-1: Topf +platform_share ✅
+  wallet_before=200000000  wallet_after=199990000  wallet_delta=-10000  (= total_cost) ✅
+  ipo_ledger_rows_for_trade=1                            <- AC-6: keine Doppelbuchung ✅
+  result={"success":true, "trade_id":"8aed2424-...",
+          "total_cost":10000, "club_share":8500, "platform_share":1000, "pbt_share":500, "source":"ipo"}
+
+ZERO-SUM (AC-2):  total_cost 10000 = club 8500 + platform 1000 + pbt 500  ✅
+FEE-KONSTANTE:    platform_share 1000 = 10 % von 10000 (ipo_platform_bps=1000)  ✅
+
+[4] ROLLBACK SAUBER (kein Residue)
+----------------------------------------------------------------
+SELECT pot_now, ipo_rows_persisted, stray_test_ipos:
+  -> pot_now=0   ipo_rows_persisted=0   stray_test_ipos=0   ✅
+
+[5] AC-4 PATCH-AUDIT (kein Drift)
+----------------------------------------------------------------
+Migration = exakter Live-functiondef + GENAU ein Block (IF v_platform_share > 0 ... END IF)
+nach dem PBT-Block, vor INSERT INTO transactions. Alle Guards/Limits/Fee-Split/AR-6/early_access
+unverändert (1:1 aus gelesenem Live-Body übernommen).
+
+[6] AC-7 TSC / INVARIANTEN
+----------------------------------------------------------------
+npx tsc --noEmit -> TSC_OK (kein src/-Change).
+db-invariants.test.ts: NICHT betroffen — keine CHECK-Änderung, kein neuer transactions-Type
+('ipo_buy' existierte bereits). 359-Snapshot-Reconciliation bleibt gültig.
+
+VERDICT: alle ACs grün. IPO-Plattform-Fee fließt jetzt real in den BeScout-Topf.

@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 360 | 2026-06-24 | feat(treasury): IPO-Fee REIN in Plattform-Topf (E3-2b, D96/D98)
+- Stage-Chain: SPEC (`worklog/specs/360-ipo-fee-rein.md`, S, Money-RPC) → IMPACT (skipped, additive Inline-Buchung, 0 Consumer-Contract-Change) → BUILD → REVIEW (`worklog/reviews/360-review.md`, **PASS**, 2 NIT informativ) → PROVE → LOG.
+- **Was:** Plattform-Anteil der IPO-Fee (10 %, `ipo_platform_bps`=1000) fließt jetzt in den BeScout-Topf statt zu verbrennen. 2. von 5 Fee-Quellen (nach Trading/358). Anil-Wahl: IPO zuerst (höchstes Volumen).
+- **Wie:** `buy_from_ipo` CREATE OR REPLACE = exakter Live-`functiondef` + **genau 1 additiver Block** nach PBT-Block, vor `INSERT INTO transactions`: `IF v_platform_share > 0 THEN PERFORM book_platform_treasury('credit','ipo',v_platform_share,v_trade_id,'IPO-Fee (Erstverkauf)'); END IF;`. Inline (kein Trigger, spiegelt 358/PBT/Club). `'ipo'` im source-CHECK schon erlaubt → **keine CHECK-Migration**.
+- **Proof:** `worklog/proofs/360-money-smoke.txt` — Force-Rollback-Smoke (358-Technik, self-contained temp-IPO): Topf 0→1000 (Δ=platform_share), Wallet −10000 (=total_cost), Zero-Sum `10000=8500+1000+500`, 1 Ledger-Row (keine Doppelbuchung), Rollback sauber (pot_now=0, 0 Residue). Booking-Zeile live verifiziert. tsc clean; db-invariants nicht betroffen (kein CHECK/Type-Change).
+- **PATCH-AUDIT:** Reviewer bestätigt kein stiller Body-Drift (Fee-Konstanten 8500/1000/500, AR-6, early_access, Limits, auth+lock alle = Live).
+- Files: `supabase/migrations/20260624150000_slice_360_ipo_fee_rein.sql` (applied via mcp).
+- Commit: <pending>
+
 ## 359 | 2026-06-24 | fix(trading): accept_offer side='sell' repariert — 'offer_buy' in transactions_type_check
 - Stage-Chain: SPEC (`worklog/specs/359-offer-buy-check-fix.md`, S, Money-table) → IMPACT (skipped, additiver CHECK-Superset) → BUILD → REVIEW (`worklog/reviews/359-review.md`, CONCERNS→adressiert) → PROVE → LOG.
 - **Fix:** Pre-existing Live-Bug (aus 358-Money-Smoke): `accept_offer` schrieb seit jeher `type='offer_buy'` (side='sell'-Pfad), aber der Wert fehlte im `transactions_type_check` → jeder Sell-Offer-Accept warf `23514` (Live `offer_buy`-Count=0 = P2P-Sell-Offers nie funktioniert). S330-CHECK-Drift-Klasse.

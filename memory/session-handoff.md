@@ -1,11 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 03:08)
+# Session Handoff — Auto (2026-06-24 03:12)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
 ## Session Commits: 9
+- 4c7d8c79 docs(handoff): Resume-Anker auf Slice 359 (HEAD-Stand korrigiert)
 - 5fb85eee chore(worklog): Slice 359 Commit-Hash
 - 8826d067 fix(trading): accept_offer side='sell' repariert — 'offer_buy' in transactions_type_check (Slice 359)
 - b655d4b4 chore(worklog): Slice 358 LOG-Abschluss (active->idle, Commit-Hash)
@@ -14,7 +18,6 @@
 - ebd0a08d feat(treasury): Plattform-Treasury Topf-Fundament (E3-1, D96)
 - 43a7ff1b docs(decision): D96 — Plattform-Treasury (BeScout-Topf) Epic
 - dd43756e docs(handoff): Session-Ende Slice 356 + Preflight Monthly-Leaderboard (nächste Session)
-- 8b8fb124 chore(audit): re-baseline silent-fail 81->82 HIGH (Slice 356 bounded .in())
 
 <!-- auto:handoff-end -->
 
