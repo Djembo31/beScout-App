@@ -35,6 +35,7 @@ Der eine Trade legte einen **systemischen** Drift über ~40 Doc-Stellen offen: 3
 ---
 ## E2E-Sweep — Stand (eins nach dem anderen, Bug-Jagd)
 - **① Trading ✅ durchgespielt** (Fee-REIN live bewiesen, Topf +35) — 5 Funde (T-1 leerer Markt, T-2 push-500, T-3 Diamond-Hands-Cluster, P-4 Pricing-Drift, M-5 Money-Modell→D99).
+- **Fix-Stand E4:** M-5 → **D99 ✅** (Schritt 1+2: Ratifikation + Doc-Glattzug Slice 366). T-3 → **Slice 367 ✅** (Rename „Treuer Sammler"/„Sadık Koleksiyoncu" + Hold-Logik aus holdings.created_at statt Mock-Seed + Konfetti-Gate; Reviewer PASS). **Offen:** P-4 ipo_price-Data-Drift (Slice 368, Money/CEO) · T-2 push-500 (369) · T-1 Cold-Start-Liquidität (Produkt) · ②–⑤ E2E-Sweep (370). Plus 367-Follow-ups (F#1 „ohne verkaufen"-Semantik · F#2 Hold-Regression-Tests · F#3 Mastery-Leaderboard-Mock).
 - **② IPO — offen** (braucht Seed: aktiver IPO; deckt Fee-REIN 'ipo' 10 %)
 - **③ Poll — offen** (Seed: bezahlte Poll mit Zukunfts-`ends_at`; Fee-REIN 'poll' 20 %)
 - **④ Research — offen** (Seed: bezahlter Research-Post; Fee-REIN 'research' 20 %)

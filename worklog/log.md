@@ -2,6 +2,17 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 367 | 2026-06-24 | fix(gamification): E4 „Diamond Hands"-Cluster — Rename + echte Hold-Logik + Konfetti-Gate (T-3)
+- Stage-Chain: SPEC (inline `active.md`, S) → IMPACT (skipped-light) → BUILD → REVIEW (`worklog/reviews/367-review.md`, reviewer-Agent **PASS**, 4 Findings non-blocking) → PROVE → LOG.
+- **Kontext:** E4 Schritt 3 (E2E-Bug-Fixes), erster Bug aus dem Slice-365-E2E (T-3). 3 Defekte in einem: Compliance (Meme-Wort), Logik (Award beim Kauf), UX (Konfetti auf Trade).
+- **Root-Cause (Live-DB verifiziert):** `social.ts` las `dpc_mastery.hold_days` = **geseedete Mock-Daten** (2472/2533 ≥30, Cluster exakt 91/97/60, kein Trigger) → `diamond_hands` feuerte bei praktisch jedem Kauf. Klassische Mock→Pro-Drift.
+- **Fix:** (1) **Rename** „Diamond Hands"→**„Treuer Sammler"/„Sadık Koleksiyoncu"** (Anil-Entscheid; Key `diamond_hands` code-intern wie `dpc`): messages DE+TR, `achievements.ts` (+ icon 💎→⏳), DB `achievement_definitions` (Migration `20260624190000`), 2 Design-Docs. (2) **Logik** `social.ts`: Hold-Days aus `holdings.created_at` (älteste Position qty>0; Zombie-Delete-Trigger S025 garantiert created_at=Position-Start) statt Mock-Seed → frischer Kauf <30 → kein Award. (3) **Konfetti** `AchievementUnlockModal`: `active={open && category!=='trading'}` (feedback_no_confetti; Reviewer prüfte auch 2. Pfad ToastProvider = sauber).
+- **Proof:** `worklog/proofs/367-fix.txt` — tsc EXIT 0, vitest social 37/37, DB-Row nach Migration verifiziert (title='Treuer Sammler'/title_tr='Sadık Koleksiyoncu'), grep „Diamond Hands|Elmas Eller" src+messages = 0 user-facing.
+- **Knowledge:** `gamification.md` +2 Patterns (Achievement-Kriterium nie aus Mock-Spalte · Konfetti-Dual-Path).
+- **Follow-ups (non-blocking, Review):** F#1 „ohne zu verkaufen"-Semantik bei Teilverkauf (Anil) · F#2 Hold-Regression-Tests · F#3 DPC-Mastery-Leaderboard zeigt weiter Mock-hold_days (eigener Mock→Pro-Slice).
+- Commit: (siehe unten)
+- Notes: Nächster E4-Bug = 368 ipo_price-Data-Drift (Money/CEO).
+
 ## 366 | 2026-06-24 | docs(money): E4 Doc-Glattzug — Money-Modell-Doku auf D99 ausgerichtet (Schritt 2)
 - Stage-Chain: SPEC (inline `active.md` + Inventur `365-money-model-drift-inventory.md`, XS Ops/Doc-Spur) → IMPACT (skipped, reine Doku) → BUILD → REVIEW (`worklog/reviews/366-review.md`, self-review **PASS**) → PROVE → LOG.
 - **Kontext:** E4 Schritt 2 nach D99-Ratifikation (Schritt 1 = b52e8b09). Slice-365-E2E hatte systemischen Money-Modell-Drift über ~40 Doc-Stellen offengelegt (M-5/D99): 3 Namen BSD/$SCOUT/Credits, Faktor-100-€-Widerspruch, Phasen 1/3/4 vs 1/2, CASP-Konflikt, CONCEPT-DPC-ECONOMY in sich widersprüchlich.

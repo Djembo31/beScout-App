@@ -424,7 +424,7 @@ Bei 5x Umschlag pro DPC: 28 × 2.000 × 5 × 300 × 6% = 5.040.000 Credits (= 50
 | Mechanismus | Effekt |
 |------------|--------|
 | **DPC Mastery Level** (existiert) | Höheres Level pro Spieler = mehr XP → höherer Rang |
-| **"Diamond Hands" Achievement** | Neues Achievement: DPC >90 Tage gehalten |
+| **"Treuer Sammler" Achievement** | Achievement: Scout Card lange gehalten (Live: 30 Tage; Key code-intern `diamond_hands`) |
 | **Haltedauer-Boost auf Score** | Länger halten = mehr BeScout Score Punkte (Analyst-Dimension) |
 | **PBT-Bonus** | PBT-Ausschüttung gewichtet nach Haltedauer (wer länger hält → überproportionaler PBT-Anteil) |
 | **Airdrop Score** | Haltedauer fließt in Airdrop-Berechnung ein (bestehend) |
@@ -627,4 +627,4 @@ Jede Interaktion muss dem User vermitteln: **"Ich besitze einen Anteil an diesem
 | **Floor-Preis** | Niedrigstes Verkaufsangebot auf dem Sekundärmarkt. Preist realen Wert + Cap ein |
 | **Realer Marktwert** | Marktwert laut Transfermarkt.com bei IPO-Erstellung. Referenzwert, nicht identisch mit IPO-Preis |
 | **Plattform-Anteil** | Admin-einstellbarer Prozentsatz den BeScout von der Success Fee einbehält (Rest → Holder) |
-| **Diamond Hands** | Gamification-Achievement für langfristiges DPC-Halten (>90 Tage) |
+| **Treuer Sammler** | Gamification-Achievement für langfristiges Scout-Card-Halten (Live: 30 Tage; Key code-intern `diamond_hands`) |

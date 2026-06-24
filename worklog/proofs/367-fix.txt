@@ -1,0 +1,33 @@
+PROOF Slice 367 — E4 „Diamond Hands"-Cluster-Fix
+Datum: 2026-06-24 · Stage PROVE · fix (i18n + Service-Logik + UI + DB-Data)
+
+=== T-3 ROOT-CAUSE (Live-DB, vor Fix) ===
+dpc_mastery: 2533 Rows, 2472 (97,6%) hold_days>=30, max 126.
+Verteilung clustert exakt: 91 (827×), 97 (778×), 60 (778×) = geseedete Mock-Daten, KEIN Trigger.
+→ social.ts las max(dpc_mastery.hold_days) → diamond_hands feuerte bei ~jedem Kauf.
+
+=== FIX (3 Teile) ===
+[1] Rename „Diamond Hands"→„Treuer Sammler"/„Sadık Koleksiyoncu" (Key diamond_hands code-intern):
+    - messages/de.json:3140 → „Treuer Sammler", tr.json:3140 → „Sadık Koleksiyoncu"
+    - achievements.ts:48 label/label_tr + icon 💎→⏳
+    - DB achievement_definitions (Migration 20260624190000):
+      VORHER  {title:'Diamond Hands', title_tr:'Elmas Eller'}
+      NACHHER {title:'Treuer Sammler', title_tr:'Sadık Koleksiyoncu'}  ← live verifiziert
+    - grep „Diamond Hands|Elmas Eller" in src/+messages/ = 0 user-facing (nur Key/i18n-Key)
+[2] Logik social.ts:428-443 — Quelle geändert:
+      VORHER: max(dpc_mastery.hold_days)  [Mock-Seed]
+      NACHHER: floor((now - oldest holdings.created_at WHERE quantity>0)/Tag)  [echte Position]
+    → frischer Kauf: created_at≈now → <30 → kein Award-on-buy. ✅
+[3] AchievementUnlockModal.tsx:30 — Confetti active={open && category!=='trading'}
+    → kein Konfetti bei Trading-Achievement (feedback_no_confetti). Manager/Scout behalten.
+
+=== VERIFY ===
+- tsc --noEmit: EXIT 0
+- vitest social: 37/37 passed
+- DB-Row nach Migration: title='Treuer Sammler', title_tr='Sadık Koleksiyoncu' ✅
+- Reviewer-Agent: PASS (worklog/reviews/367-review.md)
+
+=== FOLLOW-UPS (non-blocking, notiert) ===
+- F#1 (Produkt): „ohne zu verkaufen" erlaubt Teilverkauf (created_at-Reset nur bei Full-Sell) — Anil-Klärung.
+- F#2 (Test): Regression-Tests für Hold-Logik ergänzen (Buy→kein Unlock / 31d→Unlock).
+- F#3 (Mock→Pro): DPC-Mastery-Leaderboard zeigt weiter geseedetes hold_days — eigener Slice.

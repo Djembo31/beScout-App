@@ -2,38 +2,39 @@
 
 ```
 status: idle
-slice: 366
-title: ✅ DONE — E4 Doc-Glattzug: Money-Modell-Doku auf D99 ausgerichtet
+slice: 367
+title: ✅ DONE — E4 „Diamond Hands"-Cluster gefixt (Rename + Hold-Logik + Konfetti)
 stage: LOG complete
-size: XS
-slice-type: Doc (Ops-spur, lean — kein Money/Security-Code-Verhalten; richtet Doku an CEO-ratifizierter D99 aus)
-spec: inline (siehe unten) + Checkliste worklog/notes/365-money-model-drift-inventory.md
-impact: skipped (reine Doku/Wording, 0 Code-Verhalten, 0 RPC/Schema/Service)
-proof: worklog/proofs/366-drift-grep.txt (Phasen 1/2/3 · Faktor-100 aufgelöst · messages $SCOUT/BSD=0 · tsc EXIT 0)
-review: worklog/reviews/366-review.md (self-review PASS, Ops/Doc-Spur)
-next: 367 „Diamond Hands"-Cluster fixen (Umbenennen DE+TR + 30d-Logik + Konfetti raus) — Plan worklog/notes/366-e4-money-model-cleanup-epic.md
+size: S
+slice-type: fix (i18n + Service-Logik + UI + DB-Data) — gamification, money-nah (Achievement-Kriterium)
+spec: inline (siehe unten) + Findings worklog/notes/365-e2e-findings.md (T-3, Root-Cause verifiziert)
+impact: skipped-light (Achievement-Kriterium härter, kann nicht über-minten; 4 Rename-Surfaces + 1 Service-Query + 1 UI-Gate)
+proof: worklog/proofs/367-fix.txt (tsc EXIT 0 · vitest social 37/37 · DB-Row verifiziert · Root-Cause Live-DB)
+review: worklog/reviews/367-review.md (reviewer-Agent PASS, 4 Findings non-blocking)
+next: 368 ipo_price-Data-Drift (Money/CEO). Follow-ups aus 367-Review: F#1 „ohne zu verkaufen"-Semantik (Anil) · F#2 Regression-Tests Hold-Logik · F#3 DPC-Mastery-Leaderboard zeigt Mock-hold_days.
 ```
 
-## Inline-Spec (E4 Schritt 2 — Doc-Glattzug)
+## Inline-Spec (Slice 367)
 
-**Problem:** Money-Modell-Doku driftet über ~40 Stellen (3 Namen BSD/$SCOUT/Credits, Faktor-100-€-Widerspruch, Phasen 1/3/4 vs 1/2, CASP-Konflikt, CONCEPT-DPC-ECONOMY in sich widersprüchlich). Belegt durch Slice-365-E2E (M-5/D99).
+**Problem (T-3, HIGH, Live-verifiziert):** Nach echtem Kauf ploppte Achievement „Diamond Hands — Scout Card 30 Tage gehalten". 3 Defekte:
+1. **Compliance:** „Diamond Hands" = verbotenes Meme-Coin-Wort (business.md). Anil-Entscheid: Rename → **„Treuer Sammler" / „Sadık Koleksiyoncu"** (Key `diamond_hands` bleibt code-intern).
+2. **Logik-Bug:** vergeben sofort beim Kauf. Root-Cause: `social.ts` liest `dpc_mastery.hold_days` = **geseedete Mock-Daten** (live: 2472/2533 ≥30, Cluster 91/97/60, kein Trigger). → echte Halte-Dauer aus `holdings.created_at` (Positions-Eröffnung; Zombie-Rows bei qty=0 gelöscht → created_at = Start der aktuellen ununterbrochenen Position).
+3. **UX:** Konfetti/Celebration bei Trading-Achievement verstößt gegen feedback_no_confetti. → Konfetti im AchievementUnlockModal für `category==='trading'` unterdrücken (Manager/Scout behalten Celebration).
 
-**Ziel:** Jede Inventur-Stelle (A–E in `365-money-model-drift-inventory.md`) auf **D99** ausrichten — verbunden, kein Parallel-Stand.
-
-**Glattzug-Regeln (aus D99):**
-- Einheit user-facing = **„Credits"**. „$SCOUT" nur noch ICO-Coin-/Strategie-/Investor-Kontext (klar als „später" markiert). „BSD" = deprecatet (als Legacy markieren, nicht user-facing).
-- Einheiten-Vokabular: **intern = cent (integer)**, **Anzeige = Credits (= cents/100)**. Die Zeile „1 $SCOUT = 1 cent" → präzisieren: „intern 1 cent = kleinste Einheit; 1 Credit = 100 cents (Anzeige)". Faktor-100-Drift auflösen.
-- Phasen überall **1/2/3** (1=Free-Play · 2=ICO/Token nach Lizenz · 3=Paid Fantasy nach MGA).
-- CASP: „Token erst nach **gültiger Lizenz**" (nicht „nach CASP" absolut); Route = Anwalt vor ICO; scout-launch-strategie.md = ein Input.
-- Pricing: **1 Card = MV/1.000 Credits** kanonisch (= MV/100.000 € beim ICO-Peg, KEIN 100×-Widerspruch). €-Bezug = ICO-Zeit, user-facing nie €.
-
-**Scope-Out:** `ipo_price`-Data-Migration (→ Slice 368), Diamond-Hands (→ 367), Code-Funktions-Renames mit Verhalten (nur JSDoc/Kommentar-Wording hier, keine Signatur-Änderung).
+**Betroffene Files:**
+- `messages/de.json:3140` + `tr.json:3140` (`gamification.achievement.diamond_hands` — Modal-Quelle) → Rename. Desc bleibt (kein Meme-Wort).
+- `src/lib/achievements.ts:48` label/label_tr → Rename; icon 💎→⏳ (Diamond-Assoziation raus).
+- DB `achievement_definitions` (title/title_tr für Notification-Text) → Migration UPDATE.
+- `src/lib/services/social.ts:428-436` → Hold-Days-Quelle umstellen.
+- `src/components/gamification/AchievementUnlockModal.tsx:30` → `<Confetti active={open && achievement.category!=='trading'} />`.
 
 **AC:**
-1. `de.json:27`/`tr.json:27` `"bsd":"Credits"` bleibt (zentral korrekt) — keine €-Werte neben Credits.
-2. Keine Doc-Stelle behauptet mehr „1.000.000 cents = 10.000 $SCOUT" ohne D99-konforme Auflösung.
-3. Keine Doc-Stelle nummeriert Phasen 1/3/4 für dasselbe Modell.
-4. „100× auseinander" / Pricing-Widerspruch ist als reconciled (MV/1.000 Credits) aufgelöst.
-5. CASP-Wording neutral „nach gültiger Lizenz", scout-launch-strategie.md nicht mehr als Widerspruch.
-6. CONCEPT-DPC-ECONOMY.md interner Selbstwiderspruch geheilt (alter Faktor 10.000 BSD/€ raus).
+1. Modal/Notification/Katalog zeigen „Treuer Sammler"/„Sadık Koleksiyoncu", nirgends mehr „Diamond Hands"/„Elmas Eller" (außer Key/i18n-Key).
+2. `diamond_hands` qualifiziert NUR wenn eine Holding-Position ≥30 Tage ununterbrochen gehalten (created_at), nicht beim Kauf.
+3. Konfetti erscheint NICHT bei trading-Achievements; bei manager/scout schon.
+4. tsc grün + vitest social grün.
+
+**Scope-Out:** breitere `dpc_mastery.hold_days`-Seed-Bereinigung (eigener Slice falls andere Consumer); andere Achievements; Push-500 (369).
+
+**Self-Verify:** grep „Diamond Hands"/„Elmas Eller" in messages+src = 0 (außer Key); Live-DB `achievement_definitions` title check; vitest social.
 ```

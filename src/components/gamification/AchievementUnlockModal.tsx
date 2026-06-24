@@ -27,7 +27,8 @@ export default function AchievementUnlockModal({
 
   return (
     <>
-      <Confetti active={open} />
+      {/* no-confetti-Regel (feedback_no_confetti): keine Celebration bei Trading-Aktionen */}
+      <Confetti active={open && achievement.category !== 'trading'} />
       <Dialog open={open} onClose={onClose} title={t('unlocked')}>
         <div className="text-center py-4">
           {/* Icon */}

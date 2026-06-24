@@ -942,7 +942,7 @@ ONBOARDING:
 TRADING:
 ├── "Smart Money"     — Erster profitabler Trade
 ├── "10x Trader"      — 10 Trades abgeschlossen
-├── "Diamond Hands"   — DPC 30 Tage gehalten
+├── "Treuer Sammler"  — Scout Card 30 Tage gehalten
 
 FANTASY:
 ├── "Lineup Master"   — 5 Spieltage in Folge Lineup gesetzt

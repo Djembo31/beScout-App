@@ -426,13 +426,21 @@ export async function checkAndUnlockAchievements(userId: string): Promise<string
   }
 
   if (needsDiamondHands) {
-    const { data: masteryData } = await supabase
-      .from('dpc_mastery')
-      .select('hold_days')
+    // Slice 367: echte Halte-Dauer aus holdings.created_at (Positions-Eröffnung).
+    // dpc_mastery.hold_days war geseedetes Mock (97,6% ≥30) → Award beim Kauf (T-3).
+    // Zombie-Rows werden bei qty=0 gelöscht → created_at = Start der aktuellen
+    // ununterbrochenen Holding-Position. Älteste noch gehaltene Position = max Halte-Dauer.
+    const { data: holdingsData } = await supabase
+      .from('holdings')
+      .select('created_at')
       .eq('user_id', userId)
-      .order('hold_days', { ascending: false })
+      .gt('quantity', 0)
+      .order('created_at', { ascending: true })
       .limit(1);
-    maxHoldDays = masteryData?.[0]?.hold_days ?? 0;
+    const oldest = holdingsData?.[0]?.created_at;
+    maxHoldDays = oldest
+      ? Math.floor((Date.now() - new Date(oldest).getTime()) / 86_400_000)
+      : 0;
   }
 
   if (needsFoundingScout) {

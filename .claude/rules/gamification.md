@@ -72,3 +72,5 @@ paths:
 - Negative Scores abfangen (getRang defaults zu Bronze I)
 - Mission Progress: `track_my_mission_progress` nutzen, NICHT `update_mission_progress` (revoked)
 - Achievement-Modal: `processedRef` Set + localStorage um Doppel-Anzeige zu verhindern
+- **Achievement-Kriterium NIE aus geseedeter Mock-Spalte ableiten** (S367, T-3/E4): `diamond_hands` las `dpc_mastery.hold_days` = Seed (live 2472/2533 ≥30, Cluster 91/97/60, kein Trigger) → Award beim KAUF statt nach echtem Halten. Für „seit-X-gehalten/aktiv"-Logik die **echte** Quelle nutzen: `holdings.created_at` (Zombie-Delete-Trigger S025 garantiert created_at = Start der ununterbrochenen Position). Generalisiert: jede Mock→Pro-Schwelle vor Verdrahtung gegen Live-Verteilung prüfen.
+- **Konfetti hat ZWEI Trigger-Pfade** (S367, feedback_no_confetti): `AchievementUnlockModal` (`<Confetti active>`) UND `ToastProvider` (`type==='celebration'`). Bei no-confetti-Audit auf Trading-Aktionen BEIDE prüfen. Achievement-Modal: Konfetti am `category`-Feld gaten (`category!=='trading'`), nicht am einzelnen Key.
