@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 368b | 2026-06-24 | feat(player): Scout-Card-Anzeige-Wahrheit (RewardsTab) — Einstieg←Erst-IPO/„—", 4 Zahlen trennen, CSF €→Credits
+- Stage-Chain: SPEC (`worklog/specs/368b-scout-card-display-truth.md`, M) → IMPACT (skipped, 1 read-only Query) → BUILD (7 Files) → REVIEW (`worklog/reviews/368b-review.md`, reviewer **PASS**, 2 LOW) → PROVE → LOG.
+- **Kontext (D100, E4):** Im RewardsTab waren 3 der 4 Card-Wert-Zahlen verschmolzen/irreführend. „Dein Einstieg" las `players.ipo_price` (von Slice 114 für **jeden** Spieler auf MV/10 überschrieben → erfunden, auch ohne je stattgefundene IPO). CSF-Tooltips erklärten den Reward in **€** (user-facing verboten, D99/`trading.md`/`business.md`).
+- **Fix (reine Anzeige, kein Money-Pfad — Handel läuft übers Orderbuch):** (1) **Eintritts-Anker** = echter Preis der **Erst-IPO** (`ipos.price`, frühestes Row) via neuem Service `getFirstIpoPrice` + Hook `useFirstIpoPrice` (lazy, 5min); kein IPO → ehrlich **„—"** nur im Einstieg-Feld (MV + Meilensteine bleiben, Anil-Entscheid — CSF hängt am MV). (2) **2 InfoTooltips** (MV = Transfermarkt-Referenz/nicht Kartenpreis · Einstieg = Vereins-Erstverkaufspreis). (3) **CSF €→Credits**: `growthFormulaTooltip`/`growthMilestonesDesc` DE+TR auf linear/Credits/Ermessen, kein €.
+- **Files:** `ipo.ts` (+getFirstIpoPrice), `misc.ts` (+useFirstIpoPrice), `keys.ts` (+ipos.firstPrice), `RewardsTab.tsx`, `messages/{de,tr}.json`, `ipo.test.ts` (+4 Tests, Finding #1).
+- **Proof:** `worklog/proofs/368b-tests.txt` — tsc 0 · 133 Tests grün (4 neu) · €-frei DE+TR · i18n-Keys present · Verbots-grep clean. **Visueller Playwright-Proof post-Deploy offen.**
+- **Kein Daten-UPDATE** (96 „Drift"-Rows per D100 kein Bug). Floor-Label-Vereinheitlichung bewusst → **368c** (zusammen mit Floor-Quellen-Badge).
+- **Nächstes:** 368c Floor-Orderbuch transparent + manipulationssicher.
+
 ## 368a | 2026-06-24 | docs(decision): D100 — Scout-Card-Wertmodell als Kanon (4 getrennte Zahlen, ipo_price MV-entkoppelt, Floor=Orderbuch)
 - Stage-Chain: SPEC (`docs/plans/2026-06-24-scout-card-value-model-spec.md`, 368-Serie) → IMPACT (skipped, reine Doc) → BUILD (5 Doc-Edits) → REVIEW (`worklog/reviews/368a-review.md`, reviewer **PASS**, 2 NIT — #1 gefixt) → PROVE → LOG.
 - **Kontext / Prämissen-Wechsel:** Anil-Klärung 2026-06-24 deckte auf, dass die alte Slice-368-Prämisse („ipo_price ist falsch → auf MV/10 nachziehen", aus D99 Pkt 4) **das Modell missversteht**. `ipo_price` = **Vereins-Eintrittspreis**, NICHT MV-gekoppelt. Live-Discovery: `buy_player_sc` kauft über Orderbuch (nicht ipo/floor); 96/3.935 „Drift"-Rows, 0 mit aktiver IPO/offener Order; Explore-UI-Inventur (Floor-Quelle nie sichtbar, ipoPrice/MV verwechselbar im RewardsTab).

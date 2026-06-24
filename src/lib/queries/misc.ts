@@ -13,7 +13,7 @@ import { getPlayerGameweekScores, getPlayerMatchTimeline } from '@/lib/services/
 import { getPbtForPlayer } from '@/lib/services/pbt';
 import { getLiquidationEvent } from '@/lib/services/liquidation';
 import { getSellOrders } from '@/lib/services/trading';
-import { getIpoForPlayer, getUserIpoPurchases } from '@/lib/services/ipo';
+import { getIpoForPlayer, getFirstIpoPrice, getUserIpoPurchases } from '@/lib/services/ipo';
 import { getOpenBids } from '@/lib/services/offers';
 import { getWildcardHistory } from '@/features/fantasy/services/wildcards';
 import type { PostType } from '@/types';
@@ -237,6 +237,20 @@ export function useIpoForPlayer(playerId: string | undefined) {
   return useQuery({
     queryKey: qk.ipos.byPlayer(playerId!),
     queryFn: () => getIpoForPlayer(playerId!),
+    enabled: !!playerId,
+    staleTime: FIVE_MIN,
+  });
+}
+
+/**
+ * Slice 368b / D100: price of the player's first IPO = honest "Dein Einstieg" anchor.
+ * Returns null when the player never had an IPO → UI shows "—" (no fabricated number).
+ * Historical/immutable value → 5min staleTime is safe. Consumer = RewardsTab (lazy mount).
+ */
+export function useFirstIpoPrice(playerId: string | undefined) {
+  return useQuery({
+    queryKey: qk.ipos.firstPrice(playerId!),
+    queryFn: () => getFirstIpoPrice(playerId!),
     enabled: !!playerId,
     staleTime: FIVE_MIN,
   });

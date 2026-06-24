@@ -7,6 +7,7 @@ import { Card, InfoTooltip } from '@/components/ui';
 import { calcSuccessFee } from '@/components/player/PlayerRow';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { centsToBsd } from '@/lib/services/players';
+import { useFirstIpoPrice } from '@/lib/queries/misc';
 import { fmtScout } from '@/lib/utils';
 import type { Player } from '@/types';
 
@@ -36,7 +37,9 @@ const MILESTONES: ReadonlyArray<{ key: MilestoneKey; multiplier: number; labelKe
 export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
   const t = useTranslations('playerDetail');
   const marketValue = player.marketValue || 0;
-  const ipoPrice = player.prices.ipoPrice ?? 0;
+  // Slice 368b / D100: honest entry anchor = price of the player's FIRST IPO (ipos.price),
+  // NOT players.ipo_price (Slice-114-poisoned to MV/10 for every player). null → "—".
+  const { data: entryPrice } = useFirstIpoPrice(player.id);
   const hasHolding = holdingQty > 0;
 
   return (
@@ -56,23 +59,29 @@ export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
         </div>
       </Card>
 
-      {/* Current Status */}
+      {/* Current Status — 4-Zahlen-Modell (D100): MV-Referenz vs. Eintritts-Anker klar getrennt */}
       <div className="grid grid-cols-2 gap-3">
         <Card className="p-4">
-          <div className="text-[10px] text-white/40 mb-1">{t('currentMarketValue')}</div>
+          <div className="flex items-center gap-1 mb-1">
+            <span className="text-[10px] text-white/40">{t('currentMarketValue')}</span>
+            <InfoTooltip text={t('mvReferenceTooltip')} />
+          </div>
           <div className="font-mono font-black tabular-nums text-lg">
             {marketValue > 0 ? formatMarketValue(marketValue) : '–'}
           </div>
         </Card>
         <Card className="p-4">
-          <div className="text-[10px] text-white/40 mb-1">{t('yourEntry')}</div>
+          <div className="flex items-center gap-1 mb-1">
+            <span className="text-[10px] text-white/40">{t('yourEntry')}</span>
+            <InfoTooltip text={t('entryAnchorTooltip')} />
+          </div>
           <div className="font-mono font-black tabular-nums text-lg">
-            {ipoPrice > 0 ? (
+            {entryPrice != null && entryPrice > 0 ? (
               <>
-                {fmtScout(ipoPrice)} <span className="text-sm text-white/40">Credits</span>
+                {fmtScout(entryPrice)} <span className="text-sm text-white/40">Credits</span>
               </>
             ) : (
-              '–'
+              '—'
             )}
           </div>
           {hasHolding && (

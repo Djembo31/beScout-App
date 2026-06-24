@@ -89,6 +89,7 @@ export const qk = {
     announced: ['ipos', 'announced'] as const,
     recentlyEnded: ['ipos', 'recently-ended'] as const,
     byPlayer: (pid: string) => ['ipos', 'player', pid] as const,
+    firstPrice: (pid: string) => ['ipos', 'first-price', pid] as const,
     purchases: (uid: string, ipoId: string) => ['ipos', 'purchases', uid, ipoId] as const,
   },
 

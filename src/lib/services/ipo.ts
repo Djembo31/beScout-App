@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { mapRpcError } from '@/lib/services/trading';
+import { centsToBsd } from '@/lib/services/players';
 import { notifText, getRecipientLocale } from '@/lib/notifText';
 import type { DbIpo } from '@/types';
 
@@ -82,6 +83,29 @@ export async function getIpoForPlayer(playerId: string): Promise<DbIpo | null> {
     return 0;
   });
   return sorted[0] ?? null;
+}
+
+/**
+ * Price (Credits) of the player's FIRST (earliest) IPO — the club's entry anchor.
+ * Slice 368b / D100: the honest "Dein Einstieg" anchor. `players.ipo_price` was
+ * overwritten by Slice 114 to FLOOR(MV/10) for EVERY player (even those never
+ * sold via IPO) → fabricated. The earliest `ipos.price` is the most honest
+ * available anchor; a player with NO ipo row returns null → UI shows "—" instead
+ * of an invented number. ipo_price is MV-decoupled & frozen (D100, trading.md).
+ */
+export async function getFirstIpoPrice(playerId: string): Promise<number | null> {
+  const { data, error } = await supabase
+    .from('ipos')
+    .select('price')
+    .eq('player_id', playerId)
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  const cents = data?.price;
+  if (typeof cents !== 'number' || cents <= 0) return null;
+  return centsToBsd(cents);
 }
 
 /** How many DPCs a user already bought in a specific IPO */
