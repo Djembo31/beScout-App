@@ -1,78 +1,99 @@
-# Spec 368e — Einstiegspreis-SSOT: 3 Spalten → 1 Quelle (`ipo_price`)
+# Spec 368e — Zwei-Zahlen-Modell: „Markteintritt" + „aktueller IPO-Preis" sauber trennen + Daten reparieren
 
-**Datum:** 2026-06-24 · **Scope:** Money/CEO (§3) · **Größe:** L (Daten + Service + UI + Tests) · **Slice-Type:** Migration + Service + UI
-**Status:** SPEC — wartet auf Anil-Approval. Auslöser: Anil-Entscheid 2026-06-24 („Strukturproblem grundsätzlich angehen").
+**Datum:** 2026-06-24 (Rewrite nach Anil-Klärung) · **Scope:** Money/CEO (§3) · **Größe:** L · **Slice-Type:** Migration + Service + UI
+**Status:** SPEC — wartet auf Anil-Approval der Design-Entscheidungen (§7).
 
-> Anil-Frust-Wurzel: Ein 500K-Spieler (Douglas) zeigte 10–11 Credits. Ursache nicht nur ein Wert, sondern **drei** „Einstiegspreis"-Spalten, die driften und von verschiedener UI gelesen werden. Ad-hoc-Fixes (Slice 114, D100, 368e-Vorarbeit) haben das Problem verschoben, nicht gelöst. → EINE Quelle.
+> **Rewrite-Grund (Anil 2026-06-24):** Die alte 368e-Spec wollte „3 Spalten → 1 (`ipo_price`)" kollabieren. Das ist FALSCH. Anils Modell: **Ein Verein kann mehrere geplante, vorangekündigte IPOs pro Spieler starten. Der ERSTE IPO = Markteintritt (zeigt die Entwicklung auf BeScout, eingefroren). Spätere IPOs = der aktuelle IPO-Preis.** Das sind **zwei dauerhaft getrennte Zahlen** — kollabieren würde sie zerstören. Live-Verifikation (D87) bestätigt: das Schema implementiert dieses Modell bereits, nur die DATEN sind durch Slice 114 + Seed-Müll verbogen.
 
-## 1. Problem-Statement (Evidence)
-Drei Spalten kodieren „den Einstiegs-/Erstpreis", sollten übereinstimmen, tun es nicht:
-| Quelle | gelesen von (UI) | Rolle |
+## 1. Problem-Statement (Evidence, Live-verifiziert)
+
+**Das Modell IST im Schema (zwei Live-Trigger beweisen es):**
+- `trg_set_initial_listing_price` (AFTER INSERT ipos): setzt `players.initial_listing_price = NEW.price` **nur wenn IS NULL** → **einmalig beim ersten IPO, eingefroren = Markteintritt**.
+- `sync_player_ipo_price` (AFTER INSERT/UPDATE price,status): setzt `players.ipo_price = NEW.price` **nur bei status announced/early_access/open** → folgt dem **zuletzt aktiven IPO = aktueller IPO-Preis**.
+- `ipos` = voller Verlauf. **537 Spieler haben bereits mehrere IPOs** (Tranchen, Cooldown 30d, Pflicht-Ankündigung — trading.md).
+
+**Die DATEN ehren das Modell nicht (Live-Counts gegen Prod `skzjfhvgccaeplydsunz`):**
+| Defekt | Count (aktiv, nicht liq.) | Ursache |
 |---|---|---|
-| `players.ipo_price` | Pricing, Floor-Fallback (`recalc_floor_price`), `dbToPlayer→prices.ipoPrice` | de-facto Haupt-Preis |
-| `ipos.price` (Event-Row) | `RewardsTab` „Einstieg" via `getFirstIpoPrice`/`useFirstIpoPrice` (Slice 368b) | Erst-IPO-Anker |
-| `players.initial_listing_price` | `TradingTab` „Markteintritt" + `useManagerData` Portfolio-% (`BestandView`?) | „erster Listing-Preis" |
+| `ipo_price` (aktueller Preis) ≠ letzter echter aktiver IPO | ~488 | **Slice 114** überschrieb `ipo_price=MV/10` für ALLE (out-of-band, am Trigger vorbei). Bsp. Şeref Özcan: IPOs 31.100/31.153, aber `ipo_price=15.000`. |
+| `initial_listing_price` (Markteintritt) = Seed-Müll oder verbogen | viele | Seed-IPOs mit Flach-Preisen (Douglas 500K → erster IPO 10) + ad-hoc-UPDATE dieser Session (2964 Zeilen). |
+| `initial_listing_price ≠ ipo_price` | 1077 | Folge obiger zwei (Spec-alt sagte 648 = STALE). |
+| `ipo_price = 0` (MV=0-Spieler) | 55 | Zero-Price-Guard-Fälle. |
 
-**Live-Beleg (2026-06-24):** Nach Teil-Korrektur stehen **648** aktive Spieler mit `initial_listing_price ≠ ipo_price`. Douglas war 50× daneben (10 vs 500). „Markteintritt" las `initial_listing_price` (10), während Hero/Floor schon 500 zeigten.
+**Symptom (Anil-flagged):** Douglas (MV 500K) zeigte 10–11 Credits als „Markteintritt", weil sein geseedeter erster IPO 10 war.
 
-## 2. Aktueller Daten-Stand (Vorarbeit dieser Session — MUSS Spec-Baseline sein)
-- ✅ **19 grobe Preis-Ausreißer** (Faktor ≥3 off MV/1000) korrigiert: `ipo_price`+`ipos.price`+`last_price`+`floor_price` = ROUND(MV/10) cents. (CEO-approved scope.)
-- ⚠️ **`initial_listing_price`**: 2964 Zeilen auf ROUND(MV/10) gesetzt (Scope-Overreach über die 19 hinaus — `initial_listing_price` war breit kaputter Flach-Seed). Kein Schaden (Anzeige, Phase-1-Spielgeld), aber unkoordiniert → 648 Mismatches `initial_listing_price ≠ ipo_price`.
-- Kleine legit Abweichungen (`ipo_price ≠ MV/10` innerhalb Faktor 3) bewusst BEHALTEN (Anil: wirkt natürlicher).
+## 2. Lösungs-Design — Zwei Zahlen, getrennt, repariert
 
-## 3. Lösungs-Design — `ipo_price` = SSOT
-1. **Daten:** `UPDATE players SET initial_listing_price = ipo_price`; `UPDATE ipos SET price = players.ipo_price` (je Player, alle aktiven) → alle drei stimmen überein. Legit-Abweichungen bleiben (kommen aus ipo_price).
-2. **UI-Reader auf `prices.ipoPrice` (SSOT) umstellen:**
-   - `TradingTab` „Markteintritt": `initialListingPrice` → `ipoPrice`.
-   - `useManagerData` Portfolio-„Wertentwicklung": Cost-Basis `initialListingPrice` → `ipoPrice` (oder bewusst `holdings.avg_buy_price` für echtes P&L — Design-Q).
-   - `RewardsTab` „Einstieg": `getFirstIpoPrice`(ipos.price) → `prices.ipoPrice`. (Kehrt 368b-Mechanik um — jetzt zulässig, da ipo_price die vertrauenswürdige SSOT ist; 368b nutzte ipos.price NUR weil ipo_price Slice-114-vergiftet war, das ist behoben.)
-3. **Deprecation:** Nach Reader-Umstellung `initial_listing_price` als deprecated markieren (Reads = 0), DROP COLUMN in eigenem Folge-Slice (Pre-Drop-grep `src/ scripts/ messages/`, S305/324-Pattern). `getFirstIpoPrice`/`useFirstIpoPrice`/`qk.ipos.firstPrice` entfernen wenn 0 Consumer.
-4. **Guard gegen Re-Drift:** Trigger/CHECK oder Invariant-Test: bei IPO-Anlage `ipos.price = players.ipo_price`; `initial_listing_price` nie eigenständig setzen. (D39 Trigger-Pattern.)
+### Konzept A — „Markteintritt" (Entry, eingefroren, Entwicklungs-Basis)
+- **Quelle der Wahrheit = früheste `ipos.price`** (per `created_at ASC`). Denormalisierter Cache = `initial_listing_price` (set-once-Trigger hält ihn korrekt für ZUKÜNFTIGE IPOs).
+- **Alle Markteintritt-Anzeigen lesen EINE Quelle.** Heute: RewardsTab liest `ipos.price` (368b), TradingTab liest `initial_listing_price`. → vereinheitlichen.
+
+### Konzept B — „Aktueller IPO-Preis" (nur wenn IPO läuft)
+- **Quelle = aktive `ipos`-Row** (status open/early_access), live gelesen (`getIpoForPlayer`). **Bereits korrekt** in PlayerIPOCard/BuyModal/MarketContent — KEINE Änderung nötig.
+
+### `players.ipo_price` — Rolle klären (§7 Q3)
+- Heute denormalisiert „letzter aktiver IPO-Preis", aber Slice-114-korrupt. UI-Konsumenten (PriceChart-Referenzlinie, Portfolio-Wert-Fallback `valueBsd = floorBsd ?? ipoPriceBsd ?? avgBuyBsd`, SearchOverlay-Fallback) wollen semantisch eine **stabile Referenz = Markteintritt**, nicht den volatilen aktuellen Preis.
+- **Empfehlung:** `players.ipo_price` wird zur denormalisierten **Markteintritt**-Referenz (= `initial_listing_price`), und der `sync_player_ipo_price`-Trigger wird auf **set-once** umgestellt (wie initial_listing). Dann sind `ipo_price` und `initial_listing_price` dasselbe (Markteintritt) → später EINE Spalte. „Aktueller IPO-Preis" braucht keine denormalisierte Spalte (wird live gelesen).
+
+### Daten-Reparatur (Migration / einmaliger MCP-UPDATE + committed File)
+- **Markteintritt** je Spieler ← früheste `ipos.price`. Für Seed-Müll-Erst-IPOs (kein echter Launch) → §7 Q2.
+- **`players.ipo_price`** ← Markteintritt (nach Q3-Entscheid).
+- **Pflicht-Schutz (Edge):** Rows mit **aktiver IPO** (open/early_access/announced) NICHT anfassen (sonst Live-Kaufpreis verändert).
+
+## 3. Money-Pfad-Parität (Live-verifiziert — LOW Risk)
+- `recalc_floor_price`: IPO-Floor-Komponente liest **aktive `ipos`-Row**, NICHT `players.ipo_price`. → ipo_price-Reparatur **bewegt Floor nicht**. (Live-Body geprüft.)
+- `buy_from_ipo`: bucht über die spezifische `ipos`-Row (per id), nicht über `players.ipo_price`.
+- `buy_player_sc`/`buy_from_order`: Orderbuch (`v_order.price`). Keine der 3 Spalten.
+- Exposure: 610 Holdings, 6 offene Sell-Orders. Alle 3 Spalten = Display-only.
 
 ## 4. Code-Reading-Liste (Pflicht, Build)
-| File | Zweck |
+| File | Zweck / zu prüfende Frage |
 |---|---|
-| live `recalc_floor_price` + `create_ipo` + `buy_from_ipo` | wer schreibt/liest ipo_price/ipos.price (D87) |
-| `src/lib/services/players.ts` (`dbToPlayer`, PLAYER_SELECT_COLS, `createPlayer`) | Mapper, ob initial_listing_price noch gemappt werden muss |
-| `src/lib/services/ipo.ts` (`getFirstIpoPrice`) + `src/lib/queries/misc.ts` (`useFirstIpoPrice`) + `keys.ts` | RewardsTab-Anker entfernen |
-| `src/components/player/detail/RewardsTab.tsx` | „Einstieg" → ipoPrice |
-| `src/components/player/detail/TradingTab.tsx` (Z.147-161) | „Markteintritt" → ipoPrice |
-| `src/features/manager/hooks/useManagerData.ts` (Z.81-86) | Portfolio-% Cost-Basis |
-| `src/features/market/components/portfolio/BestandView.tsx` | initialListingPrice-Nutzung |
-| `src/types/index.ts` (prices.initialListingPrice, DbPlayer.initial_listing_price) | Type-Cleanup |
-| `src/lib/queries/enriched.ts`, `marketContent.priceCents.ts`, `research.ts`, `search.ts` | Rest-Reader prüfen |
-| Tests: `TradingTab.test.tsx`, `players.test.ts`, `ipo.test.ts`, `db-invariants.test.ts` | anpassen |
+| live `sync_player_ipo_price`, `trg_set_initial_listing_price`, `recalc_floor_price`, `buy_from_ipo`, `create_ipo` | Trigger-/Money-Semantik (Q3 Trigger-Umstellung, Ankündigungs-/Cooldown-Regeln) |
+| `src/lib/services/ipo.ts` (`getFirstIpoPrice` Z.96, `getIpoForPlayer` Z.64) | Entry- vs. Current-Quelle |
+| `src/lib/services/players.ts` (`dbToPlayer` Z.243-244, PLAYER_SELECT_COLS Z.22) | Mapper `ipoPrice`/`initialListingPrice` |
+| `src/components/player/detail/RewardsTab.tsx:42` | „Dein Einstieg" = Markteintritt-Leser #1 |
+| `src/components/player/detail/TradingTab.tsx:95,121,154-156` | „Markteintritt" #2 + PriceChart-`ipoPrice`-Prop |
+| `src/components/player/detail/PriceChart.tsx:100,140` | IPO-Referenzlinie = soll Markteintritt sein |
+| `src/features/manager/hooks/useManagerData.ts:82,85` | Portfolio-% Cost-Basis → `avg_buy_price` (§7 Q1 alt = bestätigt) |
+| `src/features/manager/components/kader/KaderTab.tsx:202`, `BestandView.tsx:387`, `layout/SearchOverlay.tsx:364` | `ipoPrice`-Wert-Fallbacks (Markteintritt-Semantik OK?) |
+| `src/features/market/components/marktplatz/PlayerIPOCard.tsx:183` | „aktueller IPO-Preis" = Konzept B (unverändert) |
+| `src/types/index.ts:70,580` | Type-Cleanup falls Spalte zusammengeführt |
+| Tests: `players.test.ts:97`, `TradingTab.test.tsx:94-95,277`, `ipo.test.ts`, `db-invariants.test.ts` | anpassen |
 
 ## 5. Pattern-References
-- D99/D100 (Pricing 1 Card=MV/1000; ipo_price=Vereins-Eintritt, MV-entkoppelt). **D100-Präzisierung nötig (→ D101):** „kein Daten-Update" galt nur für KLEINE legit Abweichungen; grobe Seed-Ausreißer + Mehrfach-Quellen sind Bugs.
-- errors-frontend.md S368b „Display-Anker aus Source-of-Truth" — hier: EINE Source statt drei.
-- errors-db.md S305/324 Column-DROP 4-Achsen-Audit (vor initial_listing_price-DROP).
-- errors-db.md „Multi-Hop Bridge ohne Trigger" (S313) — Re-Drift-Guard.
+- **D100** (Vier-Zahlen-Modell) — Markteintritt vs. aktueller IPO-Preis sind die Zahlen #1 vs. eine IPO-Spielart. **D101 (neu)**: alte 368e-„auf 1 kollabieren"-Prämisse verworfen; ipo_price=MV/10 war Slice-114-Artefakt, nicht „die Wahrheit".
+- errors-frontend.md S368b „Display-Anker aus Source-of-Truth".
+- errors-db.md S303 „Seed-Wert-Poisoning" (Seed-IPO-Preise = Flach-Müll → Hygiene vor Formel) + D39 Trigger-Guard.
+- errors-db.md S305/324 Column-DROP 4-Achsen-Audit (falls Spalten-Merge → DROP eigener Folge-Slice).
 
 ## 6. Acceptance Criteria
-1. `players.ipo_price = ipos.price = initial_listing_price` für alle aktiven Spieler (SQL-Count Mismatch = 0).
-2. „Markteintritt" (TradingTab) == „Einstieg" (RewardsTab) == Hero-IPO-Bezug für Stichprobe (Playwright, ≥2 Spieler).
-3. Douglas: alle drei = 500. Manaj: alle drei = sein ipo_price (legit). VERIFY SQL + live.
-4. 0 Reader von `initial_listing_price` in `src/` (grep) nach Umstellung (oder bewusst dokumentiert).
-5. Portfolio-„Wertentwicklung" rechnet auf definierter Basis (ipoPrice ODER avg_buy_price — Anil-Entscheid), kein +4900%-Artefakt.
-6. tsc + vitest grün; betroffene Tests angepasst.
+1. **Markteintritt = aktueller IPO-Preis sind getrennt darstellbar** und für einen Multi-IPO-Spieler (z.B. Aliou Badara: Entry 33.400, später 60.000) korrekt unterschiedlich angezeigt (Playwright/SQL).
+2. „Dein Einstieg" (RewardsTab) == „Markteintritt" (TradingTab) == PriceChart-Referenzlinie — **eine Entry-Quelle**, identische Zahl (≥2 Spieler).
+3. Douglas (MV 500K): Markteintritt ist ein plausibler Wert (nicht 10), nach Q2-Regel. VERIFY SQL + live.
+4. Kein Spieler mit aktiver IPO wurde im Daten-UPDATE verändert (Pre/Post-SQL-Diff der aktiven-IPO-Rows = identisch).
+5. „Aktueller IPO-Preis" (PlayerIPOCard) unverändert korrekt (liest aktive IPO live).
+6. Re-Drift-Guard: Invariant-Test/Trigger hält Markteintritt = früheste ipos.price; künftige out-of-band-UPDATEs fail-closed oder erkannt.
+7. tsc + vitest grün; Money-Smoke (buy/floor) byte-identisch; recalc_floor unberührt bewiesen.
 
-## 7. Open-Questions (Anil) — ✅ ENTSCHIEDEN (2026-06-24)
-1. ✅ **Portfolio-„Wertentwicklung"-Basis = `holdings.avg_buy_price`** (echtes User-P&L, ehrlicher). NICHT ipo_price.
-2. ✅ **RewardsTab „Einstieg" von `ipos.price` → `ipo_price` umstellen** (368b-Umkehr bestätigt — eine Quelle).
-3. ✅ **`initial_listing_price` erst DEPRECATEN + Re-Drift-Guard, DROP COLUMN in eigenem Folge-Slice** (nicht sofort).
-**→ Alle BUILD-Blocker geklärt. Slice 368e ist approved-to-build in der nächsten (frischen) Session.**
+## 7. Entscheidungen (Anil 2026-06-24) — ✅ ALLE GEKLÄRT
+1. ✅ **Portfolio-„Wertentwicklung"-Cost-Basis = `holdings.avg_buy_price`** (echtes User-P&L). useManagerData umstellen.
+2. ✅ **Seed-Markteintritt → `ROUND(MV/10)`** (kanonischer Default-Launchpreis). Alle bestehenden Spieler sind Phase-1-geseedet (keine echten Club-Launches) → Markteintritt = MV/10. Echte zukünftige IPOs behalten ihren echten Preis via Set-once-Trigger.
+3. ✅ **`players.ipo_price` = Markteintritt** (eingefroren). Trigger `sync_player_ipo_price` wird von „folgt jedem aktiven IPO" auf **set-once** umgestellt (nur setzen wenn noch nicht gesetzt) — sonst überschreibt ein zweiter IPO den Markteintritt. `initial_listing_price` = redundanter Spiegel (= ipo_price). „Aktueller IPO-Preis" bleibt live aus aktiver `ipos`-Row (keine Spalte).
+4. ✅ **DROP** der redundanten Spalte (`initial_listing_price`) = eigener Folge-Slice nach Reader=0.
+
+**Repair-Regel (BUILD):** Für alle aktiven, nicht-liquidierten Spieler OHNE aktive IPO: `ipo_price = initial_listing_price = ROUND(market_value_eur/10)`. MV=0 → 0 (Anzeige „—"). Spieler MIT aktiver IPO (open/early_access/announced): **NICHT anfassen** (ipo_price = laufender Kaufpreis-Kontext). Trigger-Umstellung sichert Zukunft.
 
 ## 8. Proof-Plan
-- SQL: Mismatch-Count=0 + Douglas/Manaj-Stichprobe.
-- Playwright: Markteintritt==Einstieg für 2 Spieler, kein i18n-/NaN-Leak.
-- vitest + tsc + reader-grep.
-- `pg_get_functiondef` create_ipo (Re-Drift-Guard verifiziert).
+- SQL: Multi-IPO-Spieler Entry≠Current korrekt; aktive-IPO-Rows Pre/Post identisch; Douglas Markteintritt plausibel.
+- Playwright: RewardsTab „Dein Einstieg" == TradingTab „Markteintritt" == Chart-Linie; PlayerIPOCard aktueller IPO-Preis; ≥2 Spieler, DE+TR, kein NaN/i18n-Leak.
+- vitest + tsc + reader-grep + `pg_get_functiondef` der geänderten Trigger.
 
 ## 9. Scope-Out
-- Echte Club-IPO-Preis-Logik (Clubs gibt's in Phase 1 nicht).
-- DROP COLUMN initial_listing_price (eigener Folge-Slice nach Reader=0).
-- Die kleinen legit ipo-Abweichungen (bleiben).
+- „Aktueller IPO-Preis"-Anzeige (Konzept B) — bereits korrekt, nicht anfassen.
+- DROP COLUMN (eigener Folge-Slice).
+- Echte Club-IPO-Preis-Logik / mehrere reale Tranchen-Flows (Phase 1 keine echten Clubs).
+- Sybil/Anti-Manipulation (368c, separater Phase-2-Slice).
 
 ## 10. Stage-Chain
-SPEC → IMPACT (/impact: 17 Reader-Files) → BUILD (Daten-Align → UI-Reader → Type/Test-Cleanup → Re-Drift-Guard) → REVIEW (reviewer, Money) → PROVE → LOG (+ D101 DISTILL + trading.md/treasury.md update).
+SPEC (Rewrite) → IMPACT ✅ (`worklog/impact/368e-entry-price-ssot.md`, Live-verifiziert) → BUILD (Daten-Reparatur mit aktive-IPO-Schutz → Trigger Q3 → Entry-Reader vereinheitlichen → Type/Test-Cleanup → Re-Drift-Guard) → REVIEW (reviewer, Money) → PROVE → LOG (+ D101 DISTILL + trading.md/treasury.md update).

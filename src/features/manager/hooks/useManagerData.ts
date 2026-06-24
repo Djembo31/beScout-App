@@ -79,14 +79,18 @@ export function useManagerData(userId: string | undefined) {
   // ── Derived: portfolio trend ──
   const portfolioTrend = useMemo<PortfolioTrend>(() => {
     const totalValue = mySquadPlayers.reduce((sum, p) => sum + (getFloor(p)), 0);
-    const withInitial = mySquadPlayers.filter(p => p.prices.initialListingPrice != null && p.prices.initialListingPrice > 0);
-    if (withInitial.length === 0) return { totalValue, pctChange: null };
+    // Slice 368e / §7-#1: Wertentwicklung gegen den echten Einstand (holdings.avg_buy_price,
+    // Cents→Credits), nicht gegen den Markteintritt — ehrliches User-P&L statt Markt-Trajektorie.
+    const avgBuyBsd = new Map<string, number>();
+    for (const h of holdings) avgBuyBsd.set(h.player_id, (h.avg_buy_price ?? 0) / 100);
+    const withCost = mySquadPlayers.filter(p => (avgBuyBsd.get(p.id) ?? 0) > 0);
+    if (withCost.length === 0) return { totalValue, pctChange: null };
 
-    const totalInitial = withInitial.reduce((sum, p) => sum + (p.prices.initialListingPrice ?? 0), 0);
-    const totalCurrent = withInitial.reduce((sum, p) => sum + getFloor(p), 0);
-    const pctChange = totalInitial > 0 ? ((totalCurrent - totalInitial) / totalInitial * 100) : null;
+    const totalCost = withCost.reduce((sum, p) => sum + (avgBuyBsd.get(p.id) ?? 0), 0);
+    const totalCurrent = withCost.reduce((sum, p) => sum + getFloor(p), 0);
+    const pctChange = totalCost > 0 ? ((totalCurrent - totalCost) / totalCost * 100) : null;
     return { totalValue, pctChange };
-  }, [mySquadPlayers, getFloor]);
+  }, [mySquadPlayers, getFloor, holdings]);
 
   // ── Derived: fitness map for pitch dots ──
   const fitnessMap = useMemo(() => {

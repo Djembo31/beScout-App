@@ -21,7 +21,6 @@ import {
   updateIpoStatus,
   getActiveIpos,
   getIpoForPlayer,
-  getFirstIpoPrice,
   getUserIpoPurchases,
   getRecentlyEndedIpos,
   getAnnouncedIpos,
@@ -376,42 +375,6 @@ describe('getIpoForPlayer', () => {
     mockSupabaseResponse(null, { message: 'Query failed' });
 
     await expect(getIpoForPlayer(PLAYER_ID)).rejects.toThrow('Query failed');
-  });
-});
-
-describe('getFirstIpoPrice', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('returns the first IPO price in Credits (centsToBsd) when found', async () => {
-    // Slice 368b: earliest ipos.price = honest entry anchor. 10000 cents → 100 Credits.
-    mockSupabaseResponse({ price: 10000 });
-
-    const result = await getFirstIpoPrice(PLAYER_ID);
-
-    expect(result).toBe(100);
-    expect(mockSupabase.from).toHaveBeenCalledWith('ipos');
-  });
-
-  it('returns null when player never had an IPO (no row)', async () => {
-    mockSupabaseResponse(null);
-
-    const result = await getFirstIpoPrice(PLAYER_ID);
-    expect(result).toBeNull();
-  });
-
-  it('returns null when price is 0 (no real entry value)', async () => {
-    mockSupabaseResponse({ price: 0 });
-
-    const result = await getFirstIpoPrice(PLAYER_ID);
-    expect(result).toBeNull();
-  });
-
-  it('throws on supabase error (no silent null-on-error)', async () => {
-    mockSupabaseResponse(null, { message: 'RLS violation' });
-
-    await expect(getFirstIpoPrice(PLAYER_ID)).rejects.toThrow('RLS violation');
   });
 });
 

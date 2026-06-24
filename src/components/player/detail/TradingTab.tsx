@@ -144,16 +144,16 @@ function TradingTabInner({
       <OrderbookSummary sellOrders={allSellOrders} bids={openBids} />
 
       {/* ── 4b. Letzter Preis + Wertentwicklung ── */}
-      {(player.prices.lastTrade > 0 || player.prices.initialListingPrice) && (
+      {(player.prices.lastTrade > 0 || player.prices.ipoPrice) && (
         <div className="flex items-center justify-between px-1">
           {player.prices.lastTrade > 0 && (
             <div className="text-xs text-white/40">
               {tm('letzterPreis')}: <span className="font-mono text-white/60">{fmtScout(player.prices.lastTrade)}</span>
             </div>
           )}
-          {player.prices.initialListingPrice != null && player.prices.initialListingPrice > 0 && (() => {
+          {player.prices.ipoPrice != null && player.prices.ipoPrice > 0 && (() => {
             const current = player.prices.floor ?? player.prices.lastTrade ?? 0;
-            const initial = player.prices.initialListingPrice;
+            const initial = player.prices.ipoPrice;
             const pctChange = initial > 0 ? ((current - initial) / initial * 100) : 0;
             return (
               <div className="text-xs text-white/40">

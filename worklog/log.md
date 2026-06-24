@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 368e | 2026-06-24 | fix(trading): Markteintritt-Modell — erster IPO = eingefrorener Eintritt (ipo_price), spätere = aktueller IPO-Preis (D101)
+- Stage-Chain: SPEC (Rewrite, Anil-Klärung) → IMPACT (Live-verifiziert) → BUILD → REVIEW (`worklog/reviews/368e-review.md`, reviewer **CONCERNS→MEDIUM geheilt**) → PROVE → LOG.
+- **Wurzel:** drei „Eintrittspreis"-Spalten (`ipo_price`/`ipos.price`/`initial_listing_price`) droht-kollabieren (alte Spec) hätte Anils Zwei-Zahlen-Modell zerstört. Live-`/impact` (D87): Schema implementiert das Modell bereits (Trigger), nur Slice-114 + Seed-Müll verbogen die Daten.
+- **Modell (D101):** erster IPO = **Markteintritt** (eingefroren in `players.ipo_price`, set-once-Trigger) · spätere IPOs = **aktueller IPO-Preis** (live aus aktiver `ipos`-Row) · die zwei verschmelzen NIE.
+- **Migration `20260624200000`:** Daten-Reparatur (MV>0, keine aktive IPO → `ipo_price=initial_listing_price=ROUND(MV/10)`; MV=0 + aktive-IPO unangetastet) + Trigger `trg_set_initial_listing` setzt beim ersten IPO BEIDE Spalten + `trg_sync_player_ipo_price` DROP + **Sentinel-Restore** (IPO-lose → ilp=NULL, Reviewer-MEDIUM).
+- **Code:** RewardsTab/TradingTab/PriceChart → eine Quelle `prices.ipoPrice`; useManagerData Portfolio-% → `holdings.avg_buy_price` (echtes P&L); toter `getFirstIpoPrice`-Pfad entfernt (ipo.ts/misc.ts/keys.ts + Tests).
+- **Money byte-identisch (D87):** `recalc_floor_price` liest aktive `ipos`-Row, `buy_from_ipo` die `ipos`-Row, Orderbuch über `orders.price` → 3 Spalten = Display-only.
+- **Proof:** `worklog/proofs/368e-markteintritt-model.txt` (Post-Repair 0 Mismatch, Trigger-Stand, Money-Safety, 93 Tests, tsc clean). Live-Playwright offen post-Deploy. Learning → errors-db.md (Set-once-Sentinel-Burn). DROP `initial_listing_price` = Folge-Slice.
+
 ## 368d | 2026-06-24 | fix(trading): BuyModal „Gesamt"-Wahrheit — Menge/Preis an aktive Order binden (3×11=33-Lüge)
 - Stage-Chain: SPEC (inline, E2E-Fund) → BUILD (1 File) → REVIEW (`worklog/reviews/368d-review.md`, reviewer **PASS**, 2 NIT) → PROVE → LOG.
 - **Bug (live E2E):** Player-Detail-Kaufdialog ohne explizit gewählte Order nahm günstigsten Preis, erlaubte Menge bis Orderbuch-SUMME, rechnete `Menge×günstigster Preis` → 3×11=33 CR obwohl nur 2 zu 11 da. buy_player_sc füllt nur günstigste Order (kappt auf 2). Anzeige-Lüge (D100-Klasse).

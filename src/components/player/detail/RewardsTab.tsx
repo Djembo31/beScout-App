@@ -7,7 +7,6 @@ import { Card, InfoTooltip } from '@/components/ui';
 import { calcSuccessFee } from '@/components/player/PlayerRow';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import { centsToBsd } from '@/lib/services/players';
-import { useFirstIpoPrice } from '@/lib/queries/misc';
 import { fmtScout } from '@/lib/utils';
 import type { Player } from '@/types';
 
@@ -37,9 +36,10 @@ const MILESTONES: ReadonlyArray<{ key: MilestoneKey; multiplier: number; labelKe
 export default function RewardsTab({ player, holdingQty }: RewardsTabProps) {
   const t = useTranslations('playerDetail');
   const marketValue = player.marketValue || 0;
-  // Slice 368b / D100: honest entry anchor = price of the player's FIRST IPO (ipos.price),
-  // NOT players.ipo_price (Slice-114-poisoned to MV/10 for every player). null → "—".
-  const { data: entryPrice } = useFirstIpoPrice(player.id);
+  // Slice 368e / D101: Markteintritt = Preis des ersten IPO, eingefroren in players.ipo_price
+  // (set-once-Trigger; spätere IPOs überschreiben ihn nicht mehr). prices.ipoPrice ist undefined
+  // wenn ipo_price 0/null (z.B. MV=0) → "—" statt erfundener Zahl. Eine Quelle (368b-Umkehr).
+  const entryPrice = player.prices.ipoPrice ?? null;
   const hasHolding = holdingQty > 0;
 
   return (

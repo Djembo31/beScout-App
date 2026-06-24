@@ -3902,3 +3902,33 @@ Verschmolzene Zahlen erzeugen falsche Preis-/Reward-Wahrnehmung — UX-Murks **U
 Slice 368 = **3 Sub-Slices**: **368a** (dieses Doc/Decision) · **368b** (Anzeige-Wahrheit UI: „Dein Einstieg" ← `ipos.price`/„—", Labels trennen+vereinheitlichen) · **368c** (Floor-Orderbuch-Transparenz + Anti-Manipulation). Spec: `docs/plans/2026-06-24-scout-card-value-model-spec.md`. Money-WIE: `docs/knowledge/domain/treasury.md` §Wertmodell; Code-Regel: `.claude/rules/trading.md`.
 
 **Re-Visit-Trigger:** 368c Anti-Manipulations-Regel-Wahl (Mindest-Order-Größe vs. %-Schwelle); falls ICO-Phase die Preis-Semantik ändert.
+
+---
+
+## D101 — PRODUCT/ARCHITECTURE: Markteintritt-Modell — erster IPO = eingefrorener Eintritt (`ipo_price`), spätere IPOs = aktueller IPO-Preis (live); Daten-Reparatur statt Spalten-Kollaps
+
+**Datum:** 2026-06-24 · **Status:** ✅ Aktiv · **Category:** PRODUCT/ARCHITECTURE · **Präzisiert:** **D100** (Eintritts-Anker-Quelle) + **kippt die alte 368e-Spec-Prämisse** „3 Eintrittspreis-Spalten → 1 kollabieren". · **Kontext:** Slice 368e. Anil-Klärung 2026-06-24 + Live-`/impact` (D87: 2 Trigger, `recalc_floor_price`-functiondef, Mismatch-Counts).
+
+### Entscheidung (CEO/Anil 2026-06-24)
+Ein Verein kann **mehrere geplante, vorangekündigte IPOs pro Spieler** starten (Tranchen, Cooldown). Daraus zwei **dauerhaft getrennte** Zahlen (dürfen NIE verschmelzen):
+1. **Markteintritt** = Preis des **ERSTEN** IPO, **eingefroren** → zeigt die Entwicklung auf BeScout. Denormalisiert in `players.ipo_price` (+ Spiegel `initial_listing_price`).
+2. **Aktueller IPO-Preis** = der **gerade laufende** IPO (status open/early_access), **live aus der `ipos`-Row** gelesen (keine eigene Spalte).
+
+### Schlüssel-Fund (Live, D87) — warum „kollabieren" falsch war
+Das Schema implementiert dieses Modell bereits (Trigger `trg_set_initial_listing` = set-once erster IPO; früher `sync_player_ipo_price` = folgt aktivem IPO). Die alte 368e-Spec wollte beide zu `ipo_price` verschmelzen → hätte die Trennung zerstört. Außerdem widerlegt: 368b nahm an „`ipos.price` ehrlich, `ipo_price` vergiftet" — Live-Daten zeigen das Gegenteil (`ipos.price` = flacher Seed-Müll für die 488 Abweichler; `ipo_price = MV/10` = sauberer kanonischer Default).
+
+### Folge-Regeln (umgesetzt in Slice 368e)
+- **`players.ipo_price` = eingefrorener Markteintritt** (nicht „aktueller Preis"). Trigger `trg_sync_player_ipo_price` ENTFERNT; `trg_set_initial_listing` setzt beim ersten IPO **beide** Spalten (Sentinel `initial_listing_price IS NULL`). IPO-lose Spieler: `initial_listing_price` bleibt NULL (Sentinel intakt für künftigen ersten IPO).
+- **Daten-Reparatur statt Spalten-Kollaps:** geseedete Phase-1-Spieler (MV>0, keine aktive IPO) → Markteintritt = `ROUND(MV/10)`. MV=0 + aktive-IPO-Spieler unangetastet. Echte zukünftige IPOs setzen ihren echten Preis via Trigger.
+- **Anzeige-Reader = EINE Quelle `prices.ipoPrice`** (RewardsTab „Dein Einstieg", TradingTab „Markteintritt", PriceChart-Linie). Portfolio-Wertentwicklung = `holdings.avg_buy_price` (echtes P&L, nicht Markteintritt).
+- **Money-Sicherheit (D87):** die 3 Spalten sind reine Anzeige-Werte (`recalc_floor_price` liest aktive `ipos`-Row, `buy_from_ipo` die `ipos`-Row, Orderbuch über `orders.price`) → Reparatur bewegt kein Geld.
+
+### Alternativen erwogen
+- **3 Spalten → 1 `ipo_price` kollabieren** (alte 368e-Spec) — verworfen: zerstört Markteintritt-vs-aktueller-IPO-Trennung.
+- **`ipos.price` (erste) als SSOT behalten** (368b-Linie) — verworfen: für 488 Spieler flacher Seed-Müll, nicht rekonstruierbar.
+- **Markteintritt-Seed stehen lassen** (modell-rein) — verworfen: 500K-Spieler zeigt 10 (absurd).
+
+### Auswirkung
+Slice 368e: Migration `20260624200000` (Daten-Reparatur + Trigger-Umstellung + Sentinel-Restore) + 3 Reader-Switches + toter `getFirstIpoPrice`-Pfad entfernt. DROP der redundanten `initial_listing_price`-Spalte = eigener Folge-Slice (Reader=0). Code-Regel: `.claude/rules/trading.md`; Money-WIE: `docs/knowledge/domain/treasury.md`.
+
+**Re-Visit-Trigger:** wenn echte Club-IPOs (Phase-1-Onboarding) starten — prüfen ob Markteintritt-Anzeige für IPO-lose Spieler (zeigt MV/10-Provisorik) angepasst werden muss; ICO-Phase ändert Preis-Semantik.

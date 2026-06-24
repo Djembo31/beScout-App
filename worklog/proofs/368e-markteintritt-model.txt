@@ -1,0 +1,53 @@
+Slice 368e — Zwei-Zahlen-Modell (Markteintritt + aktueller IPO-Preis) — PROOF
+Datum: 2026-06-24 · Scope: Money/CEO (§3)
+
+═══ 1. DATEN-REPARATUR (Live, Prod skzjfhvgccaeplydsunz, Migration 20260624200000) ═══
+
+Pre-Dry-Run (read-only, vor Apply):
+  active_players=4556 · protected_active_ipo=0
+  Variante MV>0 (gewählt): eligible=3935 · ipo_price würde ändern=81 · ilp würde ändern=883 · MV=0 untouched=621
+
+Post-Apply Verifikation (Query A):
+  ipo_price_still_off   = 0   (alle MV>0 nicht-aktiv-IPO: ipo_price = ROUND(MV/10))
+  ilp_still_off         = 0   (initial_listing_price = ROUND(MV/10))
+  ipo_neq_ilp_mvpos     = 0   (ipo_price = initial_listing_price durchgängig)
+
+Stichprobe (Query C):
+  Abdoul Badji      MV 900K  → ipo_price 90000  = ilp 90000  = MV/10 ✓
+  Muhammed Gümüşkaya MV 550K → ipo_price 55000  = ilp 55000  = MV/10 ✓
+  Şeref Özcan       MV 150K  → ipo_price 15000  = ilp 15000  = MV/10 ✓ (vorher ipo_price drift)
+  Salih Özcan       MV 3.5M  → ipo_price 350000 = ilp 350000 = MV/10 ✓
+
+═══ 2. TRIGGER-UMSTELLUNG (Markteintritt set-once, "track current" entfernt) ═══
+
+Query B — Trigger auf public.ipos NACH Migration:
+  trg_ipo_set_initial_listing        (bleibt — jetzt setzt erster IPO BEIDE Spalten, danach eingefroren)
+  trg_sync_player_ipo_price          → ENTFERNT (ipo_price folgt nicht mehr dem aktuellen IPO)
+
+trg_set_initial_listing_price() neu: UPDATE players SET initial_listing_price=NEW.price, ipo_price=NEW.price
+  WHERE id=NEW.player_id AND initial_listing_price IS NULL  (set-once-Sentinel)
+
+═══ 3. MONEY-SICHERHEIT (Live-functiondef verifiziert, D87) ═══
+
+recalc_floor_price: IPO-Floor-Komponente liest AKTIVE ipos-Row (status open/early_access),
+  NICHT players.ipo_price → Floor unberührt von der Reparatur. ✓
+buy_from_ipo: bucht über die ipos-Row (per id). buy_player_sc/buy_from_order: Orderbuch (orders.price).
+  → Die 3 reparierten Spalten sind reine Anzeige-Werte. Reparatur bewegt kein Geld. ✓
+Spieler mit aktiver IPO: 0 heute, per NOT EXISTS-Guard generell ausgeschlossen → kein Live-Kaufpreis verändert. ✓
+
+═══ 4. CODE (Reader auf eine Markteintritt-Quelle, toter Pfad entfernt) ═══
+
+tsc --noEmit: clean (0 Fehler)
+vitest: ipo.test.ts + TradingTab.test.tsx = 60 passed · players.test.ts = 33 passed
+
+Reader-Umstellung:
+  RewardsTab "Dein Einstieg":  useFirstIpoPrice(ipos.price) → player.prices.ipoPrice  (368b-Umkehr, §7-#2)
+  TradingTab "Markteintritt":  player.prices.initialListingPrice → player.prices.ipoPrice  (eine Quelle)
+  useManagerData Portfolio-%:  initialListingPrice → holdings.avg_buy_price (echtes P&L, §7-#1)
+Toter Pfad entfernt: getFirstIpoPrice (ipo.ts), useFirstIpoPrice (misc.ts), qk.ipos.firstPrice (keys.ts) + Tests.
+Orphan-Grep src/: 0 Reader von getFirstIpoPrice/useFirstIpoPrice/firstPrice (OrderDepthView firstPriceSpan = unbeteiligt).
+initialListingPrice verbleibt NUR in Type (index.ts:70) + Mapper (players.ts:244) — ruhend für DROP-Folge-Slice.
+
+═══ OFFEN (post-Deploy) ═══
+Playwright gegen bescout.net: RewardsTab "Dein Einstieg" == TradingTab "Markteintritt" == PriceChart-Linie;
+PlayerIPOCard aktueller IPO-Preis unverändert; ≥2 Spieler, DE+TR, kein NaN/i18n-Leak. (Vercel baut von main.)

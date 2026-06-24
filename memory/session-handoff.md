@@ -1,11 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 19:26)
+# Session Handoff — Auto (2026-06-24 19:56)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 2 Files
+```
+ M memory/session-handoff.md
+?? worklog/impact/368e-entry-price-ssot.md
+```
 
-## Session Commits: 9
+## Session Commits: 10
+- ec17760b chore(handoff): Session-Close 2026-06-24 — 368c/368d done, 368e approved-to-build
 - 11121ad3 docs(368e): Anil-Entscheidungen + Master-Follow-up-Liste aller E2E-Auffälligkeiten
 - e7048d84 fix(trading): 368d BuyModal "Gesamt"-Wahrheit + E2E-Härtung + 368e Einstiegspreis-SSOT-Spec
 - 1dcff8bd feat(trading): 368c Floor manipulationssicher + transparent — Preis-Band ÷3..×3, Floor-Quelle, Label-Vereinheitlichung
@@ -24,7 +29,11 @@
 
 **Status: idle. HEAD = Slice 368b (RewardsTab-Anzeige-Wahrheit, `7e786d33`, live-verifiziert). Letzter Money-Feature-Baseline = Slice 365 (Fees REIN komplett).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet & gepusht.
 
-## 🎯 HIER ANKNÜPFEN — E4 Schritt 3, NÄCHSTER = Slice 368c (Floor = transparentes Orderbuch + Anti-Manipulation + Floor-Labels)
+## 🎯 HIER ANKNÜPFEN — E4 Schritt 3: 368a/b/c/d/e ALLE DONE. NÄCHSTER = post-Deploy Playwright 368e + 369 /api/push→500 + 368-Label-Rest + 370 E2E ②–⑤
+
+**Slice 368e DONE (D101, committet):** Markteintritt-Modell. Erster IPO = eingefrorener Eintritt (`players.ipo_price`, set-once-Trigger `trg_set_initial_listing` setzt beide Spalten); spätere IPOs = aktueller IPO-Preis (live aus aktiver `ipos`-Row). Trigger `trg_sync_player_ipo_price` ENTFERNT. Daten repariert (MV>0 → MV/10; MV=0 + aktive-IPO unangetastet; IPO-lose `ilp=NULL` Sentinel-Restore). Reader → eine Quelle `prices.ipoPrice`; Portfolio-% → `avg_buy_price`. Toter `getFirstIpoPrice`-Pfad weg. Money byte-identisch (Display-only, D87). Reviewer CONCERNS→MEDIUM-Sentinel-Burn geheilt. **OFFEN: post-Deploy Playwright** (RewardsTab „Dein Einstieg" == TradingTab „Markteintritt" == PriceChart-Linie; PlayerIPOCard aktueller IPO-Preis unverändert; ≥2 Spieler DE+TR). **DROP `initial_listing_price` = eigener Folge-Slice** (Reader=0, Type+Mapper ruhend). Migration `20260624200000`.
+
+### Älterer Anker (368c, DONE):
 
 **E4 = Money-Modell-Glattzug + Mock→Pro-Härtung (D99). Plan-Anker `worklog/notes/366-e4-money-model-cleanup-epic.md`.** Stand:
 - ✅ **Schritt 1 — D99 ratifiziert** (`b52e8b09`): Naming **„Credits"** jetzt · Einheit **1 Credit = 100 cents** · Phasen **1/2/3** · Pricing **1 Card = MV/1.000 Credits**. SSOT = **D99**.

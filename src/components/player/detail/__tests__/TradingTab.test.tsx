@@ -91,8 +91,7 @@ const basePlayer = {
   prices: {
     floor: 1000,
     lastTrade: 500,
-    ipoPrice: 100,
-    initialListingPrice: 400,
+    ipoPrice: 400,
   },
   listings: [],
   topOwners: [],
@@ -273,8 +272,9 @@ describe('TradingTab', () => {
     expect(mockFmtScout).toHaveBeenCalledWith(500);
   });
 
-  it('shows initial listing price with percentage change', () => {
-    // floor=1000, initialListingPrice=400 → pct = (1000-400)/400*100 = 150%
+  it('shows market entry (Markteintritt = ipoPrice) with percentage change', () => {
+    // Slice 368e: Markteintritt liest jetzt prices.ipoPrice (eine Quelle, D101).
+    // floor=1000, ipoPrice=400 → pct = (1000-400)/400*100 = 150%
     renderWithProviders(<TradingTab {...defaultProps} />);
     // Text is split across nodes: "markteintritt: 400" + span with "+150%"
     expect(screen.getByText(/markteintritt/)).toBeInTheDocument();

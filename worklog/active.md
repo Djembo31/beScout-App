@@ -3,15 +3,15 @@
 ```
 status: idle
 slice: 368e
-title: Einstiegspreis-SSOT (3 Spalten → 1: ipo_price) — SPEC bereit, wartet auf Anil-Approval
-stage: SPEC
+title: ✅ DONE — Markteintritt-Modell (erster IPO eingefroren = ipo_price; spätere = aktueller IPO-Preis) + Daten-Reparatur (D101)
+stage: LOG complete
 size: L
 slice-type: Migration + Service + UI
-spec: worklog/specs/368e-entry-price-ssot.md (Anil: „Strukturproblem grundsätzlich angehen")
-impact: 17 Reader-Files (Spec §4) — /impact vor BUILD
-proof: (offen)
-review: (offen — Pflicht, Money)
-next: BUILD 368e nach Approval. Offene Anil-Qs in Spec §7 (Portfolio-Basis, DROP-Timing, RewardsTab-Umkehr).
+spec: worklog/specs/368e-entry-price-ssot.md (Rewrite, §7 Anil-entschieden)
+impact: worklog/impact/368e-entry-price-ssot.md (Live-verifiziert)
+proof: worklog/proofs/368e-markteintritt-model.txt
+review: worklog/reviews/368e-review.md (reviewer CONCERNS → MEDIUM Sentinel-Burn root-cause-geheilt)
+next: post-Deploy Playwright (RewardsTab==TradingTab==Chart-Linie); dann 369 /api/push→500, 368-Label-Rest, 370 E2E ②–⑤. DROP initial_listing_price = eigener Folge-Slice (Reader=0).
 
 --- erledigt diese Session ---
 368c DONE (committed 1dcff8bd): Floor-Band ÷3..×3 + Floor-Quelle + Label (Teil).
