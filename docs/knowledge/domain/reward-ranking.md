@@ -70,13 +70,13 @@ consult_when: Rewards-Strategie, Rankings, Welt1 (Können) vs Welt2 (Treue), Gam
 
 **Rang-Badge:** Median der 3 Dimensionen → `getRang` (`lib/gamification.ts:176-186`). Kein gespeicherter Gesamt-Rang.
 
-**Reward:** **Monatsliga** (`close_monthly_liga`) zahlt Top-3 je Dimension: 5.000 / 2.500 / 1.000 $SCOUT × 4 Dimensionen = **max ~34.000 $SCOUT/Monat**. Sieger-Kriterium = Score-**Delta** seit Saisonstart (belohnt Verbesserung, nicht Bestand).
+**Reward:** **Monatsliga** (`close_monthly_liga`) zahlt Top-3 je Dimension: 5.000 / 2.500 / 1.000 Credits × 4 Dimensionen = **max ~34.000 Credits/Monat**. Sieger-Kriterium = Score-**Delta** seit Saisonstart (belohnt Verbesserung, nicht Bestand). **Seit Slice 376 (E3 RAUS-Kanal #1):** Auszahlung kommt **zero-sum aus dem Plattform-Topf** (`book_platform_treasury('debit','monthly_liga',…)`) statt gemintet zu werden — Deckungs-Check inline unter Singleton-Row-Lock (RAISE `insufficient_treasury` bei Unterdeckung, Monat retry-bar), Genesis-Seed 500.000 Credits deckt ~14,7 Monate. **overall-Dimension** rankt jetzt nach echtem **Median** der 3 Deltas (vorher fälschlich `[2]`=manager).
 
 **Sichtbarkeit:** `/rankings` → GlobalLeaderboard (Tabs overall/trader/manager/analyst) + FriendsLeaderboard + MonthlyWinners.
 
 ### 🔴 Schmerzpunkte Welt 1
 - **W1-A — Doppelte Können-Wahrheit:** `user_stats.{trading,manager,scout}_score` ist eine **redundante Parallel-Kopie** mit gleichen Spaltennamen, aber **anderen Formeln** (Aktivitäts-Count, Start 0, cap 1000) und **eigenem Trigger** (`refresh_user_stats`, `20260418180000_...:125-244`). scout_scores (Elo) und user_stats können **per Konstruktion nie übereinstimmen**. **Zwei verschiedene Leaderboards laufen parallel:** `/rankings` nutzt scout_scores; Follow-Listen/Suche/Home/Scouting-Board nutzen user_stats.
-- **W1-B — Monatsliga komplett dormant:** RPC payout-fähig, aber 0 Auszahlungen + **kein Cron** ruft `close_monthly_liga`. Aktivierung würde sofort bis 34.000 $SCOUT/Monat minten.
+- **W1-B — Monatsliga halb-dormant (Slice 376 entschärft):** RPC ist payout-fähig **und zahlt jetzt aus dem Topf** (kein Minting mehr, Genesis-gedeckt). Noch offen: **kein Cron** (Anil-Entscheid: erst manueller Admin-Trigger) + 0 echte Abschlüsse bisher + keine Live-Standing-Board-UI für den laufenden Monat (Engagement-Layer, eigener Folge-Slice).
 - **W1-C — Rang-Schwellen 3-fach divergent:** `rang_thresholds` (DB) ↔ `lib/gamification.ts:getRang` (stimmen überein) ↔ `rules/gamification.md` (stale: Diamant 4000 statt 3000, Legendär 7000 statt 5000).
 
 ---
