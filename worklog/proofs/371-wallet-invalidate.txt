@@ -1,0 +1,23 @@
+Slice 371 — Wallet-Invalidate nach Poll-Vote/Research-Unlock — Proof
+Datum: 2026-06-24
+
+=== AC3: tsc clean ===
+$ npx tsc --noEmit
+(kein Output, Exit 0)
+
+=== AC3: vitest useCommunityActions ===
+$ CI=true npx vitest run src/components/community/hooks/__tests__/useCommunityActions.test.ts
+Test Files  1 passed (1)
+     Tests  72 passed (72)
+
+=== AC4: diff (nur Cache-Invalidation, Money-Logik unberührt) ===
+src/components/community/hooks/useCommunityActions.ts:
+  handleUnlockResearch onSuccess:  + queryClient.invalidateQueries({ queryKey: qk.wallet.all })
+  handleCastPollVote   nach polls:  + queryClient.invalidateQueries({ queryKey: qk.wallet.all })
+  handleUnlockResearch deps:        + queryClient, tErrors (S170 exhaustive-deps)
+Kein RPC/Service/Migration berührt.
+
+=== ⏳ AC1/AC2 — Live-Playwright (nächste Session, nach Vercel-Deploy von main) ===
+Erwartung: nach Poll-Vote bzw. Research-Unlock aus dem Community-Feed zeigt der TopBar-Credit-Wert
+sofort −10 CR (ohne Reload). Heute (vor Fix, Slice 370 UI-Walk): blieb stale bis Reload — Evidence
+worklog/proofs/370-ui-fees-rein.txt (jarvis 11.728,27 unverändert trotz DB −10/−10).

@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 371 | 2026-06-24 | fix(community): Wallet-Invalidate nach Poll-Vote/Research-Unlock (U-1 aus 370-UI-Walk)
+- Stage-Chain: SPEC (`371-wallet-invalidate-community.md`, XS) → IMPACT skipped (1 File, Cache-only) → BUILD → REVIEW self-review → PROVE (tsc+vitest; Playwright next session) → LOG.
+- **Root-Cause:** `useCommunityActions.handleCastPollVote`/`handleUnlockResearch` invalidierten nur Domänen-Keys (`qk.polls.all` / `invalidateResearchQueries`), NICHT den Wallet-Key. `TopBar`→`useWallet` (`['wallet',userId]`, staleTime 0) blieb daher nach der Credit-Belastung stale bis Reload (DB war korrekt). Trading-Pfad macht's via `invalidateWallet`.
+- **Fix (surgical, 1 File):** beide Handler invalidieren nach Erfolg `qk.wallet.all` (`['wallet']` prefix-matcht user-scoped Key). handleUnlockResearch-deps um `queryClient`+`tErrors` ergänzt (S170 exhaustive-deps). Money-Logik byte-identisch (kein RPC/Service-Edit).
+- **Proof:** tsc clean + 72 vitest grün (`useCommunityActions.test.ts`) + diff. ⏳ Live-Playwright AC1/AC2 (Header zeigt sofort −10 CR ohne Reload) = erster Schritt nächste Session (Vercel baut von main nach Push).
+- **Knowledge:** Pattern S371 → `errors-frontend.md` Navigator (Money-Mutation muss Wallet-Key invalidieren).
+
 ## 370 | 2026-06-24 | test(e2e): Fees-REIN-Sweep ②–⑤ live bewiesen (IPO/Poll/Research/Bounty → Topf)
 - Stage-Chain: SPEC (`370-e2e-fees-rein-sweep.md`, S/Verify) → IMPACT skipped (kein Schema/Service-Edit) → BUILD (Live-Seed + Fee-RPC via JWT-sub-Impersonation) → REVIEW (`370-review.md` self-review PASS, kein Prod-Code) → PROVE → LOG.
 - **Ziel:** analog 365-Trading die vier restlichen Plattform-Fee-Quellen einzeln echt End-to-End auf der Live-DB auslösen + beweisen, dass jede Fee mit korrektem `source` + Betrag in `platform_treasury_ledger` landet (D96/D98 voller Auffang, Variante-A-Saldo D97).

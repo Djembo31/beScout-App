@@ -2,11 +2,23 @@
 
 ```
 status: idle
-slice: 370
-title: ✅ DONE — E2E-Sweep „Fees REIN" ②–⑤ live bewiesen (Topf 2462 Cents, alle 5 Quellen, 0 Bugs)
+slice: 371
+title: ✅ DONE (Code) — Wallet-Invalidate nach Poll-Vote/Research-Unlock (U-1 Fix), Playwright-Verify next session
 stage: LOG complete
-size: S
-slice-type: Verify (Money, CEO-Scope)
+size: XS
+slice-type: UI (Bug-Fix, money-nah)
+spec: worklog/specs/371-wallet-invalidate-community.md
+fix: useCommunityActions.ts — handleCastPollVote + handleUnlockResearch invalidieren jetzt qk.wallet.all (Header-Credit-Anzeige war nach Belastung stale bis Reload). Money-Logik unberührt (nur Cache).
+proof: tsc clean + 72 vitest grün (useCommunityActions) + diff. ⏳ Live-Playwright AC1/AC2 (Header zeigt sofort −10 CR) = erster Schritt nächste Session (Vercel baut von main nach Push).
+review: self-review (XS, performance.md invalidateQueries-nach-Writes, money-Logik unberührt)
+knowledge: errors-frontend.md Navigator — Money-Community-Mutation muss Wallet-Key invalidieren.
+
+--- 370 (vorheriger Slice, DONE) ---
+prev-slice: 370
+prev-title: ✅ DONE — E2E-Sweep „Fees REIN" ②–⑤ live bewiesen (Topf 2862 nach UI-Walk) + UI-Walk (Poll/Research per Playwright)
+prev-stage: LOG complete
+prev-size: S
+prev-slice-type: Verify (Money, CEO-Scope)
 spec: worklog/specs/370-e2e-fees-rein-sweep.md
 impact: skipped (kein Schema/Service-Edit — reine Live-Verifikation bestehender Fee-RPCs)
 result: RPC-Ebene: ② IPO 500 (369-AC5) · ③ Poll 200 · ④ Research 200 · ⑤ Bounty 50 · trading 1512. Zero-Sum je Quelle ✓, Doppel-Approve money-safe reject ✓. **UI-Walk-Nachtrag (Playwright):** ② IPO (369-Buy-Modal) + ③ Poll + ④ Research per echtem UI-Klick bewiesen (Fee real im Topf, 0 Console-Errors); ⑤ Bounty = Admin-Approval, RPC-bewiesen (kede5-Creds fehlen für UI). Topf nach UI-Walk = 2862 Cents.

@@ -249,6 +249,9 @@ export function useCommunityActions({
       const result = await unlockResearch(userId, postId);
       if (result.success) {
         invalidateResearchQueries(userId);
+        // U-1 (Slice 371): Wallet-Key invalidieren, sonst bleibt die Header-Credit-
+        // Anzeige nach der Belastung stale bis zum nächsten Seitenwechsel (performance.md).
+        queryClient.invalidateQueries({ queryKey: qk.wallet.all });
         addToast(t('researchUnlocked'), 'success');
       } else {
         addToast(result.error ?? t('genericError'), 'error');
@@ -259,7 +262,7 @@ export function useCommunityActions({
     } finally {
       dispatch({ type: 'SET_UNLOCKING_RESEARCH', value: null });
     }
-  }, [userId, addToast, t, dispatch]);
+  }, [userId, addToast, t, tErrors, dispatch, queryClient]);
 
   const handleRateResearch = useCallback(async (postId: string, rating: number) => {
     if (!userId) return;
@@ -303,6 +306,9 @@ export function useCommunityActions({
       await castCommunityPollVote(userId, pollId, optionIndex);
       setUserPollVotedIds(prev => new Set([...Array.from(prev), pollId]));
       queryClient.invalidateQueries({ queryKey: qk.polls.all });
+      // U-1 (Slice 371): Wallet-Key invalidieren, sonst bleibt die Header-Credit-
+      // Anzeige nach der Belastung stale bis zum nächsten Seitenwechsel (performance.md).
+      queryClient.invalidateQueries({ queryKey: qk.wallet.all });
       addToast(t('voteCast'), 'success');
     } catch (err) {
       // Slice 051: i18n-Key-Leak-Schutz
