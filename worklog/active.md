@@ -11,7 +11,7 @@ spec: worklog/specs/364-research-fee-rein.md
 impact: skipped (additive Inline-Buchung, 0 Consumer-Contract-Change, kein Schema-Shape-Change)
 proof: worklog/proofs/364-money-smoke.txt
 review: worklog/reviews/364-review.md (PASS, 1 NIT pre-existing/out-of-scope)
-next: E3-2e Bounty (approve_bounty_submission→'bounty', Plattform-Anteil = reward−creator_net) = letzte Fee-Quelle. Anker worklog/notes/358-platform-treasury-epic.md §Slice 2.
+next: Slice 365 Bounty-Fee REIN (E3-2e, LETZTE Fee-Quelle). **SPEC ✅ BUILD-ready** = worklog/specs/365-bounty-fee-rein.md (D87-Vorarbeit komplett: Live-Body + 3 Zahlungspfade + Escrow-Trigger gelesen; EINE Inline-Buchung deckt alle 3, keine Doppelbuchung). Frische Session startet bei BUILD.
 ```
 
 ## Kontext

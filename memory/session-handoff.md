@@ -1,11 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 11:08)
+# Session Handoff — Auto (2026-06-24 11:46)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
 ## Session Commits: 10
+- 95022eda feat(treasury): Research-Fee REIN in Plattform-Topf (Slice 364, E3-2d)
 - bf27dc5a chore(handoff): Resume-Anker auf Slice 364 Research-Fee REIN (363 done)
 - 59b10862 docs(knowledge): 4 verify-drift Findings abgeräumt (re-verify nach Slice 338/363)
 - 14af7fc9 docs(knowledge): polls.md — 20%-Plattform-Anteil fließt seit Slice 363 in den Topf (D88)
@@ -15,7 +19,6 @@
 - aad2b67d chore(worklog): Slice 362 LOG-Eintrag
 - 1e3c9abc fix(services): platformAdmin chunked/paginated Reads — player_count Live-Bug + 5 HIGH silent-fail (Slice 362)
 - 1daed134 chore(worklog): Slice 361 LOG-Eintrag
-- 890926cc fix(observability): AdminTreasuryTab Promise.allSettled → logSilentRejects (Slice 361)
 
 <!-- auto:handoff-end -->
 
@@ -27,13 +30,13 @@
 
 > **Session 2026-06-24 (Forts.):** 364 Research-Fee REIN ✅ (E3-2d) — `unlock_research(uuid,uuid)`→`book_platform_treasury('credit','research',v_platform_fee,p_research_id,'Research-Fee')`, **Single-Path** (wie IPO 360, kein source-Branching), inline NACH transactions-INSERT vor success-RETURN, `IF v_platform_fee>0`-Guard. Force-Rollback-Smoke PASS (Topf +200=20% von 1000, Zero-Sum 800+200, 1 Ledger-Row ref=research_id, sauberer Rollback pot=0). Fee-Konstante `(v_price*80)/100` verbatim (S356-Falle vermieden), AR-44 anon=false. Reviewer PASS (1 NIT pre-existing/out-of-scope). treasury.md §10 REIN-Tabelle+Sequenz mit-aktualisiert (D88). Vorher 363 Polls ✅ (`7d029401`).
 
-## ➡️ NÄCHSTER BAU: Slice 365 — Bounty-Fee REIN (E3-2e, Money/CEO §3) — **LETZTE Fee-Quelle, SPEC offen**
-> **E3-1 Fundament ✅ (357) + 2 Trading ✅ (358) + 2b IPO ✅ (360) + 2c Polls ✅ (363) + 2d Research ✅ (364) LIVE.** Policy **D98: voller Auffang 100 %**. Bounty = Teil 5 von 5 (danach Fees-REIN komplett → Slice 3 Monats-Liga e2e).
-- **⚠️ Anders als 358–364:** Der Bounty-Plattform-Anteil (5 %) wird **heute gar nicht notiert** — Differenz `reward − creator_net`. **Body genau lesen** (`pg_get_functiondef('approve_bounty_submission(uuid,uuid,text)')`, D87), die 5 % evtl. erst aus reward/creator_net **berechnen**, dann inline via `book_platform_treasury('credit','bounty',<5%>,<ref>,'…')` buchen. `'bounty'` im `platform_treasury_ledger_source_check` schon erlaubt → keine CHECK-Migration. **AR-44 REVOKE/GRANT Pflicht.**
-- **Fee-Konstante (S356-Falle):** Bounty-Split-Konstante im Body verbatim erhalten + ILIKE-Assert nach apply. CREATE OR REPLACE = exakter Live-Body + nur 1 (Berechnungs-+Booking-)Block.
-- **Money-Muster (D87):** Force-Rollback-Smoke + `set_config('request.jwt.claim.sub', user, true)` + `RAISE EXCEPTION 'SMOKE_RESULT: %'`. Reviewer-Pflicht. **Topf-Saldo direkt aus `platform_treasury_ledger`-SUM lesen** (nicht `get_platform_balance()` — hat Platform-Admin-Guard, blockt im Käufer-Kontext; 364-Lehre).
-- **Danach:** Slice 3 Monats-Liga e2e (Live-Standing-UI + Cron + `overall`=Median-Fix; `close_monthly_liga` lebt, mintet 34.000 $SCOUT/Mt, 0 Snapshots — `worklog/notes/357-preflight-monthly-leaderboard.md`) → 4 BeScout-Events → 5 Wettkampf-Darstellung. Plan-Anker `worklog/notes/358-platform-treasury-epic.md`.
-- **Dann Epic-Sequenz weiter:** 3 Monats-Liga e2e (Live-Standing-UI + Cron + `overall`=Median-Fix; `close_monthly_liga` lebt, mintet 34.000 $SCOUT/Mt, 0 Snapshots — `worklog/notes/357-preflight-monthly-leaderboard.md`) → 4 BeScout-Events → 5 Wettkampf-Darstellung. Plan-Anker `worklog/notes/358-platform-treasury-epic.md`.
+## ➡️ NÄCHSTER BAU: Slice 365 — Bounty-Fee REIN (E3-2e, Money/CEO §3) — **LETZTE Fee-Quelle · SPEC ✅ BUILD-ready**
+> **E3-1 Fundament ✅ (357) + 2 Trading ✅ (358) + 2b IPO ✅ (360) + 2c Polls ✅ (363) + 2d Research ✅ (364) LIVE.** Policy **D98: voller Auffang 100 %**. Bounty = Teil 5 von 5 → danach **Fees-REIN KOMPLETT** → Slice 3 Monats-Liga e2e.
+- **✅ Komplette D87-Vorarbeit erledigt (Vor-Session):** Spec `worklog/specs/365-bounty-fee-rein.md` ist BUILD-ready. Live-Body von `approve_bounty_submission(uuid,uuid,text)` + beide Escrow-Trigger gelesen. **Frische Session startet DIREKT bei BUILD** (Migration schreiben).
+- **Kern-Befund:** Fee = `(v_reward * 500) / 10000` (5 %, verbatim erhalten, S356). **Drei Zahlungspfade** (User-Bounty / Club-nicht-escrowed / Club-escrowed) verbrennen ALLE exakt die 5 %. **Wichtig:** `trg_bounties_settle` bei `completed` bewegt KEIN Geld (nur Flag-Flip) → **EINE** Inline-Buchung `book_platform_treasury('credit','bounty',v_platform_fee,v_sub.bounty_id,'Bounty-Fee')` vor dem finalen success-RETURN deckt alle 3 Pfade, **keine Doppelbuchung**.
+- **⚠️ Original-Body hat KEIN `SET search_path`** (anders als 364) — CREATE OR REPLACE = exakter Live-Body, Header NICHT „aufhübschen". `'bounty'` im CHECK schon erlaubt → keine CHECK-Migration. AR-44 (anon=false/auth=true heute) REVOKE/GRANT-Block trotzdem Pflicht.
+- **Smoke-Stolperstein (in Spec §10):** club_admin-Check läuft VOR allen Pfaden, auch bei user_bounty → für den Smoke ggf. **Club-Bounty nicht-escrowed (Pfad 2)** mit Admin als echtem `club_admins`-Eintrag wählen. Topf-Saldo direkt aus `platform_treasury_ledger`-SUM (nicht `get_platform_balance()`, Admin-Guard; 364-Lehre).
+- **Danach Epic-Sequenz:** Slice 3 Monats-Liga e2e (Live-Standing-UI + Cron + `overall`=Median-Fix; `close_monthly_liga` lebt, mintet 34.000 $SCOUT/Mt, 0 Snapshots — `worklog/notes/357-preflight-monthly-leaderboard.md`) → 4 BeScout-Events → 5 Wettkampf-Darstellung. Plan-Anker `worklog/notes/358-platform-treasury-epic.md`.
 
 ## ✅ SESSION 2026-06-24 — Slice 357 E3-1 Topf-Fundament (Money, CEO-Scope)
 - **Slice 357** — Plattform-Treasury Topf-Fundament. Mirror Club-Treasury 329 minus tenant-id, Single-Pot. Tabellen + 3 RPCs + Append-only-Trigger (329 wiederverwendet) + RLS 0-Policies + Service +2 Fn + AdminTreasuryTab-Card + i18n DE+TR. **Topf live bei 0, kein Backfill.**
