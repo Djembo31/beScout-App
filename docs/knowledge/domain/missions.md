@@ -1,11 +1,11 @@
 ---
 title: Missions Architecture
 created: 2026-04-15
-updated: 2026-06-17
+updated: 2026-06-24
 status: active
 tags: [missions, rewards, db-schema, security]
 consult_when: Missions, Tagesziele, Mission-Engine, Reward-Trigger, club-vs-global Missionen
-verified-against: supabase/migrations @ 2026-06-17
+verified-against: supabase/migrations @ 2026-06-24
 ---
 
 > ⚠️ Migriert aus memory/ (Stand 2026-04-15) — Inhalt nicht gegen Juni-Realität (Slices 329-332) re-verifiziert.

@@ -1,11 +1,11 @@
 ---
 title: Fantasy Feature Spec
 created: 2026-03-14
-updated: 2026-06-17
+updated: 2026-06-24
 status: active
 tags: [fantasy, lineup, scoring, gameweek]
 consult_when: Spieltag, Lineup, Captain, Auto-Sub, Gameweek-Cycle, Scoring, Fantasy-Flows
-verified-against: .claude/rules/fantasy.md @ 2026-06-17
+verified-against: .claude/rules/fantasy.md @ 2026-06-24
 ---
 
 > ⚠️ Migriert aus memory/features/ (Stand 2026-03-26) — Feature-Spec; Code-Regel siehe .claude/rules/fantasy.md.
@@ -161,23 +161,12 @@ Admin klickt "Spieltag auswerten" → finalizeGameweek()
 
 ---
 
-### Flow 6: PREDICTIONS
-**Status: GRUNDFLOW FUNKTIONIERT, Edge Cases offen**
+### Flow 6: PREDICTIONS — ⛔ ENTFERNT (Slice 338, 2026-06-18)
 
-```
-User waehlt Fixture → Prediction Type (Match/Player) → Condition → Value → Confidence
-→ create_prediction RPC → DB → Difficulty berechnet
-→ Nach GW: resolve_gameweek_predictions → correct/wrong/void → Points
-```
-
-**Acceptance Criteria:**
-- [x] Match Predictions: Ergebnis, Tore, Beide treffen
-- [x] Player Predictions: Tore, Assists, Karten, Minutes, Clean Sheet
-- [x] Confidence 50-100, Difficulty 0.5/1.0/1.5
-- [x] Scoring: +10 * confidence/100 * difficulty (correct), -6 * ... (wrong)
-- [x] Daily Limit pro GW — UI zeigt "{count}/5" Badge, Button disabled bei Limit (PredictionsTab.tsx:38-70)
-- [ ] Difficulty Badge in UI — NICHT angezeigt
-- [ ] Void Notifications — NICHT gesendet
+Das Predictions-/Tippspiel-Feature wurde in **Slice 338** (`refactor(predictions)`, Commit b15c69b5)
+**komplett entfernt** — inkl. `create_prediction`/`resolve_gameweek_predictions`-RPCs, `PredictionsTab`,
+Difficulty-Engine und Daily-Limit-UI. Grund: Scope-Bereinigung (Tippspiel ≠ Kern-Fantasy, Glücksspiel-Nähe).
+Die `predictions`-Tabelle ist Legacy (siehe DB-Schema-Hinweis unten). Kein aktiver Code-Pfad mehr.
 
 ---
 
@@ -331,7 +320,7 @@ Kurzform:
 | event_entries | (event_id, user_id) | currency, amount_locked | SELECT:own, CRUD:RPC |
 | lineups | id, UNIQUE(event_id,user_id) | formation, slot_*, total_score, rank | SELECT:own+public, CRUD:RPC |
 | holding_locks | (user_id, player_id, event_id) | quantity_locked | SELECT:own, INSERT:own, DELETE:own |
-| predictions | id | type, condition, value, confidence, status, points | SELECT:own+resolved, CRUD:RPC |
+| ~~predictions~~ | id | ⛔ Legacy-Tabelle — Feature in Slice 338 entfernt, kein aktiver Code-Pfad | — |
 | player_gameweek_scores | (player_id, gameweek) | score | SELECT:all, CRUD:RPC |
 | user_wildcards | user_id | balance, earned_total, spent_total | SELECT:own, CRUD:RPC |
 | chip_usages | id | chip_type, is_active, season | SELECT:own, CRUD:RPC |

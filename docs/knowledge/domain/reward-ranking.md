@@ -1,10 +1,10 @@
 ---
 title: Reward- & Ranking-Ökosystem — Konzept-Landkarte
 created: 2026-06-15
-updated: 2026-06-23
+updated: 2026-06-24
 status: active
 tags: [rewards, ranking, gamification, fan-rank, scout-scores, treasury]
-verified-against: supabase/migrations @ 2026-06-23
+verified-against: supabase/migrations @ 2026-06-24
 consult_when: Rewards-Strategie, Rankings, Welt1 (Können) vs Welt2 (Treue), Gamification-Landkarte, Monatsliga, fan_rankings, scout_scores, Minting-Inventar
 ---
 
@@ -18,6 +18,8 @@ consult_when: Rewards-Strategie, Rankings, Welt1 (Können) vs Welt2 (Treue), Gam
 > - Quer darüber liegt die **Gamification-/Minting-Schicht** (Gewohnheit), die $SCOUT ausschüttet, aber keiner der zwei Welten sauber zugeordnet ist.
 
 > ⚠️ **Bau-Stand-Update 2026-06-17:** Seit dieser Kartierung wurde das **Club-Treasury gebaut** (Slices 329-332). Damit sind mehrere unten genannte Schmerzpunkte **teil-adressiert**: W2-E (Buchungslücke) — Treasury-Ledger erfasst jetzt Einnahmen; CSF zahlt seit Slice 330 aus dem Treasury (statt Minting). **Offen bleiben** die Produkt-Entscheidungen §6 (CSF-Wirksamkeit, Follower-Treue, user_stats-Retire, Monatsliga). Kanon-Geldmodell: `docs/knowledge/domain/treasury.md`.
+
+> ⚠️ **Bau-Stand-Update 2026-06-24 (E3 Plattform-Treasury, D96):** Zusätzlich zum Club-Treasury existiert jetzt ein **Plattform-Topf** (BeScout-eigenes Konto, Slice 357) der die vorher verbrennenden Plattform-Fee-Anteile auffängt — REIN verkabelt: Trading ✅358, IPO ✅360, Polls 20% ✅363 (Research/Bounty offen). **Reward-Relevanz:** dieser Topf soll künftig die **Monats-Liga** + **BeScout-Events** (Welt-1-Plattform-Rewards) finanzieren — Modell-Shift deflationär→zirkulär. Kanon: `docs/knowledge/domain/treasury.md` §10.
 
 **Status:** IST-Aufnahme komplett. Zielbild + Slice-Ableitung = Diskussion mit Anil offen.
 
