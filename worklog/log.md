@@ -2,6 +2,17 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 365 | 2026-06-24 | feat(treasury): Bounty-Fee REIN in Plattform-Topf (E3-2e, D96/D98) — Fees-REIN KOMPLETT 5/5
+- Stage-Chain: SPEC (`worklog/specs/365-bounty-fee-rein.md`, S) → IMPACT (skipped, additive Inline-Buchung, 0 Consumer-Contract-Change) → BUILD → REVIEW (`worklog/reviews/365-review.md`, **PASS**, 1 NIT optional/nicht umgesetzt) → PROVE → LOG.
+- **Kontext:** E3 Plattform-Treasury Slice 2 „Fees REIN", Teil **5/5 = Bounty (LETZTE Quelle)**. Der 5 %-Plattform-Anteil der Bounty-Fee verbrannte — und wurde anders als 358–364 **nicht einmal notiert** (keine Spalte): `v_platform_fee := (v_reward*500)/10000` wurde berechnet, aber nirgends gebucht (Einreicher bekam 95 %, die 5 % fielen aus dem Umlauf).
+- **Fix:** EIN additiver Inline-`book_platform_treasury('credit','bounty',v_platform_fee,v_sub.bounty_id,'Bounty-Fee')` in `approve_bounty_submission(uuid,uuid,text)`, platziert NACH Einreicher-Payout + allen Status-Updates, VOR dem finalen success-RETURN, innerhalb `IF v_platform_fee>0`-Guard. `v_platform_fee` global vor dem `IF is_user_bounty` berechnet → **EINE Buchung deckt alle 3 Zahlungspfade** (user / club-escrow / club-nonescrow), `v_sub.bounty_id` als reference_id.
+- **Doppelbuchungs-Ausschluss (live gelesen):** `trg_bounties_settle` bei status='completed' flippt nur `treasury_escrowed`, bewegt KEIN Geld (Geld nur bei cancelled/closed-Refund). → Fee wird in keinem Trigger gebucht, kein Doppel-Risiko.
+- **Money-Sicherheit:** Fee-Konstante `(v_reward*500)/10000`=5 % verbatim (S356-Drift-Klasse via ILIKE-Assert `fee_constant_intact`), CREATE-OR-REPLACE = exakter Live-`functiondef` (D87, 1:1 gegen 332-Vorversion gegengeprüft) + genau 1 Block, Header bewusst OHNE `SET search_path` (Original-Eigenheit, `no_search_path_drift`-Assert), AR-44 REVOKE/GRANT (anon=false, authed=true). `'bounty'` im CHECK schon gedeckt → keine CHECK-Migration.
+- **Proof:** `worklog/proofs/365-money-smoke.txt` — Force-Rollback-Smoke (Pfad 1 user_bounty, umgeht Escrow-Trigger): Topf +50 (5 % von 1000), Zero-Sum 1000=950+50, 1 `'bounty'`-Ledger-Row ref=bounty_id, sauberer Rollback (pot=0, 0 Residue). tsc EXIT 0 (kein src/-Change), INV-18 unberührt.
+- Files: `supabase/migrations/20260624180000_slice_365_bounty_fee_rein.sql` (via `apply_migration`). Knowledge: `docs/knowledge/domain/treasury.md` §10 (REIN-Tabelle letzte Zeile Bounty → ✅, Fees-REIN-Sequenz komplett).
+- Commit: <pending>
+- Notes: **Mit Slice 365 ist E3 Slice 2 „Fees REIN" KOMPLETT (5/5 Quellen).** Nächster Track: E3 Slice 3 Monats-Liga e2e (RAUS-Kanal).
+
 ## 364 | 2026-06-24 | feat(treasury): Research-Fee REIN in Plattform-Topf (E3-2d, D96/D98)
 - Stage-Chain: SPEC (`worklog/specs/364-research-fee-rein.md`, S) → IMPACT (skipped, additive Inline-Buchung, 0 Consumer-Contract-Change) → BUILD → REVIEW (`worklog/reviews/364-review.md`, **PASS**, 1 NIT pre-existing/out-of-scope) → PROVE → LOG.
 - **Kontext:** E3 Plattform-Treasury Slice 2 „Fees REIN", Teil **4/5** = Research. Der 20 %-Plattform-Anteil der Research-Fee wurde notiert (`research_unlocks.platform_fee`) aber in kein Konto gebucht → verbrannte (Autor bekam 80 %, Plattform-20 % weg aus dem Umlauf).

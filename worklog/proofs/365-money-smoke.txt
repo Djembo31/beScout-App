@@ -1,0 +1,69 @@
+Slice 365 — Bounty-Fee REIN in den Plattform-Topf (E3-2e) — LETZTE Fee-Quelle
+Proof: Force-Rollback-Money-Smoke + Post-Apply-Verify
+Datum: 2026-06-24
+RPC: public.approve_bounty_submission(uuid, uuid, text)  (SECURITY DEFINER, Header OHNE search_path)
+
+===========================================================================
+(1) POST-APPLY VERIFY — Booking present + Fee-Konstante intakt + AR-44 + kein search_path-Drift
+===========================================================================
+SELECT
+  pg_get_functiondef('public.approve_bounty_submission(uuid,uuid,text)'::regprocedure) LIKE '%book_platform_treasury(''credit'', ''bounty''%' AS has_booking,
+  pg_get_functiondef(...) LIKE '%(v_reward * 500) / 10000%' AS fee_constant_intact,
+  pg_get_functiondef(...) NOT LIKE '%search_path%' AS no_search_path_drift,
+  has_function_privilege('anon',          'public.approve_bounty_submission(uuid,uuid,text)','EXECUTE') AS anon_can,
+  has_function_privilege('authenticated', 'public.approve_bounty_submission(uuid,uuid,text)','EXECUTE') AS auth_can;
+
+-> has_booking          = true   (AC-1: Inline-Booking live)
+   fee_constant_intact  = true   (AC-5: (v_reward * 500) / 10000 unverändert, 5 %, S356-Klasse)
+   no_search_path_drift = true   (AC-7: Header-Original ohne SET search_path erhalten, NICHT aufgehübscht)
+   anon_can             = false  (AC-8: AR-44 — anon gesperrt)
+   auth_can             = true   (authenticated erlaubt)
+
+CHECK: 'bounty' bereits im platform_treasury_ledger_source_check (AC-6, keine CHECK-Migration).
+       Live-CHECK = {trading, ipo, poll, research, bounty, p2p, monthly_liga, bescout_event}.
+
+DOPPELBUCHUNGS-AUSSCHLUSS (Pre-Mortem #2, live gelesen):
+  trg_bounties_settle bei status='completed' → bewegt KEIN Geld (nur NEW.treasury_escrowed:=false).
+  Geld-Bewegung nur bei 'cancelled'/'closed' (Refund). → Fee wird in KEINEM Trigger gebucht.
+  Einzige Buchung = der eine Inline-Block im RPC, deckt alle 3 Zahlungspfade.
+
+===========================================================================
+(2) FORCE-ROLLBACK MONEY-SMOKE  (DO-Block + RAISE EXCEPTION = voller Rollback)
+===========================================================================
+Pfad 1 (user_bounty, is_user_bounty=true) gewählt — umgeht trg_bounties_escrow_reward
+(der nur für Club-Bounties feuert) → self-contained, exerziert echten Wallet-Debit + Booking.
+Setup in-txn: Temp club_admins-Eintrag (Galatasaray), Temp user_bounty reward_cents=1000,
+  Temp bounty_submissions (pending). Zahler = created_by (realer Funded-User), Einreicher = realer Funded-User.
+auth-Kontext via set_config('request.jwt.claim.sub', admin).
+Topf-Saldo direkt aus platform_treasury_ledger-SUM (credit−debit) gelesen
+  — NICHT get_platform_balance() (Platform-Admin-Guard blockt im Nicht-Admin-Kontext; 364-Lehre).
+
+SMOKE_RESULT 365
+ result = {"success": true, "reward": 950}
+ reward = 1000   platform_fee = 50 (5 %)   creator_net = 950 (95 %)
+ pot_before = 0   pot_after = 50   pot_delta = 50            <- AC-1: Topf-Δ = platform_fee (5 %)
+ admin_delta(=Zahler) = -1000   sub_delta(=Einreicher) = +950
+ ledger_rows = 1   ledger_amount = 50                       <- AC-3: genau 1 'bounty'-Ledger-Row, ref_id=bounty_id
+ zero_sum: payer_out(1000) = creator_in(950) + pot_delta(50) -> t   <- AC-2: Zero-Sum ✅
+
+Fee-Split bestätigt: 95 % Creator (950) + 5 % Plattform (50) = 1000 (business.md Bounty 5/95).
+Integer-Division: 1000*500/10000 = 50 exakt; creator_net = 1000-50 = 950 (kein Leak, AC-4-Logik).
+
+===========================================================================
+(3) ROLLBACK-VERIFY — nichts persistiert
+===========================================================================
+leftover_bounties     = 0   (Temp-Bounty zurückgerollt)
+bounty_ledger_rows    = 0   (Smoke-Buchung zurückgerollt; live noch kein echter Bounty-Approval)
+pot_balance           = 0   (Topf unverändert bei 0)
+
+===========================================================================
+(4) tsc + db-invariants
+===========================================================================
+npx tsc --noEmit  -> EXIT 0 (clean)  (AC-9)
+db-invariants.test.ts -> aus vitest EXCLUDED (Live-DB-Test, S330/S359). KEIN CHECK/Type-Change
+  in diesem Slice (transactions.type bounty_cost/bounty_reward existieren seit jeher) -> INV-18-Snapshot
+  unberührt, keine Aktualisierung nötig.
+
+ERGEBNIS: PASS — Bounty-Plattform-Fee (5 %) fließt real in den BeScout-Topf.
+5. von 5 Fee-Quellen REIN -> E3 Slice 2 „Fees REIN" KOMPLETT
+   (Trading 358 / IPO 360 / Polls 363 / Research 364 / Bounty 365).

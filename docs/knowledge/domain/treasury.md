@@ -195,8 +195,10 @@ Alle Money-kritisch → CEO-Scope, sorgfältige Specs (D87-Muster).
 | IPO | 10 % | `buy_from_ipo` | ✅ REIN 'ipo' (Slice 360) |
 | Polls | 20 % | `cast_community_poll_vote` | ✅ REIN 'poll' (Slice 363, beide source-Branches) |
 | Research | 20 % | `unlock_research` | ✅ REIN 'research' (Slice 364) |
-| Bounty | 5 % | `approve_bounty_submission` | 🔥 nicht mal notiert (reward−creator_net) — offen Slice 365 |
+| Bounty | 5 % | `approve_bounty_submission` | ✅ REIN 'bounty' (Slice 365, EINE Buchung deckt alle 3 Zahlungspfade) |
 | P2P | 2 % | `accept_offer` | ✅ REIN 'p2p' (Slice 358) |
+
+**Fees-REIN KOMPLETT (5/5 Quellen, Slice 365):** Trading 358 · IPO 360 · Polls 363 · Research 364 · Bounty 365 (+ P2P 358). Alle Plattform-Fee-Ströme fließen real in den BeScout-Topf (voller Auffang 100 %, D98). Nächster E3-Track = Slice 3 Monats-Liga e2e (RAUS-Kanal).
 
 **Entscheidung (D96):** Plattform-Treasury als echtes Konto bauen (Saldo + append-only Ledger, Mirror Club-Treasury 329). **REIN** = die 6 verbrannten Plattform-Fee-Ströme. **RAUS** = plattformweite Rewards (**Monats-Liga**, **BeScout-Events** `type='bescout'`). Modell-Shift **deflationär → zirkulär** (bewusst, Anil). Selbst-finanzierend, kein Netto-Minting für Plattform-Rewards.
 

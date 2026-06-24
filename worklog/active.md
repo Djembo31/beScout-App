@@ -2,16 +2,16 @@
 
 ```
 status: idle
-slice: 364
-title: ✅ DONE — Research-Fee REIN in den Plattform-Topf (E3-2d)
+slice: 365
+title: ✅ DONE — Bounty-Fee REIN in den Plattform-Topf (E3-2e, LETZTE Fee-Quelle)
 stage: LOG complete
 size: S
 slice-type: Migration (Money-RPC) + Test
-spec: worklog/specs/364-research-fee-rein.md
+spec: worklog/specs/365-bounty-fee-rein.md
 impact: skipped (additive Inline-Buchung, 0 Consumer-Contract-Change, kein Schema-Shape-Change)
-proof: worklog/proofs/364-money-smoke.txt
-review: worklog/reviews/364-review.md (PASS, 1 NIT pre-existing/out-of-scope)
-next: Slice 365 Bounty-Fee REIN (E3-2e, LETZTE Fee-Quelle). **SPEC ✅ BUILD-ready** = worklog/specs/365-bounty-fee-rein.md (D87-Vorarbeit komplett: Live-Body + 3 Zahlungspfade + Escrow-Trigger gelesen; EINE Inline-Buchung deckt alle 3, keine Doppelbuchung). Frische Session startet bei BUILD.
+proof: worklog/proofs/365-money-smoke.txt (PASS — pot_delta=50, zero_sum=t, rollback sauber)
+review: worklog/reviews/365-review.md (PASS, 1 NIT optional/nicht umgesetzt)
+next: **E3 Slice 2 „Fees REIN" KOMPLETT (5/5).** Nächster = E3 Slice 3 Monats-Liga e2e (RAUS-Kanal), dann Slice 4 BeScout-Events, Slice 5 Wettkampf-Darstellung. Anker: worklog/notes/358-platform-treasury-epic.md.
 ```
 
 ## Kontext
