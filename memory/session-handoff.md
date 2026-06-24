@@ -1,11 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 17:15)
+# Session Handoff — Auto (2026-06-24 17:33)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- 7e786d33 chore(368b): post-deploy visual proof — Einstieg 461 CR (echte Erst-IPO), CSF €-frei
 - d931da6e chore(tracker): 368b done in MASTERPLAN/TODO/handoff — NÄCHSTER 368c (Floor-Orderbuch + Floor-Labels)
 - 17306c09 feat(player): 368b Scout-Card-Anzeige-Wahrheit (RewardsTab) — Einstieg<-Erst-IPO/"—", 4 Zahlen trennen, CSF €->Credits
 - 74bafa54 chore(tracker): 368 reframed (D100 Wertmodell) — 368a done, 368b/c next
@@ -15,7 +16,6 @@
 - 7b650a4f fix(gamification): E4 Diamond-Hands-Cluster — Rename + echte Hold-Logik + Konfetti-Gate (Slice 367, T-3)
 - 627e3e96 docs(notes): T-3 Diamond-Hands Root-Cause verifiziert (geseedete dpc_mastery.hold_days, Slice 367 Vorbereitung)
 - e3181795 docs(knowledge): treasury.md verified-against trading.md @ 2026-06-24 (beide auf D99 abgeglichen, Slice 366)
-- 1b7b7ae8 chore(tracker): E4 Schritt 1+2 done in MASTERPLAN + TODO reconciled (Slice 366)
 
 <!-- auto:handoff-end -->
 
@@ -23,9 +23,9 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = Slice 368a (Wertmodell-Kanon D100, `b6b63c67`). Letzter Money-Feature-Baseline = Slice 365 (Fees REIN komplett).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet & gepusht.
+**Status: idle. HEAD = Slice 368b (RewardsTab-Anzeige-Wahrheit, `7e786d33`, live-verifiziert). Letzter Money-Feature-Baseline = Slice 365 (Fees REIN komplett).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet & gepusht.
 
-## 🎯 HIER ANKNÜPFEN — E4 Schritt 3, NÄCHSTER = Slice 368b (Scout-Card-Anzeige-Wahrheit, UI)
+## 🎯 HIER ANKNÜPFEN — E4 Schritt 3, NÄCHSTER = Slice 368c (Floor = transparentes Orderbuch + Anti-Manipulation + Floor-Labels)
 
 **E4 = Money-Modell-Glattzug + Mock→Pro-Härtung (D99). Plan-Anker `worklog/notes/366-e4-money-model-cleanup-epic.md`.** Stand:
 - ✅ **Schritt 1 — D99 ratifiziert** (`b52e8b09`): Naming **„Credits"** jetzt · Einheit **1 Credit = 100 cents** · Phasen **1/2/3** · Pricing **1 Card = MV/1.000 Credits**. SSOT = **D99**.
