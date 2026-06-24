@@ -45,7 +45,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - Files: migration (1) + types + platformAdmin.ts + AdminTreasuryTab.tsx + de/tr.json + test (9 grün).
 - Proof: `357-money-smoke.txt` (Kette 1000/1500/1200, append/delete/bad-source/noauth geblockt, RLS/Grants) + `357-rpc.txt` + `357-vitest.txt`. UI-Playwright = post-Deploy.
 - Wissens-Kopplung: `docs/knowledge/domain/treasury.md` §10 Bau-Stand (Slice 1 ✅) + Mirror-Notiz.
-- Commit: <pending>
+- Commit: ebd0a08d
 - Notes: Nächster Bau E3-2 = Fees REIN (Trading zuerst, eine Quelle/Slice). CEO-Frage „voller Auffang vs. Teil-Burn/Cap" (ADR-026) gehört zu Slice 2.
 
 ## 356 | 2026-06-23 | feat(polls): Exklusive Treue-Umfragen (min_fan_rank_tier-Tor) + 80/20-Fee-Heal
@@ -135,7 +135,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - Proof: Backend AC1-AC8 live (CHECK, RLS 4-Op, AR-44 anon=false, Schwellen-Wirkung ultra→ehrenmitglied via Config-Smoke, Default-Fallback, Auth-Gate, Monoton-CHECK) + UI-Playwright (AC9 Leiter live, AC10 Admin-Sektion live, 0 Console-Errors, Mobile 393px).
 - Knowledge: 2 Patterns → errors-db.md (Recalc-on-Save bei Config→Geld/Tally · UI-Gate vs RPC-Gate-Drift Platform-Admin).
 - Backlog: csf_multiplier-Removal (D93) · recalculateFanRank Service swallow→throw (pre-existing NIT).
-- Commit: <pending> · Nächstes: Fan-Reward-Engine FRE-1/2/3/5 abgeschlossen (FRE-4 Coin-Phase). Money-Reste = Polls (b/c) oder neuer Block.
+- Commit: b2ff32ba · Nächstes: Fan-Reward-Engine FRE-1/2/3/5 abgeschlossen (FRE-4 Coin-Phase). Money-Reste = Polls (b/c) oder neuer Block.
 
 ## 346 | 2026-06-18 | feat(db): FRE-3 — Exklusive Vereins-Beiträge (Fan-Rang-Gate + gesperrte Vorschau)
 - Stage-Chain: SPEC (`worklog/specs/346-exclusive-club-posts.md`, M, Migration, CEO-approved Security-nah) → IMPACT (inline) → BUILD (Migration zuerst + Live-Logik-Test + Scharfschaltung + Service + UI) → REVIEW (`worklog/reviews/346-review.md`, Cold-Context **PASS**, 3 NIT) → PROVE (`worklog/proofs/346-rls.txt` + UI-Playwright post-Deploy) → LOG.
@@ -144,7 +144,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - Bau (Code): `DbPost.min_fan_rank_tier` + `ClubNewsTeaser`-Type · `createClubNews`-Param + `getClubNewsTeasers` + SELECT-Cols · `useClubData` lädt News via Teaser-RPC · `ClubContent` 🔒-Teaser/Badge · `AdminOverviewTab` Stufen-Selektor · i18n DE+TR (5 Keys). tsc clean, 60/60 betroffene Tests.
 - Security-Proof: Logik-Test (low/high/anon × public/exkl) + Live-RLS-Rollensmoke (low sees_exclusive=0, public=2, force-rollback) + 4 Policies intakt + teaser-RPC anon=false/auth=true + tier-Lineal verifiziert. **Kein Content-Leak** (Row-Hide + Maskierung, identische Gate-Bedingung).
 - Backlog (aus Review): Teaser-RPC oberes LIMIT-Cap (`LEAST(...,50)`); INSERT-Policy-club_admins-Härtung (pre-existing, separat).
-- Commit: <pending> · Nächstes: FRE-4 Airdrop (Money) oder FRE-5.
+- Commit: d3c4f561 · Nächstes: FRE-4 Airdrop (Money) oder FRE-5.
 
 ## 345 | 2026-06-18 | feat(db): FRE-2 — Follow zählt als Einstiegssignal in den Fan-Rang (+5)
 - Stage-Chain: SPEC (`worklog/specs/345-follow-fanrank-signal.md`, S, Migration, CEO-approved Money-nah) → IMPACT (inline, Consumer grep-verifiziert) → BUILD (apply_migration) → REVIEW (`worklog/reviews/345-review.md`, Cold-Context **PASS**, 2 NIT non-blocking) → PROVE (`worklog/proofs/345-rpc.txt`) → LOG.
@@ -153,7 +153,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - Money: Fan-Rang steuert Poll-Stimmgewicht (343). +5 kann an Tier-Grenze das Tally-Gewicht heben (gewollt, monoton); **Abo-Floor (D92, MAX) bleibt unberührt** (live verifiziert). Kein Geld-Fluss.
 - Verify (Live-DB, force-rollback Smoke): before 42.68 → follow 47.68 (Trigger+RPC) → unfollow 42.68; delta 5.00; unfollow_back true. anon=false/auth=true, has_follow_check=true, trigger_present=1, poll_weight_max_intact=true. 0 Persistenz.
 - Knowledge: `errors-db.md` PATCH-AUDIT — `calculate_fan_rank`-Body nur live, `20260330`-Datei stale (nicht als Baseline nutzen).
-- Commit: <pending>
+- Commit: 027b4cdf
 - Nächstes: FRE-3 (ein echtes neues Perk-Gate) — siehe D93/TODO.
 
 ## 344 | 2026-06-18 | feat(gamification): Fan-Rang-Leiter sichtbar + Perk-Katalog (E1.1)
@@ -171,7 +171,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - Bau: Migration `20260618230000` CREATE OR REPLACE — Body byte-identisch zu 336, NUR Weight-Block: `weight = GREATEST(v_abo_weight, v_rank_weight)`. Fan-Rang ultra/legende→2×, ehren/ikone→3×, sonst 1×; Abo-Floor (MAX) verhindert Regression der Live-2× bei stale/niedrigem Rang. Tally-only (Geld = 1 echte Stimme, D86). Stored-read (kein recalc-on-read im Money-Pfad). AR-44 REVOKE/GRANT.
 - Verify: Live-Body trägt v_rank_weight + GREATEST, Money-Branches (treasury/poll_earn) intakt, anon=false/auth=true. DB-Smoke (transaktional, BEGIN→RAISE-Rollback): 13/13 Assertions PASS — je Tier (S1-S6), Abo-Floor (S7=2), MAX≠6 (S8=3), NULL-Rang (S9=1), club-keyed noclub (S10=1), **Money-Invariante (S11: weight=3 aber amount_paid=1000 nicht 3000, Wallets+transactions korrekt)**, Tally=18. 0 Persistenz-Leak. tsc clean.
 - Wissens-Kopplung (E0-W2gov): `docs/knowledge/domain/polls.md` (§6/§8/§9/Status) + `reward-ranking.md` (W2-A/§6) mit-aktualisiert.
-- Commit: <pending>
+- Commit: b77c1b43
 - Notes: Mapping-Konstante lebt in der RPC (kein TS-Spiegel, da Gewicht nicht UI-surfacet). Backlog: bei UI-Surfacing Test-Invariant TS↔RPC (Slice-108-Familie, Review-NIT#1).
 
 ## 342 | 2026-06-18 | fix(services): Poll-Follower-Notify Concurrency-Storm → gebündelte Batches
@@ -181,14 +181,14 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - Verify: tsc clean · 11 Tests (Chunking 0/80/100/101/250 + Item-Shape + best-effort-throw) · 68/68 Regression (communityPolls+players) · grep: 0 Promise.all.
 - Effekt: N gleichzeitige Round-Trips → ceil(N/100) sequenzielle bounded Batches. Preferences + Push erhalten. Scope-Out: True-Millionen in 1 Serverless-Invocation = Queue/Worker (eigener Slice).
 - Backlog (Review-NIT#1): cross-user Batch-Notify nutzt notifText ohne locale → DE für alle (pre-existing seit 336); i18n-KEY-in-DB später.
-- Commit: <pending>
+- Commit: 92fc9105
 
 ## 341 | 2026-06-18 | chore(db): auto_close_expired_bounties als getrackte Migration (AR-43)
 - Stage-Chain: SPEC (`worklog/specs/341-auto-close-bounties-tracked-migration.md`, XS) → IMPACT (skipped: 1 Funktion, kein Consumer-Change) → BUILD (Migration apply) → REVIEW (`worklog/reviews/341-review.md`, **self-review PASS**, Body byte-identisch) → PROVE (`worklog/proofs/341-rpc.txt`) → LOG.
 - Trigger: Anil „weiter" → letztes Original-Fixes-Cluster-Item, Handoff-Stolperfalle #3 / AR-43.
 - Befund: `auto_close_expired_bounties()` existierte live (vom Cron `close-expired-bounties/route.ts` genutzt), aber in KEINER Migration (grep 0 Treffer) → `db reset`/Greenfield hätte sie verloren.
 - Bau: Migration `20260618220000` mit Live-Body 1:1 (locked_balance-Release-Loop + Close-UPDATE, FOR UPDATE) + AR-44. Applied (idempotent), body_intact + anon=false/auth=true verifiziert. Kein Behavior-Change.
-- Commit: <pending>
+- Commit: 4a826b0e
 
 ## 340 | 2026-06-18 | fix(db): create_user_bounty Reward-Guard an bounties_reward_cents_check angleichen (Money-RPC)
 - Stage-Chain: SPEC (`worklog/specs/340-bounty-reward-guard-alignment.md`, S, Money/CEO) → IMPACT (skipped: 1 RPC, kein neuer Consumer) → BUILD (Migration apply) → REVIEW (`worklog/reviews/340-review.md`, Cold-Context **PASS**, 2 NIT pre-existing) → PROVE (`worklog/proofs/340-rpc.txt`) → LOG.
@@ -197,7 +197,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - Bau: Migration `20260618210000` CREATE OR REPLACE — Body **byte-identisch** zur D87-Baseline, NUR Amount-Guard angeglichen (`<500` „5 $SCOUT" + `>100000` „1.000 $SCOUT", strikt = inklusiver CHECK). AR-44 REVOKE/GRANT auf 9-arg-Signatur.
 - Verify: guards_present + body_intact (auth/FOR UPDATE/is_user_bounty erhalten) · anon=false/auth=true · Boundary-Money-Smoke (BEGIN/ROLLBACK, jwt-claims): r499→min-error, r100001→max-error, r500+r100000→success. Cleanup-Verify: 0 persistierte Bounties, locked_balance=0 (keine Prod-Mutation).
 - Knowledge: errors-db.md CHECK-Drift-Familie um umgekehrte Richtung ergänzt (RPC-Guard an CHECK angleichen, strikte Grenzen).
-- Commit: <pending>
+- Commit: 27ce56b7
 
 ## 339 | 2026-06-18 | fix(services): PostgREST-1000-Cap-Härtung — getPlayerNames + Follower-Notify
 - Stage-Chain: SPEC (`worklog/specs/339-postgrest-cap-limit-hardening.md`, S, kein Money/Schema) → IMPACT (skipped: kein Contract-Change, Return-Typen identisch) → BUILD → REVIEW (`worklog/reviews/339-review.md`, Cold-Context **PASS**, 2 NIT Scope-Out) → PROVE (`worklog/proofs/339-vitest.txt`) → LOG.
@@ -206,7 +206,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - Bau: Range-Loop 1:1 aus `club.ts:388` (getClubsWithStats, Slice 079b-Muster). `getPlayerNames` inline-Loop; Follower-ID-Beschaffung in neuen exportierten Helper `fetchAllFollowerIds(source, clubId?, userId?)` extrahiert (Testbarkeit), Notify-IIFE ruft ihn auf — best-effort try/catch erhalten (throw bricht Poll-Erstellung NICHT).
 - Verify: tsc clean · 9/9 neue Pagination-Tests (>1000 paginiert · <1000 1 Call · 0-leer · Error-throw · Helper-Guard-Edge) · 62/62 Regression (players + communityPolls). Sticky-Mock-Falle in Tests umgangen (2-Eintrag-Queue = echte Pagination).
 - Backlog (Review-NIT#1): Notify-`Promise.all` ist jetzt — da Follower-Cap weg — bei Mega-Club ein Concurrency-Storm (vorher implizit ≤1000). Vor echtem Galatasaray-Launch Batching (500er-Chunks oder Fan-out-RPC) nötig. Eigener Slice.
-- Commit: <pending>
+- Commit: f56eaf18
 
 ## 338 | 2026-06-18 | refactor(predictions): Predictions-/Tippspiel-Feature komplett entfernt
 - Stage-Chain: SPEC (`worklog/specs/338-predictions-feature-removal.md`, L, CEO-approved) → IMPACT (`worklog/impact/338-*.md`, Cross-Domain) → BUILD → REVIEW (`worklog/reviews/338-review.md`, Cold-Context **PASS**, 3 NIT kosmetisch) → PROVE (`worklog/proofs/338-proof.md`) → LOG.
