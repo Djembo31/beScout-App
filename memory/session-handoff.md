@@ -1,11 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 14:49)
+# Session Handoff — Auto (2026-06-24 16:17)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
 ## Session Commits: 10
+- b6b63c67 docs(decision): D100 — Scout-Card-Wertmodell als Kanon (Slice 368a, E4)
+- 9d5b12d5 chore(handoff): Resume-Anker auf Slice 368 (ipo_price-Drift, wartet auf Anil-Go) — E4 Schritt 1+2+367 done
 - eb820b1f chore(tracker): Slice 367 done + 368 next (E4 Schritt 3)
 - 7b650a4f fix(gamification): E4 Diamond-Hands-Cluster — Rename + echte Hold-Logik + Konfetti-Gate (Slice 367, T-3)
 - 627e3e96 docs(notes): T-3 Diamond-Hands Root-Cause verifiziert (geseedete dpc_mastery.hold_days, Slice 367 Vorbereitung)
@@ -14,8 +19,6 @@
 - eba47650 docs(money): E4 Doc-Glattzug — Money-Modell-Doku auf D99 ausgerichtet (Slice 366, Schritt 2)
 - b52e8b09 docs(decision): D99 OFFEN-Punkte ratifiziert (E4 Schritt 1)
 - fe1bd24a docs(decision): D99 — $SCOUT-Phasenmodell (SSOT) + Money-Modell-Drift-Inventur + E4 Cleanup-Epic
-- f297a361 feat(treasury): Bounty-Fee REIN in Plattform-Topf (Slice 365, E3-2e) — Fees-REIN KOMPLETT 5/5
-- bb7d8f34 docs(spec): Slice 365 Bounty-Fee REIN — BUILD-ready Spec + Resume-Anker (E3-2e)
 
 <!-- auto:handoff-end -->
 
@@ -23,19 +26,44 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = Slice 367 (Diamond-Hands-Fix). Letzter Money-Feature-Baseline = Slice 365 (Fees REIN komplett).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet & gepusht (HEAD `eb820b1f`).
+**Status: idle. HEAD = Slice 368a (Wertmodell-Kanon D100, `b6b63c67`). Letzter Money-Feature-Baseline = Slice 365 (Fees REIN komplett).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet & gepusht.
 
-## 🎯 HIER ANKNÜPFEN — E4 Schritt 3, NÄCHSTER = Slice 368 (ipo_price-Data-Drift, Money/CEO)
+## 🎯 HIER ANKNÜPFEN — E4 Schritt 3, NÄCHSTER = Slice 368b (Scout-Card-Anzeige-Wahrheit, UI)
 
 **E4 = Money-Modell-Glattzug + Mock→Pro-Härtung (D99). Plan-Anker `worklog/notes/366-e4-money-model-cleanup-epic.md`.** Stand:
-- ✅ **Schritt 1 — D99 ratifiziert** (`b52e8b09`): Naming **„Credits"** jetzt (`$SCOUT`=ICO-Coin später, „BSD" deprecatet) · Einheit **1 Credit = 100 cents** (Speicher), ICO-Wert 1 Credit = 0,01 € (Phase 2, nie heute user-facing) · Phasen **sequenziell 1/2/3** · CASP = schnellster sicherer Weg zum ICO (Route CASP vs MiCA Title II = Anwalt) · Pricing **1 Card = MV/1.000 Credits** (= MV/100.000 € ICO-Peg, **kein 100×-Widerspruch**, am Live-Code bewiesen). SSOT = **D99** (`memory/decisions.md`).
-- ✅ **Schritt 2 — Doc-Glattzug** (Slice 366, `eba47650`): ~40+ Stellen + Compliance-Skills (beScout-business/plan-legal-review .claude+.agents) + SYSTEM-DESIGN auf D99; CONCEPT-DPC-ECONOMY Selbstwiderspruch geheilt; `grep $SCOUT|BSD messages/` = 0. Proof `366-drift-grep.txt`.
-- ✅ **Schritt 3 / Bug T-3 — Slice 367 Diamond-Hands** (`7b650a4f`): Rename **„Treuer Sammler"/„Sadık Koleksiyoncu"** (Key `diamond_hands` code-intern) über 4 Surfaces (messages DE+TR, achievements.ts +icon ⏳, DB `achievement_definitions` Migration 20260624190000) + **Hold-Logik** in `social.ts` aus `holdings.created_at` (qty>0, älteste Position; Zombie-Trigger S025 = Position-Start) STATT geseedetem `dpc_mastery.hold_days` + **Konfetti-Gate** `category!=='trading'`. Reviewer PASS. Knowledge: gamification.md +2 Patterns (Achievement nie aus Mock-Spalte · Konfetti-Dual-Path).
+- ✅ **Schritt 1 — D99 ratifiziert** (`b52e8b09`): Naming **„Credits"** jetzt · Einheit **1 Credit = 100 cents** · Phasen **1/2/3** · Pricing **1 Card = MV/1.000 Credits**. SSOT = **D99**.
+- ✅ **Schritt 2 — Doc-Glattzug** (Slice 366, `eba47650`): ~40+ Stellen + Skills auf D99; `grep $SCOUT|BSD messages/` = 0.
+- ✅ **Schritt 3 / T-3 — Slice 367 Diamond-Hands** (`7b650a4f`): Rename „Treuer Sammler" + Hold-Logik aus `holdings.created_at` + Konfetti-Gate. Reviewer PASS.
 
-**← NÄCHSTER: Slice 368 = P-4 `ipo_price`-Data-Drift (Money, CEO-Scope, §3 selbst bauen).**
-- **Problem:** Nicht-Top-Spieler haben falsche `ipo_price` (eingefroren bei Launch, nicht bei MV-Änderung nachgezogen). Douglas Willian MV 500K steht bei **10 statt ~500 Credits**; Top-Spieler (Mbappé) korrekt. Kanon: `ipo_price_cents = MV_EUR/10` (= MV/1.000 Credits).
-- **⚠️ WARTET AUF ANIL-GO:** ändert **echte Live-Preise**, gegen die Tester handeln → nicht ungefragt migrieren. **Vorgehen (mit Anil abgestimmt):** ZUERST `/impact` + Live-Daten-Analyse zeigen (wie viele Spieler betroffen, welche haben offene Orders/Holdings, Blast-Radius), DANN Migrations-Plan vorlegen, ERST auf Anil-Go auf Prod schreiben. Money-Muster: Live-`pg_get_functiondef`/SELECT VOR Spec (D87).
-- **Alternative (Anil-Wahl):** zuerst die leichteren Bugs — **369** T-2 `/api/push → 500` beim Kauf · **370** E2E-Sweep ② IPO → ③ Poll → ④ Research → ⑤ Bounty (je Seed + echter UI-Trigger; Browser war jarvis-qa; Seed-Muster `place_sell_order` etc. in `worklog/notes/365-e2e-findings.md`). **T-1** Cold-Start leerer Markt = **Produkt-Entscheid** (Dauer-IPO/Seed-Orderbuch, eigener Slice).
+### 🔑 NEU diese Session (2026-06-24): Slice 368 KOMPLETT REFRAMED — alte Prämisse war FALSCH
+**Die Handoff-Annahme „368 = ipo_price auf MV/10 nachziehen" ist VERWORFEN.** Anil-Klärung deckte auf: `ipo_price` ist **NICHT** an den MV gekoppelt — es ist der **Preis, den der Verein beim Erstverkauf festlegt** (orientiert sich am MV, darf abweichen, danach eingefroren). Der MV ist nur **Referenz**. „ipo_price auf MV/10 zwingen" wäre der Fehler, nicht der Fix (genau das tat Slice 114 im April).
+
+**→ Festgehalten als `D100` (`memory/decisions.md`) — supersedes D99 Punkt 4.** Das Wertmodell = **vier getrennte Zahlen**, die nie verschmelzen dürfen:
+1. **Erstverkaufspreis/Eintritts-Anker** (`ipo_price`) = Vereinspreis, MV-entkoppelt, eingefroren. Bezugspunkt der Preisentwicklung.
+2. **Aktueller Marktpreis** (Orderbuch/`last_price`/`floor_price`) = Angebot/Nachfrage.
+3. **Marktwert-Referenz** (`market_value_eur`) = Transfermarkt, Cron-aktualisiert, NUR Kontext.
+4. **CSF** = im Reward, aus MV-Wachstum, auf richtiger Basis erklären.
+
+**Schlüssel-Funde aus der Live-Discovery (NICHT neu investigieren):**
+- `buy_player_sc` kauft über das **Orderbuch** (niedrigste offene Sell-Order, `v_order.price`), NICHT über ipo/floor/last → die 4 Zahlen sind heute fast nur **Anzeige-Werte** = geringes Money-Risiko.
+- 96/3.935 Spieler haben `ipo_price ≠ MV/10` — **0 mit aktiver IPO, 0 mit offener Order** → per D100 **KEIN Bug, kein Daten-UPDATE**.
+- Echter historischer Vereins-Eintrittspreis ist durch Slice 114 überschrieben (in `initial_listing_price` nur unzuverlässig erhalten) → **nicht rekonstruierbar**. Anzeige-Anker bestehender Spieler = **`ipos.price` der Erst-IPO, sonst „—"** (Anil-Entscheid).
+- `floor_price` wird user-facing IMMER als „günstigstes Angebot" gelabelt — auch wenn `recalc_floor_price` ihn aus dem **letzten Verkaufspreis** ableitet (keine offene Order). Quelle nie sichtbar; Labels uneinheitlich („Floor"/„Marktpreis"/„Markt Floor"). = die irreführende Stelle.
+- ipoPrice & MV stehen im `RewardsTab.tsx:60-83` verwechselbar nebeneinander („Dein Einstieg" Cr | „Aktueller Marktwert" €).
+
+✅ **368a DONE** (`b6b63c67`): Kanon festgehalten — D100 + INDEX-Range D1–D100 + `treasury.md §1b` + `.claude/rules/trading.md`-Korrektur (alte „Fix=MV/10"-To-Do raus). Reviewer PASS, kein Code/kein Daten-UPDATE. **Spec der ganzen Serie: `docs/plans/2026-06-24-scout-card-value-model-spec.md`.**
+
+**← NÄCHSTER: Slice 368b — Anzeige-Wahrheit (UI, gering-Risiko).**
+- „Dein Einstieg"/Erstverkauf liest `ipos.price` der Erst-IPO (neuer kleiner Service/Query), Fallback „—".
+- ipoPrice / MV / aktueller Marktpreis klar trennen + erklären; Floor-Labels vereinheitlichen; CSF-Reward-Basis korrekt.
+- Hauptfiles: `RewardsTab.tsx`, `PlayerHero.tsx`, `TradingTab.tsx`, `StickyDashboardStrip.tsx`, `TradingCardFrame.tsx` (Card-Back), `Glossary.tsx`, `messages/{de,tr}.json`.
+- **Open-Q (vor BUILD klären):** „—"-Fall = nur Einstieg-Feld ausblenden ODER ganzen Reward-Block?
+
+**DANN: Slice 368c — Floor = transparentes Orderbuch.**
+- Floor zeigt **Quelle** („niedrigste offene Order" vs. „letzter Verkauf, keine Angebote") + **Anti-Manipulation** (Mini-Order-Crash verhindern). `recalc_floor_price`-Kaskade prüfen/anpassen. `OrderbookSummary.tsx` (Best Bid/Ask) ist da, aber NICHT mit `prices.floor` verknüpft.
+- **Open-Q (Anil, CEO):** Anti-Manipulations-Regel — Mindest-Order-Größe vs. %-Schwelle vs. Median-Filter.
+
+**Danach E4 Rest:** 369 T-2 `/api/push → 500` beim Kauf · 370 E2E-Sweep ② IPO → ③ Poll → ④ Research → ⑤ Bounty (Seed-Muster in `365-e2e-findings.md`, Browser jarvis-qa). **T-1** Cold-Start leerer Markt = Produkt-Entscheid (eigener Slice).
 
 **367-Follow-ups (non-blocking, aus Reviewer):** F#1 „ohne zu verkaufen"-Semantik — Teilverkauf resettet `created_at` NICHT (nur Full-Sell auf qty=0) → mit Anil klären ob Description entschärfen. F#2 Regression-Tests für Hold-Logik (Buy→kein Unlock / 31d→Unlock). F#3 DPC-Mastery-Leaderboard (`mastery.ts`) zeigt weiter geseedetes `hold_days`-Mock → eigener Mock→Pro-Slice.
 
