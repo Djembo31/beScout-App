@@ -11,7 +11,7 @@ spec: inline (Crash-Recovery-Nebenbefund-Kette 360→361→362)
 impact: skipped (1 Service-File, 2 Caller verifiziert)
 proof: worklog/proofs/362-platformadmin-chunked.txt
 review: worklog/reviews/362-review.md (PASS, 2 NIT, NIT#1 adressiert)
-next: E3 restliche Fee-Quellen REIN (Polls/Research/Bounty) — Money/CEO-Scope, selbst
+next: Slice 363 Polls-Fee REIN (E3-2c) — SPEC FERTIG/BUILD-READY: worklog/specs/363-poll-fee-rein.md
 ```
 
 ## Kontext

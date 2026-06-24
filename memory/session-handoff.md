@@ -1,11 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 10:00)
+# Session Handoff — Auto (2026-06-24 10:30)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
-## Session Commits: 5
+## Session Commits: 8
+- f2a3ef78 chore(worklog): active.md auf Slice 362 (Resume-Anker)
+- aad2b67d chore(worklog): Slice 362 LOG-Eintrag
+- 1e3c9abc fix(services): platformAdmin chunked/paginated Reads — player_count Live-Bug + 5 HIGH silent-fail (Slice 362)
 - 1daed134 chore(worklog): Slice 361 LOG-Eintrag
 - 890926cc fix(observability): AdminTreasuryTab Promise.allSettled → logSilentRejects (Slice 361)
 - 8578e7f6 chore(worklog): Commit-Hashes für Slices 339-347 + 357 nachgetragen
@@ -18,15 +24,18 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = Slice 359 (`5fb85eee`, offer_buy-CHECK-Fix). Letzte Feature-Baseline = Slice 358 (E3-2 Fees REIN Trading, `fb31c6b6`).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet.
+**Status: idle. HEAD = Slice 362 (`1e3c9abc`, platformAdmin chunked Reads). Letzte Money-Feature-Baseline = Slice 360 (E3-2b Fees REIN IPO, `81ec6e0b`).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal.** Alles committet.
 
-## ➡️ NÄCHSTER BAU: E3 — restliche Fee-Quellen REIN (IPO/Polls/Research/Bounty, je eigener Slice; Money/CEO §3)
-> **E3-1 Fundament ✅ (357) + E3-2 Trading ✅ (358) LIVE.** Trading-Fees (Orderbuch `buy_player_sc`+`buy_from_order`→'trading', P2P `accept_offer`→'p2p') fließen jetzt real in den Topf. Policy **D98: voller Auffang 100 %** (gilt für alle weiteren Quellen).
-- **ZUERST lesen:** `worklog/notes/358-platform-treasury-epic.md` (§ Slice 2) · WARUM = `decisions.md` **D96/D98** · WIE = `docs/knowledge/domain/treasury.md` §10.
-- **Muster aus 358 wiederverwenden (1:1):** im Fee-RPC, nach `v_trade_id`/Buchungs-Block, `IF v_platform_fee > 0 THEN PERFORM book_platform_treasury('credit','<source>', v_platform_fee, <ref>, '<desc>'); END IF;`. **Inline, kein Trigger.** Source je Quelle: IPO `buy_from_ipo`→'ipo' · Polls `cast_community_poll_vote`→'poll' (Spalte `platform_share`) · Research `unlock_research`→'research' · Bounty `approve_bounty_submission`→'bounty' (heute gar nicht notiert, = reward−creator_net). `source`-CHECK hält alle bereits.
-- **Money-Muster (Pflicht, D87):** Live-`pg_get_functiondef` der Quelle VOR Spec. Force-Rollback-Smoke mit `set_config('request.jwt.claim.sub', user, true)` + `RAISE EXCEPTION 'SMOKE_RESULT: %'` (gibt Zahlen zurück UND rollt zurück — 358-Technik, sehr sauber). PATCH-AUDIT: Fee-Konstanten gegen `trading.md` asserten. Reviewer-Pflicht.
-- **✅ Bug-Slice 359 erledigt:** `accept_offer` side='sell' repariert (`offer_buy` in `transactions_type_check` + Invariant-Test reconciled inkl. 330-Drift). P2P-Sell-Offers laufen wieder. → Damit ist der nächste Bau eindeutig **E3 restliche Fee-Quellen REIN**.
-- **Danach:** 3 Monats-Liga e2e (Live-Standing-UI + Cron + `overall`=Median-Fix; Ist: `close_monthly_liga` lebt, mintet 34.000 $SCOUT/Mt, 0 Snapshots live — Ursprung `worklog/notes/357-preflight-monthly-leaderboard.md`) → 4 BeScout-Events → 5 Wettkampf-Darstellung + Ranking-Konsolidierung.
+> **Session 2026-06-24 (Crash-Recovery + Cleanup):** 360 IPO-Fee REIN nachträglich committet (Crash war vor Commit) · 361 AdminTreasuryTab→logSilentRejects · 362 platformAdmin `player_count`-Live-Bug (4472 vs 1000-Cap) + 5 HIGH silent-fail geklärt, Baseline 170/77/93. Danach SPEC für 363 vorbereitet (siehe unten).
+
+## ➡️ NÄCHSTER BAU: Slice 363 — Polls-Fee REIN (E3-2c, Money/CEO §3) — **SPEC FERTIG, BUILD-READY**
+> **E3-1 Fundament ✅ (357) + E3-2 Trading ✅ (358) + 2b IPO ✅ (360) LIVE.** Policy **D98: voller Auffang 100 %**. Polls = Teil 3 von 5 Fee-Quellen.
+- **SPEC liegt fertig:** `worklog/specs/363-poll-fee-rein.md` — Live-`functiondef` von `cast_community_poll_vote` schon gelesen (2026-06-24), Einfügestelle + Fee-Konstante + Edge-Cases dokumentiert. **Direkt BUILD starten** (`/ship` Stage BUILD), kein Re-Reading nötig.
+- **Kern:** 1 additive Inline-Buchung `IF v_platform_share > 0 THEN PERFORM book_platform_treasury('credit','poll',v_platform_share,p_poll_id,'Umfrage-Fee'); END IF;` — Einfügung am Ende des `IF v_cost > 0`-Blocks NACH dem source-`IF/ELSE` (deckt BEIDE Branches club+user). 20 % Plattform (`v_cost - (v_cost*80)/100`). `'poll'` im CHECK schon erlaubt → keine CHECK-Migration. **AR-44 REVOKE/GRANT Pflicht.**
+- **⚠️ S356-Falle (Pre-Mortem #1):** die Konstante `(v_cost * 80) / 100` ist genau die, die schon mal still driftete (343: 80→70) → AC-5 ILIKE-Assert `%(v_cost * 80) / 100%` nach apply. CREATE OR REPLACE = exakter Live-Body + nur 1 Block.
+- **Money-Muster (D87):** Force-Rollback-Smoke, ZWEI Branches (source='club' + source='user'), `set_config('request.jwt.claim.sub', voter, true)` + `RAISE EXCEPTION 'SMOKE_RESULT: %'`. Reviewer-Pflicht.
+- **Danach (je eigener Slice, gleiches Muster):** 364 Research `unlock_research`→'research' · 365 Bounty `approve_bounty_submission`→'bounty' (= reward−creator_net, heute gar nicht notiert — Body genau lesen).
+- **Dann Epic-Sequenz weiter:** 3 Monats-Liga e2e (Live-Standing-UI + Cron + `overall`=Median-Fix; `close_monthly_liga` lebt, mintet 34.000 $SCOUT/Mt, 0 Snapshots — `worklog/notes/357-preflight-monthly-leaderboard.md`) → 4 BeScout-Events → 5 Wettkampf-Darstellung. Plan-Anker `worklog/notes/358-platform-treasury-epic.md`.
 
 ## ✅ SESSION 2026-06-24 — Slice 357 E3-1 Topf-Fundament (Money, CEO-Scope)
 - **Slice 357** — Plattform-Treasury Topf-Fundament. Mirror Club-Treasury 329 minus tenant-id, Single-Pot. Tabellen + 3 RPCs + Append-only-Trigger (329 wiederverwendet) + RLS 0-Policies + Service +2 Fn + AdminTreasuryTab-Card + i18n DE+TR. **Topf live bei 0, kein Backfill.**
