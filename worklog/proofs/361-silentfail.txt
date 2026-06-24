@@ -1,0 +1,37 @@
+Slice 361 — AdminTreasuryTab Promise.allSettled Observability — PROOF
+=====================================================================
+Datum: 2026-06-24
+Typ: Frontend-Hardening (Silent-Fail-Pattern, MEDIUM)
+File: src/app/(app)/bescout-admin/AdminTreasuryTab.tsx
+
+[1] BEFUND (aus Slice 360 Crash-Recovery Nebenbefund)
+---------------------------------------------------------------------
+silent-fail-audit MEDIUM 94 > Baseline 93 (+1). Quelle = Slice 357
+(Topf-Fundament, src/-Teil nie re-baselined). Konkret:
+  AdminTreasuryTab.tsx:35  pattern=allsettled-without-observability  MEDIUM
+Promise.allSettled mit per-Branch console.error → erreicht KEINE Sentry-
+Observability (Data-Liar bei prod-RPC-Reject).
+
+[2] FIX (kanonisches Pattern, wie AdminGameweeksTab/useProfileData)
+---------------------------------------------------------------------
+- import { logSilentRejects } from '@/lib/observability/silentRejects'
+- 3× redundante `else console.error(...)` ersetzt durch 1×
+  logSilentRejects('AdminTreasuryTab.loadData', [statsRes, potBalRes, potLedgerRes])
+- fulfilled→setState-Branches unverändert (graceful degrade bleibt).
+  logSilentRejects loggt dev-console UND captureError→Sentry (prod).
+
+[3] VERIFY
+---------------------------------------------------------------------
+npx tsc --noEmit                       -> exit 0 (clean)
+npx tsx scripts/silent-fail-audit.ts --check:
+  scanned 1182 files, found 175 candidates (82 HIGH, 93 MEDIUM)
+  baseline: 175 total, 82 HIGH, 93 MEDIUM
+  -> ✅ audit within baseline   (MEDIUM zurück 94->93, kein Re-Baseline nötig)
+
+VERDICT: MEDIUM-Drift root-cause behoben, Audit wieder auf Baseline.
+
+NEBENBEFUND (separat, NICHT in diesem Slice gefixt):
+  platformAdmin.ts .in('club_id', clubIds) — 134 Clubs live (~5KB URL,
+  aktuell unter ~14KB-Limit, funktioniert). Latent fragil bei weiterem
+  Club-Wachstum (follower/player_count -> 0 jenseits Limit). Admin-Display,
+  kein Money. Audit-HIGH, aber innerhalb Baseline. -> eigener Slice (Chunk).

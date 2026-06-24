@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Card, StatCard } from '@/components/ui';
 import { fmtScout, cn } from '@/lib/utils';
+import { logSilentRejects } from '@/lib/observability/silentRejects';
 
 import {
   getTreasuryStats, type TreasuryStats,
@@ -38,11 +39,10 @@ export function AdminTreasuryTab() {
       getPlatformTreasuryLedger(20),
     ]);
     if (statsRes.status === 'fulfilled') setStats(statsRes.value);
-    else console.error('[Admin] Treasury data load failed:', statsRes.reason);
     if (potBalRes.status === 'fulfilled') setPot(potBalRes.value);
-    else console.error('[Admin] Platform pot balance load failed:', potBalRes.reason);
     if (potLedgerRes.status === 'fulfilled') setPotLedger(potLedgerRes.value);
-    else console.error('[Admin] Platform pot ledger load failed:', potLedgerRes.reason);
+    // Slice 361: rejected Loads zentral nach console (dev) + Sentry (prod) — kein stiller Data-Liar.
+    logSilentRejects('AdminTreasuryTab.loadData', [statsRes, potBalRes, potLedgerRes]);
     setLoading(false);
   }, []);
 

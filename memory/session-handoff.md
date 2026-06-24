@@ -1,23 +1,13 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 03:12)
+# Session Handoff — Auto (2026-06-24 09:48)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
-## Session Commits: 9
-- 4c7d8c79 docs(handoff): Resume-Anker auf Slice 359 (HEAD-Stand korrigiert)
-- 5fb85eee chore(worklog): Slice 359 Commit-Hash
-- 8826d067 fix(trading): accept_offer side='sell' repariert — 'offer_buy' in transactions_type_check (Slice 359)
-- b655d4b4 chore(worklog): Slice 358 LOG-Abschluss (active->idle, Commit-Hash)
-- fb31c6b6 feat(treasury): Fees REIN Trading — Plattform-Fee in den Topf (E3-2, D96/D98)
-- 4a5043bd docs(decision): D97 — Plattform-Topf Saldo-Mechanik (Variante A) + Slice-357-Handoff
-- ebd0a08d feat(treasury): Plattform-Treasury Topf-Fundament (E3-1, D96)
-- 43a7ff1b docs(decision): D96 — Plattform-Treasury (BeScout-Topf) Epic
-- dd43756e docs(handoff): Session-Ende Slice 356 + Preflight Monthly-Leaderboard (nächste Session)
+## Session Commits: 2
+- 847e15a3 chore(worklog): Slice 360 Commit-Hash
+- 81ec6e0b feat(treasury): IPO-Fee REIN in Plattform-Topf (E3-2b, D96/D98)
 
 <!-- auto:handoff-end -->
 
