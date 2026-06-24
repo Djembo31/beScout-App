@@ -13,12 +13,14 @@ proof: worklog/proofs/375-remove-mastery.txt (AC1-AC7 PASS, tsc clean, 100 vites
 review: worklog/reviews/375-review.md (reviewer CONCERNS→7 LOW/NIT alle adressiert→effektiv PASS)
 result: 6 UI-Anzeige-Stellen + Prop-Kette (7 Files) entfernt, orphan queries/services/mastery.ts gelöscht, Barrel+qk.mastery+USER_SCOPED bereinigt, 5 Test-Files. Migration: Mock-Cron unscheduled + increment_mastery_hold_days() + hold_days-Spalte gedroppt. Echte Engine (award_mastery_xp Fantasy/Content + freeze/unfreeze) + Tabelle reversibel erhalten. Netto −112 LoC.
 
-## Reste-Queue (Anil: „alle nach und nach")
+## Reste-Queue (Anil: „alle nach und nach") — Runde abgeschlossen 2026-06-25
 1. ✅ 373 Floor-Label-Vereinheitlichung (5293cdf9)
 2. ✅ 374 Compliance-Sweep eventCurrency/Tickets (5ff7510a)
-3. ✅ 375 DPC-Mastery-Feature entfernt
-4. → Topf-Card-Visual (357) ← NÄCHSTER
-5. ⑤ Bounty-Approval-UI (kede5-Creds: 12345 / 123456 / test123)
+3. ✅ 375 DPC-Mastery-Feature entfernt (ab1581c1)
+4. ⏸ **Topf-Card-Visual (357) — ZURÜCKGESTELLT (Anil 2026-06-25).** Card code-komplett (`AdminTreasuryTab.tsx`) + Saldo RPC-bewiesen (2462 Cents, 365/370). Offen NUR Screenshot von `/bescout-admin` (DE+TR, AC-11 → `357-ui.png`). **Blocker: braucht Plattform-Admin-Login `ali@test.bescout.de` (handle ali_admin, einziger top_role='Admin') — Passwort fehlt.** kede5 ist nur Manager → kein /bescout-admin-Zugriff.
+5. ⏸ **Bounty-Approval-UI — ZURÜCKGESTELLT (Anil 2026-06-25).** Fee-REIN RPC-bewiesen (365/370, bounty:50 im Topf). Offen NUR UI-Klick. **Creds: kede5 (`kede5@gmx.de`, Club-Admin), Kandidaten 12345 / 123456 / test123.**
+
+**Nächster großer Track:** E3 Slice 3 — Monats-Liga e2e (erster RAUS-Kanal aus dem Topf, Money/CEO-Scope; D87 Live-`pg_get_functiondef` der Liga-RPC VOR Spec). Plan-Anker `worklog/notes/358-platform-treasury-epic.md`.
 
 --- 374 (vorheriger, DONE) ---
 status: idle
