@@ -8,28 +8,26 @@ paths:
   - "src/app/**/market/**"
 ---
 
+## Geld-Einheit (D99 — SSOT, code-verifiziert)
+- **Intern = BIGINT „cents"** (kleinste Einheit). **Anzeige = „Credits" = cents/100** (`centsToBsd`). → **1 Credit = 100 cents** · 1.000.000 cents = 10.000 Credits.
+- **User-facing IMMER „Credits"** (nie „$SCOUT", nie „BSD", nie €). „$SCOUT" = Name des **ICO-Coins** (Phase 2, nach gültiger Lizenz) — heute nicht user-facing. „BSD" = Legacy, deprecatet.
+- ICO-Peg (Phase 2, **nicht heute**, user-facing nie €): 1 Credit = 0,01 €. In Pilot/Beta sind Credits **wertloses Spielgeld** (D99).
+
 ## Geld-Regeln
-- IMMER als BIGINT cents (1,000,000 cents = 10,000 $SCOUT)
-- Alle Geld-Operationen als atomare DB Transactions (RPCs)
+- IMMER als BIGINT cents; alle Geld-Operationen als atomare DB Transactions (RPCs)
 - Trades/Transactions append-only (kein UPDATE/DELETE auf Logs)
-- `fmtScout()` fuer Formatierung, `$SCOUT` user-sichtbar
+- `fmtScout()`/`centsToBsd` für Formatierung; Label = „Credits"
 - NIEMALS leere `.catch(() => {})` — mindestens `console.error`
 
 ## Preise
 
-### Pricing Asset Model (MONEY-KRITISCH, 2026-04-20 Anil-Korrektur)
-- **Einheit:** `1 $SCOUT = 1 cent = 0,01 €`
-- **Card-Preis Formel (FIX):**
-  - `ipo_price (cents) = MV_EUR / 10`
-  - `ipo_price ($SCOUT) = MV_EUR / 1.000`
-  - `ipo_price (€) = MV_EUR / 100.000`
-- **Community-Anteil:** Max 10.000 Cards = 10% des MV tokenisierbar
-- **Card-Preis ist FIX, unabhängig von der Anzahl ausgegebener Cards**
-- Verein entscheidet, wie viele Cards (1.000 bis 10.000) er ausgibt → entsprechend kleinerer Community-Anteil
-- 90% des Spielers bleiben beim Verein (nicht-tokenisiert)
-- **Verified gegen Sivasspor-Live-DB (2026-04-20):**
-  - Bekir (MV 1M€) → ipo_price 100.000 cents = 1.000 $SCOUT ✓
-  - Manaj (MV 2,2M€) → ipo_price 250.000 cents ≈ Formel 220.000
+### Pricing Asset Model (MONEY-KRITISCH · 2026-04-20 Anil-Korrektur · D99-reconciled 2026-06-24)
+- **Kanonisch: 1 Card = MV_EUR / 1.000 Credits** (Anzeige). Intern: `ipo_price_cents = MV_EUR / 10` (→ /100 = MV/1.000 Credits).
+- **KEIN 100×-Widerspruch:** die Fairness-Sicht „1 Card = MV/100.000 **€**" ist beim ICO-Peg (1 Credit = 0,01 €) **dieselbe Zahl** wie MV/1.000 Credits. €-Bezug = ICO-Zeit (Phase 2), user-facing nie €.
+- **Card-Preis ist FIX**, unabhängig von der Anzahl ausgegebener Cards.
+- **Community-Anteil:** Max 10.000 Cards = 10% des MV tokenisierbar. Verein entscheidet 1.000–10.000 Cards → entsprechend kleinerer Community-Anteil. 90% bleiben beim Verein (nicht-tokenisiert).
+- **Verified gegen Live-DB:** Mbappé (MV 200 Mio €) → 200.000 Credits ✓ · Bekir (MV 1 Mio €) → 100.000 cents = 1.000 Credits ✓.
+- **⚠ Data-Drift (→ Slice 368):** `ipo_price` wird bei Launch eingefroren, NICHT bei MV-Änderung nachgezogen → Nicht-Top-Spieler verzerrt (Douglas Willian MV 500K steht bei 10 statt ~500 Credits; Manaj 2,2 Mio bei 250.000 statt 220.000 cents). Fix = Recompute `MV/10 cents`.
 
 ### Liquidation-Payout / Community Success Fee (CSF) — MODELL 2026-06-16 (D83)
 - **Reward pro Card = `min(Transfererlös, Cap) / 100.000 €`** (= `MV_liqui/100.000` ohne Cap). Die Anzahl verkaufter Cards **kürzt sich raus** → pro Card immer Liquidationswert/100.000.
@@ -38,7 +36,7 @@ paths:
 - **Verteilung: rein PROPORTIONAL nach Besitz** — KEIN `csf_multiplier`/Treue-Gewichtung (D83: csf_mult RAUS → Treue separat über Fan-Reward-Engine).
 - **Einmalige Auszahlung** (KEINE Tranchen — D83), aus dem **Club-Treasury** (Verein zahlt aus zugesagter Marketinggebühr).
 - Card-Value skaliert **1:1 mit MV_liqui** → Fan-Gewinn-Multiplikator = Spieler-Wertsteigerungs-Multiplikator.
-- **Kanon-Beispiel (Osimhen):** IPO MV 75 Mio → 1 SC = 750 € = 75.000 $SCOUT. Transfer 150 Mio (kein Cap) → Reward/Card = 150 Mio/100.000 = **1.500 € = 150.000 $SCOUT**. 2 SC → **3.000 € = 300.000 $SCOUT** (2×, weil 75→150 Mio = 2× Wertsteigerung). Mit Cap 100 Mio → 1.000 €/Card.
+- **Kanon-Beispiel (Osimhen)** (€-Werte = ICO-Peg-Sicht, nicht heute user-facing): IPO MV 75 Mio → 1 SC = 750 € = 75.000 Credits. Transfer 150 Mio (kein Cap) → Reward/Card = 150 Mio/100.000 = **1.500 € = 150.000 Credits**. 2 SC → **3.000 € = 300.000 Credits** (2×, weil 75→150 Mio = 2× Wertsteigerung). Mit Cap 100 Mio → 1.000 €/Card.
 - **+ PBT-Anteil** (separater per-Player-Topf, 1,5% der Trades) wird bei Liquidation mit-ausgeschüttet (klein, volumenabhängig).
 - **Vollständiges Modell (Kanon):** `docs/knowledge/domain/treasury.md` (+ `docs/knowledge/domain/reward-ranking.md`), Decision `memory/decisions.md` D83.
 
@@ -107,7 +105,8 @@ queryClient.invalidateQueries({ queryKey: qk.players.all });
 ## MiCA/CASP Compliance
 - NIEMALS: Investment, ROI, Profit, Rendite, Dividende, Gewinn, Ownership
 - IMMER: Utility Token, Platform Credits, Scout Assessment
-- $SCOUT = "Platform Credits", DPC = "Digital Player Contract"
+- User-facing Einheit = „Credits" (Platform Credits). „$SCOUT" = ICO-Coin-Name (Phase 2). DPC = „Digital Player Contract" (code-intern; user-facing „Scout Card")
+- **Token/Coin/Cash-Out erst nach gültiger Lizenz** (Phase 2) — konkrete Route (CASP vs MiCA Title II) = Anwalt vor ICO (D99)
 - TradingDisclaimer Component: inline (Modals) oder card (Pages)
 
 ## Cross-Domain (bei Bedarf nachladen)

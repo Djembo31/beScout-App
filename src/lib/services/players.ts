@@ -166,12 +166,12 @@ export async function getPlayersByClubId(
 // Mapper: DbPlayer → Frontend Player Type
 // ============================================
 
-/** Cents → $SCOUT (z.B. 15600 → 156). Uses Math.round to avoid floating-point artifacts. */
+/** Cents → Credits (z.B. 15600 → 156; 1 Credit = 100 cents, D99). Uses Math.round to avoid floating-point artifacts. */
 export function centsToBsd(cents: number): number {
   return Math.round(cents) / 100;
 }
 
-/** $SCOUT → Cents (z.B. 156 → 15600) */
+/** Credits → Cents (z.B. 156 → 15600; 1 Credit = 100 cents, D99). Funktionsname bleibt (Code-intern). */
 export function bsdToCents(bsd: number): number {
   return Math.round(bsd * 100);
 }

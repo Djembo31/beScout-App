@@ -216,10 +216,10 @@ return <h1>{t('title')}</h1>
 **Wann:** JEDE Geld-Operation (Wallet, Trading, Fees).
 **Wie:** Intern als Integer-Cents, nur bei Anzeige formatieren.
 ```typescript
-// 10,000 $SCOUT = 1,000,000 cents
+// 10,000 Credits = 1,000,000 cents (1 Credit = 100 Speicher-cents)
 const priceInCents = 1_000_000
 // Anzeige:
-fmtScout(priceInCents)  // "10,000 $SCOUT"
+fmtScout(priceInCents)  // "10,000 Credits"
 ```
 **Warum:** Floating-Point-Fehler bei Geldbetraegen vermeiden. DB-Typ ist BIGINT.
 

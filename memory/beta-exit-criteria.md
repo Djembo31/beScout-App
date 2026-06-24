@@ -53,7 +53,7 @@
 | D1 | DB-Invariants alle grün | 36/36 PASS | P0 | `npx vitest run src/lib/__tests__/db-invariants.test.ts` |
 | D2 | Wallet-Balance-Mismatches (wallet.balance ≠ sum(transactions)) | 0 | P0 | SQL-Invariant (INV-01 in db-invariants) |
 | D3 | Holdings-Quantity-Zombies (qty=0 rows) | 0 | P0 | `holdings WHERE quantity=0` sollte 0 sein (INV-15) |
-| D4 | Trading-Volume 7d | ≥10.000 $SCOUT (100.000 cents) | P1 | `SUM(transactions.amount) WHERE type LIKE 'trade_%'` |
+| D4 | Trading-Volume 7d | ≥1.000 Credits (100.000 Speicher-cents) | P1 | `SUM(transactions.amount) WHERE type LIKE 'trade_%'` |
 | D5 | Fee-Distribution korrekt (3.5/1.5/1 split) | matches business.md | P1 | `fees` Tabelle sum-check |
 | D6 | Kein `.catch(() => null)` in Money-Services | 0 neue | P1 | `pnpm run audit:silent-fail:check` |
 
@@ -63,10 +63,10 @@
 |---|-----------|---------:|:----:|--------|
 | E1 | TR-Audit-Findings (audit-Rules) | ≤12 (aktueller Baseline) | P0 | `pnpm run audit:tr-strings` |
 | E2 | Compliance-Audit grün | pass | P0 | `pnpm run audit:compliance` |
-| E3 | TradingDisclaimer auf allen $SCOUT-Seiten sichtbar | 100% | P0 | Visual-Check + grep |
+| E3 | TradingDisclaimer auf allen Credits-Seiten sichtbar | 100% | P0 | Visual-Check + grep |
 | E4 | FantasyDisclaimer auf Fantasy-Seiten | 100% | P1 | Visual-Check |
-| E5 | Kein Cash-Out-Pfad aktiv (ADR-028 Phase 3) | 0 Pfade | P0 | grep `cashOut\|withdraw` in src/ |
-| E6 | Kill-Switch funktioniert (BSD bei EUR 900K) | test pass | P1 | Manual-Test in Admin-UI |
+| E5 | Kein Cash-Out-Pfad aktiv (Cash-Out = Lizenz-Phase 2, ADR-028) | 0 Pfade | P0 | grep `cashOut\|withdraw` in src/ |
+| E6 | Kill-Switch funktioniert (Credits-Sales bei EUR 900K) | test pass | P1 | Manual-Test in Admin-UI |
 | E7 | `Bug 2` Bots bleiben offline | 0 neue Bot-Posts | P0 | `SELECT COUNT FROM posts WHERE user_id IN (bot-ids)` = 0 |
 
 ## F. Support / Ops
@@ -137,6 +137,6 @@ mcp__sentry__search_issues("isUnresolved:true level:error")  # A1
 3. **Rollback-Runbook fehlt** (F3). Einmaliger Test: kleinen intentionalen Fehler deployen → `vercel rollback` üben → Zeit messen.
 
 Post-Beta-Task-Backlog (falls Beta-GO-LIVE entschieden wird):
-- KYC-Integration (Sumsub vs Veriff) — blockiert CASP-Phase 3 Cash-Out
+- KYC-Integration (Sumsub vs Veriff) — blockiert Lizenz-Phase 2 Cash-Out (Route: CASP vs MiCA Title II, Anwalts-Entscheidung)
 - Bot-Templates bilingual — wenn man Bots wieder einschalten will
 - Cost-Scaling-Plan (Free-Tier → Pro bei 100+ DAU)

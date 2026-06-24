@@ -19,7 +19,7 @@ BeScout ist eine **Fußball-Plattform für Fans**. Du kannst:
 - 💬 **Community** — Posts lesen, Predictions teilen, Spieler diskutieren
 - 🔥 **Clubs verfolgen** — Squad-Tabs, FDR (Fixture-Difficulty), Most-Owned-Picks
 
-**Kein echtes Geld.** Du nutzt $SCOUT (Platform Credits) — das ist eine spielinterne Währung. Niemand kauft Bitcoins, nichts verdient echtes Geld.
+**Kein echtes Geld.** Du nutzt Credits — eine spielinterne Spielwährung ohne echten Geldwert. Niemand kauft Bitcoins, nichts verdient echtes Geld.
 
 ### Was sollst du testen?
 
@@ -83,7 +83,7 @@ BeScout, **futbol fanları için bir platform**. Şunları yapabilirsin:
 - 💬 **Topluluk** — post'ları oku, tahminleri paylaş, oyuncuları tartış
 - 🔥 **Kulüpleri takip et** — Kadro-Tab, FDR (Fikstür Zorluğu), En Çok Sahip Olunan-Picks
 
-**Gerçek para yok.** $SCOUT (Platform Kredi) kullanıyorsun — oyun-içi para birimi. Kimse Bitcoin almıyor, hiçbir şey gerçek para kazandırmıyor.
+**Gerçek para yok.** Credits kullanıyorsun — gerçek para değeri olmayan oyun-içi bir oyun parası. Kimse Bitcoin almıyor, hiçbir şey gerçek para kazandırmıyor.
 
 ### Ne test edeceksin?
 

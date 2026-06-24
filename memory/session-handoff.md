@@ -1,15 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 13:11)
+# Session Handoff — Auto (2026-06-24 13:40)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 1 Files
 ```
  M memory/session-handoff.md
-?? worklog/notes/365-e2e-findings.md
 ```
 
 ## Session Commits: 10
+- fe1bd24a docs(decision): D99 — $SCOUT-Phasenmodell (SSOT) + Money-Modell-Drift-Inventur + E4 Cleanup-Epic
 - f297a361 feat(treasury): Bounty-Fee REIN in Plattform-Topf (Slice 365, E3-2e) — Fees-REIN KOMPLETT 5/5
 - bb7d8f34 docs(spec): Slice 365 Bounty-Fee REIN — BUILD-ready Spec + Resume-Anker (E3-2e)
 - 95022eda feat(treasury): Research-Fee REIN in Plattform-Topf (Slice 364, E3-2d)
@@ -19,7 +19,6 @@
 - 7d029401 feat(treasury): Polls-Fee REIN in Plattform-Topf (Slice 363, E3-2c)
 - 2022a7ca docs(spec): Slice 363 Polls-Fee REIN — BUILD-ready Spec + Resume-Anker (E3-2c)
 - f2a3ef78 chore(worklog): active.md auf Slice 362 (Resume-Anker)
-- aad2b67d chore(worklog): Slice 362 LOG-Eintrag
 
 <!-- auto:handoff-end -->
 

@@ -30,7 +30,7 @@
 
 - [Decisions-Log D1–D99](../../memory/decisions.md) — consult_when: warum-Entscheidung, ADR-Historie, Scope/Architektur/Prozess-Begründung, „warum nicht anders" (D96: Plattform-Treasury fängt verbrannte Plattform-Fees auf + finanziert Plattform-Rewards · D97: Topf-Saldo = SUM-on-read Variante A, Revisit B bei Skalierung · D98: Fee-Auffang = voller Auffang 100 %, kein Teil-Burn/Cap · **D99: $SCOUT-Phasenmodell — Pilot/Beta = wertloses Spielgeld ohne €-Wert, Coin-Wert erst ICO, Early-Adopter-Bonus diskretionär; SSOT gegen Money-Modell-Drift**)
 - [CEO/CTO-Approval-Matrix](../../memory/ceo-approval-matrix.md) — consult_when: wer entscheidet (Anil vs Claude), Approval-Scope, Money/Security-Gate
-- [Business-Modell (Revenue/Fees/Pricing-Asset)](../../wiki/business-model.md) — consult_when: ipo_price=MV/100.000, 1 $SCOUT=1 cent, Fee-Splits, Pricing-Asset-Logik (MONEY-kritisch; Anker-Entscheidung = D83)
+- [Business-Modell (Revenue/Fees/Pricing-Asset)](../../wiki/business-model.md) — consult_when: ipo_price=MV/1.000 Credits, Einheit Credits=cents/100, Fee-Splits, Pricing-Asset-Logik (MONEY-kritisch; Anker-Entscheidung = D83; Naming/Phasen/Einheit = D99)
 - [$SCOUT-Launch / Legal-Phasen](../../wiki/scout-launch-strategie.md) — consult_when: Founding Pass, Licensing-Phasen, CASP/MiCA-Roadmap, Token-Launch (vertraulich)
 - [Notion Source-of-Truth-Split](../../memory/reference_notion_integration.md) — consult_when: wo lebt Wahrheit (git/Obsidian/Notion), Sync-Regeln (D4)
 - [Mogul-Mutationsplan (VERTRAULICH)](decisions/mogul-mutationsplan.md) — consult_when: persönlicher Founder-Fahrplan, strategischer Lebenskontext, Warum-jede-Session-zählt (Detail nur bei direkter Anil-Frage)

@@ -2,28 +2,38 @@
 
 ```
 status: idle
-slice: 365
-title: ✅ DONE — Bounty-Fee REIN in den Plattform-Topf (E3-2e, LETZTE Fee-Quelle)
+slice: 366
+title: ✅ DONE — E4 Doc-Glattzug: Money-Modell-Doku auf D99 ausgerichtet
 stage: LOG complete
-size: S
-slice-type: Migration (Money-RPC) + Test
-spec: worklog/specs/365-bounty-fee-rein.md
-impact: skipped (additive Inline-Buchung, 0 Consumer-Contract-Change, kein Schema-Shape-Change)
-proof: worklog/proofs/365-money-smoke.txt (PASS — pot_delta=50, zero_sum=t, rollback sauber)
-review: worklog/reviews/365-review.md (PASS, 1 NIT optional/nicht umgesetzt)
-next: **⚠️ NEUE PRIO (Anil, 2026-06-24): E4 Money-Modell-Glattzug + Mock→Pro-E2E-Härtung (D99).** Der Slice-365-E2E-Durchlauf (1 echter Trade) deckte systemischen Money-Modell-Drift + mehrere Bugs auf. **Schritt 1 (Anil knüpft an):** D99-OFFEN-Punkte ratifizieren (Naming Credits↔$SCOUT · Einheiten-Vokabular · Phasen-Nummerierung · CASP-Strategie · Pricing-Fairness) — KEIN Doc-Massen-Edit vorher. **Schritt 2:** Doku auf D99 glattziehen (Checkliste `worklog/notes/365-money-model-drift-inventory.md`). **Schritt 3:** E2E-Sweep ②IPO→③Poll→④Research→⑤Bounty zu Ende + Bug-Fixes (`worklog/notes/365-e2e-findings.md`). DANACH zurück zu E3 Slice 3 Monats-Liga e2e. SSOT = D99 (`memory/decisions.md`).
+size: XS
+slice-type: Doc (Ops-spur, lean — kein Money/Security-Code-Verhalten; richtet Doku an CEO-ratifizierter D99 aus)
+spec: inline (siehe unten) + Checkliste worklog/notes/365-money-model-drift-inventory.md
+impact: skipped (reine Doku/Wording, 0 Code-Verhalten, 0 RPC/Schema/Service)
+proof: worklog/proofs/366-drift-grep.txt (Phasen 1/2/3 · Faktor-100 aufgelöst · messages $SCOUT/BSD=0 · tsc EXIT 0)
+review: worklog/reviews/366-review.md (self-review PASS, Ops/Doc-Spur)
+next: 367 „Diamond Hands"-Cluster fixen (Umbenennen DE+TR + 30d-Logik + Konfetti raus) — Plan worklog/notes/366-e4-money-model-cleanup-epic.md
 ```
 
-## Kontext
+## Inline-Spec (E4 Schritt 2 — Doc-Glattzug)
 
-- **Epic E3 Plattform-Treasury (D96), Slice 2 „Fees REIN", Teil 4/5 = Research.** Anker `worklog/notes/358-platform-treasury-epic.md`.
-- **Muster 1:1 aus 360 (Single-Path):** Inline `IF v_platform_fee > 0 THEN PERFORM book_platform_treasury('credit','research',v_platform_fee,p_research_id,'Research-Fee'); END IF;` NACH transactions-INSERT, VOR success-RETURN in `unlock_research`.
-- **Live-verifiziert (D87, 2026-06-24):** Body gelesen — Fee-Konstante `(v_price * 80) / 100` intakt (20 % Plattform), `'research'` im source-CHECK erlaubt → keine CHECK-Migration. `book_platform_treasury(text,text,bigint,uuid,text)` bestätigt. AR-44 anon=false/auth=true. Policy D98 (100 % Auffang) approved.
-- **Smoke-Setup:** live 0 research_posts mit Preis → Temp-Post + Temp-Wallets in der BEGIN…ROLLBACK-Txn anlegen.
+**Problem:** Money-Modell-Doku driftet über ~40 Stellen (3 Namen BSD/$SCOUT/Credits, Faktor-100-€-Widerspruch, Phasen 1/3/4 vs 1/2, CASP-Konflikt, CONCEPT-DPC-ECONOMY in sich widersprüchlich). Belegt durch Slice-365-E2E (M-5/D99).
 
-## Zuletzt
+**Ziel:** Jede Inventur-Stelle (A–E in `365-money-model-drift-inventory.md`) auf **D99** ausrichten — verbunden, kein Parallel-Stand.
 
-- **Slice 363** ✅ — Polls-Fee REIN (E3-2c, 7d029401): `cast_community_poll_vote`→'poll', beide source-Branches, Zero-Sum bewiesen.
-- **Slice 360** ✅ — IPO-Fee REIN (E3-2b, 81ec6e0b).
-- **Slice 358** ✅ — Trading-Fees REIN (E3-2a).
-- **Slice 357** ✅ — Topf-Fundament (E3-1).
+**Glattzug-Regeln (aus D99):**
+- Einheit user-facing = **„Credits"**. „$SCOUT" nur noch ICO-Coin-/Strategie-/Investor-Kontext (klar als „später" markiert). „BSD" = deprecatet (als Legacy markieren, nicht user-facing).
+- Einheiten-Vokabular: **intern = cent (integer)**, **Anzeige = Credits (= cents/100)**. Die Zeile „1 $SCOUT = 1 cent" → präzisieren: „intern 1 cent = kleinste Einheit; 1 Credit = 100 cents (Anzeige)". Faktor-100-Drift auflösen.
+- Phasen überall **1/2/3** (1=Free-Play · 2=ICO/Token nach Lizenz · 3=Paid Fantasy nach MGA).
+- CASP: „Token erst nach **gültiger Lizenz**" (nicht „nach CASP" absolut); Route = Anwalt vor ICO; scout-launch-strategie.md = ein Input.
+- Pricing: **1 Card = MV/1.000 Credits** kanonisch (= MV/100.000 € beim ICO-Peg, KEIN 100×-Widerspruch). €-Bezug = ICO-Zeit, user-facing nie €.
+
+**Scope-Out:** `ipo_price`-Data-Migration (→ Slice 368), Diamond-Hands (→ 367), Code-Funktions-Renames mit Verhalten (nur JSDoc/Kommentar-Wording hier, keine Signatur-Änderung).
+
+**AC:**
+1. `de.json:27`/`tr.json:27` `"bsd":"Credits"` bleibt (zentral korrekt) — keine €-Werte neben Credits.
+2. Keine Doc-Stelle behauptet mehr „1.000.000 cents = 10.000 $SCOUT" ohne D99-konforme Auflösung.
+3. Keine Doc-Stelle nummeriert Phasen 1/3/4 für dasselbe Modell.
+4. „100× auseinander" / Pricing-Widerspruch ist als reconciled (MV/1.000 Credits) aufgelöst.
+5. CASP-Wording neutral „nach gültiger Lizenz", scout-launch-strategie.md nicht mehr als Widerspruch.
+6. CONCEPT-DPC-ECONOMY.md interner Selbstwiderspruch geheilt (alter Faktor 10.000 BSD/€ raus).
+```

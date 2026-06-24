@@ -275,7 +275,7 @@ type WalletRpcResult = { success: boolean; error?: string; new_balance?: number 
 // Helpers
 // ============================================
 
-/** Cents → $SCOUT Display (z.B. 1000000 → "10.000") */
+/** Cents → Credits-Anzeige (z.B. 1000000 → "10.000"; 1 Credit = 100 cents, D99). Funktionsname bleibt (Code-intern). */
 export function formatScout(cents: number): string {
   const bsd = Math.round(cents) / 100;
   return bsd.toLocaleString('de-DE', { maximumFractionDigits: 0 });

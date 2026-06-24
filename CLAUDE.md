@@ -1,6 +1,6 @@
 # BeScout — CTO Playbook
 
-**B2B2C Fan-Engagement.** Clubs verkaufen Scout Cards, starten Events/Votes, verteilen $SCOUT-Credits.
+**B2B2C Fan-Engagement.** Clubs verkaufen Scout Cards, starten Events/Votes, verteilen Credits.
 **Scope (D1):** Alle 7 Ligen launch-ready (Süper Lig, TFF 1. Lig, Bundesliga, 2. Bundesliga, Premier League, La Liga, Serie A). DE+TR-Prio aus persönlicher Nähe, gleicher Qualitätsstandard für alle.
 
 ---
@@ -37,7 +37,7 @@ Hooks erzwingen die Stufen (SSOT `.claude/settings.json`): `ship-spec-gate`, `sh
 
 BeScouts legitimer Unterschied zu einem generic Setup — diese Gates bleiben, kein Ballast:
 
-- Geld = BIGINT cents (1.000.000 = 10.000 $SCOUT).
+- Geld = BIGINT cents. Anzeige = **Credits** = cents/100 → **1 Credit = 100 cents**, 1.000.000 cents = 10.000 Credits (D99). User-facing immer „Credits", nie „$SCOUT"/„BSD"/€.
 - Jede **Fee-Änderung** → CEO approved.
 - Jeder **SECURITY DEFINER RPC** → CEO approved + `REVOKE EXECUTE FROM anon` + `auth.uid()`-Guard.
 - Money/Trading/Security-Code: **selbst** machen, nicht delegieren.
@@ -56,7 +56,7 @@ BeScouts legitimer Unterschied zu einem generic Setup — diese Gates bleiben, k
 
 ## §5 — Business-Compliance (Quick)
 
-- $SCOUT = Platform Credits. NIEMALS: Investment, ROI, Profit, Ownership.
+- User-facing Einheit = „Credits" (Platform Credits, in Pilot/Beta wertloses Spielgeld — D99). „$SCOUT" = ICO-Coin-Name (Phase 2). NIEMALS: Investment, ROI, Profit, Ownership.
 - Scout Card = Digitale Spielerkarte (Code-intern bleibt `dpc`).
 - IPO user-facing = „Erstverkauf" (DE) / „Kulüp Satışı" (TR). Admin/Code = „IPO" OK.
 - Fee-Split Trading: 3,5 % Platform + 1,5 % PBT + 1 % Club = 6 %.

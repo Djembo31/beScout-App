@@ -35,7 +35,7 @@ sources: [business.md, trading.md, memory/business-context.md, memory/decision_p
 
 ## B2B Sales-Pakete (noch nicht implementiert)
 
-| Paket | Preis/Jahr | Kader | BSD-Pool |
+| Paket | Preis/Jahr | Kader | Credits-Pool |
 |-------|-----------|-------|----------|
 | Baslangic | 11.5K EUR | 30 | 100K |
 | Profesyonel | 23K EUR | 50 | 500K |
@@ -45,13 +45,13 @@ sources: [business.md, trading.md, memory/business-context.md, memory/decision_p
 
 **Linear Pricing-Asset-Model** (Slice 108, CEO-Regel verifiziert 2026-04-20 gegen Sivasspor-DB):
 
-- Card-Preis fix: `ipo_price = MV_EUR / 10 cents` (= MV_EUR / 1.000 $SCOUT = MV_EUR / 100.000 €)
-- 1 $SCOUT = 1 cent = 0,01 €
+- Card-Preis fix: `ipo_price = MV_EUR / 10 Speicher-cents` (= MV_EUR / 1.000 Credits = MV_EUR / 100.000 € beim ICO-Peg)
+- 1 Credit = 0,01 € (ICO-Peg, Phase 2; Speicher = 100 Speicher-cents pro Credit)
 - Max 10.000 Cards tokenisierbar = 10% des Marktwerts. Verein behält 90%.
 - Bei Liquidation: Payout skaliert 1:1 mit MV-Growth
   - 1 Mio € MV (Entry 10 € pro Card) → 5 Mio € MV (Exit 50 € pro Card) = **5×**
   - 1 Mio € MV → 15 Mio € MV = **15×** (nicht 150× wie im alten Tier-Model)
-- Cap `success_fee_cap_cents` (max 10 Mio cents = 100k $SCOUT) greift VOR Formel — Verein-Schutz bei High-MV-Spielern
+- Cap `success_fee_cap_cents` (max 10 Mio Speicher-cents = 100k Credits) greift VOR Formel — Verein-Schutz bei High-MV-Spielern
 
 **Historisch (pre-Slice 108):** Tier-Table im `liquidate_player` RPC zahlte ~1,5× über Linear-Formel. Per Slice 108 ersetzt, Slice 114 hat 3.604 existierende Rows backfilled (Pool-Wert +96× Korrektur). Siehe [[scout-cards]] für Details.
 
@@ -59,17 +59,17 @@ sources: [business.md, trading.md, memory/business-context.md, memory/decision_p
 
 | Phase | Timeline | Was | Blocker |
 |-------|----------|-----|---------|
-| Phase 1 (jetzt) | Live | Credits, Free Fantasy, Trading | Max 900K EUR BSD |
-| Phase 3 | ~2026-M11 | $SCOUT Token, Cash-Out, Exchange | CASP-Lizenz (147K EUR) |
-| Phase 4 | ~2026-M14 | Paid Fantasy, Turniere mit Preisen | MGA Gaming-Lizenz |
+| Phase 1 (jetzt) | Live | Credits, Free Fantasy, Trading | Max 900K EUR Credits-Sales |
+| Phase 2 | ~2026-M11 | $SCOUT-Coin (ICO), Cash-Out, Exchange | gültige Token-Lizenz (Route: volle CASP vs MiCA Title II / NCA-Notification — Anwalts-Entscheidung vor ICO) |
+| Phase 3 | ~2026-M14 | Paid Fantasy, Turniere mit Preisen | MGA Gaming-Lizenz |
 
 ## Platform Treasury (deflationaer)
 
 - **Fees = Burn** — 6% Trading Fee verlaeesst permanent den Umlauf
 - **Rewards = kontrolliertes Minting** — Welcome Bonus, Missions, Achievements
-- **Post-Token: Buyback & Burn** — 20% Platform-Fees → $SCOUT zurueckkaufen
+- **Post-Token: Buyback & Burn** — 20% Platform-Fees → $SCOUT-Coin zurueckkaufen (Phase 2)
 
-## Token-Allokation (Post-CASP)
+## Token-Allokation (Phase 2, nach gültiger Token-Lizenz)
 
 Migration 13% | Pre-ICO 8% | Main ICO 15% | Team 12% | Referral 12% | Liquidity 5% | Engagement 18% | Legal 5% | Reserve 12%
 

@@ -17,7 +17,7 @@ Auf Social Media wirst du berühmt, weil du gut singst, lustig bist, gut schreib
 BeScout ist eine **B2B2C Fan-Engagement- und Monetarisierungsplattform** für Fußballvereine.
 
 - **B2B:** Vereine nutzen BeScout als Tool, um Fans aufzubauen, zu binden und zu monetarisieren.
-- **B2C:** Fans kaufen Spielerkarten, spielen Fantasy, schreiben Analysen, stimmen ab — und verdienen BSD.
+- **B2C:** Fans kaufen Spielerkarten, spielen Fantasy, schreiben Analysen, stimmen ab — und verdienen Credits.
 - **Plattform:** BeScout stellt die Infrastruktur und nimmt eine Plattform-Gebühr.
 
 ---
@@ -47,11 +47,11 @@ BeScout kanalisiert Fan-Engagement, das heute wertlos auf Social Media verpufft,
 Fan-Aktivität heute (gratis, wertlos)     →   BeScout (monetarisiert, zählt)
 ──────────────────────────────────────────────────────────────────────────────
 "Müsli sollte in die Startelf!"           →   Fantasy Lineup (Entry Fee)
-"Wir sollten einen LV holen!"             →   Club Vote (BSD-Kosten)
+"Wir sollten einen LV holen!"             →   Club Vote (Credits-Kosten)
 "Icardi ist überschätzt"                  →   DPC Sell Order (Trading)
 "Barış Alper wird Star"                   →   DPC Kaufen / IPO (Investment)
 "Schaut meine Analyse!"                   →   Bericht verkaufen (Paywall)
-Twitter-Poll: "Bester Spieler?"           →   Bezahlte Poll (BSD)
+Twitter-Poll: "Bester Spieler?"           →   Bezahlte Poll (Credits)
 ```
 
 ---
@@ -109,7 +109,7 @@ BeScout = Plattform (Infrastruktur)
        ├── Stimmen bei Club-Votes ab
        ├── Schreiben & verkaufen Berichte
        ├── Bauen Follower + Reputation auf
-       └── Werden belohnt (BSD, Achievements, Status, echte Jobs)
+       └── Werden belohnt (Credits, Achievements, Status, echte Jobs)
 ```
 
 **Vergleich:**
@@ -125,7 +125,7 @@ BeScout = Plattform (Infrastruktur)
 Günstig kaufen → teuer verkaufen. Dein Wissen über Spieler = dein Vorteil.
 
 ### 2. Fantasy Turniere (Live)
-Beste Aufstellung → BSD gewinnen. Beweist: du kannst Spieler bewerten.
+Beste Aufstellung → Credits erhalten. Beweist: du kannst Spieler bewerten.
 
 ### 3. Success Fee + PBT (Geplant)
 Halte DPCs langfristig → werde belohnt bei Vertragsablauf.
@@ -134,23 +134,23 @@ Halte DPCs langfristig → werde belohnt bei Vertragsablauf.
 - Beweist: du erkennst Talent früh.
 
 ### 4. Berichte verkaufen (Geplant)
-Schreibe Analyse zu Spieler/Verein → verkaufe an andere User für BSD.
+Schreibe Analyse zu Spieler/Verein → verkaufe an andere User für Credits.
 Je besser dein Track Record → mehr Käufer → mehr Einnahmen.
 
 ### 5. Club-Aufträge / Bounties (Geplant)
-Verein stellt Auftrag ein → Fans liefern Analyse → Verein bezahlt in BSD.
-Fan bekommt: BSD + Reputation + Sichtbarkeit beim Club.
+Verein stellt Auftrag ein → Fans liefern Analyse → Verein bezahlt in Credits.
+Fan bekommt: Credits + Reputation + Sichtbarkeit beim Club.
 
 ### 6. Polls / Paywall / Premium Content (Geplant)
-- Bezahlte Polls erstellen (Fans zahlen BSD zur Teilnahme)
-- Premium-Beiträge hinter Paywall (BSD zum Lesen)
+- Bezahlte Polls erstellen (Fans zahlen Credits zur Teilnahme)
+- Premium-Beiträge hinter Paywall (Credits zum Lesen)
 - Predictions: bewiesene Vorhersagen = Reputation
 
 ### 7. Follower-Monetarisierung (Geplant)
 Baue Reichweite auf → monetarisiere deine Audience.
 - Kostenlose Beiträge (Reichweite aufbauen)
-- Premium-Beiträge (nur für Follower / gegen BSD)
-- Club-Abos (Fans abonnieren dich für X BSD/Monat)
+- Premium-Beiträge (nur für Follower / gegen Credits)
+- Club-Abos (Fans abonnieren dich für X Credits/Monat)
 
 ---
 
@@ -186,7 +186,7 @@ Herausragende Fans werden von Clubs für **echte Positionen** entdeckt — Scout
 |--------|-------------|
 | **DPC-Verkäufe (IPOs)** | Verein verkauft Spielerkarten → direkte Einnahmen |
 | **Trading-Gebühren** | Jeder Sekundärmarkt-Trade → Anteil für Verein |
-| **Vote-Einnahmen** | Fans zahlen BSD um abzustimmen |
+| **Vote-Einnahmen** | Fans zahlen Credits um abzustimmen |
 | **Event Entry Fees** | Fantasy Events → Verein erstellt, Fans zahlen Entry |
 | **Mitglied-Abos** | Premium-Zugang (Early Access IPOs, exklusive Votes) |
 | **Fan-Daten & Insights** | Verein weiß wer seine aktivsten Fans sind |
@@ -194,7 +194,7 @@ Herausragende Fans werden von Clubs für **echte Positionen** entdeckt — Scout
 
 ### Fee-Split bei Trades:
 ```
-Trade: 10 BSD
+Trade: 10 Credits
   ├── X% Gebühr (konfigurierbar)
   │   ├── Y% → PBT des Spielers
   │   ├── Z% → BeScout Plattform
@@ -208,7 +208,7 @@ Vertragsablauf eines Spielers:
   ├── PBT wird ausgeschüttet (automatisch, immer)
   │   └── Proportional zu DPC-Besitz
   ├── Success Fee (OPTIONAL, vom Verein gesteuert)
-  │   ├── Verein setzt Cap (z.B. max 50 BSD/DPC)
+  │   ├── Verein setzt Cap (z.B. max 50 Credits/DPC)
   │   └── Verein entscheidet ob und wann
   └── DPCs werden liquidiert (ungültig)
 ```
@@ -230,19 +230,19 @@ Merkt: "Ich kenne mich aus!" → schreibt ersten Beitrag
 Beitrag bekommt Likes → erste Follower
     │
     ▼
-Schreibt Analyse → verkauft für BSD → verdient Geld
+Schreibt Analyse → verkauft für Credits → verdient Geld
     │
     ▼
 Level steigt → Achievements → mehr Glaubwürdigkeit
     │
     ▼
-Mehr Follower → mehr Käufer → mehr BSD
+Mehr Follower → mehr Käufer → mehr Credits
     │
     ▼
 Club wird aufmerksam → Club-Auftrag → "Analysiere diese 3 Spieler"
     │
     ▼
-Fan liefert → bekommt BSD + "Club Scout" Achievement
+Fan liefert → bekommt Credits + "Club Scout" Achievement
     │
     ▼
 Fan baut ECHTEN CV auf → Profile = Fußball-Portfolio
@@ -271,7 +271,7 @@ MEHR FANS kommen → Flywheel dreht sich schneller
 ### An Fans:
 > "Du diskutierst sowieso jeden Tag über Fußball. Auf Twitter interessiert das niemanden. Auf BeScout wirst du dafür bezahlt.
 >
-> Kaufe Spielerkarten, stelle dein Dream-Team auf, schreibe Analysen. Dein Wissen hat hier echten Wert — in BSD, in Reputation, und vielleicht sogar in einem echten Job beim Club."
+> Kaufe Spielerkarten, stelle dein Dream-Team auf, schreibe Analysen. Dein Wissen hat hier echten Wert — in Credits, in Reputation, und vielleicht sogar in einem echten Job beim Club."
 
 ---
 
@@ -336,7 +336,7 @@ YouTube/Twitch/Substack-Creators mit bestehender Reichweite. BeScout-Profil als 
 
 Die Kategorie ist erst seit 2024 realistisch machbar. Wer früher startete, stieß an rechtliche oder Infrastruktur-Grenzen.
 
-1. **MiCA/CASP-Framework existiert** — Phase-1/3-Split (Utility-Credits → Cash-out nach Lizenz) ist sauber rechtlich machbar seit 2024. Vor 2024 wäre das Modell nicht Compliance-fähig gewesen.
+1. **MiCA/CASP-Framework existiert** — Phase-1/2-Split (Utility-Credits → Cash-out erst nach gültiger Lizenz) ist sauber rechtlich machbar seit 2024. Vor 2024 wäre das Modell nicht Compliance-fähig gewesen.
 2. **Football Manager ist reif** — 20M+ globaler Pool, stabil wachsend, Zielgruppe demographisch erschlossen.
 3. **Creator Economy normalisiert** — Substack/Patreon/OnlyFans haben „Fan bezahlt Creator direkt" zur Massenmarkt-Akzeptanz gebracht (war 2018 noch Nische).
 4. **Stripe-Infrastruktur** — €1-€10 Mikro-Transaktionen global ohne Integrations-Friktion.

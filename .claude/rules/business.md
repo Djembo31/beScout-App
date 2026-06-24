@@ -2,16 +2,16 @@
 description: Business-Regeln, Compliance und Geofencing
 ---
 
-## Licensing-Phasen (ADR-028)
-- Phase 1 (jetzt): Scout Card Trading ($SCOUT-Credits), Free Fantasy, Votes, Events, Scout Reports
-- Phase 3 (nach CASP): $SCOUT Token, Cash-Out, Exchange — NICHT BAUEN
-- Phase 4 (nach MGA): Paid Fantasy Entry, Turniere mit Preisen — NICHT BAUEN
-- Kill-Switch: BSD-Sales bei EUR 900K stoppen — IMPLEMENTIERT in `src/app/(app)/bescout-admin/AdminFoundingPassesTab.tsx` (`KILL_SWITCH_LIMIT_EUR = 900_000`, Progress Bar + `fpKillSwitchError` Toast)
+## Licensing-Phasen (ADR-028 · neu nummeriert 1/2/3 per D99 2026-06-24)
+- Phase 1 (jetzt): Scout Card Trading (Credits = wertloses Spielgeld, kein €-Wert), Free Fantasy, Votes, Events, Scout Reports
+- Phase 2 (nach gültiger Token-Lizenz — Route CASP vs MiCA Title II = Anwalt vor ICO): $SCOUT-Coin (ICO), Cash-Out, Exchange — NICHT BAUEN
+- Phase 3 (nach MGA): Paid Fantasy Entry, Turniere mit Preisen — NICHT BAUEN
+- Kill-Switch: Founder-Pass-Sales bei EUR 900K stoppen — IMPLEMENTIERT in `src/app/(app)/bescout-admin/AdminFoundingPassesTab.tsx` (`KILL_SWITCH_LIMIT_EUR = 900_000`, Progress Bar + `fpKillSwitchError` Toast)
 
 ## Wording-Compliance (KRITISCH)
 - NIEMALS: Investment, ROI, Profit, Rendite, Dividende, Gewinn, Ownership, "guaranteed returns"
 - IMMER: Utility Token, Platform Credits, Scout Assessment, "at BeScout's discretion"
-- $SCOUT = "Platform Credits" (nicht Kryptowaehrung)
+- User-facing Einheit = "Credits" (Platform Credits, nicht Kryptowaehrung). "$SCOUT" = Name des ICO-Coins (Phase 2). "BSD" = Legacy, deprecatet — nicht user-facing.
 - Scout Card = "Digitale Spielerkarte" (nicht Spieleranteil, kein Eigentum)
 - Code-intern bleiben Variable/DB-Column-Namen mit "dpc" (nur UI umbenannt)
 - Disclaimers auf JEDER Seite mit $SCOUT/DPC (TradingDisclaimer Component)

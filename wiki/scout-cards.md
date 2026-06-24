@@ -15,20 +15,21 @@ Kern-Asset der Plattform. Der Club verkauft **Anteile am Spieler** als digitale 
 
 ### Einheit
 ```
-1 $SCOUT = 1 cent = 0,01 €
-1 BIGINT-cent (DB-Feld) = 1/100 $SCOUT = 1/10.000 €
+1 Credit = 0,01 € (ICO-Peg, Phase 2 — in Pilot/Beta wertloses Spielgeld)
+1 BIGINT-cent (DB-Feld, Speicher) = 1/100 Credit = 1/10.000 € (ICO-Peg)
 ```
+> Speicher = BIGINT „cents" (1 Credit = 100 Speicher-cents). Der €-Bezug gilt erst beim ICO (Phase 2).
 
 ### Card-Preis (Formel, fix pro Tranche)
 ```
-ipo_price (cents)  = MV_EUR / 10
-ipo_price ($SCOUT) = MV_EUR / 1.000
-ipo_price (€)      = MV_EUR / 100.000
+ipo_price (Speicher-cents) = MV_EUR / 10
+ipo_price (Credits)        = MV_EUR / 1.000
+ipo_price (€, ICO-Peg)     = MV_EUR / 100.000
 ```
 
 **Bekir-Baseline (Sivasspor-DB, verifiziert):**
-- Marktwert 1.000.000 € → ipo_price **100.000 cents = 1.000 $SCOUT = 10 € pro Card**
-- Marktwert 4.000.000 € (Livan Burcu) → 400.000 cents = 4.000 $SCOUT = 40 € pro Card
+- Marktwert 1.000.000 € → ipo_price **100.000 Speicher-cents = 1.000 Credits = 10 € pro Card (ICO-Peg)**
+- Marktwert 4.000.000 € (Livan Burcu) → 400.000 Speicher-cents = 4.000 Credits = 40 € pro Card (ICO-Peg)
 
 ### Community-Anteil (10% Cap)
 - **Max 10.000 Cards pro Spieler** = 10% des MV tokenisierbar
@@ -36,7 +37,7 @@ ipo_price (€)      = MV_EUR / 100.000
 - Card-Preis bleibt **fix**, unabhängig von ausgegebener Menge
 - 90% des Spielers bleibt beim Verein (nicht-tokenisiert)
 
-### Beispiel: 1 Mio € → 5 Mio € Liquidation (800 Cards verkauft)
+### Beispiel: 1 Mio € → 5 Mio € Liquidation (800 Cards verkauft) — €-Werte = ICO-Peg (Phase 2)
 | Partei | IPO-In | Liqui-Out | Netto |
 |--------|--------|-----------|-------|
 | Club | +6.800 € (85% von 8k) | +Rest aus Transfer | Großteil behält |
@@ -71,7 +72,7 @@ Slice 112: `reference_price` als Fallback entfernt (Tech-Debt, war nur 0,1% des 
 2. **PBT Treasury** (akkumulierte 1,5% Trading-Fees)
 3. **Mastery + CSF Multiplier** cap 1,15× (Gamification-Layer)
 
-Cap via `success_fee_cap_cents` greift vor Formel (max 10 Mio cents = 100k $SCOUT).
+Cap via `success_fee_cap_cents` greift vor Formel (max 10 Mio Speicher-cents = 100k Credits).
 
 ## Fee-Split
 
@@ -88,13 +89,13 @@ Cap via `success_fee_cap_cents` greift vor Formel (max 10 Mio cents = 100k $SCOU
 ## Historische Drift-Korrekturen
 
 - **Slice 108** (2026-04-20): Tier-Table in `liquidate_player` RPC durch Linear-Formel ersetzt (war ~1,5× über Formel).
-- **Slice 114** (2026-04-20): 3.604 Rows backfilled (3.195 active IPOs + 409 Pre-IPO-Players). Pool-Wert 3.195 € → 305.976 € (96× Korrektur). 1 User (Livan Burcu Union Berlin) behält 1 Early-Bird-Card zum historischen 100 $SCOUT-Preis.
+- **Slice 114** (2026-04-20): 3.604 Rows backfilled (3.195 active IPOs + 409 Pre-IPO-Players). Pool-Wert 3.195 € → 305.976 € (96× Korrektur). 1 User (Livan Burcu Union Berlin) behält 1 Early-Bird-Card zum historischen 100-Credits-Preis.
 - **Slice 111** (2026-04-20): Import-Scripts (`enrich-from-transfermarkt.mjs`, `createPlayer()`) nutzen jetzt MV-Formel statt Flat-Default 10.000 cents.
 
 ## Siehe auch
 - [[business-model]] — Fee-Split Details, 7 Revenue Streams
 - [[fantasy-tournaments]] — Scout Cards werden für Lineups gebraucht (min_sc_per_slot)
 - [[equipment-system]] — Equipment wird an SC-Slots angelegt
-- [[compliance]] — Wording-Regeln ($SCOUT = Platform Credits, nicht Investment)
+- [[compliance]] — Wording-Regeln (Credits = Platform Credits, nicht Investment; „$SCOUT-Coin" nur für zukünftigen ICO, Phase 2)
 - `memory/decision_pricing_asset_model.md` — autoritative Formel-Referenz
 - `.claude/rules/trading.md` — Code-Patterns + Pricing-Section

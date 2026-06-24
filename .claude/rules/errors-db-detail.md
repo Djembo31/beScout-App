@@ -521,7 +521,7 @@ PostgREST `parent.column, child:other_table(...)` gibt **silent NULL** für nest
 | `MID` (Position) | `pos: h.player?.position ?? 'MID'` |
 | (leerer Name) | `first/last: h.player?.first_name ?? ''` |
 | (leerer Kreis) | `imageUrl: h.player?.image_url ?? null` |
-| `0 CR` (Floor) | `floorPrice: h.player?.floor_price ?? 0` |
+| `0 Credits` (Floor) | `floorPrice: h.player?.floor_price ?? 0` |
 | `0S 0T 0A` (Stats) | `matches/goals/assists: ?? 0` |
 
 → 7 Felder gleichzeitig auf Default-Wert = **eindeutige Signatur** fuer NULL-nested-Player. Symptom-zu-Code-Backtrack ohne Repro moeglich.

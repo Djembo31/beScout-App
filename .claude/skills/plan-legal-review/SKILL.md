@@ -34,8 +34,8 @@ Pflicht bei jedem Feature mit user-facing Text im Money/Trading/Fantasy/IPO-Spac
 
 ### 1. Welche Licensing-Phase?
 - Phase 1 (jetzt): Scout Card Trading, Free Fantasy, Votes, Events — OK
-- Phase 3 (nach CASP): $SCOUT Token Cash-Out, Exchange — NICHT BAUEN
-- Phase 4 (nach MGA): Paid Fantasy Entry, Turniere mit Preisen — NICHT BAUEN
+- Phase 2 (nach gültiger Token-Lizenz, Route CASP vs MiCA Title II = Anwalt): $SCOUT-Coin Cash-Out, Exchange — NICHT BAUEN
+- Phase 3 (nach MGA): Paid Fantasy Entry, Turniere mit Preisen — NICHT BAUEN
 
 ### 2. Geofencing-Tier?
 - TIER_FULL (EU): alles

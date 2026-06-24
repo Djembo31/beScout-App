@@ -33,9 +33,9 @@ Variable, DB-Columns, RPC-Namen mit "dpc" sind NICHT umzubenennen. Nur UI-sichtb
 - Club-Abos (Tier-System)
 
 ### Was NICHT gebaut werden darf
-- Phase 3 (nach CASP): $SCOUT Token, Cash-Out, Exchange
-- Phase 4 (nach MGA): Paid Fantasy Entry, Turniere mit Preisen
-- Code fuer Phase 3/4 → SOFORT BLOCKIEREN, auch wenn "nur vorbereiten"
+- Phase 2 (nach gültiger Token-Lizenz): $SCOUT-Coin, Cash-Out, Exchange
+- Phase 3 (nach MGA): Paid Fantasy Entry, Turniere mit Preisen
+- Code fuer Phase 2/3 (Token/Paid Fantasy) → SOFORT BLOCKIEREN, auch wenn "nur vorbereiten"
 
 ### Kill-Switch BSD-Sales
 EUR 900K Limit implementiert in `AdminFoundingPassesTab.tsx`. Progress Bar + Toast bei Limit.

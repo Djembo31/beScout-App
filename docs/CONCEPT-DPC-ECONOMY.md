@@ -17,8 +17,8 @@ Das Modell ist **kein Blockchain-Token, kein Wertpapier** — es ist eine vertra
 Community Success Fee = (verkaufte DPCs / 10.000 × 10%) × min(Transfererlös, Cap)
 ```
 
-**Währung:** $SCOUT (ehemals BSD) | **Wechselkurs:** 1 $SCOUT = 1 Cent = 0,01 € | 100 $SCOUT = 1 EUR
-> ⚠️ KORRIGIERT 2026-06-16: vorher fälschlich „100 $SCOUT = 1 Cent / 10.000 = 1 EUR" (Faktor-100-Drift). Wahrheit = `trading.md` + Live-Code + ICO-Seed-Preis €0,01. Siehe `memory/decisions.md` D83.
+**Einheit (user-facing):** Credits | **Speicher:** BIGINT „cents" (1 Credit = 100 cents) | **ICO-Peg (Phase 2, NICHT heute):** 1 Credit = 0,01 € → 100 Credits = 1 €
+> ⚠️ KORRIGIERT 2026-06-16: vorher fälschlich „10.000 = 1 EUR" (Faktor-100-Drift). Kanonisch korrekt: **1 Credit = 0,01 € (100 Credits = 1 €)**. Wahrheit = `trading.md` + Live-Code + ICO-Seed-Preis €0,01. Siehe `memory/decisions.md` D83 + D99. In Pilot/Beta sind Credits wertloses Spielgeld (kein €-Wert, nicht kaufbar/auszahlbar); €-Beträge unten sind ICO-Zeit-Referenz (Phase 2).
 
 ---
 
@@ -45,7 +45,7 @@ BeScout verteilt an DPC-Holder (proportional nach Besitz)
 | Parameter | Definition | Wer bestimmt |
 |-----------|-----------|-------------|
 | **DPC Supply** | Anzahl erstellter DPCs (max 10.000) | Club bei IPO |
-| **IPO-Preis** | Preis pro DPC in BSD | Club bei IPO |
+| **IPO-Preis** | Preis pro DPC in Credits | Club bei IPO |
 | **Cap** | Max. Referenzwert für Fee-Berechnung (EUR) | Club bei IPO |
 | **Realer Marktwert** | Marktwert laut Transfermarkt.com bei IPO-Erstellung | Referenzwert |
 | **Transfererlös** | Tatsächlicher Verkaufspreis des Spielers | Real-World-Event |
@@ -96,7 +96,7 @@ Community-Anteil = verkaufte DPCs / 10.000 × 10%
 - **Erlebt Manager-Gefühl:** Anteilsbesitz, Performance-Tracking, Fantasy, Community
 - **Handelt DPCs** auf dem Sekundärmarkt (floor_price durch Angebot/Nachfrage)
 - **Erhält Reward** bei realem Transfer (Community Success Fee, anteilig)
-- **Investiert:** BSD (Spielwährung, kein echtes Geld beim Kauf)
+- **Setzt ein:** Credits (Spielwährung, kein echtes Geld beim Kauf)
 
 ---
 
@@ -109,16 +109,16 @@ Community-Anteil = verkaufte DPCs / 10.000 × 10%
 | Spieler | Hakan Y. | Spieler aus dem Kader |
 | Realer Marktwert | 1.000.000 EUR | Referenzwert (Transfermarkt.com) |
 | DPC Supply | 5.000 | Wie viele Anteile der Club freigibt (max 10.000) |
-| IPO-Preis | 500 BSD | Preis pro DPC für Fans |
+| IPO-Preis | 500 Credits | Preis pro DPC für Fans |
 | Cap | 8.000.000 EUR | Max. Referenzwert bei Fee-Berechnung |
 
 ### 4.2 Was die Parameter bedeuten
 
 **Supply (Anzahl DPCs):**
-Bestimmt den Community-Anteil bei vollem Verkauf. Mehr DPCs = höhere potenzielle Fee-Verpflichtung, aber auch mehr Fan-Engagement und höhere IPO-Einnahmen (BSD).
+Bestimmt den Community-Anteil bei vollem Verkauf. Mehr DPCs = höhere potenzielle Fee-Verpflichtung, aber auch mehr Fan-Engagement und höhere IPO-Einnahmen (Credits).
 
 **IPO-Preis:**
-Muss für Fans erschwinglich sein (BSD-Spielwährung). Typischer Bereich: 100–5.000 BSD. Niedrigerer Preis = niedrigere Einstiegshürde = mehr Käufer.
+Muss für Fans erschwinglich sein (Credits-Spielwährung). Typischer Bereich: 100–5.000 Credits. Niedrigerer Preis = niedrigere Einstiegshürde = mehr Käufer.
 
 **Cap:**
 Schutz für den Club. Limitiert die maximale Fee-Zahlung. Ein niedriger Cap signalisiert dem Markt: "Der potenzielle Upside ist begrenzt" → niedrigerer Sekundärmarkt-Preis.
@@ -207,14 +207,16 @@ Reward pro DPC = Success Fee / verkaufte DPCs
 Fee-Basis:      min(5.000.000, 8.000.000) = 5.000.000 EUR
 Anteil:         4.000 / 10.000 × 10% = 4%
 Success Fee:    5.000.000 × 4% = 200.000 EUR
-Pro DPC:        200.000 / 4.000 = 50 EUR = 500.000 BSD
+Pro DPC:        200.000 / 4.000 = 50 EUR = 5.000 Credits   (ICO-Peg: 1 Credit = 0,01 €)
 ```
 
-| User | DPCs | Anteil | Reward EUR | Reward BSD |
+> EUR-Spalten = ICO-Zeit-Referenz (Phase 2, 1 Credit = 0,01 €). In Pilot/Beta sind Credits wertloses Spielgeld.
+
+| User | DPCs | Anteil | Reward EUR (ICO-Peg) | Reward Credits |
 |------|------|--------|-----------|-----------|
-| Mehmet | 100 | 2,5% | 5.000 | 50.000.000 |
-| Ayse | 50 | 1,25% | 2.500 | 25.000.000 |
-| Alle Holder | 4.000 | 100% | 200.000 | 2.000.000.000 |
+| Mehmet | 100 | 2,5% | 5.000 | 500.000 |
+| Ayse | 50 | 1,25% | 2.500 | 250.000 |
+| Alle Holder | 4.000 | 100% | 200.000 | 20.000.000 |
 
 **Szenario B: Transfer für 20 Mio EUR (20x) — Cap greift**
 
@@ -222,14 +224,14 @@ Pro DPC:        200.000 / 4.000 = 50 EUR = 500.000 BSD
 Fee-Basis:      min(20.000.000, 8.000.000) = 8.000.000 EUR  ← Cap!
 Anteil:         4.000 / 10.000 × 10% = 4%
 Success Fee:    8.000.000 × 4% = 320.000 EUR  (statt 800.000 ohne Cap)
-Pro DPC:        320.000 / 4.000 = 80 EUR = 800.000 BSD
+Pro DPC:        320.000 / 4.000 = 80 EUR = 8.000 Credits   (ICO-Peg: 1 Credit = 0,01 €)
 ```
 
-| User | DPCs | Anteil | Reward EUR | Reward BSD |
+| User | DPCs | Anteil | Reward EUR (ICO-Peg) | Reward Credits |
 |------|------|--------|-----------|-----------|
-| Mehmet | 100 | 2,5% | 8.000 | 80.000.000 |
-| Ayse | 50 | 1,25% | 4.000 | 40.000.000 |
-| Alle Holder | 4.000 | 100% | 320.000 | 3.200.000.000 |
+| Mehmet | 100 | 2,5% | 8.000 | 800.000 |
+| Ayse | 50 | 1,25% | 4.000 | 400.000 |
+| Alle Holder | 4.000 | 100% | 320.000 | 32.000.000 |
 
 **Szenario C: Karriereende / Ablösefrei (kein Transfererlös)**
 
@@ -334,14 +336,16 @@ BeScout stellt dem Club monatlich einen Report über:
 
 ## 9. Wirtschaftliche Parameter
 
-### 9.1 Wechselkurs
+### 9.1 Wechselkurs (ICO-Peg, Phase 2 — NICHT heute)
 
-| BSD | EUR |
-|-----|-----|
-| 100 | 0,01 (1 Cent) |
-| 10.000 | 1,00 |
-| 1.000.000 | 100,00 |
-| 100.000.000 | 10.000,00 |
+Speicher = BIGINT „cents", Anzeige = Credits = cents/100. Der €-Bezug gilt erst beim ICO (Phase 2); in Pilot/Beta sind Credits wertloses Spielgeld.
+
+| Credits | EUR (ICO-Peg) |
+|---------|-----|
+| 1 | 0,01 (1 Cent) |
+| 100 | 1,00 |
+| 10.000 | 100,00 |
+| 1.000.000 | 10.000,00 |
 
 ### 9.2 Revenue Streams BeScout
 
@@ -350,7 +354,7 @@ BeScout stellt dem Club monatlich einen Report über:
 | Trading-Fee | Jeder DPC-Trade | 3,5% |
 | PBT | Jeder DPC-Trade | 1,5% (Player Backed Treasury) |
 | Club-Fee | Jeder DPC-Trade | 1,0% (an Club) |
-| Club-Abos | Fan-Abonnements | Bronze/Silber/Gold (BSD) |
+| Club-Abos | Fan-Abonnements | Bronze/Silber/Gold (Credits) |
 | Sponsor-Flächen | Werbepartner | 21 Placements |
 | Bounty-Fee | Club-Aufträge | 5% Platform-Fee |
 
@@ -363,16 +367,16 @@ BeScout stellt dem Club monatlich einen Report über:
 | Spieler gelistet | 28 |
 | Ø Supply pro Spieler | 3.000 DPCs |
 | Ø verkauft | 2.000 DPCs |
-| Ø IPO-Preis | 300 BSD |
+| Ø IPO-Preis | 300 Credits |
 | Transfers pro Saison | 3 Spieler |
 | Ø Transfererlös | 2.000.000 EUR |
 | Ø Cap | 5.000.000 EUR |
 
-**IPO-Einnahmen (BSD):**
-28 Spieler × 2.000 DPCs × 300 BSD = 16.800.000 BSD (= 1.680 EUR)
+**IPO-Einnahmen (Credits):**
+28 Spieler × 2.000 DPCs × 300 Credits = 16.800.000 Credits (= 168.000 € beim ICO-Peg, Phase 2)
 
-**Trading-Einnahmen (BSD, jährlich geschätzt):**
-Bei 5x Umschlag pro DPC: 28 × 2.000 × 5 × 300 × 6% = 5.040.000 BSD (= 504 EUR)
+**Trading-Einnahmen (Credits, jährlich geschätzt):**
+Bei 5x Umschlag pro DPC: 28 × 2.000 × 5 × 300 × 6% = 5.040.000 Credits (= 50.400 € beim ICO-Peg, Phase 2)
 
 **Community Success Fee (EUR, jährlich):**
 3 Transfers × 2.000.000 EUR × (2.000/10.000 × 10%) = 3 × 40.000 = 120.000 EUR
@@ -394,24 +398,24 @@ Bei 5x Umschlag pro DPC: 28 × 2.000 × 5 × 300 × 6% = 5.040.000 BSD (= 504 EU
 
 **Begründung:** Flexibilität für verschiedene Club-Deals. Ein großer Club könnte einen niedrigeren BeScout-Anteil verhandeln, ein kleiner Club akzeptiert höheren. Der Wert wird in `fee_config` gespeichert und ist für User sichtbar.
 
-### ADR-020: Währungs-Migration BSD → $SCOUT
+### ADR-020: Einheiten-Naming — Legacy „BSD" → „Credits" (D99)
 
-**Entscheidung:** Die Plattform-Währung wird von BSD zu **$SCOUT** migriert. $SCOUT ist die einheitliche Währung für Trading, Rewards, Airdrop und Success Fee.
+**Entscheidung (D99):** Die user-facing Plattform-Einheit heißt **„Credits"** (Legacy „BSD" ist abgelöst). „Credits" ist die einheitliche Anzeige-Einheit für Trading, Rewards, Airdrop und Success Fee. Der Name **„$SCOUT-Coin"** ist ausschließlich für den **zukünftigen ICO-Coin** (Phase 2) reserviert — nicht für die heutige Spielwährung.
 
-**Begründung:** $SCOUT schafft eine kohärente Token-Identität. Der Airdrop-Score existiert bereits. $SCOUT vereinheitlicht: Airdrop-Rewards, Trading-Währung, Success Fee Auszahlung, Club-Abos.
+**Begründung:** „Credits" hält die Pilot/Beta-Einheit klar als wertloses Spielgeld (kein €-Wert, nicht kaufbar/auszahlbar). Der Airdrop-Score existiert bereits; bei Token-Launch (Phase 2) wird der $SCOUT-Coin als handelbares Asset eingeführt.
 
-**Risikobewertung:**
+**Risikobewertung (gilt für den zukünftigen $SCOUT-Coin, Phase 2):**
 
 | Risiko | Einschätzung | Mitigation |
 |--------|-------------|------------|
-| $SCOUT wird als Krypto-Token wahrgenommen | **Hoch** | Klare Kommunikation: Kein Blockchain, keine dezentrale Börse, zentrale DB |
+| $SCOUT-Coin wird als Krypto-Token wahrgenommen | **Hoch** | Klare Kommunikation: Pilot/Beta = nur Credits (kein Blockchain), Coin erst Phase 2 nach gültiger Lizenz |
 | Regulatorische Einstufung als E-Geld | **Mittel** | Rechtsgutachten, ggf. E-Geld-Lizenz oder Partnerschaft mit lizenziertem Zahlungsdienstleister |
 | Steuerliche Behandlung für User | **Mittel** | AGB: User ist selbst verantwortlich. Transparente Transaktionshistorie für Steuererklärung |
 | Verwechslung mit Krypto-Scam | **Mittel** | Seriöses Branding, echte Club-Partnerschaften, kein "Pump&Dump"-Narrativ |
 
-**Wechselkurs:** 1 $SCOUT = 1 Cent EUR | 100 $SCOUT = 1 EUR  (korrigiert 2026-06-16, siehe D83)
+**ICO-Peg (Phase 2, NICHT heute):** 1 Credit = 0,01 € | 100 Credits = 1 € (siehe D83 + D99). In Pilot/Beta haben Credits keinen €-Wert.
 
-**Migrations-Scope:** Rein kosmetisch in Phase 1 (Umbenennung BSD → $SCOUT in UI + Docs). Kein technischer Umbau der Wallet/DB nötig — intern bleibt alles in Cents (BIGINT).
+**Migrations-Scope:** Rein kosmetisch in Phase 1 (Umbenennung „BSD" → „Credits" in UI + Docs). Kein technischer Umbau der Wallet/DB nötig — intern bleibt alles in Cents (BIGINT).
 
 ### ADR-021: Keine Mindesthaltedauer — Gamification stattdessen
 
@@ -449,9 +453,9 @@ PBT wird an DPC-Holder verteilt
 
 **Beispiel:**
 - Spieler Z, 5 Jahre auf der Plattform, Karriereende
-- 3.000 DPCs im Umlauf, Ø Trading-Volumen 50.000 $SCOUT/Monat
-- PBT über 5 Jahre: ~45.000 $SCOUT (1,5% von ~3 Mio Handelsvolumen)
-- Wird an 3.000 DPC-Holder verteilt: ~15 $SCOUT pro DPC
+- 3.000 DPCs im Umlauf, Ø Trading-Volumen 50.000 Credits/Monat
+- PBT über 5 Jahre: ~45.000 Credits (1,5% von ~3 Mio Handelsvolumen)
+- Wird an 3.000 DPC-Holder verteilt: ~15 Credits pro DPC
 - Nicht viel, aber: "Dein Anteil hat dir über 5 Jahre PBT eingebracht"
 
 ---
@@ -484,7 +488,7 @@ liquidation_tranches (neue Tabelle):
   liquidation_event_id      UUID FK → liquidation_events
   tranche_number            INT
   amount_eur                BIGINT       -- Tranche-Betrag in EUR-Cent
-  amount_scout              BIGINT       -- Konvertiert in $SCOUT (×10.000)
+  amount_scout              BIGINT       -- Betrag in Credits-Einheit (ICO-Peg Phase 2: 1 Credit = 0,01 €)
   due_date                  TIMESTAMPTZ
   paid_at                   TIMESTAMPTZ  -- NULL = noch nicht gezahlt
   distributed_at            TIMESTAMPTZ  -- NULL = noch nicht an Holder verteilt
@@ -552,8 +556,8 @@ calculate_success_fee(
 | **BeScout Admin** | `success_fee_platform_bps` konfigurierbar (Einstellung) |
 | **Portfolio / Holdings** | EUR-Reward-Potenzial pro Holding + PBT-Anteil anzeigen |
 | **Liquidation Notification** | "Spieler X wurde transferiert! Dein Reward: Y EUR (in 3 Tranchen)" |
-| **PBT Notification** | "Spieler Z beendet Karriere. PBT-Ausschüttung: X $SCOUT" |
-| **Überall** | BSD → $SCOUT Umbenennung (UI + Docs, DB bleibt BIGINT Cents) |
+| **PBT Notification** | "Spieler Z beendet Karriere. PBT-Ausschüttung: X Credits" |
+| **Überall** | „BSD" → „Credits" Umbenennung (UI + Docs, DB bleibt BIGINT Cents) |
 
 ---
 
@@ -582,11 +586,11 @@ Jede Interaktion muss dem User vermitteln: **"Ich besitze einen Anteil an diesem
 > Erste Tranche: 1.280 EUR — wird nach Zahlungseingang gutgeschrieben."
 
 **Bei Tranche-Auszahlung:**
-> "Tranche 1 eingegangen! 12.800.000 $SCOUT (1.280 EUR) wurden deinem Wallet gutgeschrieben."
+> "Tranche 1 eingegangen! 128.000 Credits (1.280 € beim ICO-Peg, Phase 2) wurden deinem Wallet gutgeschrieben."
 
 **Bei PBT-Ausschüttung (Karriereende):**
-> "Spieler Z beendet seine Karriere. Der PBT-Pool (45.000 $SCOUT) wird an alle Holder verteilt.
-> Dein Anteil: 1.500 $SCOUT (gewichtet nach Haltedauer)."
+> "Spieler Z beendet seine Karriere. Der PBT-Pool (45.000 Credits) wird an alle Holder verteilt.
+> Dein Anteil: 1.500 Credits (gewichtet nach Haltedauer)."
 
 ---
 
@@ -596,8 +600,8 @@ Jede Interaktion muss dem User vermitteln: **"Ich besitze einen Anteil an diesem
 |--------|-------------------|--------|------------|
 | Club zahlt Fee nicht | Mittel | Hoch | Vertrag mit Eskalationsklausel, Treuhandkonto |
 | Spieler wird nie transferiert | Hoch (viele Spieler) | Niedrig | PBT-Ausschüttung als Mindest-Rendite + DPC-Wert durch Trading/Fantasy/Score |
-| $SCOUT als Krypto/E-Geld eingestuft | **Mittel** | **Sehr hoch** | Rechtsgutachten vor $SCOUT-Migration, klare Kommunikation "kein Blockchain-Token", ggf. E-Geld-Lizenz |
-| $SCOUT-Auszahlung in EUR = Finanzdienstleistung | **Mittel** | **Hoch** | Phase 1: nur $SCOUT-Guthaben (kein EUR-Cashout). Phase 2: lizenzierter Partner für EUR-Auszahlung |
+| $SCOUT-Coin (Phase 2) als Krypto/E-Geld eingestuft | **Mittel** | **Sehr hoch** | Rechtsgutachten vor Token-Launch, klare Kommunikation "Pilot/Beta = Credits, kein Blockchain-Token", ggf. E-Geld-Lizenz |
+| Coin-Auszahlung in EUR = Finanzdienstleistung | **Mittel** | **Hoch** | Phase 1: nur Credits-Guthaben (kein EUR-Cashout). Phase 2: Cash-Out erst nach gültiger Lizenz, lizenzierter Partner für EUR-Auszahlung |
 | Manipulation (Insider-Wissen bei Transfer) | Niedrig | Hoch | Trading-Monitoring, Insider-Trading-Regeln im AGB, zeitverzögerte Veröffentlichung |
 | Cap zu niedrig gesetzt | Niedrig | Mittel | Cap nur nach oben änderbar, transparente Kommunikation |
 | Zu hohe Fee für kleinen Club | Mittel | Hoch | Konservativer Cap, wenig Supply → geringe Verpflichtung |
@@ -610,7 +614,8 @@ Jede Interaktion muss dem User vermitteln: **"Ich besitze einen Anteil an diesem
 | Begriff | Definition |
 |---------|-----------|
 | **DPC** | Digital Player Card — digitaler Anteil an einem Spieler auf BeScout |
-| **$SCOUT** | Plattform-Währung (ehemals BSD). 1 $SCOUT = 1 Cent EUR (100 $SCOUT = 1 EUR). Zentrale Datenbank, kein Blockchain-Token |
+| **Credits** | User-facing Plattform-Einheit (ehemals „BSD"). Speicher = BIGINT „cents" (1 Credit = 100 cents). ICO-Peg Phase 2: 1 Credit = 0,01 € (100 Credits = 1 €). In Pilot/Beta wertloses Spielgeld, zentrale Datenbank, kein Blockchain-Token |
+| **$SCOUT-Coin** | Zukünftiger ICO-Coin (Phase 2, nach gültiger Token-Lizenz). NICHT die heutige Pilot/Beta-Einheit — dafür „Credits" |
 | **IPO** | Initial Player Offering — Erstausgabe von DPCs eines Spielers |
 | **Supply (DPC)** | Anzahl DPCs die der Club für einen Spieler erstellt (max 10.000) |
 | **Cap (EUR)** | Maximaler Referenzwert für die Fee-Berechnung. Schützt den Club vor extremen Zahlungen |

@@ -34,7 +34,7 @@
 - Kein KYC (erst mit Malta Ltd.)
 - Kein Geofencing-Enforcement (Flag vorhanden, aber OFF)
 
-### Phase 3 (nach CASP-Lizenz) — "$SCOUT Launch"
+### Phase 2 (nach gültiger Token-Lizenz — Route CASP vs MiCA Title II = Anwalt) — "$SCOUT-Coin Launch"
 
 **Was sich aendert:**
 - bCredits werden zu $SCOUT Token (Polygon, 1:1 Migration aller Balances)
@@ -51,7 +51,7 @@
 - Fee-Splits, DPC-System, Club-Pakete
 - Ticket-System bleibt separat (kein Cash-Wert, auch nicht in $SCOUT konvertierbar)
 
-### Phase 4 (nach MGA Gaming-Lizenz) — "Paid Fantasy"
+### Phase 3 (nach MGA Gaming-Lizenz) — "Paid Fantasy"
 
 **Was dazukommt:**
 - Paid Fantasy Events (Buy-In in $SCOUT, Prize Pool)
@@ -856,7 +856,7 @@ Community-Aktivitaet
 
 ---
 
-## APPENDIX A: Geofencing-Tiers (Phase 3+)
+## APPENDIX A: Geofencing-Tiers (Phase 2+)
 
 | Tier | Laender | Zugang |
 |------|---------|--------|

@@ -57,8 +57,8 @@ Du bist der Compliance-Guardian fuer BeScout. Dein Wort ist Gesetz bei allem was
 
 ### Licensing-Phasen
 - Phase 1 (JETZT): Trading, Free Fantasy, Votes, Events, Missions, Equipment
-- Phase 3 (NICHT BAUEN): Cash-Out, Exchange, $SCOUT Token
-- Phase 4 (NICHT BAUEN): Paid Fantasy, Turniere mit Preisen
+- Phase 2 (NICHT BAUEN, nach gültiger Token-Lizenz): Cash-Out, Exchange, $SCOUT-Coin
+- Phase 3 (NICHT BAUEN, nach MGA): Paid Fantasy, Turniere mit Preisen
 
 ### Disclaimer-Pflicht
 - Jede Seite mit $SCOUT/DPC → TradingDisclaimer Component

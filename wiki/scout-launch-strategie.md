@@ -43,7 +43,7 @@ Statt in der TFF 1. Lig klein anzufangen → direkt Sueper Lig angreifen:
 |--------|-----------|-------|
 | Founding Passes (500 Stueck, 29.99 EUR) | Monat 1-4 | ~15K EUR |
 | Club Revenue (3-5 Clubs) | Monat 2-6 | ~16K EUR |
-| BSD Credit Packs | Monat 2-6 | ~5-10K EUR |
+| Credit Packs | Monat 2-6 | ~5-10K EUR |
 | Fan Subscriptions | Monat 2-6 | ~3-5K EUR |
 | **TOTAL** | | **39-46K EUR** |
 
@@ -85,7 +85,7 @@ Statt in der TFF 1. Lig klein anzufangen → direkt Sueper Lig angreifen:
 | Phase | Woche | Was | Kosten |
 |-------|-------|-----|--------|
 | 0: Compliance | W1-2 | Code-Fixes, Malta Ltd beauftragen | 0 EUR |
-| 1: Revenue Engine | W3-8 | Founding Pass, BSD-Shop, Club-Pitches | ~3K EUR |
+| 1: Revenue Engine | W3-8 | Founding Pass, Credits-Shop, Club-Pitches | ~3K EUR |
 | 2: Token-Vorbereitung | W6-14 | Anwalt, White Paper, AGB, Smart Contract | ~10-15K EUR |
 | 3: Launch | W14-22 | NCA-Filing (20 Tage), Airdrop, Exchange Listing | ~5-10K EUR |
 

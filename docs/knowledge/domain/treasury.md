@@ -4,7 +4,7 @@ created: 2026-06-15
 updated: 2026-06-24
 status: active
 tags: [treasury, csf, money, ipo, scout-cards, fan-rewards, fee-split]
-consult_when: Treasury, CSF, IPO/Erstverkauf, Escrow, Fan-Rewards, Geld-Flows, $SCOUT cents, Fee-Splits-Mechanik, Liquidation, Club-Treasury, Ledger
+consult_when: Treasury, CSF, IPO/Erstverkauf, Escrow, Fan-Rewards, Geld-Flows, Credits/cents-Einheit, Fee-Splits-Mechanik, Liquidation, Club-Treasury, Ledger
 verified-against: .claude/rules/trading.md @ 2026-06-19
 ---
 
@@ -28,8 +28,8 @@ verified-against: .claude/rules/trading.md @ 2026-06-19
 
 - **Scout Card = vertragsgekoppelter Anteil am Spieler** (Produkt-Wahrheit, Equity-artig). Legal über das Doppel-Register: nach außen „digitale Sammelkarte mit Utility", nicht „Spieleranteil". Asset-Laufzeit = Spielervertrag.
 - **Das Kern-Wertversprechen ist der Scout-Fang:** einen 2-Mio-Spieler früh „catchen", der für 20 Mio transferiert wird → Einsatz ~10×. Wert kommt über **zwei Pfade**: (a) Sekundärmarkt-Handel (floor_price preist erwarteten Transfer + Cap ein) **oder** (b) Halten bis zur Liquidation → CSF-Ausschüttung.
-- **Phase 1 = geschlossene $SCOUT-Welt.** Treasury, CSF, Fan-Rewards kreisen intern als Credits.
-- **Cash-out (echtes EUR raus) = Phase 2**, lizenz-gegated. Gilt für Clubs *und* Fans. Echtes EUR-Einzahlen von außen liegt auf derselben Phase-2-Achse. (Abgleich mit Licensing-Phasen `business.md` ADR-028 nötig — Nummerierung dort 1/3/4.)
+- **Phase 1 = geschlossene Credits-Welt.** Treasury, CSF, Fan-Rewards kreisen intern als Credits (in Pilot/Beta wertloses Spielgeld, kein €-Wert — D99).
+- **Cash-out (echtes EUR raus) = Phase 2**, nach gültiger Token-Lizenz. Gilt für Clubs *und* Fans. Echtes EUR-Einzahlen von außen liegt auf derselben Phase-2-Achse. (Phasen-Nummerierung jetzt einheitlich **1/2/3** per D99 — `business.md` ADR-028 entsprechend aktualisiert.)
 
 ---
 
@@ -40,7 +40,7 @@ verified-against: .claude/rules/trading.md @ 2026-06-19
 | **CSF-1** | **Tranchen raus** — CSF wird bei Liquidation **in einer Summe** ausgezahlt (nicht 40/30/30 über 12 Monate). | Snapshot-über-Monate + 3 Auszahl-Zyklen entfallen. Code macht das heute schon so. Begründung: der einzige Tranchen-Grund (Club-Cashflow-Schutz) entfällt, weil der Club aus seinem BeScout-Guthaben zahlt. |
 | **CSF-2** | **Club-Treasury ist die CSF-Quelle** — verdientes Club-Geld (Trading 1 %, Abos 100 %, IPO 85 %, PBT) kreist intern und finanziert die CSF. | Wertschöpfung bleibt im geschlossenen System, kein externer EUR-Transfer für CSF nötig. |
 | **CSF-3** | **Club-Treasury ist bidirektional + Fan-Reward-Engine** — der Verein kann Budget gezielt einsetzen, um Fans zu belohnen, Aktivität zu fördern und neue Fans zu gewinnen. | Beantwortet die offene Frage („wie belohnt ein Verein aktive Fans?"). |
-| **CSF-4** | **Phase 1 intern $SCOUT, Cash-out Phase 2.** | EUR-Ein-/Auszahlung (Club + Fan) ist Phase-2-Scope. Phase-1-Marketing-Budget = verdientes Club-$SCOUT. |
+| **CSF-4** | **Phase 1 intern Credits, Cash-out Phase 2.** | EUR-Ein-/Auszahlung (Club + Fan) ist Phase-2-Scope. Phase-1-Marketing-Budget = verdiente Club-Credits. |
 
 ---
 
@@ -64,7 +64,7 @@ Der Verein behandelt BeScout wie ein **Fan-Engagement-Werbekonto**: er verdient 
 
 - **Auslöser:** realer Spieler-Transfer (Vertragsende). Admin meldet Transfererlös.
 - **Berechnung:** `CSF = (verkaufte Cards / 10.000 × 10 %) × min(Transfererlös, Cap)`, dann **proportional nach Besitz**. (Code: lineare Pro-Card-Form `fee_per_dpc = transfer/10`; liquidiert `SUM(holdings)` = im Umlauf.)
-- **Auszahlung:** einmalig (CSF-1), **aus dem Club-Treasury** (Slice 330), als $SCOUT in die Holder-Wallets.
+- **Auszahlung:** einmalig (CSF-1), **aus dem Club-Treasury** (Slice 330), als Credits in die Holder-Wallets.
 - **Snapshot:** Besitz zum Zeitpunkt der Liquidierung bestimmt die Verteilung.
 - **Karriereende/ablösefrei:** kein Transfererlös → keine CSF, stattdessen PBT-Ausschüttung (ADR-022).
 
@@ -85,7 +85,7 @@ Der IPO-Preis ist **kein starrer `MV/1000`-Automatismus**, sondern eine **Verein
 | IPO-Preis (Einstieg) | **Verein** | MV-Anker + Einschätzung |
 | Liquidations-Wert (Ausgang) | Realität | tatsächlicher Transfererlös × 10 %-Regel, Cap |
 
-**Tokenisierung (Beispiel Osimhen, MV 75 Mio):** 100.000 SC = 100 %, max 10.000 SC = 10 %. 1 SC = MV/100.000 = **750 € = 75.000 $SCOUT**. Exklusive Spieler = exklusive Cards (gewollt). Code-Stand: `create_ipo(p_price)` respektiert expliziten Preis; MV-Anker-IPO-UI = Slice 328 DONE.
+**Tokenisierung (Beispiel Osimhen, MV 75 Mio):** 100.000 SC = 100 %, max 10.000 SC = 10 %. 1 SC = MV/100.000 = **750 € (ICO-Peg) = 75.000 Credits**. Exklusive Spieler = exklusive Cards (gewollt). Code-Stand: `create_ipo(p_price)` respektiert expliziten Preis; MV-Anker-IPO-UI = Slice 328 DONE.
 
 ---
 
@@ -93,7 +93,7 @@ Der IPO-Preis ist **kein starrer `MV/1000`-Automatismus**, sondern eine **Verein
 
 **Tokenisierung (Anil 2026-06-15):** 100.000 SC = 100 % des Spielerwerts → 1 SC = MV/100.000. Verein erstellt max **10.000 SC = 10 %**. Bei IPO-Vollverkauf nimmt der Club ~10 % des MV ein. Liquidiert werden **nur die im Umlauf befindlichen** SC (Holdings), nicht der unverkaufte Pool.
 
-**Wechselkurs (2026-06-16):** **1 $SCOUT = 1 Cent = 0,01 € (100 $SCOUT/€).** Bestätigt durch `trading.md` + Live-Code (`MV/10` cents → `MV/1000 $SCOUT`; Osimhen 75.000 $SCOUT = 750 €) + ICO-Seed-Preis (€0,01). `CLAUDE.md` „100 cents = 1 $SCOUT" = nur DB-Speicher-Präzision (BIGINT cents), kein Peg. 🟡 `CONCEPT-DPC-ECONOMY.md` „10.000 $SCOUT = 1 EUR" ist **falsch (Faktor 100)** → Doc-Fix offen. Kein Live-Bug: Phase 1 Closed Economy rechnet nirgends $SCOUT→EUR.
+**Einheit + ICO-Peg (D99-kanonisch, code-verifiziert):** Zwei „Cent" sauber trennen — **DB-Speicher = „cents" (BIGINT)**, **Anzeige = „Credits" = cents/100 → 1 Credit = 100 DB-cents**; der **ICO-Wert** (Phase 2, **nicht heute**, user-facing nie €) ist **1 Credit = 0,01 € (= 1 Euro-Cent)**. Bestätigt durch `trading.md` + Live-Code (`MV/10` cents → `centsToBsd` → `MV/1000 Credits`; Osimhen 75.000 Credits = 750 €) + ICO-Seed-Preis (€0,01). In Pilot/Beta sind Credits **wertloses Spielgeld** (D99) — Phase 1 Closed Economy rechnet nirgends Credits→EUR. (`CONCEPT-DPC-ECONOMY.md` alter „10.000 BSD = 1 EUR"-Faktor wird im E4-Glattzug geheilt.)
 
 **ICO-Plan (Kontext):** Pre-ICO/Seed €0,01 · Main ICO €0,03 · 1 Mrd Supply · Pilot-Credits → Token-Migration. **Offene Phase-3-Frage:** Token-Preis steigt (1→3 Cent→Markt), Card-Preis fix in $SCOUT → EUR-Gegenwert schwankt mit Coin. Card fix-in-$SCOUT (Asset-Verhalten) oder EUR-Anker? — nicht jetzt.
 
@@ -102,7 +102,7 @@ Der IPO-Preis ist **kein starrer `MV/1000`-Automatismus**, sondern eine **Verein
 ## 5. Kern-Aussagen (unveränderlich, als Basis)
 
 1. Scout Card = vertragsgekoppelter Anteil (Produkt-Wahrheit) / Sammelkarte (Wort). 100.000 SC = 100 % Spielerwert, max 10.000 SC = 10 %. 1 SC = MV/100.000.
-2. **1 $SCOUT = 1 Cent = 0,01 €** (100 $SCOUT/€). Phase 1 = $SCOUT intern, Cash-out Phase 2.
+2. **Einheit:** intern „cents" (BIGINT) · Anzeige **„Credits" = cents/100** (1 Credit = 100 cents). **ICO-Wert (Phase 2, nicht heute): 1 Credit = 0,01 € (= 1 Euro-Cent).** Phase 1 = Credits intern (wertloses Spielgeld), Cash-out Phase 2. „$SCOUT" = ICO-Coin-Name. (D99)
 3. IPO-Preis = Vereins-Entscheidung mit MV-Anker (Einstieg). Liquidations-Wert = realer Transfer × 10 %-Regel, Cap (Ausgang). Differenz = Scout-Fang.
 4. CSF = einmalig (keine Tranchen), aus Club-Treasury, rein proportional nach Besitz (kein `csf_multiplier` — entfernt; Treue läuft über Fan-Reward-Engine). Nur SC im Umlauf.
 5. Club-Treasury = echtes bidirektionales Konto (Einnahmen + Deposit / CSF + Fan-Rewards + Event-Prizes + Poll-Revenue[REIN] + Bounties + Withdrawal[Ph2]).
@@ -138,7 +138,7 @@ Echtes Konto = **Saldo + append-only Kontoauszug**. Jede Bewegung (rein wie raus
                                                           └─ (Withdrawal EUR = Phase 2)
 ```
 
-**Phase 1 = rein intern $SCOUT:** REIN = verdiente Einnahmen, RAUS = alle Engagement-Belohnungen. Echtes EUR rein/raus (Deposit + Cash-out) = Phase 2. **Geld-Modell:** alles **Transfer, kein Minting** — Treasury gibt verdientes $SCOUT aus, Geld zirkuliert (deflationär-neutral).
+**Phase 1 = rein intern Credits:** REIN = verdiente Einnahmen, RAUS = alle Engagement-Belohnungen. Echtes EUR rein/raus (Deposit + Cash-out) = Phase 2. **Geld-Modell:** alles **Transfer, kein Minting** — Treasury gibt verdiente Credits aus, Geld zirkuliert (deflationär-neutral).
 
 ### Event-Prize-Finanzierung — 5-Quellen-Modell (verifiziert Slice 331)
 Die Geldquelle eines Events ist **`events.type`** (= Kategorie UND Finanzierung):

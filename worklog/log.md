@@ -2,6 +2,17 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 366 | 2026-06-24 | docs(money): E4 Doc-Glattzug — Money-Modell-Doku auf D99 ausgerichtet (Schritt 2)
+- Stage-Chain: SPEC (inline `active.md` + Inventur `365-money-model-drift-inventory.md`, XS Ops/Doc-Spur) → IMPACT (skipped, reine Doku) → BUILD → REVIEW (`worklog/reviews/366-review.md`, self-review **PASS**) → PROVE → LOG.
+- **Kontext:** E4 Schritt 2 nach D99-Ratifikation (Schritt 1 = b52e8b09). Slice-365-E2E hatte systemischen Money-Modell-Drift über ~40 Doc-Stellen offengelegt (M-5/D99): 3 Namen BSD/$SCOUT/Credits, Faktor-100-€-Widerspruch, Phasen 1/3/4 vs 1/2, CASP-Konflikt, CONCEPT-DPC-ECONOMY in sich widersprüchlich.
+- **Glattzug auf D99 (kanonisch):** (1) Naming → user-facing „Credits"; „$SCOUT" nur ICO-Coin-Kontext; „BSD" deprecatet. (2) Einheit → 1 Credit = 100 cents (Speicher), ICO-Wert 1 Credit = 0,01 € (Phase 2, nie heute user-facing); trading.md Selbst-Widerspruch (Z.12 vs 21) code-verifiziert aufgelöst. (3) Phasen → sequenziell 1/2/3 (Free-Play / ICO-Token nach Lizenz / Paid Fantasy nach MGA). (4) Pricing → 1 Card = MV/1.000 Credits = MV/100.000 € (ICO-Peg), **kein 100×-Widerspruch**. (5) CASP → „nach gültiger Lizenz" (Route CASP vs MiCA Title II = Anwalt).
+- **Kanonische/always-loaded/agent-geladene Files selbst:** trading.md, business.md, CLAUDE.md, treasury.md, INDEX.md, decisions.md (D83-Annot + D99), Skills beScout-business + plan-legal-review (.claude UND .agents — sonst hätte ein Legal-Agent 1/3/4 re-eingeschleppt), SYSTEM-DESIGN-v2.md, players.ts/wallet.ts/utils.ts JSDoc, messages DE+TR (4 scoutEvents-Keys).
+- **Prosa-Bulk via general-purpose-Agent (Diff vom Primary verifiziert):** CONCEPT-DPC-ECONOMY.md (interner Faktor-100-Selbstwiderspruch geheilt, ~15 Stellen), VISION.md (18× BSD→Credits), wiki/scout-cards + business-model + scout-launch-strategie, patterns.md, beta-exit-criteria.md, beta-onboarding.md, errors-db-detail.md.
+- **Proof:** `worklog/proofs/366-drift-grep.txt` — Phasen jetzt 1/2/3, Faktor-100 aufgelöst, `grep $SCOUT|BSD messages/` = 0, tsc EXIT 0.
+- **Bewusst belassen (historisch):** `docs/plans/*` datierte Snapshots (analog _archive). **Follow-up (eigener Slice):** eventCurrency/Tickets „Währung/para birimi"-Labels (pre-existing Compliance, kein Drift).
+- Commit: (siehe unten)
+- Notes: D99 = SSOT Money-Modell. Nächster E4-Schritt = 367 „Diamond Hands"-Cluster (Plan `worklog/notes/366-e4-money-model-cleanup-epic.md`).
+
 ## 365 | 2026-06-24 | feat(treasury): Bounty-Fee REIN in Plattform-Topf (E3-2e, D96/D98) — Fees-REIN KOMPLETT 5/5
 - Stage-Chain: SPEC (`worklog/specs/365-bounty-fee-rein.md`, S) → IMPACT (skipped, additive Inline-Buchung, 0 Consumer-Contract-Change) → BUILD → REVIEW (`worklog/reviews/365-review.md`, **PASS**, 1 NIT optional/nicht umgesetzt) → PROVE → LOG.
 - **Kontext:** E3 Plattform-Treasury Slice 2 „Fees REIN", Teil **5/5 = Bounty (LETZTE Quelle)**. Der 5 %-Plattform-Anteil der Bounty-Fee verbrannte — und wurde anders als 358–364 **nicht einmal notiert** (keine Spalte): `v_platform_fee := (v_reward*500)/10000` wurde berechnet, aber nirgends gebucht (Einreicher bekam 95 %, die 5 % fielen aus dem Umlauf).

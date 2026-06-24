@@ -2,6 +2,7 @@
  * BeScout - Utility Functions
  */
 
+/** Formatiert einen Credits-Anzeigewert (bereits cents/100). Funktionsname bleibt (Code-intern, D99). */
 export function fmtScout(value: number | undefined | null): string {
   if (value === undefined || value === null) return '0';
   return value.toLocaleString('de-DE', { maximumFractionDigits: 2 });
