@@ -1,7 +1,7 @@
 ---
 title: Polls & Community-Monetarisierung — Vereins-Geldmaschine (Kanon)
 created: 2026-06-17
-updated: 2026-06-23
+updated: 2026-06-24
 status: active
 tags: [polls, community, monetization, treasury, poll_revenue, discovery, follower, fan-rank]
 consult_when: Polls, Umfragen, poll_revenue, Verein→Treasury vs User→Wallet, Follower-Tor, Discovery, Identitätsgrenze Club-Admin, Bezug Verein/Spieler
@@ -41,6 +41,8 @@ Fans äußern überall ihre Meinung über Spieler/Vereine, aber **der Verein kan
 | **Bezahlte User-Umfrage** | **User (ab 50 Followern)** | **eigener Name** | ja | **User-Wallet** | ✅ **gebaut** (Slice 333: `source='user'`, Follower-Tor 50; UI-Einstieg im Community-Feed) |
 
 **Current-State-Befund (verifiziert 2026-06-18):** `community_polls` ist voll funktional: **erstellbar** (Slice 333, `create_community_poll`, Quellen-Identität `source` club/user, Follower-Tor 50, Geld-Routing keyt auf `source`), **mit Spieler-Anker** (Slice 334, `player_id`), **abstimmbar** (bezahlt, 80 % Creator / 20 % Plattform via `cast_community_poll_vote`, Slice 337; Abo-2×-Gewicht Slice 336), **abbrechbar** (nur Creator, 0 Votes). Die „Hülle ohne Tür" ist geschlossen.
+
+> **20 %-Plattform-Anteil (Update Slice 363, E3-2c):** Bis Slice 363 wurde der 20 %-Plattform-Anteil zwar in `community_poll_votes.platform_share` **notiert**, aber in **kein Konto gebucht** → er verbrannte (in beiden source-Branches). Seit Slice 363 bucht `cast_community_poll_vote` ihn inline via `book_platform_treasury('credit','poll',…)` real in den **BeScout-Plattform-Topf** (≠ Club-Treasury; das ist der Singleton-Pot aus Slice 357). Damit ist Polls die 3. REIN-Quelle des Plattform-Topfs (nach Trading 358, IPO 360). WIE: `domain/treasury.md` §10. WARUM: D96/D98.
 
 ---
 
