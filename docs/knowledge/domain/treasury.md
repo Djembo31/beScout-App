@@ -33,6 +33,27 @@ verified-against: .claude/rules/trading.md @ 2026-06-24
 
 ---
 
+## 1b. Card-Wertmodell — vier getrennte Zahlen (D100, 2026-06-24)
+
+Eine Scout Card hat **vier Wert-Zahlen**. Sie dürfen im Produkt **nie verschmolzen** werden (Verschmelzung = falsche Preis-/Reward-Wahrnehmung → UX + Compliance-Risiko):
+
+| # | Zahl | DB | Bedeutung |
+|---|------|----|-----------|
+| 1 | **Erstverkaufspreis / Eintritts-Anker** | `ipo_price` (bzw. `ipos.price`) | Preis, den der **Verein** beim Markteintritt verlangt. Orientiert sich am MV (Default-Vorschlag `MV/10`), darf **abweichen**. = Bezugspunkt der Preisentwicklung. Nach IPO **eingefroren**, folgt NIE automatisch dem MV. |
+| 2 | **Aktueller Marktpreis** | Orderbuch / `last_price` / `floor_price` | Was die Karte **jetzt** im Handel wert ist (Angebot/Nachfrage). |
+| 3 | **Marktwert-Referenz** | `market_value_eur` | Echter Transfermarkt-Wert (Cron). **Nur Referenz, NICHT der Kartenpreis** — Kontext für reale Spielerentwicklung. |
+| 4 | **CSF (Community Success Fee)** | berechnet aus MV, Cap `success_fee_cap_cents` | Möglicher Erfolgs-Reward, im **Reward**-Bereich. Auf richtiger Basis erklären (keine Gewinn-Erwartung framen). |
+
+**Regeln (D100):**
+- **`ipo_price` ist MV-ENTKOPPELT.** `createPlayer` nutzt `MV/10` nur als Vorschlag. **Kein** MV→`ipo_price`-Auto-Sync; MV-Backfill auf `ipo_price` (Slice-114-Klasse) ist **verboten**. „Drift" `ipo_price ≠ MV/10` ist **kein Bug**.
+- **Eintritts-Anker-Anzeige (bestehende Spieler):** echter Vereinspreis ist durch Slice 114 überschrieben (verloren). Anzeige = `ipos.price` der Erst-IPO; sonst ehrlich **„—"** (keine Fiktion).
+- **Floor = transparentes Orderbuch:** Floor zeigt seine **Quelle** („niedrigste offene Order" vs. „letzter Verkauf, keine Angebote") + **Anti-Manipulation** (kein Mini-Order-Crash). `recalc_floor_price`-Kaskade: `LEAST(MIN offene Sell, aktive IPO) → last_price → behalten`.
+- **Money-Risiko gering:** Sekundärkauf (`buy_player_sc`) läuft über das **Orderbuch** (niedrigste offene Order), NICHT über `ipo_price`/`floor` → die vier Zahlen sind heute fast nur **Anzeige-Werte**.
+
+**Umsetzung:** Slice 368a (Kanon, dieses Doc) → 368b (Anzeige-Wahrheit UI) → 368c (Floor-Orderbuch-Transparenz). Spec `docs/plans/2026-06-24-scout-card-value-model-spec.md`. WARUM = `memory/decisions.md` **D100**.
+
+---
+
 ## 2. Entscheidungen (2026-06-15, Anil)
 
 | # | Entscheidung | Konsequenz |

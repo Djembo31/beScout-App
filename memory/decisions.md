@@ -3865,8 +3865,40 @@ Kontrast: PBT-Anteile → `pbt_treasury` ✅, Club-Anteile → `clubs.treasury_b
 1. **Naming = „Credits" user-facing (jetzt).** CTO-Empfehlung angenommen: in Pilot/Beta zeigt die UI **„Credits"** (neutral, kein Coin-Look). **„$SCOUT" wird erst beim ICO** der echte Coin-Name (scharfe Phasen-Linie: wertloses Spielgeld jetzt → echter Token später). Legacy **„BSD" wird überall deprecatet**; Code-Vokabular (`centsToBsd`/`bsdToCents`/`formatScout`/`fmtScout`, JSDoc „cents → $SCOUT") wird auf **eine** Bezeichnung vereinheitlicht (intern darf der Funktions-/Code-Name technisch bleiben, JSDoc/Kommentare sagen „Credits", user-facing immer „Credits"). $SCOUT bleibt der Token-Name für ICO-/Strategie-/Investor-Kontext.
 2. **Phasen-Nummerierung = sequenziell 1/2/3.** **Phase 1** = jetzt (Free-Play, wertlose Credits) → **Phase 2** = ICO/$SCOUT-Coin nach Token-Lizenz (Cash-Out + Handel) → **Phase 3** = Paid Fantasy/Turniere nach Gaming-Lizenz (MGA). Lückenlos. Ersetzt das alte 1/3/4 (business.md ADR-028) **und** das alte 1/2 (treasury.md/D83) — beide werden auf 1/2/3 gezogen.
 3. **CASP-Strategie = schnellster sicherer Weg zum ICO.** Working-Stance: **$SCOUT-Coin/Cash-Out erst nach gültiger Lizenz** (Phase 2). Die **konkrete Route** (volle CASP-Lizenz **vs** MiCA-Title-II-Notification / NCA-Pfad) ist eine **Anwalts-Entscheidung vor dem ICO** — Ziel ist der schnellste Weg, der **noch sicher** ist. `wiki/scout-launch-strategie.md` (MiCA-Title-II-These) ist **ein Input**, kein Widerspruch mehr; Phasen-Docs formulieren neutral „Token erst nach gültiger Lizenz" (nicht „nach CASP" absolut festschreiben).
-4. **Card-Pricing = eine kanonische Formel, jetzt festgelegt.** Wichtige Erkenntnis (am Live-Code verifiziert): die behaupteten „100× auseinander" sind **kein** echter Widerspruch, sondern derselbe Faktor-100-Namensdrift. **Kanonisch: 1 Card = MV/1.000 Credits** (Live-Anzeige; `ipo_price_cents = MV/10`, `centsToBsd = /100`). Die Fairness-Formel „10 % / 10.000 Cards = MV/100.000 **€**" ist beim ICO-Peg (1 Credit = 0,01 €) **dieselbe Zahl** (MV/100.000 € = MV/1.000 Credits) — also konsistent, nicht konkurrierend. Der €-Bezug bleibt **ICO-Zeit** (Punkt 3 oben), user-facing nie €. **Data-Drift-Fix als eigener Money-Slice (CEO-Scope):** `ipo_price` der Nicht-Top-Spieler per Formel `MV/10 cents` neu setzen (heute bei Launch eingefroren → Douglas Willian MV 500K steht bei 10 statt ~500 Credits; Top-Spieler wie Mbappé korrekt).
+4. **Card-Pricing = eine kanonische Formel, jetzt festgelegt.** Wichtige Erkenntnis (am Live-Code verifiziert): die behaupteten „100× auseinander" sind **kein** echter Widerspruch, sondern derselbe Faktor-100-Namensdrift. **Kanonisch: 1 Card = MV/1.000 Credits** (Live-Anzeige; `ipo_price_cents = MV/10`, `centsToBsd = /100`). Die Fairness-Formel „10 % / 10.000 Cards = MV/100.000 **€**" ist beim ICO-Peg (1 Credit = 0,01 €) **dieselbe Zahl** (MV/100.000 € = MV/1.000 Credits) — also konsistent, nicht konkurrierend. Der €-Bezug bleibt **ICO-Zeit** (Punkt 3 oben), user-facing nie €. **Data-Drift-Fix als eigener Money-Slice (CEO-Scope):** `ipo_price` der Nicht-Top-Spieler per Formel `MV/10 cents` neu setzen (heute bei Launch eingefroren → Douglas Willian MV 500K steht bei 10 statt ~500 Credits; Top-Spieler wie Mbappé korrekt). **→ SUPERSEDED durch D100 (2026-06-24): `ipo_price` ist Vereins-Eintrittspreis, MV-ENTKOPPELT — die „Drift" ist KEIN Bug, KEIN Backfill/Recompute. Diese Sub-Anweisung ist verworfen.**
 
 **Auswirkung:** D99 ist die **einzige Wahrheit** zum Money-Modell. ALLE in der Inventur (`worklog/notes/365-money-model-drift-inventory.md`, ~40 Stellen, 5 Kategorien) gelisteten Stellen werden im E4-Cleanup darauf ausgerichtet (verbunden, kein Parallel-Stand). Bis dahin: bei jeder Money-/Wording-Frage **D99 zuerst**.
 
 **Re-Visit-Trigger:** ICO-Vorbereitung (Naming-Unifikation Credits→$SCOUT-Coin, €-Peg-Festlegung, Tokenisierungs-Ökonomie final, konkrete Lizenz-Route mit Anwalt, KYC/Geo fürs diskretionäre Bonus-Einlösen).
+
+---
+
+## D100 — PRODUCT/ARCHITECTURE: Scout-Card-Wertmodell — vier getrennte Zahlen; ipo_price = Vereins-Eintrittspreis (MV-entkoppelt); Floor = transparentes Orderbuch
+
+**Datum:** 2026-06-24 · **Status:** ✅ Aktiv · **Category:** PRODUCT/ARCHITECTURE · **Supersedes (Teil):** **D99 Punkt 4** Sub-Entscheidung „Data-Drift-Fix: `ipo_price` der Nicht-Top-Spieler per `MV/10` neu setzen" — war auf **falscher Prämisse** (ipo_price sei MV-gekoppelt). · **Kontext:** Slice-368-Vorbereitung. Anil-Klärung 2026-06-24 deckte auf, dass die Handoff-Prämisse („ipo_price ist falsch → auf MV/10 nachziehen") **das Modell selbst missversteht**. Live-Discovery (functiondef `buy_player_sc`/`recalc_floor_price`, 96/3.935 Drift-Rows, Explore-UI-Inventur) → Spec `docs/plans/2026-06-24-scout-card-value-model-spec.md`.
+
+### Entscheidung (CEO/Anil 2026-06-24)
+
+Eine Scout Card hat **VIER getrennte Wert-Zahlen**, die im Produkt nie verschmolzen werden dürfen:
+1. **Erstverkaufspreis / Eintritts-Anker (`ipo_price`):** Preis, den der **VEREIN** beim Markteintritt verlangt. Orientiert sich am MV (Default-Vorschlag `MV/10`), darf aber **abweichen** (Vereinsmeinung ≠ Transfermarkt-Wert). = **Bezugspunkt für die Preisentwicklung**. Nach IPO **eingefroren**, folgt NIE automatisch dem MV.
+2. **Aktueller Marktpreis (Orderbuch / `last_price` / `floor_price`):** was die Karte **jetzt** im Handel wert ist (Angebot/Nachfrage).
+3. **Marktwert-Referenz (`market_value_eur`):** echter Transfermarkt-Wert, Cron-aktualisiert. **Nur Referenz, NICHT der Kartenpreis.** User sieht ihn als Kontext (reale Spielerentwicklung).
+4. **CSF (Community Success Fee):** im **Reward**-Bereich, berechnet aus MV-Wachstum. Muss auf **richtiger Basis** erklärt sein (Compliance: keine falsche Gewinn-Erwartung).
+
+### Folge-Regeln
+- **Entkopplung:** `createPlayer` nutzt `MV/10` nur als **Vorschlag**; **kein** MV→`ipo_price`-Auto-Sync. MV-Backfill auf `ipo_price` (Slice-114-Klasse) ist **verboten**. Die 96 „Drift"-Rows (`ipo_price ≠ MV/10`) sind nach diesem Modell **KEIN Bug → kein Daten-UPDATE**.
+- **Eintritts-Anker bestehender Spieler:** echter historischer Vereinspreis ist durch **Slice 114** überschrieben (nicht zuverlässig rekonstruierbar). Anzeige = **`ipos.price` der Erst-IPO**; existiert keine IPO → ehrlich **„—"** (keine Fiktion).
+- **Floor = transparentes Orderbuch:** Floor zeigt seine **QUELLE** („niedrigste offene Order" vs. „letzter Verkauf, keine Angebote") + **Anti-Manipulation** (kein Mini-Order-Crash). IPO + Sekundärmarkt bestimmen gemeinsam.
+
+### Begründung
+Verschmolzene Zahlen erzeugen falsche Preis-/Reward-Wahrnehmung — UX-Murks **UND** Compliance-Risiko (Securities-/Rendite-Framing, `business.md`). Entlastung: der echte Kaufpfad (`buy_player_sc`) läuft **bereits über das Orderbuch** (niedrigste offene Order), nicht über `ipo_price`/`floor` — die vier Zahlen sind heute fast nur **Anzeige-Werte**, daher ist die Korrektur primär **Darstellungs-Wahrheit** (geringes Money-Risiko: 0 der 96 mit aktiver IPO/offener Order).
+
+### Alternativen erwogen
+- **`ipo_price = MV/10` erzwingen** (alte D99-Prämisse) — verworfen: zerstört den Vereins-Anker + verfälscht die CSF-Basis.
+- **Eintritts-Anker aus erstem Trade-Preis** — verworfen: Sekundärmarkt ≠ Vereins-Erstverkauf.
+- **`MV/10` einfrieren als Anker** — verworfen: bleibt der „falsche" MV-gekoppelte Wert.
+
+### Auswirkung
+Slice 368 = **3 Sub-Slices**: **368a** (dieses Doc/Decision) · **368b** (Anzeige-Wahrheit UI: „Dein Einstieg" ← `ipos.price`/„—", Labels trennen+vereinheitlichen) · **368c** (Floor-Orderbuch-Transparenz + Anti-Manipulation). Spec: `docs/plans/2026-06-24-scout-card-value-model-spec.md`. Money-WIE: `docs/knowledge/domain/treasury.md` §Wertmodell; Code-Regel: `.claude/rules/trading.md`.
+
+**Re-Visit-Trigger:** 368c Anti-Manipulations-Regel-Wahl (Mindest-Order-Größe vs. %-Schwelle); falls ICO-Phase die Preis-Semantik ändert.

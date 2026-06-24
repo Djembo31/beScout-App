@@ -22,12 +22,12 @@ paths:
 ## Preise
 
 ### Pricing Asset Model (MONEY-KRITISCH · 2026-04-20 Anil-Korrektur · D99-reconciled 2026-06-24)
-- **Kanonisch: 1 Card = MV_EUR / 1.000 Credits** (Anzeige). Intern: `ipo_price_cents = MV_EUR / 10` (→ /100 = MV/1.000 Credits).
+- **Preis-Referenz / Default-Vorschlag: 1 Card = MV_EUR / 1.000 Credits** (`ipo_price_cents = MV_EUR/10`, → /100 = MV/1.000 Credits). Das ist der **Orientierungswert** beim Erstverkauf — der **Verein darf abweichen**, danach ist `ipo_price` fix (MV-entkoppelt, D100).
 - **KEIN 100×-Widerspruch:** die Fairness-Sicht „1 Card = MV/100.000 **€**" ist beim ICO-Peg (1 Credit = 0,01 €) **dieselbe Zahl** wie MV/1.000 Credits. €-Bezug = ICO-Zeit (Phase 2), user-facing nie €.
 - **Card-Preis ist FIX**, unabhängig von der Anzahl ausgegebener Cards.
 - **Community-Anteil:** Max 10.000 Cards = 10% des MV tokenisierbar. Verein entscheidet 1.000–10.000 Cards → entsprechend kleinerer Community-Anteil. 90% bleiben beim Verein (nicht-tokenisiert).
 - **Verified gegen Live-DB:** Mbappé (MV 200 Mio €) → 200.000 Credits ✓ · Bekir (MV 1 Mio €) → 100.000 cents = 1.000 Credits ✓.
-- **⚠ Data-Drift (→ Slice 368):** `ipo_price` wird bei Launch eingefroren, NICHT bei MV-Änderung nachgezogen → Nicht-Top-Spieler verzerrt (Douglas Willian MV 500K steht bei 10 statt ~500 Credits; Manaj 2,2 Mio bei 250.000 statt 220.000 cents). Fix = Recompute `MV/10 cents`.
+- **ipo_price = Vereins-Eintrittspreis, MV-ENTKOPPELT (D100):** `MV/10` ist nur der **Default-Vorschlag** bei Anlage (`createPlayer`); der Verein darf abweichen, und nach IPO ist `ipo_price` **eingefroren** (folgt NIE automatisch dem MV). „Drift" `ipo_price ≠ MV/10` ist **KEIN Bug** → kein Recompute/Backfill (Slice-114-Klasse verboten). Anzeige-Anker bestehender Spieler = `ipos.price` der Erst-IPO, sonst „—". Vier-Zahlen-Modell (Eintritt/Markt/MV-Referenz/CSF) + Floor-Orderbuch-Transparenz: `docs/knowledge/domain/treasury.md` §1b + **D100**.
 
 ### Liquidation-Payout / Community Success Fee (CSF) — MODELL 2026-06-16 (D83)
 - **Reward pro Card = `min(Transfererlös, Cap) / 100.000 €`** (= `MV_liqui/100.000` ohne Cap). Die Anzahl verkaufter Cards **kürzt sich raus** → pro Card immer Liquidationswert/100.000.
@@ -41,7 +41,7 @@ paths:
 - **Vollständiges Modell (Kanon):** `docs/knowledge/domain/treasury.md` (+ `docs/knowledge/domain/reward-ranking.md`), Decision `memory/decisions.md` D83.
 
 ### Regeln
-- `ipo_price` = fest pro Tranche nach Launch, aendert sich NIE durch Marktaktivitaet
+- `ipo_price` = Vereins-Eintrittspreis, fest nach Launch, aendert sich NIE — weder durch Marktaktivitaet NOCH durch MV-Aenderung (MV-entkoppelt, D100)
 - `floor_price` (DB-Spalte `players.floor_price`, cents) = **die EINE Floor-Quelle** (Slice 303 S7).
   Kanon-Formel in RPC `recalc_floor_price`: `LEAST(MIN(non-expired open sell), aktive IPO aus ipos)
   → last_price>0 → keep`. Gepflegt bei JEDEM Trade (`buy_player_sc`/`buy_from_order`),

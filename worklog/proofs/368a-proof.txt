@@ -1,0 +1,26 @@
+PROOF — Slice 368a (Scout-Card-Wertmodell als Kanon, Doc/Decision, kein Runtime-Code)
+Datum: 2026-06-24
+
+=== Knowledge-Gate (pnpm audit:knowledge:check) ===
+═══ Knowledge-Audit ═══
+Content-Files: 18 · INDEX-Links: 37
+HARD: 0 · SOFT: 0
+✅ Clean.
+
+=== Self-Verification greps ===
+[rules/trading.md Z.30] alte To-Do "Fix = Recompute MV/10" ENTFERNT → ersetzt durch
+  "ipo_price = Vereins-Eintrittspreis, MV-ENTKOPPELT (D100) … Drift ist KEIN Bug → kein Recompute/Backfill"
+[INDEX.md] "Decisions-Log D1–D100" ✓ (Range gleich max-D → Gate grün)
+[decisions.md] "## D100 — PRODUCT/ARCHITECTURE: Scout-Card-Wertmodell …" ✓ (1 Treffer)
+[treasury.md] "## 1b. Card-Wertmodell — vier getrennte Zahlen (D100, 2026-06-24)" ✓ (1 Treffer)
+
+=== Files geändert (5, alle Doc) ===
+M worklog/active.md                              (Slice-Setup 368a)
+M memory/decisions.md                            (+D100, supersedes D99 Pkt 4 Data-Drift-Sub)
+M docs/knowledge/INDEX.md                        (Range D1–D99 → D1–D100 + D100-Summary)
+M docs/knowledge/domain/treasury.md              (§1b Card-Wertmodell vier Zahlen)
+M .claude/rules/trading.md                       (3 Korrekturen: Z.25 Vorschlag, Z.30 D100-Modell, Z.44 MV-entkoppelt)
+A docs/plans/2026-06-24-scout-card-value-model-spec.md  (Serie-Spec 368a/b/c)
+
+=== Kein Daten-UPDATE ===
+players/ipos unangetastet (per D100: die 96 "Drift"-Rows sind KEIN Bug). tsc unberührt (kein Runtime-Code).

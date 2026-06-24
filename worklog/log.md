@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 368a | 2026-06-24 | docs(decision): D100 — Scout-Card-Wertmodell als Kanon (4 getrennte Zahlen, ipo_price MV-entkoppelt, Floor=Orderbuch)
+- Stage-Chain: SPEC (`docs/plans/2026-06-24-scout-card-value-model-spec.md`, 368-Serie) → IMPACT (skipped, reine Doc) → BUILD (5 Doc-Edits) → REVIEW (`worklog/reviews/368a-review.md`, reviewer **PASS**, 2 NIT — #1 gefixt) → PROVE → LOG.
+- **Kontext / Prämissen-Wechsel:** Anil-Klärung 2026-06-24 deckte auf, dass die alte Slice-368-Prämisse („ipo_price ist falsch → auf MV/10 nachziehen", aus D99 Pkt 4) **das Modell missversteht**. `ipo_price` = **Vereins-Eintrittspreis**, NICHT MV-gekoppelt. Live-Discovery: `buy_player_sc` kauft über Orderbuch (nicht ipo/floor); 96/3.935 „Drift"-Rows, 0 mit aktiver IPO/offener Order; Explore-UI-Inventur (Floor-Quelle nie sichtbar, ipoPrice/MV verwechselbar im RewardsTab).
+- **Inhalt (Doc/Decision, kein Runtime-Code, kein Daten-UPDATE):** **D100** in `decisions.md` (vier Zahlen: Eintrittspreis/Marktpreis/MV-Referenz/CSF; Entkopplung; Anker bestehender Spieler = `ipos.price` Erst-IPO sonst „—"; Floor=transparentes Orderbuch) — **supersedes D99 Pkt 4** (Inline-Marker gesetzt). INDEX-Range D1–D99→D1–D100. `treasury.md §1b` Wertmodell-Sektion. `.claude/rules/trading.md` 3 Korrekturen (alte „Fix=MV/10"-To-Do raus).
+- **Proof:** `worklog/proofs/368a-proof.txt` — `pnpm audit:knowledge:check` HARD 0/SOFT 0 ✅; grep-Verify (D100 / Range / §1b / alte To-Do raus); kein players/ipos-UPDATE.
+- **Nächstes:** 368b Anzeige-Wahrheit (UI) · 368c Floor-Orderbuch-Transparenz.
+
 ## 367 | 2026-06-24 | fix(gamification): E4 „Diamond Hands"-Cluster — Rename + echte Hold-Logik + Konfetti-Gate (T-3)
 - Stage-Chain: SPEC (inline `active.md`, S) → IMPACT (skipped-light) → BUILD → REVIEW (`worklog/reviews/367-review.md`, reviewer-Agent **PASS**, 4 Findings non-blocking) → PROVE → LOG.
 - **Kontext:** E4 Schritt 3 (E2E-Bug-Fixes), erster Bug aus dem Slice-365-E2E (T-3). 3 Defekte in einem: Compliance (Meme-Wort), Logik (Award beim Kauf), UX (Konfetti auf Trade).
