@@ -16,6 +16,7 @@ Nach dem Kauf ploppt ein Achievement-Modal: **„Erfolg freigeschaltet! 💎 Dia
 2. **Logik-Bug:** Wurde **sofort beim Kauf** vergeben — die Card wurde gerade erworben, nicht „30 Tage gehalten". Trigger-Kriterium widerspricht dem Text (Award-on-buy statt Award-after-30d-hold).
 3. **UX (no-confetti-Regel):** Celebration-Modal auf einer Trading-Aktion verstößt gegen `feedback_no_confetti` (kein Konfetti/Celebration bei Trading-Aktionen).
 - Evidence: `365e2e-1-trading-diamondhands.png`.
+- **✅ Root-Cause verifiziert (2026-06-24, live-DB):** Die Award-Logik (`social.ts:466` `['diamond_hands', maxHoldDays >= 30]`) ist KORREKT — der Bug sitzt in `dpc_mastery.hold_days`. Live: 2533 Rows, **2472 (97,6 %) ≥ 30**, max 126; KEIN Trigger auf `dpc_mastery`; Verteilung clustert bei exakt 91 (827×) / 97 (778×) / 60 (778×) = **geseedete Mock-Daten, keine echt getrackte Halte-Dauer**. `maxHoldDays = max(dpc_mastery.hold_days)` liest den Seed → `diamond_hands` qualifiziert bei praktisch jedem Holding. **Fix-Richtung (Slice 367 BUILD):** echte Halte-Dauer aus `holdings`-Kaufdatum berechnen (statt geseedeter `hold_days`), ODER hold_days real per Trigger/Cron pflegen. Plus: Achievement umbenennen (Meme-Wort) + Konfetti-auf-Trade entfernen. **Klassisch Mock→Pro-Drift (E4-Kern).**
 
 ### 🟡 Finding T-2 (/api/push 500) — MEDIUM
 Beim Kauf: 2× `POST https://www.bescout.net/api/push → 500`. Push-Notification-Route wirft Server-500 (Trade lief trotzdem durch, kein Block). Vermutlich Notify-Versand bei Order-Fill. Separat prüfen (VAPID/Payload?).
