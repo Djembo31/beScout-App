@@ -1,16 +1,13 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-24 16:42)
+# Session Handoff — Auto (2026-06-24 17:15)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
-```
- M memory/session-handoff.md
- M worklog/active.md
-?? worklog/specs/368b-scout-card-display-truth.md
-```
+## Working Tree: Clean
 
 ## Session Commits: 10
+- d931da6e chore(tracker): 368b done in MASTERPLAN/TODO/handoff — NÄCHSTER 368c (Floor-Orderbuch + Floor-Labels)
+- 17306c09 feat(player): 368b Scout-Card-Anzeige-Wahrheit (RewardsTab) — Einstieg<-Erst-IPO/"—", 4 Zahlen trennen, CSF €->Credits
 - 74bafa54 chore(tracker): 368 reframed (D100 Wertmodell) — 368a done, 368b/c next
 - b6b63c67 docs(decision): D100 — Scout-Card-Wertmodell als Kanon (Slice 368a, E4)
 - 9d5b12d5 chore(handoff): Resume-Anker auf Slice 368 (ipo_price-Drift, wartet auf Anil-Go) — E4 Schritt 1+2+367 done
@@ -19,8 +16,6 @@
 - 627e3e96 docs(notes): T-3 Diamond-Hands Root-Cause verifiziert (geseedete dpc_mastery.hold_days, Slice 367 Vorbereitung)
 - e3181795 docs(knowledge): treasury.md verified-against trading.md @ 2026-06-24 (beide auf D99 abgeglichen, Slice 366)
 - 1b7b7ae8 chore(tracker): E4 Schritt 1+2 done in MASTERPLAN + TODO reconciled (Slice 366)
-- eba47650 docs(money): E4 Doc-Glattzug — Money-Modell-Doku auf D99 ausgerichtet (Slice 366, Schritt 2)
-- b52e8b09 docs(decision): D99 OFFEN-Punkte ratifiziert (E4 Schritt 1)
 
 <!-- auto:handoff-end -->
 
@@ -55,7 +50,7 @@
 
 ✅ **368a DONE** (`b6b63c67`): Kanon festgehalten — D100 + INDEX-Range D1–D100 + `treasury.md §1b` + `.claude/rules/trading.md`-Korrektur (alte „Fix=MV/10"-To-Do raus). Reviewer PASS, kein Code/kein Daten-UPDATE. **Spec der ganzen Serie: `docs/plans/2026-06-24-scout-card-value-model-spec.md`.**
 
-✅ **368b DONE** (`17306c09`): RewardsTab-Anzeige-Wahrheit. „Dein Einstieg" liest jetzt echten **Erst-IPO-Preis** (`ipos.price`, frühestes Row) via neuem `getFirstIpoPrice`+`useFirstIpoPrice` statt `players.ipo_price` (Slice-114-vergiftet); kein IPO → **„—" nur im Einstieg-Feld** (MV+Meilensteine bleiben — Anil-Entscheid). +2 InfoTooltips (MV-Referenz vs. Eintritts-Anker). **CSF-Tooltips DE+TR von € → Credits** (user-facing € verboten). Reviewer **PASS** (2 LOW, #1 Service-Test gefixt). tsc 0, 133 Tests. Spec `worklog/specs/368b-scout-card-display-truth.md`. **OFFEN: visueller Playwright-Proof gegen bescout.net post-Deploy** (UI deployt von main).
+✅ **368b DONE** (`17306c09`): RewardsTab-Anzeige-Wahrheit. „Dein Einstieg" liest jetzt echten **Erst-IPO-Preis** (`ipos.price`, frühestes Row) via neuem `getFirstIpoPrice`+`useFirstIpoPrice` statt `players.ipo_price` (Slice-114-vergiftet); kein IPO → **„—" nur im Einstieg-Feld** (MV+Meilensteine bleiben — Anil-Entscheid). +2 InfoTooltips (MV-Referenz vs. Eintritts-Anker). **CSF-Tooltips DE+TR von € → Credits** (user-facing € verboten). Reviewer **PASS** (2 LOW, #1 Service-Test gefixt). tsc 0, 133 Tests. Spec `worklog/specs/368b-scout-card-display-truth.md`. **✅ Visueller Proof live verifiziert** (Owusu Kwabena bescout.net Mobile 393px: „Dein Einstieg" = **461 CR** = echte Erst-IPO statt alt 400; MV 400K€ separat; Meilensteine in CR ohne €; `worklog/proofs/368b-rewardstab-with-ipo.png`).
 
 **← NÄCHSTER: Slice 368c — Floor = transparentes Orderbuch (inkl. Floor-Label-Vereinheitlichung, bewusst von 368b hierher verschoben).**
 - Floor zeigt **Quelle** („niedrigste offene Order" vs. „letzter Verkauf, keine Angebote") + **Anti-Manipulation** (Mini-Order-Crash verhindern). `recalc_floor_price`-Kaskade prüfen/anpassen. `OrderbookSummary.tsx` (Best Bid/Ask) ist da, aber NICHT mit `prices.floor` verknüpft.

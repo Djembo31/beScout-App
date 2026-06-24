@@ -1,15 +1,15 @@
 # Active Slice
 
 ```
-status: active
+status: idle
 slice: 368b
-title: Scout-Card-Anzeige-Wahrheit (RewardsTab) — Einstieg←Erst-IPO/„—", 4 Zahlen trennen, CSF €→Credits
-stage: LOG
+title: ✅ DONE — Scout-Card-Anzeige-Wahrheit (RewardsTab) — Einstieg←Erst-IPO/„—", 4 Zahlen trennen, CSF €→Credits
+stage: LOG complete
 size: M
 slice-type: UI (+ kleiner Service/Query)
 spec: worklog/specs/368b-scout-card-display-truth.md
 impact: skipped (kein Schema/RPC/Cross-Domain — 1 neue read-only Query auf ipos, Consumer = nur RewardsTab)
-proof: worklog/proofs/368b-tests.txt
+proof: worklog/proofs/368b-tests.txt + worklog/proofs/368b-rewardstab-with-ipo.png (live-Screenshot: Einstieg 461 CR = echte Erst-IPO statt alt 400, CSF €-frei)
 review: worklog/reviews/368b-review.md (reviewer PASS, 2 LOW — #1 gefixt, #2 belassen)
 next: 368c Floor-Orderbuch transparent + manipulationssicher (inkl. Floor-Label-Vereinheitlichung)
 ```
