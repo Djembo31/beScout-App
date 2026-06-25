@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 17:35)
+# Session Handoff — Auto (2026-06-25 18:12)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -8,7 +8,9 @@
  M memory/session-handoff.md
 ```
 
-## Session Commits: 8
+## Session Commits: 10
+- 5879ade1 docs(proof): Slice 382 — AC-05/07 + S333-Heilung LIVE PASS (Club-Admin Liga-Select, kein MISSING_MESSAGE)
+- 6ec80cdf feat(fantasy): E-1b — Lineup-Picker-Liga-Vorfilter + Club-Admin-Liga-Picker (Slice 382)
 - f6dfa18c docs(proof): Slice 381 — UI-Playwright post-Deploy ALLE PASS (DE/TR Header, Mobile, Pro-Liga-Board befüllt)
 - 0532cc21 feat(rankings): E-2a — BeScout-Saison Begriffs-Umzug + Pro-Liga-Ranglisten-Anzeige (Slice 381)
 - 305a4889 docs(handoff): Session-Close 2026-06-25 — E4 zu, E5 gestartet, E-1 (380) DONE, next = E-2a
@@ -24,28 +26,29 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = `a437244c`.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal, main == origin/main, tsc clean.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
+**Status: idle. HEAD = `5879ade1`.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün (Slice 382 fixte einen seit 380 roten Test), Push normal, main == origin/main, tsc clean.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
 
-## 🎯 HIER ANKNÜPFEN — E5 E-2a: BeScout-Saison (Rename + Pro-Liga-Ranglisten-Anzeige)
+## 🎯 HIER ANKNÜPFEN — E5 E-2b: Pro-Liga-Payout (Money/CEO, L)
 
-**➡️ NÄCHSTER SLICE = E-2a (M, KEIN Money).** ZUERST lesen: `worklog/notes/event-creator-liga-epic.md` (Section 0 + E-2) + `memory/decisions.md` **D104** (Event-Modell) + **D105** (Liga=Fußball / „BeScout-Saison") + **D106** (E-2-Entscheid: echte Rewards pro Liga, **anpassbarer Preispool**, gestuft).
+**➡️ NÄCHSTER SLICE = E-2b (L, MONEY/CEO-Scope — §3, SELBST bauen + Reviewer-Pflicht).** ZUERST lesen: `worklog/notes/event-creator-liga-epic.md` (E-2-Block) + `memory/decisions.md` **D106** (E-2-Entscheid: echte Rewards pro Liga, **admin-anpassbarer Preispool**, gestuft) + **D96/D98** (Topf-Modell). **D87-Pflicht: Live-`pg_get_functiondef('close_monthly_liga')` VOR Spec** (Money-RPC, nie aus Migrations-Datei ableiten).
 
-**E-2a-Scope (gestuft per D106):**
-1. **Begriffs-Umzug:** user-facing „Liga" für den NUTZER-Wettbewerb → **„BeScout-Saison"** (`is_liga_event`/`monthly_liga_*` betreffen den Nutzer-Wettbewerb, NICHT die Fußball-Liga — D105). Zwei Achsen entwirren: Fußball-Liga-Bindung (= E-1 `events.league_id`, schon gebaut) vs. Wertungs-Stärke (= altes `is_liga_event`-Flag).
-2. **Pro-Liga-Ranglisten ANZEIGEN** + Umschalter „Pro Liga / Gesamt". **KEINE Payout-Änderung** (das ist E-2b).
+**E-2b-Scope (per D106):**
+1. **`close_monthly_liga` pro Liga** zahlen — die Manager-Dim pro (Nutzer, Liga) ist seit E-2a ableitbar (`rpc_get_season_ranking(p_league_id)`, read-only Aggregat aus liga-gebundenen Event-Lineups). E-2b muss daraus echten Payout machen.
+2. **Konfigurierbare Reward-Struktur** — Admin setzt Beträge (neue Tabelle/Spalten statt hardcodiert 500k/250k/100k cents). Grund D106: 7 Ligen × 4 Dim × 3 Ränge ≈ bis 84 Auszahlungen/Monat → Topf-Belastung kontrollierbar halten.
+3. Zero-Sum-Debit aus dem Plattform-Topf + **inline Deckungs-Check unter Singleton-Row-Lock** (`book_platform_treasury` hat KEINEN Negativ-Guard) + D103 Hard-Gate (RAISE bei Unterdeckung) + Idempotenz (`month_already_closed`). Muster = Slice 376 (Monats-Liga global aus Topf).
 
 **🔑 Design-Kern (Live-Audit 2026-06-25, NICHT neu erheben):**
-- `scout_scores` ist **NICHT** pro Liga — nur 3 globale Werte/Nutzer (trader/manager/analyst) + season_start_*. `monthly_liga_snapshots`/`_winners` haben **keine** league_id. `close_monthly_liga(p_month)` rankt global über 4 Dim (trader/manager/analyst/overall=Median), Top-3/Dim aus Plattform-Topf (hardcodiert 500k/250k/100k cents, zero-sum debit, Deckungs-Check+RAISE).
-- **Pro-Liga = neue (Nutzer,Liga)-Achse nötig.** Sauberster Weg dank E-1: **Manager-Dim pro Liga aus liga-gebundenen Events ableiten** (`events.league_id` → `lineups.total_score`/Event-Punkte je Liga über den Zeitraum). **Trader/Analyst bleiben global** (Handel/Research nicht liga-spezifisch). → E-2a-Spec muss die Ableitung exakt definieren (read-only Aggregat, kein scout_scores-Umbau).
-- Rankings-UI: 7 Boards in `src/components/rankings/` (`rankings/page.tsx`); nur `PlayerRankings` filtert heute nach Fußball-Liga; User-Boards (Global/Friends/Club/Monthly/SelfRank) sind global. `getMonthlyLeaderboard` `scoutScores.ts:216` liest `monthly_liga_snapshots` (bei Verkabelung swallow→throw heilen).
-- **E-2b später (L, Money/CEO):** `close_monthly_liga` pro Liga + **konfigurierbare Reward-Struktur** (neue Tabelle/Spalten statt hardcodiert) + Deckungs-Check + Idempotenz. Live-functiondef VOR Spec (D87), Reviewer-Pflicht.
+- `scout_scores` ist **NICHT** pro Liga — nur 3 globale Werte/Nutzer (trader/manager/analyst). `monthly_liga_snapshots`/`_winners` haben **keine** league_id. `close_monthly_liga(p_month)` rankt global über 4 Dim (trader/manager/analyst/overall=Median), Top-3/Dim aus Plattform-Topf (hardcodiert 500k/250k/100k cents, zero-sum debit, Deckungs-Check+RAISE; Slice 376).
+- **Pro-Liga-Wertung existiert bereits als read-only Aggregat (E-2a, 381):** `rpc_get_season_ranking(p_league_id uuid DEFAULT NULL, p_limit int)` = `SUM(lineups.total_score)` über `is_liga_event AND status='ended' [AND league_id=L]`. NULL=Gesamt, UUID=pro Liga. **Trader/Analyst bleiben global.** E-2b kann diese Ableitung als Basis der per-Liga-Winner-Ermittlung nutzen (oder eine parallele Snapshot-Tabelle mit league_id bauen — Design-Entscheid in der Spec).
+- **Offene Produkt-Frage E-2b (D106/§6 Epic):** Reward-Höhe pro Liga vs. global — gleicher Pot je Liga, oder ein Gesamt-Pot aufgeteilt? (Money/CEO-Entscheid VOR Bau, AskUserQuestion.)
+- Money-Muster (Pflicht): Live-functiondef VOR Spec (D87) · zero-sum debit aus Topf (nicht minten) · Deckungs-Check inline unter Row-Lock · force-rollback-Smokes (`BEGIN;…ROLLBACK;`) · Reviewer-Pflicht. Quelle: `treasury.md` §10 + Slice 376-Proof.
 
-### ✅ Diese Session (2026-06-25) — E4 zu, E5 gestartet, E-1 gebaut
-- **E4 abgeschlossen** (`dd23faca`): Money-Modell-Glattzug DONE (366→379b). Einziger Rest T-1 Cold-Start = **Launch-Prep, kein Code-Blocker** (gehört in die Test-IPO/Reset-Phase).
-- **D105** (`dd23faca`): „Liga" = nur Fußball; Nutzer-Wettbewerb = „BeScout-Saison"; jedes Event = 3 Achsen (Liga-Bindung E-1 · Wertungs-Stärke E-2 · Creator-Typ).
-- **✅ E-1 DONE — Slice 380** (`90c3c587`): `events.league_id` (nullable, NULL=offen, **kein Backfill** — Bestand offen) + `rpc_save_lineup` additiver Liga-Gate (Starter+Bank ⊆ Event-Liga, JOIN clubs fail-closed bei club_id NULL → `player_not_in_event_league`). `save_lineup` = nur Wrapper (kein Paritäts-Bug). Money byte-identisch (D87-Baseline). TS-Plumbing + Platform-Admin-Liga-Select (cache-reaktiv) + DE/TR. Reviewer PASS (2 NIT). Live-Smoke AC3-AC7 PASS (`worklog/proofs/380-league-binding.txt`). Migration `20260625180000`. `is_liga_event` unangetastet.
-- **D106** (`a437244c`): E-2-Entscheid (s.o.).
-- **Offene Folge-Slices aus E-1:** **E-1b** = Lineup-Builder-Picker-Vorfilter (User sieht nur erlaubte Spieler) + Club-Admin-Liga-Picker (E-1 hat Picker nur im Platform-Admin). **E-4-Vormerkung (380-Review):** Track-F-Wildcard-Lookup in `rpc_save_lineup` nutzt `club_id→clubs.league_id`; bei künftigen vereinslosen Events auf `COALESCE(events.league_id, club→league)` umstellen (heute kein Treffer, alle Events haben club_id).
+### ✅ Diese Session (2026-06-25) — E-2a (381) + E-1b (382) gebaut, beide DONE
+- **✅ E-2a DONE — Slice 381** (`0532cc21`+`f6dfa18c`): BeScout-Saison Begriffs-Umzug (user-facing „Liga"→„BeScout-Saison": `rankings.title`, `fantasy.seasonBadge` EventCard-Badge, `profile.scoutCardSeasonLabel`; DB-Spalten unverändert, D105) + **Pro-Liga-Ranglisten-Anzeige**. Neue read-only RPC `rpc_get_season_ranking` (SEC DEFINER, JSONB, anon-gesperrt) + Service `getSeasonRanking` (throw) + Hook `useSeasonRanking` + Widget `LeagueSeasonLeaderboard` (Umschalter Gesamt/Pro Liga, `useLeagueScope`-SSOT). KEINE Payout-Änderung. Reviewer PASS (2 NIT). **UI LIVE PASS** (DE „BeScout-Saison"/TR „BeScout Sezonu", Mobile 393px, Gesamt-Board=30, Pro-Liga Bundesliga=312/268/240, leere Liga=Empty). Migration `20260625190000`. Knowledge: `bescout-liga.md` Update-Block.
+  - **Geseedetes Demo-Event (permanent, NICHT aufräumen):** `96946116-1651-4fd2-aa65-76afa07f5832` (Bundesliga, is_liga_event, ended, prize_pool=0 → money-neutral, Topf unberührt 50.003.397). 3 Lineups jarvisqa 312 / bot001 268 / bot002 240. **Seed-Lehre:** Demo-Lineups brauchen echte Spieler-Slots ODER total_score NACH dem Scoring-Cron nachsetzen (Cron nullt scorelose Lineups; scored_at-gegated → hält).
+- **✅ E-1b DONE — Slice 382** (`6ec80cdf`+`5879ade1`): Lineup-Picker-Liga-Vorfilter (zeigt nur Liga-Spieler + Hinweis „Nur {Liga}-Spieler", spiegelt `rpc_save_lineup`-Gate exakt via `clubId→clubs.league_id`, fail-closed, Starter+Bank) + Club-Admin-Liga-Picker (alle Ligen + Offen, CEO). Neues `FantasyEvent.boundLeagueId` (= `events.league_id`, getrennt von Vereins-`leagueId`). Reviewer REWORK→GEHEILT (S333: leagueBinding-Keys nach `admin`-Namespace verschoben). **Club-Admin-Select LIVE PASS** (Label „Liga-Bindung", kein MISSING_MESSAGE, 7 Ligen+Offen). Picker-Filter = Reviewer-Logik-verifiziert (Live-Walk braucht offenes liga-gebundenes Event + Multi-Liga-Holdings = Folge-Verify offen).
+  - **🔴 2 latente Bugs nebenbei gefixt:** (a) **S200** — Events-Read-Query (`events.queries.ts`, 3 Selects) zog `league_id` nicht → `boundLeagueId` immer null → Filter inaktiv; ergänzt. (b) **Pre-existing CI-Rot aus 380** — `EDITABLE_FIELDS`-Count-Assertions (upcoming 23→24, registering 22→23) seit `league_id`-Addition stale (CI rot, nur in CI sichtbar); nachgezogen.
+- **Offene Folge-Slices:** **E-2b** (jetzt, s.o.) · **E-1b-Picker-Live-Walk** (Logik abgesichert) · **E-4-Vormerkung (380-Review):** Track-F-Wildcard-Lookup `club_id→clubs.league_id`; bei künftigen vereinslosen Events auf `COALESCE(events.league_id, club→league)` umstellen (heute kein Treffer).
 - **Keine geseedeten Live-Artefakte aus 380** (Smoke war BEGIN…ROLLBACK).
 
 ## ✅ E3 Plattform-Topf — REIN komplett (5/5) + RAUS 3/3
