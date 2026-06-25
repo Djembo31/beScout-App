@@ -19,7 +19,7 @@ verified-against: .claude/rules/trading.md @ 2026-06-24
 - **330** CSF-Engine ans Treasury (Liquidation zahlt aus Treasury) ✅ · **330b** Saldo-Debit-Reconcile + Kontoauszug ✅
 - **331** Events ans Treasury (Prize-Escrow bei Erstellung, nur `type='club'`, 5-Quellen-Modell) ✅
 - **332** Club-Bounties ans Treasury (Reward-Escrow bei Erstellung, mirror 331) ✅
-- **376** Monats-Liga zahlt aus dem Plattform-Topf (`book_platform_treasury('debit','monthly_liga')`, RAUS-Kanal #1) ✅
+- **376** Monats-Liga zahlt aus dem Plattform-Topf (`book_platform_treasury('debit','monthly_liga')`, RAUS-Kanal #1) ✅ · **383** Pro-Liga-Manager-Payout zusätzlich (E-2b): Top-3 je Liga, Beträge pro Liga via `liga_reward_config`, EIN Debit deckt global+pro-Liga (zero-sum) ✅
 - **377** BeScout-Events (`type='bescout'`) zahlen Prize aus dem Plattform-Topf (Escrow-Trigger, RAUS-Kanal #2) ✅
 - **378** special-Events (`type='special'`) zahlen Prize aus dem Plattform-Topf (source `special_event`, RAUS-Kanal #3) ✅
 - **Damit:** Club-RAUS-Kanäle (CSF · Event-Prizes · Bounties) escrow-gedeckt; Plattform-Topf-RAUS (Monats-Liga 376 · bescout-Events 377 · special-Events 378) live. **Offen:** Plattform-Events `sponsor` (Deposit-Pfad fehlt) / `creator` (Phase 4) minten weiter (je eigener Slice) · Deposit-Pfad (Phase 1). REIN (Trading/IPO/Polls/Research/Bounty/P2P) komplett (358–365).

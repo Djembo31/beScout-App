@@ -1,10 +1,10 @@
 ---
 title: Reward- & Ranking-Ökosystem — Konzept-Landkarte
 created: 2026-06-15
-updated: 2026-06-24
+updated: 2026-06-25
 status: active
 tags: [rewards, ranking, gamification, fan-rank, scout-scores, treasury]
-verified-against: supabase/migrations @ 2026-06-24
+verified-against: supabase/migrations @ 2026-06-25
 consult_when: Rewards-Strategie, Rankings, Welt1 (Können) vs Welt2 (Treue), Gamification-Landkarte, Monatsliga, fan_rankings, scout_scores, Minting-Inventar
 ---
 
@@ -70,7 +70,7 @@ consult_when: Rewards-Strategie, Rankings, Welt1 (Können) vs Welt2 (Treue), Gam
 
 **Rang-Badge:** Median der 3 Dimensionen → `getRang` (`lib/gamification.ts:176-186`). Kein gespeicherter Gesamt-Rang.
 
-**Reward:** **Monatsliga** (`close_monthly_liga`) zahlt Top-3 je Dimension: 5.000 / 2.500 / 1.000 Credits × 4 Dimensionen = **max ~34.000 Credits/Monat**. Sieger-Kriterium = Score-**Delta** seit Saisonstart (belohnt Verbesserung, nicht Bestand). **Seit Slice 376 (E3 RAUS-Kanal #1):** Auszahlung kommt **zero-sum aus dem Plattform-Topf** (`book_platform_treasury('debit','monthly_liga',…)`) statt gemintet zu werden — Deckungs-Check inline unter Singleton-Row-Lock (RAISE `insufficient_treasury` bei Unterdeckung, Monat retry-bar), Genesis-Seed 500.000 Credits deckt ~14,7 Monate. **overall-Dimension** rankt jetzt nach echtem **Median** der 3 Deltas (vorher fälschlich `[2]`=manager).
+**Reward:** **Monatsliga** (`close_monthly_liga`) zahlt Top-3 je Dimension: 5.000 / 2.500 / 1.000 Credits × 4 Dimensionen = **max ~34.000 Credits/Monat**. Sieger-Kriterium = Score-**Delta** seit Saisonstart (belohnt Verbesserung, nicht Bestand). **Seit Slice 376 (E3 RAUS-Kanal #1):** Auszahlung kommt **zero-sum aus dem Plattform-Topf** (`book_platform_treasury('debit','monthly_liga',…)`) statt gemintet zu werden — Deckungs-Check inline unter Singleton-Row-Lock (RAISE `insufficient_treasury` bei Unterdeckung, Monat retry-bar), Genesis-Seed 500.000 Credits deckt ~14,7 Monate. **overall-Dimension** rankt jetzt nach echtem **Median** der 3 Deltas (vorher fälschlich `[2]`=manager). **Seit Slice 383 (E-2b):** `close_monthly_liga` zahlt **zusätzlich** je aktive Fußball-Liga die **Manager-Top-3** (BeScout-Saison) — Ranking = exakt `rpc_get_season_ranking`-Aggregat (`SUM(lineups.total_score)` über liga-gebundene beendete Events; Display==Payout), nur manager-Dim (trader/analyst bleiben global). Beträge **pro Liga einzeln** via `liga_reward_config` (Default 100k/50k/25k cents, fehlend=Default, Write nur via `set_liga_reward_config` platform_admin). `monthly_liga_snapshots/_winners` haben jetzt `league_id` (NULL=global) + UNIQUE `NULLS NOT DISTINCT`. EIN zero-sum Debit deckt global+pro-Liga; globaler Block byte-identisch (Konstanten erhalten). CEO-Entscheid (Anil): zusätzlich statt ersetzen → Doppel-Payout bei global+Liga-Top-3 ist gewollt.
 
 **Sichtbarkeit:** `/rankings` → GlobalLeaderboard (Tabs overall/trader/manager/analyst) + FriendsLeaderboard + MonthlyWinners.
 
