@@ -1,14 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 12:18)
+# Session Handoff — Auto (2026-06-25 12:28)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
-## Session Commits: 5
+## Session Commits: 6
+- 4ef58a8d chore(handoff): Session-Close 2026-06-25 — 377+378 DONE, alle Reste erledigt, next = E3 Slice 5
 - d257e4e5 docs(todo): U-1 stale 'OFFEN'-Vermerk reconciled — 371 ist VOLL-DONE (AC1/AC2 live PASS 26245d48)
 - 75e164ca docs(370): Bounty-Approval-UI E2E live bewiesen (letzter cred-gated Rest)
 - cc7eb8f9 docs(357): Topf-Card-Visual abgenommen + QA-Admin-Login entsperrt
@@ -42,9 +40,9 @@
 - **Rest #2 Bounty-Approval-UI (370) ✅:** E2E live — ali approved jarvis-Submission im Club-Admin-UI (`/club/sakaryaspor/admin`→Aufträge→Prüfen→Genehmigen). bounty→completed, submitter +1900 (95%), **Topf +100 source `bounty`**, ali-Wallet unverändert (Escrow), Zero-Sum. Proof `worklog/proofs/370-bounty-ui-approve.txt`.
 - **Rest #3 U-1 (371):** war schon VOLL-DONE (AC1/AC2 live PASS `26245d48`), stale „OFFEN"-Vermerk reconciled.
 
-### 🐛 2 neue Funde (je eigener Mini-Slice, NICHT blockierend)
-- **`credit_tickets` 400 „Ungueltige Ticket-Quelle: post_create"** — Quelle `post_create` fehlt im credit_tickets-Source-CHECK (CHECK-Drift, S330-Klasse). Ticket-Gutschrift fürs News/Post-Erstellen schlägt still fehl. Fix = CHECK widern / 4-File-Sync.
-- **Bounty-Review-UI-Hinweis** „kostet 20 Credits aus deinem Wallet" auch bei **escrow-gedeckten** Club-Bounties (Admin-Wallet wird NICHT belastet, RPC nimmt Escrow). Hinweis nur bei `is_user_bounty || !treasury_escrowed` zeigen.
+### ✅ 2 neue Funde — BEIDE ERLEDIGT (Session 2026-06-25 spät)
+- **✅ Slice 379 (`ff9a238e`):** `credit_tickets` 400 „post_create". Live-Fund = DREI unabhängig gedriftete Gate-Flächen (credit_tickets-Allowlist + spend_tickets-Allowlist + CHECK `ticket_transactions_source_check`) auf 16-Wert-Union (RPC-Legacy ∪ TS TicketSource) gezogen. Mitgefangen: research_publish/research_rating (still 400) + chip_refund (war RPC-erlaubt, scheiterte am CHECK). AC1-AC5 live PASS. Knowledge errors-db.md **S379**. Migration `20260625160000`.
+- **✅ Slice 379b (`54b90a15`):** Bounty-Review-Wallet-Hinweis. Live-RPC `approve_bounty_submission` (D87): Admin-Wallet wird NUR bei `!is_user_bounty && !treasury_escrowed` belastet (TODO-Notiz war ungenau). Hinweis-Gate exakt darauf + `treasury_escrowed` zu Type+Service-Selects. 3-Zweig-Test PASS, tsc 0. Kein Money-Seam (Settle-Trigger flippt escrowed bei completed). Scope-Out: neutraler „aus dem Topf gedeckt"-Text = optionaler Folge-Slice (bräuchte DE+TR).
 
 ### Geseedete Live-Artefakte (permanent, NICHT aufräumen — E2E-Beweis)
 - **378-Bounty-UI:** Sakaryaspor-Bounty `723397eb-5ba2-4b3e-abeb-cb82f682b57e` = completed; jarvis-Submission `6615b41e-8720-461d-8095-397c835f23cd` = approved (+1900); Topf-Eintrag `bounty:100`. Topf live **50.003.397 cents**.
