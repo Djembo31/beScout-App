@@ -1,7 +1,7 @@
 ---
 title: Treasury & CSF — Money/Reward-Modell (Kanon)
 created: 2026-06-15
-updated: 2026-06-24
+updated: 2026-06-25
 status: active
 tags: [treasury, csf, money, ipo, scout-cards, fan-rewards, fee-split]
 consult_when: Treasury, CSF, IPO/Erstverkauf, Escrow, Fan-Rewards, Geld-Flows, Credits/cents-Einheit, Fee-Splits-Mechanik, Liquidation, Club-Treasury, Ledger
@@ -19,7 +19,9 @@ verified-against: .claude/rules/trading.md @ 2026-06-24
 - **330** CSF-Engine ans Treasury (Liquidation zahlt aus Treasury) ✅ · **330b** Saldo-Debit-Reconcile + Kontoauszug ✅
 - **331** Events ans Treasury (Prize-Escrow bei Erstellung, nur `type='club'`, 5-Quellen-Modell) ✅
 - **332** Club-Bounties ans Treasury (Reward-Escrow bei Erstellung, mirror 331) ✅
-- **Damit:** RAUS-Kanäle (CSF · Event-Prizes · Bounties) escrow-gedeckt, trigger-zentrisch, nur Club-Quelle. **Offen:** Polls (REIN-Geldmaschine, `domain/polls.md`, D86) · Fan-Reward-Engine (§9) · Deposit-Pfad (Phase 1) · andere Event-Quellen (bescout/sponsor/special/creator minten bewusst weiter).
+- **376** Monats-Liga zahlt aus dem Plattform-Topf (`book_platform_treasury('debit','monthly_liga')`, RAUS-Kanal #1) ✅
+- **377** BeScout-Events (`type='bescout'`) zahlen Prize aus dem Plattform-Topf (Escrow-Trigger, RAUS-Kanal #2) ✅
+- **Damit:** Club-RAUS-Kanäle (CSF · Event-Prizes · Bounties) escrow-gedeckt; Plattform-Topf-RAUS (Monats-Liga 376 · bescout-Events 377) live. **Offen:** Plattform-Events `special`/`sponsor`/`creator` minten weiter (je eigener Slice) · Deposit-Pfad (Phase 1). REIN (Trading/IPO/Polls/Research/Bounty/P2P) komplett (358–365).
 - **Money-Slice-Muster (bewährt 329-332):** Live-`pg_get_functiondef` VOR Spec (D87) · trigger-zentrisch (Escrow BEFORE INSERT + Settle BEFORE UPDATE OF status + Resync BEFORE UPDATE OF betrag) · Guard `ledger_net − offene withdrawals` unter `clubs FOR UPDATE` · `pg_get_constraintdef` gegen CHECK-Drift · force-rollback-Smokes.
 
 ---
@@ -167,12 +169,14 @@ Die Geldquelle eines Events ist **`events.type`** (= Kategorie UND Finanzierung)
 | `events.type` | Wer zahlt den Prize | Quelle gebaut? |
 |---|---|---|
 | **club** | Vereins-Treasury | ✅ Slice 331 (Escrow bei Insert via Trigger) |
-| **bescout** | Plattform (BeScout) | ❌ Plattform-Topf (ADR-026) noch nicht — mintet bewusst weiter |
+| **bescout** | Plattform-Topf (`platform_treasury`) | ✅ Slice 377 (Escrow bei Insert, Spiegel 331, RAUS-Kanal #2) |
 | **special** | vermutl. Plattform | ❌ später |
 | **sponsor** | Sponsor (sponsor_name) | ❌ Sponsor-Deposit fehlt |
 | **creator** | User-Wallet | ❌ (`PAID_FANTASY_ENABLED`=false, Phase 4) |
 
-**Scope-Regel:** Reconcile (Minting → echte Quelle) erfolgt **eine Quelle pro Slice**. Escrow-Trigger keyt auf `type='club'` (NICHT auf „wer hat angelegt"). Offene Permissions-Frage (separat): darf ein Club-Admin überhaupt non-club-Typen anlegen?
+**Scope-Regel:** Reconcile (Minting → echte Quelle) erfolgt **eine Quelle pro Slice**. Escrow-Trigger keyt auf `type` (`'club'`→Club-Treasury, `'bescout'`→Plattform-Topf; NICHT auf „wer hat angelegt"). Offene Permissions-Frage (separat): darf ein Club-Admin überhaupt non-club-Typen anlegen?
+
+**Slice 377 (bescout RAUS-Kanal #2):** Die 3 Event-Trigger (`trg_events_escrow_prize`/`_prize_settle`/`_resync_prize_escrow`) tragen einen additiven `type='bescout'`-Zweig gegen `platform_treasury` (Escrow-Debit bei Insert + Deckungs-Check inline unter Singleton-Row-Lock, D103 Hard-Gate; Rest/voll-Refund bei ended/cancelled; Resync zwei-Treasury-fähig inkl. type-Switch club↔bescout). `score_event` bleibt unangetastet (mintet weiter +D in Wallets, jetzt durch Topf-Escrow gedeckt → zero-sum). `bescout_event`-source seit Slice 357 im Ledger-CHECK. **Noch minting:** `special`/`sponsor`/`creator` (je eigener Slice). Bug-Pattern: `errors-db.md` „Escrow-bei-INSERT … Multi-Treasury-Generalisierung (S377)".
 
 ---
 

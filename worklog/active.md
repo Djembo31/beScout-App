@@ -2,6 +2,24 @@
 
 ```
 status: idle
+slice: 377
+title: ✅ DONE — E3 Slice 4: BeScout-Events (type='bescout') zahlen Prize aus dem Plattform-Topf (RAUS-Kanal #2)
+stage: LOG complete
+size: M
+slice-type: Migration (Money-Trigger), CEO-Scope
+spec: worklog/specs/377-bescout-events-from-pot.md
+ceo-decision: Anil 2026-06-25 (AskUserQuestion) — Escrow-bei-Erstellung (Spiegel 331), score_event unangetastet. Cold-Start = D103 Hard-Gate.
+impact: inline (Spec §3+§4 — DB-interne Trigger, 0 App-Consumer grep-verifiziert, score_event/cancel_event UPDATE-Quellen unverändert)
+proof: worklog/proofs/377-money-smoke.txt
+proof-detail: AC-01..AC-08 alle PASS — Escrow/Coverage-Fail/Settle-ended/cancelled/Resync-typeswitch/Resync-amount/non-prized; Zero-Sum bewiesen; tsc EXIT 0
+review: worklog/reviews/377-review.md (reviewer PASS — 1 LOW pre-existing club_id-Hole dokumentiert, 2 NIT; Zero-Sum-Timing + Club-Pfad-byte-identisch + Deckungs-Check-4-Pfade verifiziert)
+result: 3 Event-Trigger (escrow BEFORE INSERT / settle BEFORE UPDATE OF status / resync BEFORE UPDATE OF prize_pool,type) um additiven type='bescout'→platform_treasury-Zweig erweitert. Escrow-Debit + inline Deckungs-Check unter Singleton-Row-Lock + RAISE bei Unterdeckung (D103). Settle Rest/voll-Refund je NEW.type. Resync zwei-Treasury (held OLD-type-diskriminiert vs target NEW), deckt type-Switch club↔bescout, Refund an Halter OLD.club_id. score_event UNANGETASTET → zero-sum (Escrow −P, mintet +D, Settle +(P−D)). Club-Pfad byte-identisch. bescout_event source seit 357 im CHECK, kein src/i18n-Change. Knowledge: treasury.md §7 + errors-db.md S377.
+
+## Nächster großer Track
+E3 Slice 5 — Wettkampf-Darstellung + Ranking-Konsolidierung (UI): Events als „BeScout Liga" mit Monats-/Saison-Wertung sichtbar; 7 /rankings-Boards entwirren (Saison/Monat lebendig vs ewig/global). Plus offen (Engagement, eigener UI-Slice): Live-Standing-Board (laufender Monat, useMonthlyLeaderboard-Verkabelung + getMonthlyLeaderboard swallow→throw). special/sponsor/creator-Event-Quellen bleiben minting (je eigener Slice). Cron für Auto-Monatsabschluss = späterer Slice (Anil: erst manuell). Plan-Anker `worklog/notes/358-platform-treasury-epic.md`.
+
+--- 376 (vorheriger, DONE) ---
+status: idle
 slice: 376
 title: ✅ DONE — E3 Slice 3: Monats-Liga Payout aus Topf (debit) + Deckungs-Check + overall-Median-Fix + Genesis-Seed
 stage: LOG complete

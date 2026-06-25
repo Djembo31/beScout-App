@@ -57,8 +57,11 @@ PBT-Anteile → `pbt_treasury` ✅ · Club-Anteile → `clubs.treasury_balance_c
 - **⏸ Live-Standing-UI** (laufender Monat, der Engagement-Anreiz): eigener UI-Slice. `useMonthlyLeaderboard`+`getMonthlyLeaderboard` (`scoutScores.ts:216`, console.error+return → swallow→throw bei Verkabelung heilen) liegen bereit aber 0 UI-Konsumenten; laufenden Monat aus `scout_scores.x − season_start_x` live ranken + Countdown.
 - **Ist-Stand nach 376:** Money-Pfad zirkulär live. 0 echte Snapshots/Winners (noch kein echter Monatsabschluss geklickt). `liga_reward` im transactions-CHECK ✅.
 
-### Slice 4 — BeScout-Events aus Topf (Money)
+### Slice 4 — BeScout-Events aus Topf (Money) — ✅ DONE (Slice 377, 2026-06-25)
 - `type='bescout'`-Events zahlen Prize aus Plattform-Topf (Reconcile Minting→Topf, mirror Slice 331 Club-Event-Escrow). Löst treasury.md §7 „bescout mintet weiter" ab.
+- **Gebaut (Migration `20260625140000`, CEO-approved Escrow-Modell):** 3 Event-Trigger (escrow/settle/resync) um additiven `type='bescout'`→`platform_treasury`-Zweig erweitert; `score_event` UNANGETASTET (331-Philosophie). Escrow-Debit bei INSERT + Deckungs-Check inline unter `platform_treasury FOR UPDATE` (book hat keinen Negativ-Guard) + `RAISE platform_treasury_insufficient` (D103 Hard-Gate). Settle: Rest (ended) / voll (cancelled) zurück an Topf je `NEW.type`. Resync: zwei-Treasury-Generalisierung (held OLD-type-diskriminiert vs. target NEW, Delta je Treasury) — deckt type-Switch club↔bescout, Refund an Halter `OLD.club_id`. `bescout_event`-source seit 357 im CHECK → keine CHECK-Migration. Kein src/i18n-Change (Label seit 357).
+- **Zero-Sum:** Escrow −P, score_event mintet +D (Wallets), Settle +(P−D) → Netto Topf −D = Wallets +D = Σ 0. 8/8 Force-Rollback-Smokes PASS (`worklog/proofs/377-money-smoke.txt`), Reviewer **PASS** (1 LOW pre-existing club_id-Hole dokumentiert). 0 prized bescout/club Events live → kein Live-Geld. Learning → errors-db.md (Multi-Treasury-Refund an OLD.tenant_id).
+- **→ NÄCHSTER: Slice 5 Wettkampf-Darstellung + Ranking-Konsolidierung (UI).** `special`/`sponsor`/`creator`-Event-Quellen bleiben minting (je eigener Slice).
 
 ### Slice 5 — Wettkampf-Darstellung + Ranking-Konsolidierung (UI)
 - Events als „BeScout Liga" mit Monats-/Saison-Wertung sichtbar (Manager messen sich). `events.is_liga_event` existiert bereits als Anker.

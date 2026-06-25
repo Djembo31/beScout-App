@@ -1,0 +1,51 @@
+Slice 377 — BeScout-Events zahlen Prize aus dem Plattform-Topf (E3 RAUS-Kanal #2)
+Money-Smoke (Force-Rollback, Live gegen skzjfhvgccaeplydsunz, 2026-06-25)
+Migration: 20260625140000_slice377_bescout_events_from_pot.sql (apply_migration success)
+Topf-Saldo zu Testbeginn: 50.003.297 cents. Alle Smokes via RAISE EXCEPTION → ROLLBACK (kein Live-Geld bewegt).
+
+=== AC-01  HAPPY-ESCROW (bescout prize=10000, Topf gedeckt) ===
+RESULT: escrowed=t | pot_before=50003297 pot_after=49993297 delta=-10000 | ledger_rows=1 dir=debit src=bescout_event amt=10000
+PASS — Escrow-Debit korrekt, genau 1 Ledger-Row source='bescout_event'.
+
+=== AC-02  ERROR-COVERAGE (prize = Topf+1) ===
+RESULT: ERROR platform_treasury_insufficient_for_event_prize: benoetigt 50003298, verfuegbar 50003297
+        (geworfen in trg_events_escrow_prize line 31, INSERT geblockt)
+PASS — D103 Hard-Gate greift, kein Event angelegt, kein negativer Topf.
+
+=== AC-03  HAPPY-SETTLE-ENDED (prize=10000, Distribution 8000 → Rest 2000) ===
+RESULT: escrow_delta=-10000 | refund_delta=2000 | net=-8000 | escrowed=f
+PASS — Settle refundet exakt prize_pool − SUM(reward_amount). Netto Topf = -8000 = ausgezahlt. Zero-Sum (Wallets +8000 mintet score_event, Topf -8000 → Σ=0).
+
+=== AC-04  SETTLE-CANCELLED (prize=10000 → cancelled) ===
+RESULT: escrow_delta=-10000 | refund_delta=10000 | net=0 | escrowed=f
+PASS — Voller Refund an den Topf, Netto 0.
+
+=== AC-05  RESYNC-TYPESWITCH (bescout prize=10000 → type=club) ===
+RESULT: pot_net=0 (-10000 Escrow +10000 Refund) | club_net=-10000 | escrowed=t
+PASS — Zwei-Treasury-Resync: Topf-Escrow zurueck UND Club-Escrow neu. Keine Minting-Hintertuer (331-Finding #1 fuer bescout abgedeckt).
+
+=== AC-06  RESYNC-AMOUNT (bescout prize 10000 → 15000) ===
+RESULT: pot_net=-15000 | escrowed=t
+PASS — Delta-Debit +5000 unter Deckungs-Check, insgesamt -15000 escrowt.
+
+=== AC-08  REGRESSION-NONPRIZED (bescout prize=0 + sponsor prize=5000) ===
+RESULT: bescout_prize0_escrowed=f | sponsor_escrowed=f | pot_delta=0
+PASS — prize=0 kein Escrow; sponsor/special bleiben minting (Scope-Out), kein Topf-Touch.
+
+=== AC-07  REGRESSION-CLUB + Trigger-Bindings (post-Apply functiondef) ===
+escrow_club_ok          = true   (book_club_treasury(NEW.club_id,'debit','event_prize',NEW.prize_pool ...) erhalten)
+escrow_bescout_ok       = true   (book_platform_treasury('debit','bescout_event',NEW.prize_pool ...) ergaenzt)
+resync_two_treasury_ok  = true   (v_held_plat vorhanden — Zwei-Treasury-Generalisierung)
+Trigger-Bindings unveraendert:
+  trg_events_escrow_prize         BEFORE INSERT ON events
+  trg_events_prize_settle         BEFORE UPDATE OF status ON events
+  trg_events_resync_prize_escrow  BEFORE UPDATE OF prize_pool, type ON events
+PASS — Club-Pfad byte-identisch, bescout additiv, Bindings stabil.
+
+=== Gates ===
+tsc --noEmit: EXIT 0 (kein src-Change)
+db-invariants.test.ts: kein Update noetig — kein neuer transactions.type; source 'bescout_event' seit Slice 357 im CHECK; 'event_prize' (club) unveraendert.
+source-CHECK platform_treasury_ledger: enthaelt 'bescout_event' (Slice 357), keine CHECK-Migration.
+
+=== Fazit ===
+8/8 ACs PASS. Zero-Sum bewiesen (Escrow -P, score_event mintet +D, Settle +(P-D) → Netto Topf -D = Wallets +D). 0 prized bescout/club Events live → kein Live-Geld in Gefahr. score_event UNANGETASTET (331-Philosophie).
