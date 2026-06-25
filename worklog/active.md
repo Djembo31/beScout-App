@@ -2,21 +2,22 @@
 
 ```
 status: idle
-slice: 386
-title: E-3 Alters-Fenster — age_min/age_max Aufstellungs-Regel (DONE)
-size: S
+slice: 387
+title: Compliance-Fix — verbotenes Glücksspiel-Verb kazanılır → elde edilir (tr.json, MASAK) (DONE)
+size: XS
+slice-type: i18n (Compliance)
+scope: Compliance / §3 (business.md Glücksspiel-Vokabel) — Inline-Spec
+spec: inline (Problem: business.md verbietet kazan*-Verben user-facing [MASAK §4]. Slice 374 schleuste "Aktiviteyle kazanılır" in tr.json ein → COMPL-tr-kazan-Test rot seit 374. Plan: kazanılır→elde edilir [business.md-vorgeschrieben]. Einzige kazan-Stelle in tr.json.)
 stage: LOG
-spec: worklog/specs/386-lineup-rule-age-window.md
-proof: worklog/proofs/386-age-rule-smoke.txt
-proof-note: 15/15 ACs force-rollback PASS + PATCH-AUDIT + tsc 0 + vitest 1955/1956 (einziger Fail = vorbestehender 374-kazan-Compliance-Test, nicht 386)
-review: worklog/reviews/386-review.md
-review-note: reviewer PASS, 2 NIT bewusst nicht geheilt
+impact: skipped (1 String, kein Code/Consumer)
+proof: worklog/proofs/387-compliance-kazan.txt
+review: self-review (XS, business.md-vorgeschriebener 1-String-Ersatz, kein Money/Logik)
 ```
 
 ## Zuletzt
 
-- **Slice 386** (2026-06-25) — E-3 Alters-Fenster age_min/age_max + Bound-pro-Typ-Fundament-Fix (S, Money-nah, reviewer PASS, 15/15 ACs). UI-Playwright post-Deploy offen.
-- **Slice 385** (2026-06-25) — E-3 Aufstellungs-Regel-Fundament: JSONB lineup_rules + Validator + min_per_own_club (M, reviewer PASS).
-- **Slice 384** (2026-06-25) — E-3 Türsteher: Follower-Pflicht + Fan-Rang-Gate (M, reviewer PASS).
+- **Slice 386** (2026-06-25) — E-3 Alters-Fenster age_min/age_max (S, reviewer PASS, gepusht aa8f695a).
+- **Slice 385** (2026-06-25) — E-3 Aufstellungs-Regel-Fundament (M, reviewer PASS).
+- **Slice 384** (2026-06-25) — E-3 Türsteher (M, reviewer PASS).
 
-Nächstes: AC-13 UI-Playwright post-Deploy (Age-Inputs beide Builder). Dann E-3-Erweiterung nation/mv/position ODER E-4. **Offener vorbestehender Compliance-Fund:** `COMPL-tr-kazan` (374) — Micro-Slice.
+Nächstes: 387 PROVE (vitest COMPL-tr-kazan grün) → commit. Dann E-3 Positions-Quote (Anil-Wahl). 386 AC-13 UI-Verify nach Deploy.

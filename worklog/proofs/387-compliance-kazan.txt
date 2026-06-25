@@ -1,0 +1,23 @@
+Slice 387 — Compliance-Fix kazanılır → elde edilir — PROOF
+Datum: 2026-06-26
+
+Problem: business.md verbietet kazan*-Glücksspiel-Verben user-facing (MASAK §4 Abs.1 e).
+Slice 374 (5ff7510a) schleuste "Aktiviteyle kazanılır. Mystery Box ve Chipler için."
+in messages/tr.json (Key: …tickets.description) ein → COMPL-tr-kazan-Test rot seit 374.
+
+Fix: "kazanılır" → "elde edilir" (business.md erlaubt: topla/al/elde et).
+Neu: "Aktiviteyle elde edilir. Mystery Box ve Chipler için."
+Einzige kazan-Stelle in tr.json (grep verifiziert).
+
+=== VORHER (im Full-Run Slice 386) ===
+ FAIL  COMPL-tr-kazan: Turkish locale contains no kazan*-family verbs
+   - "kazan*" found in: "Aktiviteyle kazanılır. Mystery Box ve Chipler için."
+ Test Files 1 failed | 102 passed
+ Tests 1 failed | 1955 passed
+
+=== NACHHER (wording-compliance.test.ts) ===
+ Test Files  1 passed (1)
+      Tests  9 passed (9)
+ EXIT: 0
+
+→ Compliance wiederhergestellt, CI-Rot (seit 374) behoben.

@@ -2,6 +2,12 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 387 | 2026-06-26 | fix(i18n): Compliance — Glücksspiel-Verb kazanılır → elde edilir (tr.json, MASAK)
+- Stage-Chain: SPEC inline (active.md) → IMPACT skipped (1 String) → BUILD (1 i18n-Value) → REVIEW self-review (`387-review.md`, XS) → PROVE (`387-compliance-kazan.txt`, wording-compliance 9/9 grün) → LOG.
+- **Vorbestehender Compliance-Bug, beim 386-Full-Vitest entdeckt:** Slice 374 (`5ff7510a`) schleuste `"Aktiviteyle kazanılır. Mystery Box ve Chipler için."` in `messages/tr.json` (`…tickets.description`) ein. `kazan*` = Glücksspiel-Verb, in `business.md` user-facing verboten (MASAK §4 Abs.1 e) → `COMPL-tr-kazan`-Test rot seit 374 (unbemerkt, weil Pre-Push nur Silent-Fails prüft, volle Suite nur in CI).
+- **Fix:** `kazanılır` → `elde edilir` (business.md erlaubt: topla/al/elde et). Einzige kazan-Stelle in tr.json. Compliance wiederhergestellt, CI-Rot behoben.
+- Files: 1 (messages/tr.json) + worklog. Commit: <hash>.
+
 ## 386 | 2026-06-25 | feat(events): E-3 Alters-Fenster — age_min/age_max Aufstellungs-Regel
 - Stage-Chain: SPEC (`386-lineup-rule-age-window.md`, S, Money-nah) → IMPACT inline → BUILD (1 Migration selbst via apply_migration + Type/Form/UI/i18n, KEIN Worktree §3) → REVIEW (`386-review.md` reviewer PASS, 2 NIT bewusst nicht geheilt) → PROVE (`386-age-rule-smoke.txt` force-rollback 15/15 ACs + PATCH-AUDIT + tsc 0 + vitest 1955/1956) → LOG.
 - **Erste E-3-Regel-Erweiterung (Folge-Slice zu 385, KEIN Schema-Change dank JSONB Weg B/D107).** CEO (AskUserQuestion, Anil 2026-06-25): nächster Slice = Alters-Fenster. Daten-Check zuerst: `players.age` 99,4% befüllt (4529/4556, 14..50).
