@@ -1,0 +1,50 @@
+Slice 378 — special-Events zahlen Prize aus dem Plattform-Topf (E3 RAUS-Kanal #3)
+Money-Smoke (Force-Rollback, Live gegen skzjfhvgccaeplydsunz, 2026-06-25)
+Migration: 20260625150000_slice378_special_events_from_pot.sql (apply_migration success)
+Enger Spiegel von 377; platform-Zweig deckt jetzt type IN ('bescout','special'), source per CASE. score_event UNANGETASTET.
+
+=== AC-01  HAPPY-ESCROW (special prize=10000) ===
+RESULT: escrowed=t | delta=-10000 | rows=1 src=special_event dir=debit amt=10000
+PASS — Escrow-Debit korrekt, eigene source 'special_event'.
+
+=== AC-03  SETTLE-ENDED (special prize=10000, Distribution 8000 → Rest 2000) ===
+RESULT: escrow=-10000 refund=+2000 net=-8000 | escrowed=f | refund_src=special_event
+PASS — Zero-Sum (Topf -8000 = ausgezahlt), Refund-source 'special_event'.
+
+=== AC-04  SETTLE-CANCELLED (special prize=10000 → cancelled) ===
+RESULT: net=0 (voller Refund)
+PASS.
+
+=== AC-05  RESYNC-AMOUNT (special prize 10000→15000) ===
+RESULT: net=-15000 | special_event_rows=2 (Escrow 10000 + Delta 5000)
+PASS — Delta-Debit unter Deckungs-Check, beide Buchungen source 'special_event'.
+
+=== AC-06  REGRESSION-BESCOUT (bescout-Event source unverändert) ===
+RESULT: bescout_escrow_src=bescout_event (NICHT special_event)
+PASS — source-CASE diskriminiert korrekt; Slice-377-Verhalten unverändert.
+
+=== AC-07  REGRESSION-CLUB + Trigger-Struktur (functiondef post-Apply) ===
+escrow_plat_both  = true   (NEW.type IN ('bescout','special'))
+escrow_club_ok    = true   (book_club_treasury(NEW.club_id,'debit','event_prize',NEW.prize_pool ...) byte-identisch)
+settle_plat_both  = true   (Refund-Zweig IN ('bescout','special'))
+resync_held_both  = true   (OLD.type IN ('bescout','special') — held-platform deckt beide)
+PASS — Club-Pfad byte-identisch, Plattform-Zweig auf beide Typen erweitert.
+
+=== AC-08  CHECK source-Widen ===
+CHECK ((source = ANY (ARRAY['trading','ipo','poll','research','bounty','p2p','monthly_liga','bescout_event','special_event','genesis'])))
+PASS — 'special_event' additiv ergänzt, alle Altwerte erhalten.
+
+=== AC-09  UI / I18N ===
+AdminTreasuryTab SOURCE_LABEL_KEY: special_event → 'platformPotSrcSpecialEvent' (grep count 1)
+messages/de.json platformPotSrcSpecialEvent = "Sonder-Event" (count 1)
+messages/tr.json platformPotSrcSpecialEvent = "Özel Etkinlik" (count 1)
+tsc --noEmit: EXIT 0
+PASS.
+
+=== Gates ===
+db-invariants.test.ts: trackt platform_treasury_ledger source NICHT → kein Update.
+
+=== Fazit ===
+9/9 ACs PASS. special-Events zahlen zero-sum aus dem Topf mit eigener Ledger-Quelle 'special_event'.
+bescout (377) + club (331/335) byte-identisch erhalten. 0 prized special/bescout/club Events live → kein Live-Geld in Gefahr.
+Event-Geldquellen jetzt: club ✅ bescout ✅ special ✅ | sponsor (Deposit-Pfad fehlt) + creator (Phase 4) bleiben minting.

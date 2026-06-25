@@ -4249,6 +4249,7 @@
     "platformPotSrcP2p": "P2P-Fee",
     "platformPotSrcMonthlyLiga": "Monats-Liga",
     "platformPotSrcBescoutEvent": "BeScout-Event",
+    "platformPotSrcSpecialEvent": "Sonder-Event",
     "eventCurrency": "Einheit",
     "ticketsLabel": "Tickets",
     "scoutEventsTitle": "Credits-Events",

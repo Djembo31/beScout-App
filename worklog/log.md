@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 378 | 2026-06-25 | feat(treasury): special-Events (type='special') zahlen Prize aus dem Plattform-Topf (E3 RAUS-Kanal #3)
+- Stage-Chain: SPEC (`378-special-events-from-pot.md`, M, Money/CEO) → IMPACT inline (§3+§4) → BUILD (1 Migration + AdminTreasuryTab + 2 i18n) → REVIEW (`378-review.md` reviewer PASS, 1 LOW pre-existing + 1 NIT) → PROVE (9/9 force-rollback) → LOG.
+- **Kontext (Anil-Wahl „Reste komplett", E3-Topf D96):** `type='special'`-Events (39 live, 0 prized) minteten ihren Prize noch (wie bescout vor 377). Anil: special = plattform-finanziert, aus dem Topf. Dritter RAUS-Kanal nach Monats-Liga (376) + bescout (377). `sponsor` (Deposit-Pfad fehlt) + `creator` (Phase 4) bleiben bewusst minting.
+- **CTO-Entscheid (das „wie"):** eigene Ledger-Quelle `special_event` statt `bescout_event` mitzubenutzen → Kontoauszug bleibt herkunfts-ehrlich. Money-Verhalten identisch 377.
+- **Migration (`20260625150000`, applied):** (A) source-CHECK additiv um `'special_event'` gewidert (mirror 376-genesis, alle 9 Altwerte erhalten). (B) 3 Event-Trigger CREATE OR REPLACE: platform-Zweig von `type='bescout'` auf `type IN ('bescout','special')` erweitert; Ledger-`source` per CASE (`special`→`special_event`, sonst `bescout_event`); Refund-source im resync (delta<0) nach `OLD.type` (Halter, S377-Learning); debit-source (delta>0) nach `NEW.type`. Club + bescout byte-identisch. `score_event` UNANGETASTET.
+- **FE/i18n:** `AdminTreasuryTab.SOURCE_LABEL_KEY['special_event']='platformPotSrcSpecialEvent'`; DE „Sonder-Event" / TR „Özel Etkinlik" (Fallback `key?t(key):source` → kein MISSING_MESSAGE).
+- **Proof (`378-money-smoke.txt`, 9/9 force-rollback):** AC-01 special escrow −10000 source=special_event · AC-03 settle ended Rest +2000 net −8000 refund_src=special_event · AC-04 cancelled net 0 · AC-05 amount-up net −15000 (2 special_event rows) · AC-06 **bescout-Regression: source bleibt bescout_event** · AC-07 functiondef club byte-identisch + plat-Zweig beide Typen · AC-08 CHECK enthält special_event + alle Altwerte · AC-09 i18n DE+TR + Map. tsc EXIT 0.
+- **Knowledge:** treasury.md §7 (special RAUS-Kanal DONE) + Bau-Stand. Kein neues errors-db-Pattern — sauberer Anwendungsfall der S377-Multi-Treasury-Generalisierung (Reviewer bestätigt: dritter platform-Typ rein additiv anschließbar).
+- **Scope-Out:** `sponsor`/`creator` minten weiter. Nächster: Slice 5 Wettkampf-Darstellung + Ranking-Konsolidierung.
+
 ## 377 | 2026-06-25 | feat(treasury): BeScout-Events (type='bescout') zahlen Prize aus dem Plattform-Topf (E3 RAUS-Kanal #2)
 - Stage-Chain: SPEC (`377-bescout-events-from-pot.md`, M, Money/CEO) → IMPACT inline (§3+§4 — DB-interne Trigger, 0 App-Consumer grep-verifiziert) → BUILD (1 Migration via apply_migration) → REVIEW (`377-review.md` reviewer PASS, 1 LOW pre-existing + 2 NIT) → PROVE (8/8 force-rollback-Smoke) → LOG.
 - **Kontext (E3-Topf-Epic D96/D98, Plan `358-platform-treasury-epic.md` Slice 4):** `type='bescout'`-Events (39 live, 0 prized) zahlten Prize per reinem Minten (`score_event` schreibt `reward_amount` direkt in Wallets, kein Konto belastet). Nur `type='club'` war seit Slice 331 treasury-gedeckt. Zweiter RAUS-Kanal des Plattform-Topfs (nach Monats-Liga 376) → bescout-Events jetzt zirkulär gedeckt.

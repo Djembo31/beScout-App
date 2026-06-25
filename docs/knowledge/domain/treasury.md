@@ -21,7 +21,8 @@ verified-against: .claude/rules/trading.md @ 2026-06-24
 - **332** Club-Bounties ans Treasury (Reward-Escrow bei Erstellung, mirror 331) ✅
 - **376** Monats-Liga zahlt aus dem Plattform-Topf (`book_platform_treasury('debit','monthly_liga')`, RAUS-Kanal #1) ✅
 - **377** BeScout-Events (`type='bescout'`) zahlen Prize aus dem Plattform-Topf (Escrow-Trigger, RAUS-Kanal #2) ✅
-- **Damit:** Club-RAUS-Kanäle (CSF · Event-Prizes · Bounties) escrow-gedeckt; Plattform-Topf-RAUS (Monats-Liga 376 · bescout-Events 377) live. **Offen:** Plattform-Events `special`/`sponsor`/`creator` minten weiter (je eigener Slice) · Deposit-Pfad (Phase 1). REIN (Trading/IPO/Polls/Research/Bounty/P2P) komplett (358–365).
+- **378** special-Events (`type='special'`) zahlen Prize aus dem Plattform-Topf (source `special_event`, RAUS-Kanal #3) ✅
+- **Damit:** Club-RAUS-Kanäle (CSF · Event-Prizes · Bounties) escrow-gedeckt; Plattform-Topf-RAUS (Monats-Liga 376 · bescout-Events 377 · special-Events 378) live. **Offen:** Plattform-Events `sponsor` (Deposit-Pfad fehlt) / `creator` (Phase 4) minten weiter (je eigener Slice) · Deposit-Pfad (Phase 1). REIN (Trading/IPO/Polls/Research/Bounty/P2P) komplett (358–365).
 - **Money-Slice-Muster (bewährt 329-332):** Live-`pg_get_functiondef` VOR Spec (D87) · trigger-zentrisch (Escrow BEFORE INSERT + Settle BEFORE UPDATE OF status + Resync BEFORE UPDATE OF betrag) · Guard `ledger_net − offene withdrawals` unter `clubs FOR UPDATE` · `pg_get_constraintdef` gegen CHECK-Drift · force-rollback-Smokes.
 
 ---
@@ -170,13 +171,15 @@ Die Geldquelle eines Events ist **`events.type`** (= Kategorie UND Finanzierung)
 |---|---|---|
 | **club** | Vereins-Treasury | ✅ Slice 331 (Escrow bei Insert via Trigger) |
 | **bescout** | Plattform-Topf (`platform_treasury`) | ✅ Slice 377 (Escrow bei Insert, Spiegel 331, RAUS-Kanal #2) |
-| **special** | vermutl. Plattform | ❌ später |
+| **special** | Plattform-Topf (`platform_treasury`) | ✅ Slice 378 (Escrow bei Insert, source `special_event`, RAUS-Kanal #3) |
 | **sponsor** | Sponsor (sponsor_name) | ❌ Sponsor-Deposit fehlt |
 | **creator** | User-Wallet | ❌ (`PAID_FANTASY_ENABLED`=false, Phase 4) |
 
 **Scope-Regel:** Reconcile (Minting → echte Quelle) erfolgt **eine Quelle pro Slice**. Escrow-Trigger keyt auf `type` (`'club'`→Club-Treasury, `'bescout'`→Plattform-Topf; NICHT auf „wer hat angelegt"). Offene Permissions-Frage (separat): darf ein Club-Admin überhaupt non-club-Typen anlegen?
 
-**Slice 377 (bescout RAUS-Kanal #2):** Die 3 Event-Trigger (`trg_events_escrow_prize`/`_prize_settle`/`_resync_prize_escrow`) tragen einen additiven `type='bescout'`-Zweig gegen `platform_treasury` (Escrow-Debit bei Insert + Deckungs-Check inline unter Singleton-Row-Lock, D103 Hard-Gate; Rest/voll-Refund bei ended/cancelled; Resync zwei-Treasury-fähig inkl. type-Switch club↔bescout). `score_event` bleibt unangetastet (mintet weiter +D in Wallets, jetzt durch Topf-Escrow gedeckt → zero-sum). `bescout_event`-source seit Slice 357 im Ledger-CHECK. **Noch minting:** `special`/`sponsor`/`creator` (je eigener Slice). Bug-Pattern: `errors-db.md` „Escrow-bei-INSERT … Multi-Treasury-Generalisierung (S377)".
+**Slice 377 (bescout RAUS-Kanal #2):** Die 3 Event-Trigger (`trg_events_escrow_prize`/`_prize_settle`/`_resync_prize_escrow`) tragen einen additiven `type='bescout'`-Zweig gegen `platform_treasury` (Escrow-Debit bei Insert + Deckungs-Check inline unter Singleton-Row-Lock, D103 Hard-Gate; Rest/voll-Refund bei ended/cancelled; Resync zwei-Treasury-fähig inkl. type-Switch club↔bescout). `score_event` bleibt unangetastet (mintet weiter +D in Wallets, jetzt durch Topf-Escrow gedeckt → zero-sum). `bescout_event`-source seit Slice 357 im Ledger-CHECK. Bug-Pattern: `errors-db.md` „Escrow-bei-INSERT … Multi-Treasury-Generalisierung (S377)".
+
+**Slice 378 (special RAUS-Kanal #3):** Plattform-Zweig der 3 Trigger auf `type IN ('bescout','special')` erweitert, Ledger-`source` per CASE (`special`→`'special_event'`, `bescout`→`'bescout_event'`), Refund-source (resync delta<0) nach `OLD.type` (Halter). `'special_event'` additiv in source-CHECK gewidert + AdminTreasuryTab-Label + i18n DE/TR. Zero-sum identisch 377, score_event weiter unangetastet. **Noch minting:** `sponsor` (Deposit-Pfad fehlt) · `creator` (Phase 4) — je eigener Slice.
 
 ---
 

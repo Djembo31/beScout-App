@@ -65,6 +65,7 @@ export function AdminTreasuryTab() {
     trading: 'platformPotSrcTrading', ipo: 'platformPotSrcIpo', poll: 'platformPotSrcPoll',
     research: 'platformPotSrcResearch', bounty: 'platformPotSrcBounty', p2p: 'platformPotSrcP2p',
     monthly_liga: 'platformPotSrcMonthlyLiga', bescout_event: 'platformPotSrcBescoutEvent',
+    special_event: 'platformPotSrcSpecialEvent',
   };
   const sourceLabel = (source: string): string => {
     const key = SOURCE_LABEL_KEY[source];

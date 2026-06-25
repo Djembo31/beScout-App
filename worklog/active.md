@@ -2,6 +2,24 @@
 
 ```
 status: idle
+slice: 378
+title: ✅ DONE — E3 Slice 4b: special-Events (type='special') zahlen Prize aus dem Plattform-Topf (RAUS-Kanal #3)
+stage: LOG complete
+size: M
+slice-type: Migration (Money-Trigger) + UI-Label + i18n, CEO-Scope
+spec: worklog/specs/378-special-events-from-pot.md
+ceo-decision: Anil 2026-06-25 (AskUserQuestion) — special-Events aus Topf (Spiegel 377). CTO-how: eigene Ledger-Quelle 'special_event' (Kontoauszug-Ehrlichkeit).
+impact: inline (Spec §3+§4 — DB-interne Trigger erweitert, source-CHECK widern, AdminTreasuryTab-Label + i18n; score_event unangetastet)
+proof: worklog/proofs/378-money-smoke.txt
+proof-detail: AC-01..AC-09 alle PASS — special escrow source=special_event, settle ended/cancelled, amount-up, BESCOUT-Regression (source bleibt bescout_event), CHECK-Widen, i18n DE+TR; tsc EXIT 0
+review: worklog/reviews/378-review.md (reviewer PASS — 1 LOW pre-existing tenant-only-Edit-Label dokumentiert, 1 NIT)
+result: 3 Event-Trigger platform-Zweig auf type IN ('bescout','special') erweitert, Ledger-source per CASE (special→special_event, sonst bescout_event), Refund-source resync delta<0 nach OLD.type (Halter). source-CHECK additiv um 'special_event' gewidert. AdminTreasuryTab-Label + platformPotSrcSpecialEvent DE „Sonder-Event"/TR „Özel Etkinlik". Zero-sum identisch 377, score_event unangetastet, club+bescout byte-identisch. Event-Geldquellen: club ✅ bescout ✅ special ✅ (sponsor/creator minten weiter, eigene Slices).
+
+## Nächster großer Track
+E3 Slice 5 — Wettkampf-Darstellung + Ranking-Konsolidierung (UI): Events als „BeScout Liga" mit Monats-/Saison-Wertung sichtbar; 7 /rankings-Boards entwirren. Plan-Anker `worklog/notes/358-platform-treasury-epic.md`. Offene Reste (cred-/deploy-gated): Topf-Card-Screenshot (ali_admin-PW) · Bounty-Approval-UI (kede5-PW) · U-1 Live-Check (nach Vercel-Deploy). Noch minting: sponsor (Deposit-Pfad fehlt) / creator (Phase 4).
+
+--- 377 (vorheriger, DONE) ---
+status: idle
 slice: 377
 title: ✅ DONE — E3 Slice 4: BeScout-Events (type='bescout') zahlen Prize aus dem Plattform-Topf (RAUS-Kanal #2)
 stage: LOG complete
