@@ -749,8 +749,9 @@ export type DbEvent = {
   created_by: string | null;
   club_id: string | null;
   /**
-   * League scoping for multi-league filter (optional until DB column added).
-   * Until backfilled, derive via club_id → getClub() → league_id lookup.
+   * Slice 380 (E-1, D104/D105): Fußball-Liga-Bindung des Events.
+   * NULL = offen (alle Ligen). Gesetzt = Aufstellung nur aus Vereinen dieser Liga
+   * (rpc_save_lineup-Gate). NICHT zu verwechseln mit is_liga_event (BeScout-Saison-Wertung).
    */
   league_id?: string | null;
   sponsor_name: string | null;

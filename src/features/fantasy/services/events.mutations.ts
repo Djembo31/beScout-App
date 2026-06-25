@@ -21,6 +21,8 @@ export async function createEvent(params: {
   locksAt: string;
   endsAt: string;
   clubId: string;
+  /** Slice 380 (E-1): Fußball-Liga-Bindung. NULL = offen/alle Ligen. */
+  leagueId?: string | null;
   createdBy: string;
   sponsorName?: string;
   sponsorLogo?: string;
@@ -57,6 +59,7 @@ export async function createEvent(params: {
       locks_at: params.locksAt,
       ends_at: params.endsAt,
       club_id: params.clubId,
+      league_id: params.leagueId ?? null,
       created_by: params.createdBy,
       sponsor_name: params.sponsorName || null,
       sponsor_logo: params.sponsorLogo || null,
@@ -126,7 +129,7 @@ export async function createNextGameweekEvents(
   // Load current GW events as templates
   const { data: templates, error: tplErr } = await supabase
     .from('events')
-    .select('name, type, format, entry_fee, ticket_cost, currency, prize_pool, max_entries, club_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, is_liga_event')
+    .select('name, type, format, entry_fee, ticket_cost, currency, prize_pool, max_entries, club_id, league_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, is_liga_event')
     .eq('club_id', clubId)
     .eq('gameweek', currentGw);
 
@@ -168,6 +171,7 @@ export async function createNextGameweekEvents(
     prize_pool: t.prize_pool,
     max_entries: t.max_entries,
     club_id: t.club_id,
+    league_id: t.league_id ?? null,
     created_by: t.created_by,
     sponsor_name: t.sponsor_name,
     sponsor_logo: t.sponsor_logo,
@@ -266,7 +270,7 @@ export const EDITABLE_FIELDS: Record<string, string[]> = {
     'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
     'max_per_club',
     'min_sc_per_slot', 'wildcards_allowed', 'max_wildcards_per_lineup',
-    'reward_structure', 'is_liga_event',
+    'reward_structure', 'is_liga_event', 'league_id',
   ],
   registering: [
     'name', 'type', 'format', 'gameweek', 'entry_fee', 'ticket_cost', 'prize_pool',
@@ -274,7 +278,7 @@ export const EDITABLE_FIELDS: Record<string, string[]> = {
     'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
     'max_per_club',
     'min_sc_per_slot', 'wildcards_allowed', 'max_wildcards_per_lineup',
-    'reward_structure', 'is_liga_event',
+    'reward_structure', 'is_liga_event', 'league_id',
   ],
   'late-reg': ['name', 'prize_pool', 'ends_at', 'max_entries', 'sponsor_name', 'sponsor_logo'],
   running: ['name', 'prize_pool', 'ends_at', 'max_entries', 'sponsor_name', 'sponsor_logo'],

@@ -24,6 +24,7 @@ import type { EventFormLabels } from '@/components/admin/EventFormModal';
 const FORM_LABELS: EventFormLabels = {
   name: 'Name', namePlaceholder: 'Event-Name',
   club: 'Club', clubGlobal: 'Global (kein Club)',
+  league: 'Liga-Bindung', leagueOpen: 'Offen / alle Ligen',
   type: 'Typ', format: 'Format', format7: '7er', format11: '11er',
   eventTier: 'Event-Tier', tierArena: 'Arena', tierClub: 'Club', tierUser: 'User',
   minSub: 'Min. Abo-Stufe', minSubNone: 'Keine (alle)', minSubBronze: 'Bronze+', minSubSilber: 'Silber+', minSubGold: 'Nur Gold',

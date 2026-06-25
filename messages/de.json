@@ -3573,6 +3573,7 @@
     "duplicatePlayer": "Jeder Spieler darf nur einmal aufgestellt werden.",
     "lineupSizeMismatch": "Die Anzahl der Spieler stimmt nicht mit der Event-Vorgabe überein.",
     "playerNotInClub": "Nur Spieler dieses Vereins dürfen aufgestellt werden.",
+    "playerNotInEventLeague": "Dieses Event ist an eine Liga gebunden — nur Spieler aus dieser Liga dürfen aufgestellt werden.",
     "lineupDeleteFailed": "Lineup konnte nicht gelöscht werden. Bitte Admin kontaktieren.",
     "walletError": "Wallet-Fehler. Bitte versuche es erneut.",
     "bountyCreateFailed": "Bounty-Erstellung fehlgeschlagen.",

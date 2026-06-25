@@ -2,6 +2,23 @@
 
 ```
 status: idle
+slice: 380
+title: ✅ DONE — E-1: Fußball-Liga an die Event-Aufstellung binden (events.league_id + rpc_save_lineup-Gate + Erstell-UI)
+size: M
+slice-type: Migration + Service + UI (cross-domain, kein Money)
+spec: worklog/specs/380-e1-event-league-binding.md
+stage: LOG complete
+impact: inline (Spec §3+§4)
+proof: worklog/proofs/380-league-binding.txt (AC1-AC8+AC10 PASS — Gate live bewiesen, Money byte-identisch, tsc 0, 333 Tests)
+review: worklog/reviews/380-review.md (reviewer PASS, 2 NIT non-block — Track-F-Wildcard club-abgeleitet → E-4-Vormerkung)
+ceo-decision: Anil 2026-06-25 (AskUserQuestion) — Weg B eigene events.league_id (NULL=offen) + Bestand bleibt offen (kein Backfill).
+result: events.league_id (nullable, FK leagues, NULL=offen, kein Backfill) + rpc_save_lineup additiver Liga-Gate (Starter+Bank müssen aus Event-Liga; JOIN clubs fail-closed bei club_id NULL) → player_not_in_event_league. save_lineup ist nur Wrapper (kein Paritäts-Bug). TS-Plumbing: DbEvent (Kommentar), EventFormState.leagueId, useEventForm, createEvent INSERT + EDITABLE_FIELDS + Klon, EventFormModal Liga-Select (Platform-Admin, cache-reaktiv), errorMessages + DE/TR. is_liga_event unangetastet (D105). Scope-Out E-1b = Lineup-Picker-Vorfilter. Migration 20260625180000.
+next: E5 E-1b (Lineup-Picker-Vorfilter) ODER E-2 (BeScout-Saison: Wertung pro Liga). Anil-Wahl.
+```
+
+--- 379b (vorheriger, DONE) ---
+```
+status: idle
 slice: 379b
 title: ✅ DONE — Bounty-Review Wallet-Kosten-Hinweis nur zeigen wenn Admin-Wallet wirklich belastet wird
 stage: LOG complete

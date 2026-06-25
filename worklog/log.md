@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 380 | 2026-06-25 | feat(events): E-1 — Fußball-Liga an die Event-Aufstellung binden (events.league_id + rpc_save_lineup-Gate)
+- Stage-Chain: SPEC (`380-e1-event-league-binding.md`, M) → IMPACT inline → BUILD (Migration+RPC selbst, dann TS/UI/i18n) → REVIEW (`380-review.md` reviewer PASS, 2 NIT) → PROVE (`380-league-binding.txt` AC1-AC8+AC10 live) → LOG.
+- **Erster Bau-Slice von E5** (D104/D105). CEO-Entscheid (AskUserQuestion): Weg B eigene `events.league_id` (nullable, NULL=offen), Bestand bleibt offen (kein Backfill).
+- **DB:** `events.league_id uuid NULL REFERENCES leagues(id)` + Partial-Index. `rpc_save_lineup` (SECURITY DEFINER) additiver Liga-Gate nach bench-holdings/vor min_sc: bei `league_id IS NOT NULL` müssen alle 12 Starter + Bank zu einem Verein der Liga gehören (`JOIN clubs … c.league_id=v_event.league_id`, fail-closed bei club_id NULL) → `player_not_in_event_league`. Money/Wildcard/Salary/max_per_club byte-identisch (Live-Baseline D87). `save_lineup` ist nur Wrapper → kein Paritäts-Bug. `is_liga_event` unangetastet (D105-Trennung).
+- **TS:** DbEvent.league_id (Kommentar präzisiert), EventFormState.leagueId, useEventForm (populate/build×2), createEvent INSERT + EDITABLE_FIELDS×2 + Klon-select+map, EventFormModal cache-reaktiver Liga-Select (Platform-Admin), errorMessages KNOWN_KEYS+Regex, messages DE+TR `playerNotInEventLeague`.
+- **Proof:** Live BEGIN…ROLLBACK-Smoke — AC3 open+mixed=ok, AC4 bound+valid=ok, AC5 wrong-starter / AC6 wrong-bench / AC7 club_id-NULL = `player_not_in_event_league`; proacl unverändert (kein anon); tsc 0; 333 Tests grün.
+- **Scope-Out → E-1b:** Lineup-Builder-Picker-Vorfilter + Club-Admin-Liga-Picker. **E-4-Vormerkung (380-Review):** Track-F-Wildcard-Lookup bei vereinslosen Events auf `COALESCE(events.league_id, club→league)` umstellen.
+- Files: 1 Migration + 8 src/i18n. Commit: <hash>.
+
 ## 379b | 2026-06-25 | fix(bounty): Wallet-Kosten-Hinweis nur zeigen wenn Admin-Wallet wirklich belastet wird
 - Stage-Chain: SPEC inline (Problem + Live-RPC-Wahrheitstabelle, XS UI) → IMPACT inline (Hinweis-Gate + treasury_escrowed-Verfügbarkeit) → BUILD (Type + Service-Selects + Component-Gate) → REVIEW (`379b-review.md` self-review PASS) → PROVE (3-Zweig-Test + tsc + Service-Tests) → LOG.
 - **Evidence (Anil-Fund, 370-proof Z.12):** Bounty-Review-Dialog zeigt „Genehmigung kostet {reward} Credits aus deinem Wallet" auch bei escrow-gedeckten Club-Bounties, wo das Admin-Wallet NICHT belastet wird (Escrow/Topf deckt).

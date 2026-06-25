@@ -1,9 +1,16 @@
 'use client';
 
+import { useEffect, useSyncExternalStore } from 'react';
 import { Dialog, Button } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { bsdToCents } from '@/lib/services/players';
 import { PAID_FANTASY_ENABLED } from '@/lib/featureFlags';
+import {
+  getActiveLeagues,
+  subscribeLeagueCache,
+  getLeagueCacheVersion,
+  initLeagueCache,
+} from '@/lib/leagues';
 import RewardStructureEditor from './RewardStructureEditor';
 import { INPUT_CLS, SELECT_CLS } from './hooks/types';
 import type { EventFormState } from './hooks/types';
@@ -15,6 +22,8 @@ export interface EventFormLabels {
   namePlaceholder: string;
   club?: string;
   clubGlobal?: string;
+  league?: string;           // Slice 380 (E-1): Fußball-Liga-Bindung (nur wenn gesetzt = Picker sichtbar)
+  leagueOpen?: string;       // Slice 380 (E-1): "Offen / alle Ligen"-Option
   type: string;
   format: string;
   format7: string;
@@ -96,6 +105,11 @@ export function EventFormModal({
   const prizePoolCents = bsdToCents(parseFloat(form.prizePool) || 0);
   const disabledCls = 'disabled:opacity-40 disabled:cursor-not-allowed';
 
+  // Slice 380 (E-1): Liga-Liste reaktiv aus dem Cache (S286-Pattern, cold-load-safe).
+  useEffect(() => { void initLeagueCache(); }, []);
+  useSyncExternalStore(subscribeLeagueCache, getLeagueCacheVersion, getLeagueCacheVersion);
+  const activeLeagues = getActiveLeagues();
+
   return (
     <Dialog open={open} title={title} onClose={onClose} size={size === 'default' ? 'md' : 'lg'}>
       <div className="space-y-4 p-4 md:p-6">
@@ -127,6 +141,25 @@ export function EventFormModal({
               <option value="">{L.clubGlobal ?? 'Global'}</option>
               {clubs.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Liga-Bindung (Slice 380 / E-1) — nur wenn Label gesetzt (Platform-Admin) */}
+        {L.league && (
+          <div>
+            <label className="block text-sm font-bold text-white/70 mb-1">{L.league}</label>
+            <select
+              value={form.leagueId}
+              onChange={(e) => setField('leagueId', e.target.value)}
+              disabled={isFieldDisabled('league_id')}
+              aria-label={L.league}
+              className={cn(SELECT_CLS, disabledCls)}
+            >
+              <option value="">{L.leagueOpen ?? 'Offen / alle Ligen'}</option>
+              {activeLeagues.map(lg => (
+                <option key={lg.id} value={lg.id}>{lg.name}</option>
               ))}
             </select>
           </div>

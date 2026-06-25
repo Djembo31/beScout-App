@@ -40,6 +40,8 @@ const KNOWN_KEYS = new Set([
   'fanRankThresholdsNotAdmin', 'fanRankThresholdsInvalidValues',
   // Slice 356 — Exklusive Treue-Umfragen + Poll-Vote-Fehler (vorher silent false-success)
   'fanRankTooLow', 'pollAlreadyVoted', 'pollCannotVoteOwn', 'pollClosed',
+  // Slice 380 (E-1) — Liga-gebundenes Event: Spieler nicht aus der Event-Liga
+  'playerNotInEventLeague',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [
@@ -85,6 +87,7 @@ const ERROR_MAP: [RegExp, string][] = [
   [/duplicate.player/i, 'duplicatePlayer'],
   [/lineup.*size.*mismatch/i, 'lineupSizeMismatch'],
   [/player.*not.*in.*club/i, 'playerNotInClub'],
+  [/player.not.in.event.league/i, 'playerNotInEventLeague'],
 
   // Offers
   [/offer.*expired/i, 'offerExpired'],

@@ -3573,6 +3573,7 @@
     "duplicatePlayer": "Her oyuncu yalnızca bir kez kadro'ya alınabilir.",
     "lineupSizeMismatch": "Oyuncu sayısı etkinlik gereksinimi ile uyuşmuyor.",
     "playerNotInClub": "Yalnızca bu kulübün oyuncuları kadro'ya alınabilir.",
+    "playerNotInEventLeague": "Bu etkinlik bir lige bağlı — yalnızca bu ligin oyuncuları kadroya alınabilir.",
     "lineupDeleteFailed": "Kadro silinemedi. Lütfen yöneticiyle iletişime geçin.",
     "walletError": "Cüzdan hatası. Lütfen tekrar deneyin.",
     "bountyCreateFailed": "Görev oluşturulamadı.",

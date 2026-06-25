@@ -1,0 +1,35 @@
+Slice 380 — E-1: Fußball-Liga an die Event-Aufstellung binden
+Proof — 2026-06-25 · Projekt skzjfhvgccaeplydsunz
+
+=== AC1/AC2 Schema + AC8 Grants (live) ===
+col=league_id:YES        (AC1 ✓ nullable Spalte vorhanden, FK leagues(id))
+bound_events=0           (AC2 ✓ kein Backfill — alle 207 bestehenden Events offen)
+acl={postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}  (AC8 ✓ kein anon, Grants unverändert)
+has_gate=1               (Liga-Gate im Live-Function-Body vorhanden)
+
+save_lineup ist nur Wrapper: SELECT rpc_save_lineup(p_event_id, auth.uid(), …) → Änderung greift, keine RPC-Paritäts-Falle.
+
+=== AC3-AC7 RPC-Smoke (DO-Block, BEGIN…ROLLBACK via RAISE EXCEPTION; qty=2 seed) ===
+AC3 open+mixed-league    -> ok=true                              (league_id NULL → Gate übersprungen, gemischte Ligen erlaubt)
+AC4 bound+all-valid      -> ok=true                              (alle Starter aus Event-Liga)
+AC5 bound+wrong-starter  -> ok=false player_not_in_event_league  (1 Starter aus Fremdliga → reject)
+AC6 bound+wrong-bench    -> ok=false player_not_in_event_league  (Bank-Spieler aus Fremdliga → reject)
+AC7 bound+club_id-NULL   -> ok=false player_not_in_event_league  (Spieler ohne Verein → fail-closed reject)
+league_x=b08cffec-6a37-4d95-ab61-0be8f7beb6ce  league_y=05ec9bf8-d507-4ba2-ad76-ca7ea61c1099
+(alles per RAISE EXCEPTION zurückgerollt — keine Persistenz)
+
+Hinweis: Erster Lauf (qty=1) zeigte AC3 -> insufficient_sc, weil der vorangehende AC4-Save
+die Holdings für das gebundene Event lockte (cross-event holding_lock, NICHT Liga-Gate).
+Bestätigt zusätzlich: das Liga-Gate für offene Events wird übersprungen (es lief in den
+späteren min_sc-Check statt player_not_in_event_league). qty=2 → sauberes AC3 ok=true.
+
+=== AC10 tsc + vitest ===
+npx tsc --noEmit         -> EXIT 0
+CI=true vitest run (fantasy + lineup + admin) -> 20 files, 333 tests passed
+
+=== Money byte-identisch (AC8) ===
+Liga-Block additiv platziert nach bench-holdings, vor min_sc-Loop. Wildcard/Salary/max_per_club/
+Holdings-Pfade unverändert (CREATE OR REPLACE auf Live-Baseline, D87). proacl unverändert (s.o.).
+
+=== Migration ===
+supabase/migrations/20260625180000_e1_event_league_binding.sql (applied via mcp apply_migration).

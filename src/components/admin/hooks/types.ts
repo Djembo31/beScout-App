@@ -8,6 +8,7 @@ import type { DbEvent, EventCurrency, RewardTier } from '@/types';
 export type EventFormState = {
   name: string;
   clubId: string;                          // Platform only
+  leagueId: string;                        // Slice 380 (E-1): Fußball-Liga-Bindung. '' = offen/alle Ligen.
   type: string;
   format: string;
   eventTier: 'arena' | 'club' | 'user';
@@ -49,6 +50,7 @@ export type EventFormAction =
 export const INITIAL_FORM_STATE: EventFormState = {
   name: '',
   clubId: '',
+  leagueId: '',
   type: 'bescout',
   format: '7er',
   eventTier: 'arena',

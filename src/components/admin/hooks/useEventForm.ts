@@ -25,6 +25,7 @@ function populateFromEvent(event: DbEvent): EventFormState {
   return {
     name: event.name,
     clubId: event.club_id ?? '',
+    leagueId: event.league_id ?? '',
     type: event.type,
     format: event.format,
     eventTier: event.event_tier ?? 'club',
@@ -162,6 +163,7 @@ export function useEventForm(initialDefaults?: Partial<EventFormState>) {
         locksAt: new Date(form.locksAt).toISOString(),
         endsAt: new Date(form.endsAt).toISOString(),
         clubId: overrides?.clubId ?? form.clubId,
+        leagueId: form.leagueId || null,
         createdBy: overrides?.createdBy ?? '',
         sponsorName: form.type === 'sponsor' ? form.sponsorName : undefined,
         sponsorLogo: form.type === 'sponsor' ? form.sponsorLogo : undefined,
@@ -193,6 +195,7 @@ export function useEventForm(initialDefaults?: Partial<EventFormState>) {
       };
 
       maybePut('name', form.name);
+      maybePut('league_id', form.leagueId || null);
       maybePut('type', form.type);
       maybePut('format', form.format);
       maybePut('gameweek', parseInt(form.gameweek) || 1);

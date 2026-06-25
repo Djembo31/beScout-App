@@ -64,8 +64,9 @@ Events kommen von **Creatorn** (BeScout / Verein / User / Sponsor). Jeder Creato
 
 > Jede Zeile = grober Slice. Größe/Money-Scope geschätzt. „Money/CEO" = ich baue selbst + Reviewer-Pflicht (§3). Reihenfolge nach Abhängigkeit + Wert.
 
-**E-1 · Liga-Bindung der Aufstellung** *(Größe M, kein Money)*
-Echte `events.league_id`-Spalte + Restriktions-Flag („eine Liga" / „offen"). `rpc_save_lineup` prüft: bei gebundenem Event müssen alle Lineup-Spieler aus der Liga kommen. Erstell-UI: Liga-Auswahl + „offen"-Option. → Fundament für alles Liga-bezogene.
+**E-1 · Liga-Bindung der Aufstellung** ✅ DONE (Slice 380, 2026-06-25) *(Größe M, kein Money)*
+Echte `events.league_id`-Spalte (nullable, NULL=offen, kein Backfill — Bestand bleibt offen). `rpc_save_lineup` prüft: bei gebundenem Event müssen alle Lineup-Spieler (Starter+Bank) aus der Liga kommen (`player_not_in_event_league`, fail-closed bei club_id NULL). Erstell-UI: Liga-Auswahl + „Offen / alle Ligen" im **Platform-Admin** (cache-reaktiv). Reviewer PASS, Live-Smoke AC3-AC7. Proof `worklog/proofs/380-league-binding.txt`.
+- **Scope-Out → E-1b:** Lineup-Builder-Picker-Vorfilter (User sieht nur erlaubte Spieler) + Club-Admin-Liga-Picker. E-1 sichert Integrität via RPC-Reject + klare Fehlermeldung.
 
 **E-2 · BeScout-Saison: Wertung pro Liga (zusätzlich zu global)** *(Größe M-L, Money/CEO — mehr Gewinner = mehr Payout)*
 Monats-/Saison-Abschluss + `scout_scores`/Rankings nach **Fußball-Liga** partitionieren. Rankings-UI: Umschalter „Pro Liga / Gesamt". Baut auf E-1. **Begriffs-Umzug (Section 0):** das bestehende `is_liga_event`/`monthly_liga_*` ist die heutige Nutzer-Wertung → in „BeScout-Saison" umbenennen; dabei die zwei Achsen entwirren (Fußball-Liga-Bindung = E-1 `league_id` vs. Wertungs-Stärke voll/gedeckelt = altes Flag).
@@ -78,6 +79,7 @@ Monats-/Saison-Abschluss + `scout_scores`/Rankings nach **Fußball-Liga** partit
 
 **E-4 · User-Events** *(Größe L, Money/CEO — User zahlt Pot aus Wallet)*
 Creator-Typ „user" in DB-Type + CHECK · Scope „friends"/„public" · Erstell-Flow echt in DB (heute nur Toast) · Pot-Escrow aus User-Wallet (Muster wie User-Bounty `create_user_bounty`/Settle). Compliance: Credits = Phase-1-Spielgeld (ok); echtes Geld bleibt Phase 3.
+- **Vormerkung aus 380-Review (vereinslose Events):** Sobald Events ohne `club_id` existieren, muss der Track-F-Wildcard-Lookup in `rpc_save_lineup` von `club_id → clubs.league_id` auf `COALESCE(events.league_id, club→league)` umgestellt werden — sonst `invalid_event_no_league` bei clublosem + league-gebundenem Event mit Wildcard. Heute kein Treffer (alle Events haben club_id).
 
 **E-5 · Ticket-Events voll verdrahten** *(Größe M)*
 BeScout-Ticket-Events: Tickets-Eintritt → Gewinn Credits/**Equipment**/Tickets. Eintritt existiert; Reward-Auszahlung + Equipment-Gewinn prüfen/bauen. (Hängt mit Ticket-Sinn zusammen — siehe „Tickets"-Frage aus dieser Session.)
