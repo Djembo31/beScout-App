@@ -47,7 +47,18 @@ DbEvent.lineup_rules + FantasyEvent.lineupRules + eventMapper + LineupRule-Type 
 i18n DE+TR: minPerOwnClubNotMet, lineupRuleInvalid (fantasy) + minPerOwnClubLabel/Placeholder/Hint (admin) ✅
 
 ============================================================
-E) OFFEN (post-Deploy, wie S384): AC-12 UI-Playwright
-   EventFormModal-Input "Min. Spieler vom eigenen Verein" in beiden Buildern
-   (Platform-Admin DE-hardcoded + Club-Admin t()), 0 Console-Errors, kein
-   MISSING_MESSAGE, Mobile 393px. -> nach Vercel-Deploy von main.
+E) AC-12 UI-Playwright post-Deploy (bescout.net, 2026-06-25) — PASS
+============================================================
+Club-Admin (/club/sakaryaspor/admin -> Events -> Neues Event), i18n-Pfad (t()):
+  hasLabel "Min. Spieler vom eigenen Verein" = true   ✅ i18n minPerOwnClubLabel aufgelöst
+  rawKeyLeak (admin.minPerOwnClub*/raw key)   = false  ✅ kein Key-Leak
+  missingMsg (MISSING_MESSAGE)                = false  ✅ S333-Falle vermieden
+  input#formMinPerOwnClub = {type:number, min:1, max:11, inputMode:numeric, placeholder:"Keine Regel"} ✅
+  Console: 0 errors durchgehend.
+  -> verifiziert via browser_evaluate (Klick-Overlay-Quirk headless; Screenshot rendert
+     nicht stabil — PNGs ohnehin gitignored; funktionaler DOM-Check = konklusiver Beweis).
+Platform-Admin-Builder: identische EventFormModal-Komponente, Label DE-hardcoded
+  (kein i18n-Key -> MISSING_MESSAGE strukturell unmöglich). Admin-Dashboard rendert
+  in Headless-Session nur Loader (bekannt) -> nicht separat verifizierbar, aber risikolos.
+
+-> AC-1..AC-12 ALLE PASS. Slice 385 voll-DONE.

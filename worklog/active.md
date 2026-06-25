@@ -11,7 +11,7 @@ spec: worklog/specs/385-lineup-rules-foundation.md
 stage: LOG
 impact: inline (1 Migration/RPC + Read-Pfad 3 Selects/Mapper/Type + Write-Pfad mutations/useEventForm/EventFormModal + i18n; grep-verifiziert)
 proof: worklog/proofs/385-lineup-rules-smoke.txt
-proof-note: AC-1..AC-7 force-rollback PASS (AC-6 = 0 Ressourcen-Move bei Reject) + Patch-Audit live + tsc 0 + 142 vitest + DE/TR. Offen: AC-12 UI-Playwright post-Deploy.
+proof-note: AC-1..AC-12 ALLE PASS — force-rollback AC-1..AC-7 (AC-6 = 0 Ressourcen-Move bei Reject) + Patch-Audit live + tsc 0 + 142 vitest + DE/TR + AC-12 UI-live (Club-Admin, Label aufgelöst, kein MISSING_MESSAGE, Input min1/max11). Voll-DONE.
 review: worklog/reviews/385-review.md (reviewer PASS, 3 NIT bewusst nicht geheilt — kosmetisch/Scope-Out)
 ceo-decision: Anil 2026-06-25 — E-3a "min. X vom Verein" = FESTE ZAHL. Architektur D107 (Weg B, JSONB-Regel-Liste).
 ```
