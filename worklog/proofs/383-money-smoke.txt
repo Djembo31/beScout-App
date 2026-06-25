@@ -54,5 +54,21 @@ npx tsc --noEmit : EXIT 0 (clean)
 vitest src/lib/gamification.test.ts + src/lib/services/__tests__/gamification.test.ts : 67 passed (2 files)
 
 ================================================================================
-FAZIT: AC1-AC10 + AC12 (DB + Service + tsc) PASS. AC11 (UI Playwright post-Deploy) offen — separat.
-Alle Money-Smokes rolled back; einziger persistenter Effekt = die Migration selbst (Schema/RPCs). Keine echten Wallets/Topf verändert.
+E) AC11 — UI PLAYWRIGHT POST-DEPLOY (bescout.net /bescout-admin Liga-Tab, Login superadmin)
+================================================================================
+Deploy live (Commit 5a41fd2c). Snapshot Liga-Tab:
+  - "Pro-Liga-Rewards (BeScout-Saison)"-Card rendert ALLE 7 aktiven Ligen
+    (2. Bundesliga, Bundesliga, La Liga, Premier League, Serie A, Süper Lig, TFF 1. Lig),
+    je 3 Inputs Default 1000/500/250 CR, alle "(Default)", Speichern disabled (nicht dirty).
+  - "Monat abschließen"-Card: neuer Text "Zusätzlich pro Fußball-Liga: Manager-Top-3 … zero-sum aus dem Plattform-Topf".
+  - 0 Console-Errors (kein MISSING_MESSAGE; Admin-Strings DE-hardcoded, S196-exempt).
+  - Screenshot: worklog/proofs/383-admin-liga-rewards.png (lokal, PNGs gitignored).
+Write-Pfad live (set_liga_reward_config, deckt Money-Smoke NICHT ab — dort SQL-INSERT):
+  - Bundesliga #1 → 2000 getippt → Speichern → Wert persistiert 2000, "(Default)"-Tag verschwindet
+    (Config-Row angelegt, Invalidation-Refetch, is_default→false), Speichern wieder disabled, 0 Errors.
+  - = AC2 (Write-RPC platform_admin-Gate, als superadmin) + AC7 (Config persistiert) live bestätigt.
+  - Test-Config-Zeile danach gelöscht (`DELETE FROM liga_reward_config` → 0 rows) → kein Artefakt, alle Ligen wieder Default.
+
+================================================================================
+FAZIT: AC1-AC12 ALLE PASS (DB force-rollback + Service/tsc + UI-Playwright post-Deploy).
+Money-Smokes rolled back; UI-Write-Test-Zeile gelöscht. Persistenter Effekt = nur die Migration (Schema/RPCs). Keine echten Wallets/Topf verändert.

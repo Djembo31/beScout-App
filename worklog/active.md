@@ -1,7 +1,7 @@
 # Active Slice
 
 ```
-status: active
+status: idle
 slice: 383
 title: E-2b — Pro-Liga-Payout (close_monthly_liga zahlt zusätzlich pro Liga, konfigurierbare Beträge)
 size: L
@@ -11,7 +11,7 @@ spec: worklog/specs/383-perleague-payout.md
 stage: LOG
 impact: inline (Spec §3 — 1 RPC-Consumer + Service/Hook/UI-Kette grep-verifiziert)
 proof: worklog/proofs/383-money-smoke.txt
-proof-note: AC1-AC10+AC12 PASS via force-rollback; tsc 0, 67 vitest; AC11 UI post-Deploy offen
+proof-note: AC1-AC12 ALLE PASS — force-rollback (DB) + tsc 0/67 vitest + UI-Playwright post-Deploy live (Card 7 Ligen, Write-Pfad set_liga_reward_config, 0 Console-Errors)
 review: worklog/reviews/383-review.md (reviewer PASS, 3 NIT — kein Rework)
 ceo-decision: Anil 2026-06-25 (AskUserQuestion) — (1) ZUSÄTZLICH zum globalen Manager-Payout, (2) Beträge PRO LIGA EINZELN einstellbar, (3) Default 100k/50k/25k Cents/Rang.
 ```
