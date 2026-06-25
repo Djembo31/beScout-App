@@ -4017,3 +4017,31 @@ Muster für **alle weiteren RAUS-Kanäle** (Slice 4 BeScout-Events, künftige): 
 Mehrteiliger Bau (mehrere Slices, teils Money/CEO-Scope) — Reihenfolge + Detail in `worklog/notes/event-creator-liga-epic.md` (lebendes Dokument, Anil ergänzt dort). Compliance: Eintritt/Preise in **Tickets/Credits** (Phase-1-Spielgeld, D99) ist ok; **Paid-Fantasy mit echtem Geld bleibt Phase 3** (MGA, NICHT bauen). Quelle WIE Events: `.claude/rules/fantasy.md` + Roadmap-Anker.
 
 **Re-Visit-Trigger:** Anil ergänzt/ändert das Zielbild in der Roadmap-Datei → bei Scope-Änderung diese Decision aktualisieren oder Nachfolger-`D<n>` mit `Supersedes: D104`.
+
+---
+
+## D105 — PRODUCT: Begriffs-Trennung — „Liga" = nur Fußball-Liga; Nutzer-Wettbewerb = „BeScout-Saison"
+
+**Datum:** 2026-06-25 · **Status:** Aktiv (Naming-Kanon, gilt ab E5-Bau) · **Category:** PRODUCT (Naming/Information-Architektur) · **Kontext:** Beim Durchsprechen von D104 fiel auf, dass „Liga" im Code doppeldeutig ist. Anil-Entscheid zur Entwirrung. Präzisiert D104. WIE: `worklog/notes/event-creator-liga-epic.md` Section 0.
+
+### Problem
+Das Wort „Liga" meint heute zwei verschiedene Dinge:
+- **Fußball-Liga** (Bundesliga, Süper Lig, Premier League) — gruppiert die Spieler-**Karten** (`clubs.league_id`).
+- **Bestehende Nutzer-Punkte-„Liga"** (`is_liga_event`, `close_monthly_liga`, `monthly_liga_*`) — Bestenliste **der Nutzer** (bester Scout). Hat mit Fußball-Ligen nichts zu tun, heißt nur zufällig auch „Liga".
+
+Zusätzlich verknüllt der eine Schalter `is_liga_event` heute ZWEI Achsen: „Fußball-Liga-Bezug" und „zählt voll/gedeckelt für die Wertung".
+
+### Entscheidung (Anil)
+1. **„Liga" = ausschließlich Fußball-Liga** — user-facing + Code-Begriff künftig nur noch dafür.
+2. **Nutzer-Wettbewerb heißt „BeScout-Saison".** Ranglisten: „BeScout-Saison — Bundesliga" (pro Liga) + „BeScout-Saison — Gesamt" (global), je Monat/Saison. = das heutige `is_liga_event`/`monthly_liga_*`, bei E-2 begrifflich umgezogen.
+3. **Jedes Event = drei getrennte Eigenschaften** statt einem „Liga-Event"-Schalter: (a) aus welcher Fußball-Liga aufstellen (`league_id`+„offen", E-1) · (b) zählt es für die BeScout-Saison, wie stark (alt `is_liga_event`, voll vs. gedeckelt, E-2) · (c) wer ist Creator/zahlt (`type`, existiert).
+
+### Alternativen erwogen
+- **„BeScout-Meisterschaft"** als Wettbewerbs-Name: verworfen — Anil wählte „BeScout-Saison" (betont Zeitraum-Charakter).
+- **„Scout-Wertung"** (neutral/technisch): verworfen — weniger Wettkampf-Stimmung.
+- **„Liga" als Marke für den Nutzer-Wettbewerb behalten + Fußball-Ligen anders nennen:** verworfen — Fußball-Ligen heißen universell „Liga", unnatürlich umzubenennen.
+
+### Auswirkung
+Bei E-2 wird `is_liga_event`/`monthly_liga_*` in zwei saubere Achsen entwirrt (Fußball-Liga-Bindung = E-1 `league_id` vs. Wertungs-Stärke = altes Flag) und das Nutzer-Wertungs-Konzept user-facing auf „BeScout-Saison" umbenannt. Verhindert, dass das System „die falschen Dinge zusammenzählt". Compliance: „Saison"/„Liga" sind unverfänglich (keine Securities-/Glücksspiel-Nähe).
+
+**Re-Visit-Trigger:** Falls „BeScout-Saison" sich beim Bau als unklar erweist (z. B. Kollision mit dem Saison-Zeitraum-Begriff selbst) → Namen erneut mit Anil prüfen.

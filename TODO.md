@@ -5,7 +5,7 @@
 > Prio: 🔴 P0 = jetzt · 🟡 P1 = als Nächstes · 🟢 P2 = Backlog. v1 — 2026-06-17, gemeinsam zu schärfen.
 
 ## 🔴 P0 — jetzt
-- **⚠️ E4 Money-Modell-Glattzug + Mock→Pro-E2E-Härtung (D99) — IN ARBEIT (Anil-Prio 2026-06-24).** Plan-Anker `worklog/notes/366-e4-money-model-cleanup-epic.md`.
+- **✅ E4 Money-Modell-Glattzug + Mock→Pro-E2E-Härtung (D99) — ABGESCHLOSSEN (Anil 2026-06-25).** Slice-Sequenz 366→379b alle DONE. Einziger offener Punkt T-1 Cold-Start-Liquidität ist **kein Code-Blocker**, sondern Teil der Launch-Prep → gehört in die Test-IPO/Reset-Phase (`memory/project_launch_sequence_reset.md`), entschieden wenn Anil die Vereins-IPOs startet. Mock→Pro + S7 werden im laufenden Plan (E5 + (C)) weiter durchgezogen. Plan-Anker `worklog/notes/366-e4-money-model-cleanup-epic.md`.
   - ✅ **Schritt 1: D99-OFFEN ratifiziert** (Commit b52e8b09) — Naming „Credits" jetzt/$SCOUT=ICO-Coin · Phasen 1/2/3 · CASP=schnellster sicherer Weg (Route Anwalt) · Pricing 1 Card=MV/1.000 Credits (kein 100×-Widerspruch).
   - ✅ **Schritt 2: Doc-Glattzug** (Slice 366, Commit eba47650) — ~40 Stellen + Skills + SYSTEM-DESIGN auf D99; messages $SCOUT/BSD=0; tsc grün. Proof `366-drift-grep.txt`.
   - **Schritt 3: E2E-Sweep + Bug-Fixes** (`worklog/notes/365-e2e-findings.md`): ✅ **367 T-3 Diamond-Hands** (Rename „Treuer Sammler" + Hold-Logik holdings.created_at statt Mock-Seed + Konfetti-Gate; Reviewer PASS, Commit 7b650a4f).

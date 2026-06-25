@@ -14,6 +14,27 @@
 
 ---
 
+## 0. Begriffs-Klarstellung — „Liga" eindeutig machen (Anil-Entscheid 2026-06-25)
+
+**Wurzel der Verwirrung:** Das Wort „Liga" steckt heute doppelt im Code und meint zwei verschiedene Dinge:
+- **Fußball-Liga** (Bundesliga, Süper Lig, Premier League) — gruppiert die **Spieler-Karten** (`clubs.league_id`).
+- **Bestehende Punkte-/Elo-„Liga"** (`is_liga_event`, `close_monthly_liga`, `monthly_liga_*`) — eine Bestenliste **der Nutzer** (wer ist bester Scout). Hat mit Fußball-Ligen nichts zu tun.
+
+**Optimiertes Modell (so bauen):**
+1. **„Liga" = AUSSCHLIESSLICH Fußball-Liga.** User-facing + Code-Begriff künftig nur noch dafür.
+2. **Der Nutzer-Wettbewerb heißt → „BeScout-Saison"** (Anil-Wahl). Seine Ranglisten lesen sich „BeScout-Saison — Bundesliga" (pro Liga) und „BeScout-Saison — Gesamt" (global), je Monat/Saison. Das ist das, was heute fälschlich „Liga" heißt (`is_liga_event`/`monthly_liga_*`) → bei E-2 begrifflich umziehen.
+
+**Jedes Event hat künftig DREI getrennte Eigenschaften (heute in „Liga-Event" verknüllt):**
+| Frage | Eigenschaft | Slice |
+|---|---|---|
+| Aus welcher **Fußball-Liga** darf aufgestellt werden? | `league_id` + „offen" | E-1 |
+| Zählt es für die **BeScout-Saison — und wie stark?** | (alt `is_liga_event` → umbenennen: voll vs. gedeckelt) | E-2 |
+| Wer ist **Creator / zahlt den Topf?** | `type` (bescout/club/user/sponsor) | existiert |
+
+**Falle Frage 1 vs. Frage 2:** Heute mischt der eine `is_liga_event`-Schalter beides (Fußball-Liga-Sinn + Wertungs-Stärke). Bei E-2 sauber in zwei Achsen trennen, sonst zählt das System die falschen Dinge zusammen.
+
+---
+
 ## 1. Das Zielbild in einem Satz
 Events kommen von **Creatorn** (BeScout / Verein / User / Sponsor). Jeder Creator zahlt den Preis-Pool, kassiert die Eintritts-Einnahmen (BeScout immer mit Anteil). Die **kostenlose BeScout-Liga** läuft **pro Liga** (Aufstellung nur aus dieser Liga) **und global**; **Creator-Events** zählen nur minimal/gedeckelt in die Liga und dürfen ihre Liga-Bindung selbst wählen.
 
@@ -46,8 +67,8 @@ Events kommen von **Creatorn** (BeScout / Verein / User / Sponsor). Jeder Creato
 **E-1 · Liga-Bindung der Aufstellung** *(Größe M, kein Money)*
 Echte `events.league_id`-Spalte + Restriktions-Flag („eine Liga" / „offen"). `rpc_save_lineup` prüft: bei gebundenem Event müssen alle Lineup-Spieler aus der Liga kommen. Erstell-UI: Liga-Auswahl + „offen"-Option. → Fundament für alles Liga-bezogene.
 
-**E-2 · Wertung pro Liga (zusätzlich zu global)** *(Größe M-L, Money/CEO — mehr Gewinner = mehr Payout)*
-Monats-/Saison-Abschluss + `scout_scores`/Rankings nach Liga partitionieren. Rankings-UI: Umschalter „Pro Liga / Global". Baut auf E-1.
+**E-2 · BeScout-Saison: Wertung pro Liga (zusätzlich zu global)** *(Größe M-L, Money/CEO — mehr Gewinner = mehr Payout)*
+Monats-/Saison-Abschluss + `scout_scores`/Rankings nach **Fußball-Liga** partitionieren. Rankings-UI: Umschalter „Pro Liga / Gesamt". Baut auf E-1. **Begriffs-Umzug (Section 0):** das bestehende `is_liga_event`/`monthly_liga_*` ist die heutige Nutzer-Wertung → in „BeScout-Saison" umbenennen; dabei die zwei Achsen entwirren (Fußball-Liga-Bindung = E-1 `league_id` vs. Wertungs-Stärke voll/gedeckelt = altes Flag).
 
 **E-3 · Teilnahme-Bedingungen erweitern** *(je XS-S, teils Money-nah)*
 - (a) „min. X Spieler vom Verein" (Gegenstück zu `max_per_club`) — in `rpc_save_lineup`.

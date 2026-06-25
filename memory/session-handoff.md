@@ -1,14 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 14:32)
+# Session Handoff — Auto (2026-06-25 15:36)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 3 Files
 ```
+ M TODO.md
  M memory/session-handoff.md
+ M worklog/notes/event-creator-liga-epic.md
 ```
 
 ## Session Commits: 10
+- 4bc4444e docs(trackers): E5 Event-/Creator-/BeScout-Liga-Epic (D104) in MASTERPLAN+TODO+Handoff verankert
 - ecc083da docs(decision): D104 — Event-/Creator-/BeScout-Liga-Zielbild + Roadmap
 - 14caad52 docs(handoff): 379+379b DONE — beide Anil-Funde (Ticket-Source-Drift + Bounty-Wallet-Hinweis) erledigt
 - 54b90a15 fix(bounty): Wallet-Kosten-Hinweis nur zeigen wenn Admin-Wallet wirklich belastet wird (Slice 379b)
@@ -18,7 +21,6 @@
 - 75e164ca docs(370): Bounty-Approval-UI E2E live bewiesen (letzter cred-gated Rest)
 - cc7eb8f9 docs(357): Topf-Card-Visual abgenommen + QA-Admin-Login entsperrt
 - f5db42b9 feat(treasury): special-Events zahlen Prize aus dem Plattform-Topf (E3 RAUS-Kanal #3, Slice 378)
-- 26b15576 feat(treasury): BeScout-Events zahlen Prize aus dem Plattform-Topf (E3 RAUS-Kanal #2, Slice 377)
 
 <!-- auto:handoff-end -->
 
