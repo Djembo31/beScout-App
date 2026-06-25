@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 19:14)
+# Session Handoff — Auto (2026-06-25 21:16)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -9,16 +9,16 @@
 ```
 
 ## Session Commits: 10
+- f56019c2 docs(log): Slice 384 DONE — E-3 Türsteher AC1-AC12 PASS, Epic E-3 reconciled
+- 7bf23383 feat(events): E-3 Türsteher — Follower-Pflicht + Fan-Rang-Gate auf Event-Eintritt (Slice 384)
+- 6549a445 docs(decision): D107 — Event-Bedingungen Zwei-Töpfe + Regel-Liste (JSONB lineup_rules)
+- 8f6260a1 docs(handoff): Session-Close 2026-06-25 — E-2b (383) voll-DONE, next = E-3 (Teilnahme-Bedingungen)
 - 21da524d docs(proof): Slice 383 — AC11 UI-Playwright post-Deploy live PASS (AC1-AC12 alle PASS)
 - 2f51c278 docs(knowledge): bescout-liga — E-2b Pro-Liga-Payout DONE reconcilen (Slice 383)
 - a6e0b2c5 docs(knowledge): E-2b Pro-Liga-Payout — reward-ranking + treasury RAUS-Kanal (Slice 383)
 - 5a41fd2c feat(rankings): E-2b — Pro-Liga-Payout (BeScout-Saison Manager) + konfigurierbare Beträge (Slice 383)
 - 28ac6897 docs(handoff): Session-Close 2026-06-25 — E-2a (381) + E-1b (382) DONE, next = E-2b (Pro-Liga-Payout, Money/CEO)
 - 5879ade1 docs(proof): Slice 382 — AC-05/07 + S333-Heilung LIVE PASS (Club-Admin Liga-Select, kein MISSING_MESSAGE)
-- 6ec80cdf feat(fantasy): E-1b — Lineup-Picker-Liga-Vorfilter + Club-Admin-Liga-Picker (Slice 382)
-- f6dfa18c docs(proof): Slice 381 — UI-Playwright post-Deploy ALLE PASS (DE/TR Header, Mobile, Pro-Liga-Board befüllt)
-- 0532cc21 feat(rankings): E-2a — BeScout-Saison Begriffs-Umzug + Pro-Liga-Ranglisten-Anzeige (Slice 381)
-- 305a4889 docs(handoff): Session-Close 2026-06-25 — E4 zu, E5 gestartet, E-1 (380) DONE, next = E-2a
 
 <!-- auto:handoff-end -->
 
@@ -26,11 +26,20 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = `21da524d` (== origin/main, alles gepusht).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **Letzter Slice = 383 (E-2b Pro-Liga-Payout) voll-DONE, AC1-AC12 PASS. tsc clean, 67 vitest grün, Reviewer PASS. main == origin/main.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
+**Status: idle. HEAD = `f56019c2` (== origin/main, alles gepusht).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **Letzter Slice = 384 (E-3 Türsteher: Follower + Fan-Rang) voll-DONE, AC1-AC12 PASS. tsc clean, 140 vitest grün, Reviewer PASS. main == origin/main.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
 
-## 🎯 HIER ANKNÜPFEN — E5 E-3: Teilnahme-Bedingungen (XS-S)
+## ✅ Diese Session (2026-06-25 spät) — D107 festgehalten + E-3 Türsteher (384) DONE
+- **NEUE ARCHITEKTUR D107 (`memory/decisions.md` + `event-creator-liga-epic.md` §3b, INDEX-Range D1–D107):** Event-Bedingungen = **zwei Töpfe**. (1) **Eintritts-Türsteher** (wer darf rein: Follower/Fan-Rang/Abo/Stufe) = **feste Spalten** in `rpc_lock_event_entry`. (2) **Aufstellungs-Regeln** (welche Karten ins Lineup: Alter/Nation/min-vom-Verein/Marktwert/Position) = **JSONB `lineup_rules`-Regel-Liste** (Weg B, EIN generischer Validator in `rpc_save_lineup`, neue Regel = kein Schema-Change). Creator-zentrierter Builder + Echtzeit-Treffer-Anzeige. Anil-Wunsch „einfach aber mächtig, wildeste Kombinationen". Anil hat Weg B + Claude-Ideen (MV-Deckel, Positions-Quote, Alters-Fenster, max-pro-Nation) freigegeben.
+- **✅ Slice 384 DONE (`7bf23383`+`f56019c2`):** E-3 **Türsteher** (Topf 1). `events.requires_follow` (BOOLEAN) + `events.min_fan_rank_tier` (TEXT, 6-Tier-CHECK) + 2 Gate-Blöcke in `rpc_lock_event_entry` (Spiegel Poll-356), nur bei club_id, fail-closed, VOR Geld. PATCH-AUDIT 8/8, force-rollback Money-Smoke AC1-AC7 (kein Geld bei Reject), UI-live beide Builder (0 Console-Errors, kein MISSING_MESSAGE), Reviewer PASS (2 NIT bewusst nicht geheilt — s. `384-review.md`). Migration `20260625210000`. **Nebenwissen:** Follow-INSERT triggert `club_followers_recalc_fan_rank` (S345) → erzeugt fan_rankings-Zeile (im Smoke berücksichtigt).
 
-**➡️ NÄCHSTER SLICE = E-3 (XS-S, teils Money-nah).** ZUERST lesen: `worklog/notes/event-creator-liga-epic.md` (E-3-Block) + `memory/decisions.md` D104. E-3 = Teilnahme-Bedingungen erweitern: (a) „min. X Spieler vom Verein" (Gegenstück zu `max_per_club`) in `rpc_save_lineup` · (b) Follower-Pflicht-Gate in `rpc_lock_event_entry` · (c) Fan-Rang-Gate auf Events (`min_fan_rank_tier`, wie Polls/Posts). Offene Frage E-3a (§6 Epic): fixe Zahl je Event oder Prozent? (vor Bau klären). Abo-/Stufen-Gate existieren schon. Money-nah → Live-functiondef VOR Spec (D87), Reviewer-Pflicht.
+## 🎯 HIER ANKNÜPFEN — E-3 Regel-Listen-Fundament (Topf 2, Weg B, D107)
+
+**➡️ NÄCHSTER SLICE = E-3 Aufstellungs-Regel-Fundament (M, Money-nah/Lineup).** Bewusst frischer Kontext gewählt (komplexer neuer RPC). ZUERST lesen: `event-creator-liga-epic.md` §3b + §5 (E-3-Block) + `decisions.md` **D107**.
+- **Was:** JSONB-Spalte `events.lineup_rules` (Liste typisierter Bedingungen, z.B. `[{"type":"min_per_own_club","value":5}]`) + **generischer Validator-Block in `rpc_save_lineup`** (whitelisted Regel-Typen, Wert-Bounds, **fail-closed bei unbekanntem Typ**) + **erste Pilot-Regel `min_per_own_club`** (E-3a, Gegenstück zu `max_per_club`).
+- **Anil-Entscheid offen (vor Bau klären, §6 Epic): E-3a „min. X vom Verein" = feste Zahl (Claude-Empfehlung, deckt sich mit max_per_club) ODER Prozent?**
+- **Pflicht-Reads (D87):** Live-`pg_get_functiondef('public.rpc_save_lineup(...)')` VOR Spec (großer RPC, in 384-Session NICHT gelesen — frisch holen) + `events.queries.ts`/`events.mutations.ts` für `lineup_rules`-Read/Write-Pfade (S200, alle 5 Reader wie bei 384) + Lineup-Picker-Consumer.
+- **Datenbedarf später (Regel-Erweiterungen, eigene Folge-Slices):** Alter/Geburtsdatum + Nationalität müssen auf `players` verfügbar sein, sonst Scraper/Spalte zuerst (MV `market_value_eur` existiert). Reihenfolge: Fundament+min_per_own_club zuerst, dann `age_*`/`nation_in`/`mv_max_eur`/`position_quota` je winziger Folge-Slice (kein Schema-Change dank JSONB).
+- Money-nah → Live-functiondef VOR Spec, force-rollback-Smoke, Reviewer-Pflicht. Selbst bauen (§3).
 
 **✅ AC11 (UI Playwright post-Deploy) ERLEDIGT (2026-06-25):** Liga-Tab live verifiziert — „Pro-Liga-Rewards"-Card rendert alle 7 Ligen (Default 1000/500/250), neuer „Monat abschließen"-Text, 0 Console-Errors (kein MISSING_MESSAGE). Write-Pfad `set_liga_reward_config` live bewiesen (Bundesliga #1→2000 gespeichert, „(Default)" verschwand, Test-Zeile danach gelöscht). Proof `383-money-smoke.txt` §E + `383-admin-liga-rewards.png`. → **Slice 383 voll-DONE, AC1-AC12 alle PASS.** (Winner-Liga-Badge erst sichtbar nach erstem echten Monatsabschluss — kein offener Punkt.)
 
