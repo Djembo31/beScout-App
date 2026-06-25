@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 01:38)
+# Session Handoff — Auto (2026-06-25 12:18)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -8,17 +8,12 @@
  M memory/session-handoff.md
 ```
 
-## Session Commits: 10
-- 3e3d225a docs(knowledge): reward-ranking.md — Monatsliga zahlt aus dem Topf (Slice 376)
-- 910ae41e feat(treasury): Monats-Liga zahlt aus dem Plattform-Topf (E3 RAUS-Kanal #1, Slice 376)
-- 3980740a docs(decision): D102 — DPC-Mastery-Feature entfernt (Dormant-Mock) + Session-Handoff
-- cffddcdc docs: Reste-Runde 2026-06-25 abgeschlossen (373/374/375) + #4/#5 zurückgestellt
-- ab1581c1 refactor(gamification): DPC-Mastery-Feature entfernt + Mock-Cron gestoppt (Slice 375)
-- 5ff7510a fix(i18n): Compliance-Sweep eventCurrency/Tickets-"Währung" → D99-neutral (Slice 374)
-- 5293cdf9 fix(i18n): Floor-Label-Vereinheitlichung — statische "Floor" → "Marktpreis"/"Piyasa Fiyatı" (Slice 373)
-- b032f6c3 chore(handoff): Session-Close 2026-06-24 — 371 + 372 DONE, next E3 Slice 3
-- 264d4ac5 docs(372): LOG + Proof + S372-Pattern — BuyModal Self-Heal VOLL-DONE
-- 4a7c868f fix(market): BuyModal Freshness-Gate self-heal — kein Dauer-Hang bei "Saldo wird aktualisiert" (Slice 372)
+## Session Commits: 5
+- d257e4e5 docs(todo): U-1 stale 'OFFEN'-Vermerk reconciled — 371 ist VOLL-DONE (AC1/AC2 live PASS 26245d48)
+- 75e164ca docs(370): Bounty-Approval-UI E2E live bewiesen (letzter cred-gated Rest)
+- cc7eb8f9 docs(357): Topf-Card-Visual abgenommen + QA-Admin-Login entsperrt
+- f5db42b9 feat(treasury): special-Events zahlen Prize aus dem Plattform-Topf (E3 RAUS-Kanal #3, Slice 378)
+- 26b15576 feat(treasury): BeScout-Events zahlen Prize aus dem Plattform-Topf (E3 RAUS-Kanal #2, Slice 377)
 
 <!-- auto:handoff-end -->
 
@@ -26,34 +21,36 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = `3e3d225a` (Slice 376 DONE + Knowledge-Reconcile).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal, main == origin/main, tsc clean.** Alles committet & gepusht.
+**Status: idle. HEAD = `d257e4e5`.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal, main == origin/main, tsc clean.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel).
 
-## 🎯 HIER ANKNÜPFEN — E3 Slice 4 (BeScout-Events aus dem Topf), zweiter RAUS-Kanal
+## 🎯 HIER ANKNÜPFEN — E3 Slice 5 (Wettkampf-Darstellung + Ranking-Konsolidierung, UI)
 
-**➡️ NÄCHSTER SLICE = E3 Slice 4 — BeScout-Events aus dem Topf** (Money/CEO-Scope, selbst bauen §3): `type='bescout'`-Events zahlen Prize aus `platform_treasury` (`debit`) statt zu minten — mirror Slice 331 Club-Event-Escrow. Löst `treasury.md §7 „bescout mintet weiter" ab. **Money-Muster (Pflicht): Live-`pg_get_functiondef` der Event-Prize-/Settle-RPC VOR Spec (D87).** Gleiche Bausteine wie 376: inline `book_platform_treasury('debit',…)` + Deckungs-Check unter Singleton-Row-Lock (book schützt NICHT gegen Negativ) + ggf. Genesis-Seed-Muster (D103) bei Cold-Start. Danach Slice 5 Wettkampf-Darstellung + Ranking-Konsolidierung. Plan-Anker `worklog/notes/358-platform-treasury-epic.md`.
+**➡️ NÄCHSTER SLICE = E3 Slice 5 — Wettkampf-Darstellung + Ranking-Konsolidierung** (UI, KEIN Money-Core): Events als „BeScout Liga" mit Monats-/Saison-Wertung sichtbar machen (Manager messen sich; `events.is_liga_event` existiert als Anker). Die 7 `/rankings`-Boards entwirren: „Diese Saison/Monat" (lebendig) vs „Ewig/Global"; Spieler-Ranking (rankt Karten, keine User) thematisch trennen. Bezug S7-Tracker `worklog/s7-phase3-remaining.md` Block #2 (Leaderboard-Konsolidierung) + `scout_scores`↔`user_stats`-Redundanz. Plan-Anker `worklog/notes/358-platform-treasury-epic.md` (Slice 5).
+- **Falls Live-Standing-Board mit dabei:** `useMonthlyLeaderboard`+`getMonthlyLeaderboard` (`scoutScores.ts:216`) liegen bereit, 0 UI-Konsumenten; `getMonthlyLeaderboard` hat `console.error`+`return []` → bei Verkabelung swallow→throw heilen.
 
-### ✅ Session 2026-06-25 (Nachmittag) — Slice 376 DONE (E3 RAUS-Kanal #1, Money/CEO)
-- **376** (`910ae41e` + Knowledge `3e3d225a`): **Monats-Liga zahlt aus dem Plattform-Topf.** `close_monthly_liga` zog Rewards bisher per reinem Minten (34.000 Credits/Monat); jetzt **zero-sum** per `book_platform_treasury('debit','monthly_liga',v_total_paid,…)` (EINE Buchung nach Payout-Loop, Debit=actual-paid). **Deckungs-Check** inline unter Singleton-Row-Lock (Befund D87: `book_platform_treasury` hat KEINEN Negativ-Guard; `get_platform_balance` admin-only+json → inline SUM); `RAISE insufficient_treasury` rollt Snapshot-Inserts zurück → Monat retry-bar. **overall-Bug behoben:** `[2]=manager` → echter **Median** `(a+b+c)-GREATEST-LEAST`. **Genesis-Seed 500.000 Credits** (source-CHECK um `'genesis'` gewidert, idempotent) → Topf live **50.003.297 cents**. Reward-Konstanten byte-identisch, KEIN src-Change. Reviewer CONCERNS→Money PASS-grade. Force-Rollback-Smoke (Zero-Sum/Median/insufficient/Idempotenz) `worklog/proofs/376-money-smoke.txt`.
-- **CEO-Entscheid (Anil, AskUserQuestion) → D103:** Cold-Start = **Genesis-Seed + manueller Trigger** (kein Cron, kein Fallback-Mint, kein Hard-Gate-Stillstand). Muster für ALLE künftigen RAUS-Kanäle.
-- **⏸ Bewusst aufgeschoben (eigene Folge-Slices, kein Blocker):** (a) **Liga-Cron** (Auto-Monatsabschluss; Anil: erst manuell) · (b) **Live-Standing-Board-UI** (laufender Monat als Anreiz; `useMonthlyLeaderboard`+`getMonthlyLeaderboard` liegen bereit aber 0 UI-Konsumenten, `getMonthlyLeaderboard` hat console.error+return → bei Verkabelung swallow→throw heilen).
-- **⚠️ Uhren-Artefakt:** Maschinen-Uhr läuft 1 Tag hinter `currentDate` (Hook-„heute"=2026-06-24). Knowledge-Files brauchen `updated: <Maschinen-heute>` sonst blockt `audit:knowledge:check` HARD. Bei Doc-Edit ggf. das vom Hook genannte Datum nehmen.
+## ✅ E3 Plattform-Topf — REIN komplett (5/5) + RAUS 3/3
+- **REIN (Fees, voller Auffang 100% D98, je Zero-Sum live):** Trading 358 · IPO 360 · Polls 363 · Research 364 · Bounty 365 (+P2P).
+- **RAUS (Escrow/Debit aus Topf, Zero-Sum, `score_event`/`close_monthly_liga` minten nicht mehr netto):** Monats-Liga 376 · **BeScout-Events 377** · **special-Events 378**.
+- **Event-Geldquellen:** club ✅ bescout ✅ special ✅ | **sponsor** (Deposit-Pfad fehlt = eigener größerer Slice) / **creator** (Phase 4) minten weiter.
+- **Money-Muster (Pflicht künftige RAUS):** Live-`pg_get_functiondef` VOR Spec (D87) · Escrow-Trigger-zentrisch · inline Deckungs-Check unter Singleton-Row-Lock (`book_platform_treasury` hat KEINEN Negativ-Guard) · D103 Hard-Gate (`RAISE` bei Unterdeckung) · Refund-source/Halter nach `OLD.type` (S377) · force-rollback-Smokes · Reviewer-Pflicht. Quelle: treasury.md §7/§10 + errors-db.md S377.
 
-### ✅ Vorherige Reste-Runde 2026-06-25 (373/374/375) — DONE
+### ✅ Diese Session (2026-06-25 Nachmittag/Abend) — 377 + 378 + ALLE Reste erledigt
+- **377** (`26b15576`): BeScout-Events (`type='bescout'`) aus Topf. 3 Event-Trigger (escrow BEFORE INSERT / settle BEFORE UPDATE OF status / resync BEFORE UPDATE OF prize_pool,type) um `type='bescout'`→`platform_treasury`-Zweig erweitert. CEO-Entscheid (AskUserQuestion): **Escrow-bei-Erstellung** (Spiegel 331), `score_event` unangetastet. Zwei-Treasury-Resync (type-Switch club↔bescout). 8/8 force-rollback PASS, Reviewer PASS. Proof `377-money-smoke.txt`.
+- **378** (`f5db42b9`): special-Events (`type='special'`) aus Topf — platform-Zweig auf `type IN ('bescout','special')`, eigene Ledger-source `special_event` (CHECK-Widen + AdminTreasuryTab-Label + i18n DE „Sonder-Event"/TR „Özel Etkinlik"), Refund-source nach Halter `OLD.type`. bescout-Regression-safe (source-CASE, AC-06 empirisch). 9/9 force-rollback PASS, Reviewer PASS. Proof `378-money-smoke.txt`.
+- **🔑 Credentials entsperrt (`cc7eb8f9`):** `ali@test.bescout.de` Passwort → **`123456`** (SQL-bcrypt) + zu `platform_admins` (superadmin). **Live-Login gegen GoTrue verifiziert.** Ein Login = Plattform-Admin (`/bescout-admin`) **UND** Sakaryaspor-Club-Admin. Echte Anil-Konten (`djembo31@gmx.de`/`bescout@gmx.de`) unangetastet. **Gate-Wahrheit:** `/bescout-admin` = `platform_admins`-Mitgliedschaft (NICHT `top_role='Admin'`). Details + Reset-Rezept: memory `reference_qa_test_credentials`.
+- **Rest #1 Topf-Card-Visual (357) ✅:** Treasury-Card live gerendert (Saldo 500.032,97 Credits, REIN/RAUS/Kontoauszug). Proof `worklog/proofs/357-topf-card-de.png` (lokal, PNGs gitignored).
+- **Rest #2 Bounty-Approval-UI (370) ✅:** E2E live — ali approved jarvis-Submission im Club-Admin-UI (`/club/sakaryaspor/admin`→Aufträge→Prüfen→Genehmigen). bounty→completed, submitter +1900 (95%), **Topf +100 source `bounty`**, ali-Wallet unverändert (Escrow), Zero-Sum. Proof `worklog/proofs/370-bounty-ui-approve.txt`.
+- **Rest #3 U-1 (371):** war schon VOLL-DONE (AC1/AC2 live PASS `26245d48`), stale „OFFEN"-Vermerk reconciled.
 
-### ✅ Session 2026-06-25 — „kleine Reste"-Runde (373/374/375), alle gepusht
-- **373** (`5293cdf9`) Floor-Label-Vereinheitlichung: 11 i18n-Keys + 2 hardcoded SellModalCore + Metadata + 3 PlayerKPIs → „Marktpreis"/„Piyasa Fiyatı"; `clubSaleFixed`-Compliance. Reviewer PASS.
-- **374** (`5ff7510a`) Compliance-Sweep: `eventCurrency`/Tickets-„Währung" → „Einheit"/„Birim" (D99); Glossar entwährungt. Self-review PASS.
-- **375** (`ab1581c1`) **DPC-Mastery-Feature ENTFERNT** (D102): Live-Fund = täglicher Mock-Cron `increment_mastery_hold_days()` mintete +1 XP/Holding/Tag (Vanity). 6 UI-Stellen + Prop-Kette raus, orphan queries/services/mastery.ts gelöscht, Migration `20260625120000` (Cron unscheduled + Fn + `hold_days`-Spalte gedroppt). **Echte Engine (award_mastery_xp Fantasy/Content + freeze/unfreeze) + Tabelle reversibel erhalten.** Reviewer PASS, 100 vitest. Knowledge: errors-frontend Removal-5.-Achse.
+### 🐛 2 neue Funde (je eigener Mini-Slice, NICHT blockierend)
+- **`credit_tickets` 400 „Ungueltige Ticket-Quelle: post_create"** — Quelle `post_create` fehlt im credit_tickets-Source-CHECK (CHECK-Drift, S330-Klasse). Ticket-Gutschrift fürs News/Post-Erstellen schlägt still fehl. Fix = CHECK widern / 4-File-Sync.
+- **Bounty-Review-UI-Hinweis** „kostet 20 Credits aus deinem Wallet" auch bei **escrow-gedeckten** Club-Bounties (Admin-Wallet wird NICHT belastet, RPC nimmt Escrow). Hinweis nur bei `is_user_bounty || !treasury_escrowed` zeigen.
 
-### ⏸ 2 Reste zurückgestellt (Anil) — credential-gated, Funktion je RPC-bewiesen
-- **Topf-Card-Visual (357):** Card code-komplett (`AdminTreasuryTab.tsx`) + Saldo RPC-bewiesen (2462 Cents). Offen NUR Screenshot `/bescout-admin` (DE+TR). **Braucht Plattform-Admin `ali@test.bescout.de` (handle ali_admin, einziger top_role='Admin') — Passwort fehlt.** kede5=Manager reicht nicht.
-- **Bounty-Approval-UI (370):** Fee-REIN RPC-bewiesen. Offen NUR UI-Klick. Creds: kede5 (`kede5@gmx.de`, Club-Admin), Kandidaten 12345/123456/test123.
+### Geseedete Live-Artefakte (permanent, NICHT aufräumen — E2E-Beweis)
+- **378-Bounty-UI:** Sakaryaspor-Bounty `723397eb-5ba2-4b3e-abeb-cb82f682b57e` = completed; jarvis-Submission `6615b41e-8720-461d-8095-397c835f23cd` = approved (+1900); Topf-Eintrag `bounty:100`. Topf live **50.003.397 cents**.
+- Actor-IDs: ali `aaaaaaaa-0005-4000-a000-000000000005` (Plattform+Club-Admin) · jarvis-qa `535bbcaf-f33c-4c66-8861-b15cbff2e136` (Manager) · Project `skzjfhvgccaeplydsunz`.
 
-**Nächster großer Money-Track = E3 Slice 3.**
-
-**➡️ NÄCHSTER SLICE = E3 Slice 3 — Monats-Liga e2e** (erster RAUS-Kanal aus dem Topf): `close_monthly_liga` zahlt Rewards per `debit` aus dem Topf (statt Minting) + Deckungs-Check + Idempotenz. Lebt heute, mintet 34.000/Mt, 0 Snapshots. Preflight `worklog/notes/357-preflight-monthly-leaderboard.md`, Plan `worklog/notes/358-platform-treasury-epic.md`. **Money-Muster: Live-`pg_get_functiondef` der Liga-RPC VOR Spec (D87).** Sequenz danach: 4 BeScout-Events → 5 Wettkampf-Darstellung.
-
-**Alternativ (kleinere E4-Reste, kein Blocker):** 368-Label-Rest (Floor-Wording-Keys, `368c-e2e-trading-findings.md`) · Compliance-Sweep eventCurrency/Tickets-„Währung" → D99-Wording · 367-F#3 DPC-Mastery-Leaderboard Mock→Pro (`hold_days`-Seed). T-1 Cold-Start-Liquidität = Produkt-Entscheid (Anil).
+### 📌 Frühere Anker (Referenz, bei Bedarf)
 
 ### ✅ Diese Session (2026-06-24 spät) — 371 + 372 DONE
 - **371 ✅ VOLL-DONE** (`26245d48`): Live-Playwright AC1/AC2 PASS — Header zeigt nach Poll-Vote (11.708,27→11.698,27) + Research-Unlock (→11.688,27) SOFORT −10 CR ohne Reload, DB-reconciled. Pattern S371 in errors-frontend.md.
