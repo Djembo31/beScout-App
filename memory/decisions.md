@@ -3982,3 +3982,38 @@ Der zirkuläre Modell-Shift (D96: Fees REIN → Rewards RAUS aus `platform_treas
 Muster für **alle weiteren RAUS-Kanäle** (Slice 4 BeScout-Events, künftige): bei Cold-Start einmaliger Genesis-Seed in den Topf + Deckungs-Check hart + Trigger erst manuell. Credits sind in Phase 1 wertloses Spielgeld (D99) → der Seed ist kein finanzielles Risiko, nur Modell-Integrität. Quelle WIE: `docs/knowledge/domain/treasury.md` + Plan `worklog/notes/358-platform-treasury-epic.md`.
 
 **Re-Visit-Trigger:** wenn die echten Fees den monatlichen RAUS-Bedarf real decken (Topf wächst nachhaltig) → Genesis-Anteil wird irrelevant, Auto-Cron kann scharf geschaltet werden. Spätestens vor Coin-Phase (D99 Phase 2) neu bewerten, da Credits dann Wert tragen.
+
+---
+
+## D104 — PRODUCT: Event-Modell — „Creator" als Oberbegriff, Liga-gebundene Aufstellung, Wertung pro Liga + global
+
+**Datum:** 2026-06-25 · **Status:** 🟡 Zielbild (Roadmap, noch nicht gebaut) · **Category:** PRODUCT (Fantasy/Events/Money) · **Kontext:** Anil-Vision-Klärung 2026-06-25 (mehrteiliges Gespräch). Setzt das Zielbild für den gesamten Event-/BeScout-Liga-Bereich. WIE/Reihenfolge: `worklog/notes/event-creator-liga-epic.md`.
+
+### Entscheidung (Anil-Vision, das Zielbild)
+
+1. **„Creator" ist der Oberbegriff** für jeden, der ein Event erstellt — vier Sorten: **BeScout · Verein · User · Sponsor**. Jeder Creator **bezahlt** beim Erstellen den Preis-Pool; das Event erzeugt **Einnahmen** (Eintritt der Teilnehmer), die in die **Kasse des Creators** fließen; **BeScout kassiert immer seinen Anteil** (Fee-Split pro Event-Typ).
+2. **Eintrittswährung:** BeScout-Events laufen über **Tickets** (Tickets einlösen → Credits/Equipment/Tickets gewinnen). BeScout **Special-Events** können auch **Credits** ausschütten (höherer Ticket-Preis). Vereins-/User-/Sponsor-Events: i. d. R. **Credits**. (Currency-Feld unterstützt beides.)
+3. **BeScout Liga** = kostenlose Plattform-Liga-Events, **volle** Punkte, Monats-/Saison-Wertung. Jeder soll teilnehmen, um aufzufallen. **Creator-Events zählen nur minimal + gedeckelt** in die Liga (heute: 25 % + Saison-Cap — bleibt so).
+4. **Liga-Bindung der Aufstellung (Kern der Länder/Ligen-Frage):**
+   - **BeScout-Liga-Events sind an EINE Liga gebunden** → Lineup nur aus Spielern dieser Liga. Daraus folgt: die **BeScout-Liga läuft pro Liga getrennt**.
+   - **Alle anderen Events (Verein/User/Sponsor/BeScout-Special) wählen frei:** „nur Liga X" ODER „offen / alle Ligen" (Sponsor-Beispiel: keine Liga-Grenze → Spieler aus beliebigen Ligen).
+   - **Land** ist die Gruppierungs-Ebene über der Liga (nur Filter); fürs Aufstellen zählt die **Liga**.
+5. **Wertung pro Liga UND global** (Anil-Entscheid): es gibt beide Ranglisten — je Liga getrennt **und** eine globale. (Heute nur global.)
+6. **Aufstellung weiterhin nur mit eigenen Scout Cards** (Besitz-Pflicht bleibt, D-bestätigt).
+7. **Teilnahme-Bedingungen** (Creator wählbar): „mind. X Spieler vom Verein", **Follower-Pflicht**, **nur Abonnenten** (Abo-Tier), **Fan-Rang-Gate**. User-Events zusätzlich: **Scope „nur für Freunde" vs. „für alle"**.
+
+### Stand: was existiert schon vs. fehlt (Code-Audit 2026-06-25, Live-RPCs)
+
+**Existiert + erzwungen:** Eintritt in Tickets ODER Credits (`events.currency`/`ticket_cost`), Fee-Split pro Event-Typ inkl. BeScout-Anteil + Beneficiary + Prize-Pool (`rpc_lock_event_entry` + `event_fee_config`), **Abo-Gate** (`min_subscription_tier`), **Gamification-Stufen-Gate** (`min_tier`), Club-Scope (`scope='club'`), **nur eigene SC** + **max-pro-Verein** + Salary-Cap + Wildcards (`rpc_save_lineup`), Liga-Wertung voll vs. 25 % (`is_liga_event`), Monats-/Saison-Abschluss.
+
+**Fehlt (= die Roadmap):** Creator-Typ **„User"** (User-Events sind heute Toast-only), **Liga-Bindung der Aufstellung** (wird NICHT geprüft), **„mind. X Spieler vom Verein"** (nur `max_per_club` = Obergrenze existiert), **Follower-Pflicht**, **Fan-Rang-Gate auf Events**, **Scope „friends"**, **Wertung pro Liga** (heute global), **Creator-Pot-Einzahlung** für User/Creator-Events (Paid-Events Phase-4-gated).
+
+### Alternativen erwogen
+- **„Creator" und „Verein" als getrennte Konzepte:** verworfen — Anil: ein Verein IST ein Creator (Oberbegriff vereinheitlicht die Finanzierungs-/Fee-Logik).
+- **BeScout-Liga global statt pro Liga:** verworfen — Süper-Lig-Fans sollen sich mit Süper-Lig-Fans messen; daher pro Liga. Global bleibt zusätzlich (nicht entweder/oder).
+- **Liga-Bindung für ALLE Events erzwingen:** verworfen — nur Liga-Events sind hart gebunden; andere Creator entscheiden selbst (Sponsor-Beispiel = offen).
+
+### Auswirkung
+Mehrteiliger Bau (mehrere Slices, teils Money/CEO-Scope) — Reihenfolge + Detail in `worklog/notes/event-creator-liga-epic.md` (lebendes Dokument, Anil ergänzt dort). Compliance: Eintritt/Preise in **Tickets/Credits** (Phase-1-Spielgeld, D99) ist ok; **Paid-Fantasy mit echtem Geld bleibt Phase 3** (MGA, NICHT bauen). Quelle WIE Events: `.claude/rules/fantasy.md` + Roadmap-Anker.
+
+**Re-Visit-Trigger:** Anil ergänzt/ändert das Zielbild in der Roadmap-Datei → bei Scope-Änderung diese Decision aktualisieren oder Nachfolger-`D<n>` mit `Supersedes: D104`.
