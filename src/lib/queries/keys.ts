@@ -302,6 +302,7 @@ export const qk = {
     monthlyWinners: (month?: string) => ['gamification', 'monthlyWinners', month ?? 'all'] as const,
     friendsLeaderboard: (uid: string) => ['gamification', 'friendsLeaderboard', uid] as const,
     monthlyLeaderboard: (month: string, dim: string) => ['gamification', 'monthlyLeaderboard', month, dim] as const,
+    seasonRanking: (leagueId: string | null) => ['gamification', 'seasonRanking', leagueId ?? 'all'] as const,
     clubLeaderboard: (clubId: string) => ['gamification', 'clubLeaderboard', clubId] as const,
   },
 

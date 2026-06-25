@@ -158,6 +158,40 @@ export async function getMonthlyLigaWinners(
   return (data as MonthlyWinnerRow[]) ?? [];
 }
 
+// ============================================
+// BeScout-Saison Ranking (E-2a / Slice 381)
+// Read-only Aggregat: Saison-Punkte (SUM lineups.total_score) über
+// is_liga_event-Events. leagueId=null -> Gesamt; uuid -> pro Fußball-Liga.
+// ============================================
+
+export type SeasonRankingEntry = {
+  user_id: string;
+  handle: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  season_score: number;
+  event_count: number;
+  rank: number;
+};
+
+/**
+ * Fetch BeScout-Saison ranking. `leagueId = null` aggregates across all leagues
+ * (Gesamt); a UUID restricts to events bound to that football league (E-1
+ * events.league_id). Read-only, no money. Throws on RPC error (no silent-fail) so
+ * the consuming board shows an ErrorState instead of a misleading empty list.
+ */
+export async function getSeasonRanking(
+  leagueId: string | null = null,
+  limit: number = 100,
+): Promise<SeasonRankingEntry[]> {
+  const { data, error } = await supabase.rpc('rpc_get_season_ranking', {
+    p_league_id: leagueId,
+    p_limit: limit,
+  });
+  if (error) throw new Error(error.message);
+  return (data as SeasonRankingEntry[] | null) ?? [];
+}
+
 /** Fetch friends leaderboard (users the current user follows) */
 export async function getFriendsLeaderboard(userId: string, limit: number = 20): Promise<ScoutLeaderboardEntry[]> {
   // Step 1: get followed user IDs

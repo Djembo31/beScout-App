@@ -772,6 +772,7 @@
     "tabResultsShort": "Ergebnis",
     "modeLiga": "Liga",
     "modeTurnier": "Turnier",
+    "seasonBadge": "BeScout-Saison",
     "resettingBtn": "Wird zurückgesetzt...",
     "resetBtn": "Zurücksetzen",
     "tabOverview": "Übersicht",
@@ -1895,6 +1896,7 @@
   },
   "profile": {
     "title": "Profil",
+    "scoutCardSeasonLabel": "BeScout-Saison",
     "overview": "Übersicht",
     "portfolio": "Kader",
     "squad": "Kader",
@@ -3010,7 +3012,13 @@
     "prefRewards": "Belohnungen"
   },
   "rankings": {
-    "title": "BeScout Liga",
+    "title": "BeScout-Saison",
+    "seasonTitle": "BeScout-Saison",
+    "scopeOverall": "Gesamt",
+    "scopePerLeague": "Pro Liga",
+    "seasonPickLeague": "Wähle oben eine Liga, um die Saison-Rangliste dieser Liga zu sehen.",
+    "seasonPerLeagueEmpty": "Noch keine BeScout-Saison-Daten für diese Liga.",
+    "seasonEventCount": "{count, plural, one {# Event} other {# Events}}",
     "comingSoon": "Rankings werden geladen...",
     "season": "Saison",
     "seasonProgress": "Saison-Fortschritt",

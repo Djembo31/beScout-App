@@ -11,6 +11,7 @@ import {
   getMonthlyLeaderboard,
   getClubLeaderboard,
 } from '@/lib/services/gamification';
+import { getSeasonRanking } from '@/lib/services/scoutScores';
 
 // FIX-06 (J9F-08): 30s for own scores (tier-up feedback needs to feel live).
 // Leaderboards / Season / Monthly-Winners stay 5min (cold data, no self-feedback need).
@@ -71,6 +72,20 @@ export function useMonthlyLeaderboard(month: string | undefined, dimension: stri
     queryKey: qk.gamification.monthlyLeaderboard(month!, dimension),
     queryFn: () => getMonthlyLeaderboard(month!, dimension),
     enabled: !!month,
+    staleTime: FIVE_MIN,
+  });
+}
+
+/**
+ * BeScout-Saison ranking (E-2a). `leagueId = null` -> Gesamt (über alle Ligen);
+ * UUID -> nur diese Fußball-Liga. `enabled` lässt den Caller den Pro-Liga-Modus
+ * ohne gewählte Liga aussetzen (Hinweis statt RPC-Call).
+ */
+export function useSeasonRanking(leagueId: string | null, enabled: boolean = true) {
+  return useQuery({
+    queryKey: qk.gamification.seasonRanking(leagueId),
+    queryFn: () => getSeasonRanking(leagueId),
+    enabled,
     staleTime: FIVE_MIN,
   });
 }

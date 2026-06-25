@@ -177,7 +177,7 @@ export function ScoutCard({
 
       {/* ── Gesamt-Rang ── */}
       <Link href="/rankings" className="mt-3 flex items-center justify-center gap-1 group">
-        <span className="text-[9px] font-bold text-white/30 uppercase tracking-wider group-hover:text-gold/50 transition-colors">BeScout Liga</span>
+        <span className="text-[9px] font-bold text-white/30 uppercase tracking-wider group-hover:text-gold/50 transition-colors">{t('scoutCardSeasonLabel')}</span>
         <span className="text-white/20 mx-0.5">|</span>
         <span className={cn('text-sm font-black', rang.color)}>
           {tg(`rang.${rang.i18nKey}`)}

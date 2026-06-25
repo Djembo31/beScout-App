@@ -1,13 +1,19 @@
 ---
 title: BeScout Liga + Rankings Hub
 created: 2026-04-10
-updated: 2026-06-17
+updated: 2026-06-25
 status: active
-tags: [liga, rankings, leaderboard, deferred]
-consult_when: Liga, Rankings-Hub, Liga-weiter Wettbewerb (DEFERRED-Konzept, überlappt Reward-Ranking)
+tags: [liga, rankings, leaderboard, bescout-saison]
+consult_when: Rankings-Hub, BeScout-Saison (Nutzer-Wettbewerb), Pro-Liga-Wertung, Liga-weiter Wettbewerb
 ---
 
 > ⚠️ Migriert aus memory/ (Stand 2026-04-10) — Inhalt nicht gegen Juni-Realität (Slices 329-332) re-verifiziert.
+
+## Update 2026-06-25 (Slice 381 · E-2a · D105/D106) — Naming + Pro-Liga-Anzeige
+- **Begriffs-Kanon (D105):** Der **Nutzer-Wettbewerb** heißt user-facing jetzt **„BeScout-Saison"** (nicht mehr „BeScout Liga"). „Liga" = ausschließlich Fußball-Liga. **Code-intern unverändert:** `is_liga_event`, `monthly_liga_*`, `close_monthly_liga` bleiben. Umbenannt wurden nur user-facing Strings (`rankings.title`, `fantasy.seasonBadge`, `profile.scoutCardSeasonLabel`).
+- **Neue read-only RPC `rpc_get_season_ranking(p_league_id uuid DEFAULT NULL, p_limit int)`** (SEC DEFINER, JSONB, anon-gesperrt): Saison-Punkte = `SUM(lineups.total_score)` über `is_liga_event`-Events mit `status='ended'`. `p_league_id=NULL` → Gesamt (alle Ligen); UUID → pro Fußball-Liga (E-1 `events.league_id`). Migration `20260625190000`.
+- **Neues Widget `LeagueSeasonLeaderboard`** (jetzt **8** Rankings-Widgets) mit Umschalter **Gesamt/Pro Liga**; Pro-Liga liest `useLeagueScope`-SSOT. Service `getSeasonRanking` (throw-on-error), Hook `useSeasonRanking`.
+- **KEINE Payout-Änderung** (Anzeige-only). Pro-Liga-**Reward** mit konfigurierbarem Pool = **E-2b** (Money/CEO, D106), noch offen. Befund: `scout_scores`/`monthly_liga_*` sind NICHT pro Liga partitioniert → per-Liga = neue (Nutzer,Liga)-Achse aus liga-gebundenen Events abgeleitet (Trader/Analyst bleiben global).
 
 # BeScout Liga + Rankings Hub — Built (2026-04-10)
 

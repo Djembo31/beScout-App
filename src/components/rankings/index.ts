@@ -1,5 +1,6 @@
 export { SelfRankCard } from './SelfRankCard';
 export { GlobalLeaderboard } from './GlobalLeaderboard';
+export { LeagueSeasonLeaderboard } from './LeagueSeasonLeaderboard';
 export { FriendsLeaderboard } from './FriendsLeaderboard';
 export { ClubLeaderboard } from './ClubLeaderboard';
 export { LastEventResults } from './LastEventResults';

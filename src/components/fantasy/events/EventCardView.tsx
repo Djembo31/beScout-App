@@ -75,7 +75,7 @@ export function EventCardView({ event, onClick }: Props) {
           )}
           {event.isLigaEvent && (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-black bg-gold/15 border border-gold/25 text-gold">
-              Liga
+              {t('seasonBadge')}
             </span>
           )}
           {event.isJoined && (

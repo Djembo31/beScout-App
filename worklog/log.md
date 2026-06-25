@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 381 | 2026-06-25 | feat(rankings): E-2a — BeScout-Saison Begriffs-Umzug + Pro-Liga-Ranglisten-Anzeige
+- Stage-Chain: SPEC (`381-bescout-season-perleague-rankings.md`, M) → IMPACT inline → BUILD (Migration+RPC selbst → Service/Hook → UI → i18n/Rename) → REVIEW (`381-review.md` reviewer PASS, 2 NIT) → PROVE (`381-season-rpc.txt` RPC+Seed live; UI-Screenshots post-Deploy) → LOG.
+- **Zweiter Bau-Slice von E5** (D104/D105/D106). CEO-Entscheid (AskUserQuestion): „Voll bauen + 1 Demo-Event seeden" — Rename + Pro-Liga-Board + sichtbarer Seed.
+- **Teil A Rename (chirurgisch, D105):** nur Nutzer-Wettbewerb „Liga"→„BeScout-Saison": `rankings.title` (DE „BeScout-Saison"/TR „BeScout Sezonu") + `fantasy.seasonBadge` (EventCardView-Badge enthärtet auf i18n) + `profile.scoutCardSeasonLabel` (ScoutCard). Fußball-Liga-Strings (modeLiga/modeLeague/leagueLabel/clubLeagueLabel/leagueFilter/fieldLeague) UNVERÄNDERT (Negativ-Grep). DB-Spalten (is_liga_event/monthly_liga_*) unangetastet. Restliche „BeScout Liga" nur admin-facing (erlaubt).
+- **Teil B Pro-Liga-Anzeige (read-only, 0 Money):** neue RPC `rpc_get_season_ranking(p_league_id uuid DEFAULT NULL, p_limit int)` (SEC DEFINER, STABLE, JSONB, AR-44 anon-gesperrt) = `SUM(lineups.total_score)` über `is_liga_event AND status='ended' [AND league_id=L]`, INNER JOIN profiles, ROW_NUMBER 3-stufiger Tie-Break, p_limit-Clamp. `p_league_id=NULL`→Gesamt, UUID→pro Liga. Service `getSeasonRanking` (throw-on-error), Hook `useSeasonRanking` (enabled-Guard), qk-Key. Neues Widget `LeagueSeasonLeaderboard` (Umschalter Gesamt/Pro Liga, `useLeagueScope`-SSOT, Saison-Punkte als Mono-Zahl ≠ Elo). Mirror `rpc_get_scout_leaderboard_overall` (S095/S270d).
+- **Proof:** Live — ACL kein anon; Gesamt(NULL)=30 (Bestandsdaten); Demo-Seed 1 Bundesliga-Event (prize_pool=0/scored_at NULL → **money-neutral: Topf-Ledger 14→14, Saldo 50.003.397 unverändert**) → Bundesliga-Board=3 (jarvisqa 312/bot001 268/bot002 240); leere Liga (Süper Lig)=0 → ehrlicher Empty. tsc 0, 18 vitest grün.
+- **Knowledge:** `docs/knowledge/domain/bescout-liga.md` Update-Block (Naming + neue RPC + 8. Widget, `updated` 2026-06-25).
+- **Scope-Out → E-2b:** Pro-Liga-Payout + konfigurierbarer Pool (L, Money/CEO). Demo-Event `96946116-1651-4fd2-aa65-76afa07f5832` = permanenter E2E-Beweis (NICHT aufräumen).
+- Files: 1 Migration + 6 src + 2 i18n + 1 knowledge. Commit: <hash>.
+
 ## 380 | 2026-06-25 | feat(events): E-1 — Fußball-Liga an die Event-Aufstellung binden (events.league_id + rpc_save_lineup-Gate)
 - Stage-Chain: SPEC (`380-e1-event-league-binding.md`, M) → IMPACT inline → BUILD (Migration+RPC selbst, dann TS/UI/i18n) → REVIEW (`380-review.md` reviewer PASS, 2 NIT) → PROVE (`380-league-binding.txt` AC1-AC8+AC10 live) → LOG.
 - **Erster Bau-Slice von E5** (D104/D105). CEO-Entscheid (AskUserQuestion): Weg B eigene `events.league_id` (nullable, NULL=offen), Bestand bleibt offen (kein Backfill).

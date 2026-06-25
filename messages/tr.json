@@ -772,6 +772,7 @@
     "tabResultsShort": "Sonuç",
     "modeLiga": "Lig",
     "modeTurnier": "Turnuva",
+    "seasonBadge": "BeScout Sezonu",
     "resettingBtn": "Sıfırlanıyor...",
     "resetBtn": "Sıfırla",
     "tabOverview": "Genel Bakış",
@@ -1895,6 +1896,7 @@
   },
   "profile": {
     "title": "Profil",
+    "scoutCardSeasonLabel": "BeScout Sezonu",
     "overview": "Genel Bakış",
     "portfolio": "Kadro",
     "squad": "Kadro",
@@ -3010,7 +3012,13 @@
     "prefRewards": "Ödüller"
   },
   "rankings": {
-    "title": "BeScout Lig",
+    "title": "BeScout Sezonu",
+    "seasonTitle": "BeScout Sezonu",
+    "scopeOverall": "Genel",
+    "scopePerLeague": "Lige Göre",
+    "seasonPickLeague": "Bu lige ait sezon sıralamasını görmek için yukarıdan bir lig seç.",
+    "seasonPerLeagueEmpty": "Bu lig için henüz BeScout Sezonu verisi yok.",
+    "seasonEventCount": "{count, plural, one {# etkinlik} other {# etkinlik}}",
     "comingSoon": "Sıralama yükleniyor...",
     "season": "Sezon",
     "seasonProgress": "Sezon İlerlemesi",

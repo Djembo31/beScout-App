@@ -1,0 +1,49 @@
+Slice 381 — E-2a BeScout-Saison: RPC + Seed Proof (live bescout.net DB, project skzjfhvgccaeplydsunz)
+Datum: 2026-06-25
+
+=== AC-06 SECURITY: ACL (kein anon) ===
+proacl rpc_get_season_ranking = {postgres=X/postgres, authenticated=X/postgres, service_role=X/postgres}
+-> REVOKE PUBLIC+anon angewandt, GRANT authenticated. KEIN anon. (Mirror rpc_get_scout_leaderboard_overall, AR-44.)
+
+=== tsc / Build ===
+npx tsc --noEmit -> EXIT 0
+CI vitest (events/__tests__ + queries) -> 18 passed
+JSON valid: messages/de.json + tr.json OK
+Rename-Negativ-Check: modeLiga/modeLeague/leagueLabel/clubLeagueLabel/leagueFilter/fieldLeague UNVERAENDERT ("Liga")
+Verbleibende "BeScout Liga": nur admin-facing (AdminEventsManagementTab:37 Label, EventFormModal:330 Kommentar) -> Scope-Out, erlaubt (D105)
+
+=== AC-02 HAPPY Gesamt (p_league_id = NULL) ===
+jsonb_array_length(rpc_get_season_ranking(NULL, 200)) = 30
+Top-3 (vor Seed): kemal2 (902, 2 Events), bot002 Basak (828), bot001 Mustafa (803)
+-> Gesamt-Board ist HEUTE mit Bestandsdaten gefuellt (39 is_liga_event-Events / 73 Lineups).
+
+=== Demo-Seed (Option 2, Anil) — money-neutral ===
+Event 96946116-1651-4fd2-aa65-76afa07f5832 "BeScout-Saison Bundesliga (Demo)"
+  type=bescout, is_liga_event=true, status=ended, league_id=Bundesliga (4f968f3a...), club_id=FC Augsburg,
+  entry_fee=0, prize_pool=0 (-> KEIN Escrow-Trigger 377), scored_at=NULL (-> trg_event_scored_manager skippt, scout_scores unberuehrt)
+3 Lineups: jarvisqa total_score=312, bot001=268, bot002=240
+Seed-Pfad: INSERT status='running' (Lineup-Guard erlaubt) -> UPDATE status='ended' (kein scored_at gesetzt)
+
+ZERO-SIDE-EFFECT BEWEIS (Plattform-Topf):
+  platform_treasury_ledger Zeilen  before=14  after=14   (kein neuer Eintrag)
+  Saldo                            before=50003397  after=50003397  (unveraendert)
+  -> Seed beruehrt den Topf NICHT (prize_pool=0).
+
+=== AC-03 HAPPY Pro Liga (Bundesliga, nach Seed) ===
+jsonb_array_length(rpc_get_season_ranking('4f968f3a-b70d-454d-9353-74a5ce288c79', 100)) = 3
+Board:
+  rank 1  jarvisqa  (Jarvis QA)   season_score=312  event_count=1
+  rank 2  bot001    (Mustafa)     season_score=268  event_count=1
+  rank 3  bot002    (Basak)       season_score=240  event_count=1
+-> deterministischer Rang, absteigend, Liga-isoliert.
+
+=== AC-04 EMPTY Pro Liga (Liga ohne Events = Sueper Lig) ===
+jsonb_array_length(rpc_get_season_ranking('05ec9bf8-d507-4ba2-ad76-ca7ea61c1099', 100)) = 0
+-> [] -> Board zeigt ehrlichen Empty-State "Noch keine BeScout-Saison-Daten fuer diese Liga".
+
+=== Offen (post-Deploy, Vercel baut von main) ===
+AC-01/07/08/09 UI-Playwright gegen bescout.net:
+  - Header "BeScout-Saison" (DE) / "BeScout Sezonu" (TR)
+  - Board Gesamt befuellt + Umschalter sichtbar (393px)
+  - "Pro Liga" + Bundesliga -> Demo-Ranking (jarvisqa/bot001/bot002)
+  - Screenshots: 381-rankings-de.png + 381-rankings-perleague.png

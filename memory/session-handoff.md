@@ -1,14 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 16:35)
+# Session Handoff — Auto (2026-06-25 16:57)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 3 Files
 ```
  M memory/session-handoff.md
+ M worklog/active.md
+?? worklog/specs/381-bescout-season-perleague-rankings.md
 ```
 
 ## Session Commits: 8
+- 305a4889 docs(handoff): Session-Close 2026-06-25 — E4 zu, E5 gestartet, E-1 (380) DONE, next = E-2a
 - a437244c docs(decision): D106 — BeScout-Saison Wertung pro Liga (echte Rewards, anpassbarer Pool, gestuft)
 - 90c3c587 feat(events): E-1 — Fußball-Liga an die Event-Aufstellung binden (Slice 380)
 - dd23faca docs(decision): D105 — "Liga"=Fußball / Nutzer-Wettbewerb="BeScout-Saison" + E4 abgeschlossen
@@ -16,7 +19,6 @@
 - ecc083da docs(decision): D104 — Event-/Creator-/BeScout-Liga-Zielbild + Roadmap
 - 14caad52 docs(handoff): 379+379b DONE — beide Anil-Funde (Ticket-Source-Drift + Bounty-Wallet-Hinweis) erledigt
 - 54b90a15 fix(bounty): Wallet-Kosten-Hinweis nur zeigen wenn Admin-Wallet wirklich belastet wird (Slice 379b)
-- ff9a238e fix(tickets): credit_tickets/spend_tickets/CHECK source-drift — post_create + 2 latente Bugs (Slice 379)
 
 <!-- auto:handoff-end -->
 

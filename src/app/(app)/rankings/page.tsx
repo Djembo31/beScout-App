@@ -8,6 +8,7 @@ import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
 import {
   SelfRankCard,
   GlobalLeaderboard,
+  LeagueSeasonLeaderboard,
   FriendsLeaderboard,
   ClubLeaderboard,
   LastEventResults,
@@ -38,6 +39,8 @@ export default function RankingsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left column */}
         <div className="space-y-6">
+          {/* E-2a (Slice 381): BeScout-Saison-Board mit Umschalter Gesamt/Pro Liga */}
+          <LeagueSeasonLeaderboard />
           <GlobalLeaderboard />
           <MonthlyWinners />
         </div>
