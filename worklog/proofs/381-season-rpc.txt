@@ -41,9 +41,21 @@ Board:
 jsonb_array_length(rpc_get_season_ranking('05ec9bf8-d507-4ba2-ad76-ca7ea61c1099', 100)) = 0
 -> [] -> Board zeigt ehrlichen Empty-State "Noch keine BeScout-Saison-Daten fuer diese Liga".
 
-=== Offen (post-Deploy, Vercel baut von main) ===
-AC-01/07/08/09 UI-Playwright gegen bescout.net:
-  - Header "BeScout-Saison" (DE) / "BeScout Sezonu" (TR)
-  - Board Gesamt befuellt + Umschalter sichtbar (393px)
-  - "Pro Liga" + Bundesliga -> Demo-Ranking (jarvisqa/bot001/bot002)
-  - Screenshots: 381-rankings-de.png + 381-rankings-perleague.png
+=== AC-01/07/08/09 UI-Playwright gegen bescout.net (post-Deploy, LIVE PASS) ===
+Commit 0532cc21 deployed. Login jarvis-qa (eingeloggt). Viewport 393px (iPhone 16).
+- AC-01 DE: h1 = "BeScout-Saison" (vorher "BeScout Liga"); kein "BeScout Liga" mehr im Body (ScoutCard-Label mit-umbenannt). 0 Console-Errors.
+- AC-07 I18N-TR (Cookie bescout-locale=tr): h1 = "BeScout Sezonu"; Umschalter "Genel"/"Lige Göre"; KEIN raw key / MISSING_MESSAGE. 0 Console-Errors.
+- AC-08 MOBILE 393px: documentElement.scrollWidth=385 <= 393 -> kein horizontaler Overflow. Umschalter-Pills bedienbar.
+- AC-09 REGRESSION: bestehende Boards rendern (Global Top 100 etc.), 0 Console-Errors.
+- Gesamt-Board (Default): rank1 kemal @kemal2 902 / rank2 Basak @bot002 828 / rank3 Mustafa @bot001 803 (je "2 Events") -> befuellt.
+- "Pro Liga" + Bundesliga (LeagueScopeHeader inline): rank1 Jarvis QA @jarvisqa 312 / rank2 Mustafa @bot001 268 / rank3 Basak @bot002 240 (je "1 Event").
+- "Pro Liga" + tuerkische Liga (kein Demo-Event): "Noch keine BeScout-Saison-Daten fuer diese Liga." -> AC-04 Empty live bestaetigt.
+Screenshots (lokal, PNGs gitignored): .playwright-mcp/381-rankings-de.png + 381-rankings-perleague.png
+
+=== PROVE-Befund (Pre-Mortem #5 eingetreten, kein Code-Bug) ===
+~3 Min nach dem Seed lief ein Scoring-Cron ueber das beendete Demo-Event (scored_at gesetzt 15:20) und
+rechnete total_score der 3 Lineups auf 0 (Lineups hatten KEINE echten Spieler-Slots -> Score 0). RPC/Board
+zeigten das korrekt (0). Fix: total_score direkt nachgesetzt (312/268/240) -- auf ended-Events sind Score-/
+Rank-Updates erlaubt (check_event_allows_lineup), und scored_at ist gesetzt -> Re-Scoring gegated -> haelt.
+LEHRE (Seed-Demo-Events): Lineups brauchen echte Spieler-Slots ODER nach dem Scoring-Cron total_score
+nachsetzen. Money unberuehrt (prize_pool=0, Topf-Saldo durchgehend 50.003.397).
