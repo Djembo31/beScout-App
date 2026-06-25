@@ -1,26 +1,22 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 15:36)
+# Session Handoff — Auto (2026-06-25 16:35)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 1 Files
 ```
- M TODO.md
  M memory/session-handoff.md
- M worklog/notes/event-creator-liga-epic.md
 ```
 
-## Session Commits: 10
+## Session Commits: 8
+- a437244c docs(decision): D106 — BeScout-Saison Wertung pro Liga (echte Rewards, anpassbarer Pool, gestuft)
+- 90c3c587 feat(events): E-1 — Fußball-Liga an die Event-Aufstellung binden (Slice 380)
+- dd23faca docs(decision): D105 — "Liga"=Fußball / Nutzer-Wettbewerb="BeScout-Saison" + E4 abgeschlossen
 - 4bc4444e docs(trackers): E5 Event-/Creator-/BeScout-Liga-Epic (D104) in MASTERPLAN+TODO+Handoff verankert
 - ecc083da docs(decision): D104 — Event-/Creator-/BeScout-Liga-Zielbild + Roadmap
 - 14caad52 docs(handoff): 379+379b DONE — beide Anil-Funde (Ticket-Source-Drift + Bounty-Wallet-Hinweis) erledigt
 - 54b90a15 fix(bounty): Wallet-Kosten-Hinweis nur zeigen wenn Admin-Wallet wirklich belastet wird (Slice 379b)
 - ff9a238e fix(tickets): credit_tickets/spend_tickets/CHECK source-drift — post_create + 2 latente Bugs (Slice 379)
-- 4ef58a8d chore(handoff): Session-Close 2026-06-25 — 377+378 DONE, alle Reste erledigt, next = E3 Slice 5
-- d257e4e5 docs(todo): U-1 stale 'OFFEN'-Vermerk reconciled — 371 ist VOLL-DONE (AC1/AC2 live PASS 26245d48)
-- 75e164ca docs(370): Bounty-Approval-UI E2E live bewiesen (letzter cred-gated Rest)
-- cc7eb8f9 docs(357): Topf-Card-Visual abgenommen + QA-Admin-Login entsperrt
-- f5db42b9 feat(treasury): special-Events zahlen Prize aus dem Plattform-Topf (E3 RAUS-Kanal #3, Slice 378)
 
 <!-- auto:handoff-end -->
 
@@ -28,23 +24,29 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = `ecc083da`.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal, main == origin/main, tsc clean.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel).
+**Status: idle. HEAD = `a437244c`.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün, Push normal, main == origin/main, tsc clean.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
 
-## 🎯 HIER ANKNÜPFEN — E5 Event-/Creator-/BeScout-Liga-Epic (D104), Roadmap E-1..E-7
+## 🎯 HIER ANKNÜPFEN — E5 E-2a: BeScout-Saison (Rename + Pro-Liga-Ranglisten-Anzeige)
 
-**➡️ NEUER GROSSER TRACK = E5 (D104).** In dieser Session hat Anil das **gesamte Event-Modell** geklärt und als Kanon gesichert. **ZUERST lesen:** `memory/decisions.md` **D104** (Warum/Was) + `worklog/notes/event-creator-liga-epic.md` (lebende Roadmap — Anil ergänzt im „PLATZ FÜR ANILS ERGÄNZUNGEN"-Block).
+**➡️ NÄCHSTER SLICE = E-2a (M, KEIN Money).** ZUERST lesen: `worklog/notes/event-creator-liga-epic.md` (Section 0 + E-2) + `memory/decisions.md` **D104** (Event-Modell) + **D105** (Liga=Fußball / „BeScout-Saison") + **D106** (E-2-Entscheid: echte Rewards pro Liga, **anpassbarer Preispool**, gestuft).
 
-**Kern (D104):** „Creator" = Oberbegriff (BeScout/Verein/User/Sponsor), jeder zahlt Pot + verdient Eintritts-Einnahmen, BeScout immer mit Anteil. BeScout-Liga gratis + **pro Liga gebunden** (Lineup aus der Liga) + **Wertung pro Liga UND global**; andere Events wählen Liga-Bindung frei. Aufstellen nur mit eigenen SC (bleibt).
+**E-2a-Scope (gestuft per D106):**
+1. **Begriffs-Umzug:** user-facing „Liga" für den NUTZER-Wettbewerb → **„BeScout-Saison"** (`is_liga_event`/`monthly_liga_*` betreffen den Nutzer-Wettbewerb, NICHT die Fußball-Liga — D105). Zwei Achsen entwirren: Fußball-Liga-Bindung (= E-1 `events.league_id`, schon gebaut) vs. Wertungs-Stärke (= altes `is_liga_event`-Flag).
+2. **Pro-Liga-Ranglisten ANZEIGEN** + Umschalter „Pro Liga / Gesamt". **KEINE Payout-Änderung** (das ist E-2b).
 
-**Code-Ist-Stand (Live-RPC-Audit 2026-06-25, NICHT neu erheben):** Schon da + erzwungen: Eintritt Tickets/Credits (`events.currency`/`ticket_cost`), Fee-Split inkl. BeScout-Anteil (`event_fee_config` + `rpc_lock_event_entry`), Abo-Gate (`min_subscription_tier`), Stufen-Gate (`min_tier`), Club-Scope, nur-eigene-SC + max-pro-Verein + Salary-Cap (`rpc_save_lineup`), Liga-Wertung voll vs. 25 % (`is_liga_event`), Monats-/Saison-Abschluss (`close_monthly_liga`, global). **Fehlt = Roadmap.**
+**🔑 Design-Kern (Live-Audit 2026-06-25, NICHT neu erheben):**
+- `scout_scores` ist **NICHT** pro Liga — nur 3 globale Werte/Nutzer (trader/manager/analyst) + season_start_*. `monthly_liga_snapshots`/`_winners` haben **keine** league_id. `close_monthly_liga(p_month)` rankt global über 4 Dim (trader/manager/analyst/overall=Median), Top-3/Dim aus Plattform-Topf (hardcodiert 500k/250k/100k cents, zero-sum debit, Deckungs-Check+RAISE).
+- **Pro-Liga = neue (Nutzer,Liga)-Achse nötig.** Sauberster Weg dank E-1: **Manager-Dim pro Liga aus liga-gebundenen Events ableiten** (`events.league_id` → `lineups.total_score`/Event-Punkte je Liga über den Zeitraum). **Trader/Analyst bleiben global** (Handel/Research nicht liga-spezifisch). → E-2a-Spec muss die Ableitung exakt definieren (read-only Aggregat, kein scout_scores-Umbau).
+- Rankings-UI: 7 Boards in `src/components/rankings/` (`rankings/page.tsx`); nur `PlayerRankings` filtert heute nach Fußball-Liga; User-Boards (Global/Friends/Club/Monthly/SelfRank) sind global. `getMonthlyLeaderboard` `scoutScores.ts:216` liest `monthly_liga_snapshots` (bei Verkabelung swallow→throw heilen).
+- **E-2b später (L, Money/CEO):** `close_monthly_liga` pro Liga + **konfigurierbare Reward-Struktur** (neue Tabelle/Spalten statt hardcodiert) + Deckungs-Check + Idempotenz. Live-functiondef VOR Spec (D87), Reviewer-Pflicht.
 
-**➡️ VORGESCHLAGENER ERSTER SLICE = E-1 Liga-Bindung der Aufstellung** (M, kein Money): echte `events.league_id`-Spalte + Restriktions-Flag („eine Liga"/„offen"), `rpc_save_lineup` prüft Lineup-Spieler ⊆ Event-Liga, Erstell-UI Liga-Wähler. **Aber zuerst: Anil ergänzt ggf. die Roadmap + bestätigt Reihenfolge** (er wollte evtl. noch Details nachtragen). Das alte „E3 Slice 5 — Ranking-Konsolidierung" ist jetzt **E-2** dieses Epics (Wertung pro Liga + global; `useMonthlyLeaderboard`/`getMonthlyLeaderboard` `scoutScores.ts:216` liegen bereit, 0 UI-Konsumenten, bei Verkabelung swallow→throw heilen).
-
-### ✅ Diese Session (2026-06-25 spät) — 2 Bug-Slices + Event-Vision gesichert
-- **379** (`ff9a238e`): `credit_tickets` 400 „post_create" → DREI gedriftete Gate-Flächen (credit/spend-Allowlist + CHECK `ticket_transactions_source_check`) auf 16-Wert-Union gezogen; +2 latente (research_publish/research_rating, chip_refund). Knowledge errors-db.md **S379**. Migration `20260625160000`.
-- **379b** (`54b90a15`): Bounty-Review-Wallet-Hinweis nur bei `!is_user_bounty && !treasury_escrowed` (Live-RPC D87; kein Money-Seam — Settle-Trigger flippt escrowed). 3-Zweig-Test PASS.
-- **D104 + Roadmap** (`ecc083da`): Event-Modell als Kanon. MASTERPLAN E5 + TODO P1 + INDEX-Range D1–D104 mitgezogen.
-- **Tickets-Erkenntnis (für E-5 relevant):** Tickets = Eintrittswährung für BeScout-Events (Tickets einlösen → Credits/Equipment/Tickets gewinnen). `spendTickets`-Service wird live NICHT aufgerufen; Event-Eintritt zieht Tickets direkt in `rpc_lock_event_entry`. Ausgabe-Seite sonst kaum gebaut.
+### ✅ Diese Session (2026-06-25) — E4 zu, E5 gestartet, E-1 gebaut
+- **E4 abgeschlossen** (`dd23faca`): Money-Modell-Glattzug DONE (366→379b). Einziger Rest T-1 Cold-Start = **Launch-Prep, kein Code-Blocker** (gehört in die Test-IPO/Reset-Phase).
+- **D105** (`dd23faca`): „Liga" = nur Fußball; Nutzer-Wettbewerb = „BeScout-Saison"; jedes Event = 3 Achsen (Liga-Bindung E-1 · Wertungs-Stärke E-2 · Creator-Typ).
+- **✅ E-1 DONE — Slice 380** (`90c3c587`): `events.league_id` (nullable, NULL=offen, **kein Backfill** — Bestand offen) + `rpc_save_lineup` additiver Liga-Gate (Starter+Bank ⊆ Event-Liga, JOIN clubs fail-closed bei club_id NULL → `player_not_in_event_league`). `save_lineup` = nur Wrapper (kein Paritäts-Bug). Money byte-identisch (D87-Baseline). TS-Plumbing + Platform-Admin-Liga-Select (cache-reaktiv) + DE/TR. Reviewer PASS (2 NIT). Live-Smoke AC3-AC7 PASS (`worklog/proofs/380-league-binding.txt`). Migration `20260625180000`. `is_liga_event` unangetastet.
+- **D106** (`a437244c`): E-2-Entscheid (s.o.).
+- **Offene Folge-Slices aus E-1:** **E-1b** = Lineup-Builder-Picker-Vorfilter (User sieht nur erlaubte Spieler) + Club-Admin-Liga-Picker (E-1 hat Picker nur im Platform-Admin). **E-4-Vormerkung (380-Review):** Track-F-Wildcard-Lookup in `rpc_save_lineup` nutzt `club_id→clubs.league_id`; bei künftigen vereinslosen Events auf `COALESCE(events.league_id, club→league)` umstellen (heute kein Treffer, alle Events haben club_id).
+- **Keine geseedeten Live-Artefakte aus 380** (Smoke war BEGIN…ROLLBACK).
 
 ## ✅ E3 Plattform-Topf — REIN komplett (5/5) + RAUS 3/3
 - **REIN (Fees, voller Auffang 100% D98, je Zero-Sum live):** Trading 358 · IPO 360 · Polls 363 · Research 364 · Bounty 365 (+P2P).
