@@ -1,26 +1,24 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 18:35)
+# Session Handoff — Auto (2026-06-25 19:14)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 1 Files
 ```
  M memory/session-handoff.md
- M worklog/active.md
-?? worklog/specs/383-perleague-payout.md
 ```
 
 ## Session Commits: 10
+- 21da524d docs(proof): Slice 383 — AC11 UI-Playwright post-Deploy live PASS (AC1-AC12 alle PASS)
+- 2f51c278 docs(knowledge): bescout-liga — E-2b Pro-Liga-Payout DONE reconcilen (Slice 383)
+- a6e0b2c5 docs(knowledge): E-2b Pro-Liga-Payout — reward-ranking + treasury RAUS-Kanal (Slice 383)
+- 5a41fd2c feat(rankings): E-2b — Pro-Liga-Payout (BeScout-Saison Manager) + konfigurierbare Beträge (Slice 383)
 - 28ac6897 docs(handoff): Session-Close 2026-06-25 — E-2a (381) + E-1b (382) DONE, next = E-2b (Pro-Liga-Payout, Money/CEO)
 - 5879ade1 docs(proof): Slice 382 — AC-05/07 + S333-Heilung LIVE PASS (Club-Admin Liga-Select, kein MISSING_MESSAGE)
 - 6ec80cdf feat(fantasy): E-1b — Lineup-Picker-Liga-Vorfilter + Club-Admin-Liga-Picker (Slice 382)
 - f6dfa18c docs(proof): Slice 381 — UI-Playwright post-Deploy ALLE PASS (DE/TR Header, Mobile, Pro-Liga-Board befüllt)
 - 0532cc21 feat(rankings): E-2a — BeScout-Saison Begriffs-Umzug + Pro-Liga-Ranglisten-Anzeige (Slice 381)
 - 305a4889 docs(handoff): Session-Close 2026-06-25 — E4 zu, E5 gestartet, E-1 (380) DONE, next = E-2a
-- a437244c docs(decision): D106 — BeScout-Saison Wertung pro Liga (echte Rewards, anpassbarer Pool, gestuft)
-- 90c3c587 feat(events): E-1 — Fußball-Liga an die Event-Aufstellung binden (Slice 380)
-- dd23faca docs(decision): D105 — "Liga"=Fußball / Nutzer-Wettbewerb="BeScout-Saison" + E4 abgeschlossen
-- 4bc4444e docs(trackers): E5 Event-/Creator-/BeScout-Liga-Epic (D104) in MASTERPLAN+TODO+Handoff verankert
 
 <!-- auto:handoff-end -->
 
@@ -28,7 +26,7 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = `5879ade1`.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün (Slice 382 fixte einen seit 380 roten Test), Push normal, main == origin/main, tsc clean.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
+**Status: idle. HEAD = `21da524d` (== origin/main, alles gepusht).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **Letzter Slice = 383 (E-2b Pro-Liga-Payout) voll-DONE, AC1-AC12 PASS. tsc clean, 67 vitest grün, Reviewer PASS. main == origin/main.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
 
 ## 🎯 HIER ANKNÜPFEN — E5 E-3: Teilnahme-Bedingungen (XS-S)
 
