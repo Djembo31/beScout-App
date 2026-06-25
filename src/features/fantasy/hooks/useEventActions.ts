@@ -409,6 +409,16 @@ export function useEventActions(clubId: string) {
         case 'salary_cap_exceeded':
           addToast(t('salaryCapExceeded'), 'error');
           break;
+        // Slice 385 (E-3a) — Aufstellungs-Regel min_per_own_club
+        case 'min_per_own_club_not_met':
+          addToast(t('minPerOwnClubNotMet', {
+            min: event.lineupRules?.find(r => r.type === 'min_per_own_club')?.value ?? 0,
+          }), 'error');
+          break;
+        case 'unknown_lineup_rule':
+        case 'invalid_lineup_rule_value':
+          addToast(t('lineupRuleInvalid'), 'error');
+          break;
         case 'holding_lock_failed':
           addToast(t('holdingLockFailed'), 'error');
           break;

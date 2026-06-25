@@ -1,9 +1,28 @@
 import { useReducer, useCallback } from 'react';
 import { centsToBsd, bsdToCents } from '@/lib/services/players';
 import { EDITABLE_FIELDS } from '@/lib/services/events';
-import type { DbEvent } from '@/types';
+import type { DbEvent, LineupRule } from '@/types';
 import type { EventFormState, EventFormAction, AdminEvent } from './types';
 import { INITIAL_FORM_STATE } from './types';
+
+// =============================================================================
+// lineup_rules (Slice 385, E-3, D107) — Form-Feld <-> JSONB-Regel-Liste
+// Pilot-Stand: das Form hält EIN flaches Feld `minPerOwnClub`; serialisiert in die
+// generische `lineup_rules`-Liste. Multi-Regel-Builder = E-4 (Scope-Out 385).
+// =============================================================================
+
+/** Liest min_per_own_club aus der Regel-Liste in den Form-String ('' = keine). */
+function minPerOwnClubFromRules(rules: LineupRule[] | null | undefined): string {
+  const rule = (rules ?? []).find(r => r.type === 'min_per_own_club');
+  return rule ? String(rule.value) : '';
+}
+
+/** Serialisiert den Form-String in die lineup_rules-Liste (null = keine Regel). */
+function rulesFromMinPerOwnClub(minPerOwnClub: string): LineupRule[] | null {
+  const n = parseInt(minPerOwnClub, 10);
+  if (!minPerOwnClub || Number.isNaN(n) || n < 1) return null;
+  return [{ type: 'min_per_own_club', value: n }];
+}
 
 // =============================================================================
 // Helpers (internal)
@@ -32,6 +51,7 @@ function populateFromEvent(event: DbEvent): EventFormState {
     minSubTier: event.min_subscription_tier ?? '',
     salaryCap: event.salary_cap != null ? String(centsToBsd(event.salary_cap)) : '',
     maxPerClub: event.max_per_club != null ? String(event.max_per_club) : '',
+    minPerOwnClub: minPerOwnClubFromRules(event.lineup_rules),
     requiresFollow: event.requires_follow ?? false,
     minFanRankTier: event.min_fan_rank_tier ?? '',
     minScPerSlot: String(event.min_sc_per_slot ?? 1),
@@ -173,6 +193,7 @@ export function useEventForm(initialDefaults?: Partial<EventFormState>) {
         minSubscriptionTier: form.minSubTier || null,
         salaryCap: form.salaryCap ? bsdToCents(parseFloat(form.salaryCap) || 0) : null,
         maxPerClub: form.maxPerClub ? (parseInt(form.maxPerClub) || null) : null,
+        lineupRules: rulesFromMinPerOwnClub(form.minPerOwnClub),
         requiresFollow: form.requiresFollow,
         minFanRankTier: form.minFanRankTier || null,
         minScPerSlot: parseInt(form.minScPerSlot) || 1,
@@ -219,6 +240,7 @@ export function useEventForm(initialDefaults?: Partial<EventFormState>) {
       maybePut('max_per_club', form.maxPerClub
         ? (parseInt(form.maxPerClub) || null)
         : null);
+      maybePut('lineup_rules', rulesFromMinPerOwnClub(form.minPerOwnClub));
       maybePut('requires_follow', form.requiresFollow);
       maybePut('min_fan_rank_tier', form.minFanRankTier || null);
       maybePut('min_sc_per_slot', parseInt(form.minScPerSlot) || 1);

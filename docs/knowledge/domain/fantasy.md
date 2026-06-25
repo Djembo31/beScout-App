@@ -4,7 +4,7 @@ created: 2026-03-14
 updated: 2026-06-25
 status: active
 tags: [fantasy, lineup, scoring, gameweek]
-consult_when: Spieltag, Lineup, Captain, Auto-Sub, Gameweek-Cycle, Scoring, Fantasy-Flows, Event-Eintritts-Gates (Abo/Stufe/Follower/Fan-Rang)
+consult_when: Spieltag, Lineup, Captain, Auto-Sub, Gameweek-Cycle, Scoring, Fantasy-Flows, Event-Eintritts-Gates (Abo/Stufe/Follower/Fan-Rang), Aufstellungs-Regeln (lineup_rules/min_per_own_club)
 verified-against: .claude/rules/fantasy.md @ 2026-06-25
 ---
 
@@ -256,9 +256,12 @@ Event Status = running → Fixtures starten zu verschiedenen Zeiten
 | Min Tier | min_tier | lock_event_entry prueft (gamification_tier_rank) | - | **GEFIXT** |
 | Follower-Pflicht | requires_follow | lock_event_entry prueft (club_followers EXISTS, nur club_id) | Builder-Toggle „Nur Follower" | **NEU S384** |
 | Min Fan-Rang | min_fan_rank_tier | lock_event_entry prueft (fan_rank_tier_rank, nur club_id, fail-closed) | Builder-Select „Mindest-Fan-Rang" | **NEU S384** |
+| Liga-Bindung (Aufstellung) | league_id | save_lineup prueft (Starter+Bank-Club in Liga, fail-closed bei club NULL) | Picker-Vorfilter „Nur {Liga}-Spieler" | **NEU S380/382** |
+| Aufstellungs-Regeln | lineup_rules (JSONB) | save_lineup generischer Validator (Weg B/D107: fail-closed bei unbekanntem type, Wert-Bounds, VOR INSERT+Wildcard-Move) | Builder-Feld je Regel | **NEU S385** |
 | Wildcards Allowed | wildcards_allowed | save_lineup prueft | UI toggle | OK |
 | Max Wildcards | max_wildcards_per_lineup | save_lineup prueft | UI counter | OK |
-| Max Wildcards | max_wildcards_per_lineup | save_lineup prueft | UI counter | OK |
+
+**Zwei-Töpfe-Architektur (D107):** *Eintritts-Türsteher* (wer darf rein: Abo/Stufe/Follower/Fan-Rang) = feste Spalten in `lock_event_entry`. *Aufstellungs-Regeln* (welche Karten ins Lineup) = JSONB-Regel-Liste `events.lineup_rules` + EIN generischer Validator in `rpc_save_lineup` (Weg B). Neue Regel-Art = nur neuer CASE-Zweig im Validator + eine Builder-Zeile, **kein Schema-Change**. Pilot-Regel S385: `min_per_own_club` (feste Zahl, zählt Starter aus `events.club_id`, fail-closed bei club NULL). Geplante Erweiterungen (je Folge-Slice): `age_max/age_min`, `nation_in`, `mv_max_eur`, `position_quota`.
 
 ---
 

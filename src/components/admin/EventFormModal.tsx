@@ -43,6 +43,9 @@ export interface EventFormLabels {
   maxPerClub: string;          // Slice 195c: FPL-Style Max-Spieler-pro-Verein
   maxPerClubPlaceholder: string;
   maxPerClubHint?: string;
+  minPerOwnClub?: string;      // Slice 385 (E-3a): min. Spieler aus dem Event-Verein
+  minPerOwnClubPlaceholder?: string;
+  minPerOwnClubHint?: string;
   // Slice 384 (E-3 Türsteher) — nur bei Vereins-Events wirksam
   requiresFollow?: string;     // Follower-Pflicht-Toggle
   minFanRank?: string;         // Mindest-Fan-Rang-Select
@@ -325,6 +328,31 @@ export function EventFormModal({
             <p className="mt-1 text-[10px] text-white/40">{L.maxPerClubHint}</p>
           )}
         </div>
+
+        {/* Min Spieler vom eigenen Verein (Slice 385 — E-3a, Aufstellungs-Regel) */}
+        {L.minPerOwnClub && (
+          <div>
+            <label htmlFor="formMinPerOwnClub" className="block text-sm font-bold text-white/70 mb-1">
+              {L.minPerOwnClub}
+            </label>
+            <input
+              id="formMinPerOwnClub"
+              type="number"
+              inputMode="numeric"
+              min="1"
+              max="11"
+              value={form.minPerOwnClub}
+              onChange={(e) => setField('minPerOwnClub', e.target.value)}
+              placeholder={L.minPerOwnClubPlaceholder}
+              disabled={isFieldDisabled('lineup_rules')}
+              aria-label={L.minPerOwnClub}
+              className={cn(INPUT_CLS, 'min-h-[44px]', disabledCls)}
+            />
+            {L.minPerOwnClubHint && (
+              <p className="mt-1 text-[10px] text-white/40">{L.minPerOwnClubHint}</p>
+            )}
+          </div>
+        )}
 
         {/* Min SC per Slot (Platform-only) */}
         {L.minScPerSlot && (

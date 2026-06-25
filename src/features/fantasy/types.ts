@@ -2,6 +2,8 @@
 // Fantasy Types (local to Fantasy feature)
 // ============================================
 
+import type { LineupRule } from '@/types';
+
 export type EventType = 'bescout' | 'special' | 'club' | 'sponsor' | 'creator';
 export type EventMode = 'tournament' | 'league';
 export type EventStatus = 'registering' | 'late-reg' | 'running' | 'upcoming' | 'ended';
@@ -51,6 +53,9 @@ export type FantasyEvent = {
    *  Bewusst getrennt von `leagueId` (= Vereins-Liga via clubLookup, GameweekStatusBar).
    *  null/undefined = offenes Event (keine Liga-Bindung). */
   boundLeagueId?: string | null;
+  /** Slice 385 (E-3, D107): Aufstellungs-Regeln (Topf 2, Weg B). null/[] = keine Regel.
+   *  Server-Wahrheit ist rpc_save_lineup; hier nur für Anzeige/Toast-Werte. */
+  lineupRules?: LineupRule[] | null;
   gameweek?: number;
   startTime: number;
   endTime: number;

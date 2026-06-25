@@ -1,14 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 21:30)
+# Session Handoff — Auto (2026-06-25 21:33)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
 ## Session Commits: 10
+- 8a243601 docs(handoff): sync auto-block post Slice 384 + knowledge-coupling
 - 3f47f5eb docs(knowledge): fantasy.md verified-against Format-Fix (SOFT-Finding)
 - 7a91ff06 docs(knowledge): fantasy.md + reward-ranking.md — Event-Eintritts-Türsteher (S384) verdrahtet
 - 847ee35e docs(handoff): Session-Close 2026-06-25 — D107 + E-3 Türsteher (384) DONE
@@ -18,7 +16,6 @@
 - 8f6260a1 docs(handoff): Session-Close 2026-06-25 — E-2b (383) voll-DONE, next = E-3 (Teilnahme-Bedingungen)
 - 21da524d docs(proof): Slice 383 — AC11 UI-Playwright post-Deploy live PASS (AC1-AC12 alle PASS)
 - 2f51c278 docs(knowledge): bescout-liga — E-2b Pro-Liga-Payout DONE reconcilen (Slice 383)
-- a6e0b2c5 docs(knowledge): E-2b Pro-Liga-Payout — reward-ranking + treasury RAUS-Kanal (Slice 383)
 
 <!-- auto:handoff-end -->
 

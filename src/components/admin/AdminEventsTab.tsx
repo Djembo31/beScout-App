@@ -46,6 +46,8 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     minSub: t('minSubLabel'), minSubNone: t('allNoSub'), minSubBronze: t('tierBronzePlus'), minSubSilber: t('tierSilberPlus'), minSubGold: t('onlyGold'),
     salaryCap: t('salaryCapLabel'), salaryCapPlaceholder: t('salaryCapPlaceholder'), salaryCapHint: t('salaryCapHint'),
     maxPerClub: t('maxPerClubLabel'), maxPerClubPlaceholder: t('maxPerClubPlaceholder'), maxPerClubHint: t('maxPerClubHint'),
+    // Slice 385 (E-3a): Aufstellungs-Regel min. Spieler vom eigenen Verein
+    minPerOwnClub: t('minPerOwnClubLabel'), minPerOwnClubPlaceholder: t('minPerOwnClubPlaceholder'), minPerOwnClubHint: t('minPerOwnClubHint'),
     // Slice 382 (E-1b): Club-Admin-Liga-Picker (Anil: alle Ligen + Offen, Symmetrie zum Platform-Admin)
     league: t('leagueBindingLabel'), leagueOpen: t('leagueBindingOpen'),
     // Slice 384 (E-3 Türsteher): Follower-Pflicht + Fan-Rang-Gate

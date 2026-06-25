@@ -730,6 +730,14 @@ export type UserTradeWithPlayer = {
 export type EventScope = 'global' | 'club';
 export type EventCurrency = 'tickets' | 'scout';
 
+/**
+ * Slice 385 (E-3, D107): Aufstellungs-Regel (Topf 2, Weg B — JSONB events.lineup_rules).
+ * Typisierte Bedingung, welche Karten ins Lineup dürfen. Server-Validator in
+ * rpc_save_lineup ist fail-closed bei unbekanntem `type`. Erweiterbar ohne Schema-Change.
+ * - min_per_own_club: mind. N Starter aus dem Event-Verein (feste Zahl, E-3a).
+ */
+export type LineupRule = { type: 'min_per_own_club'; value: number };
+
 export type DbEvent = {
   id: string;
   name: string;
@@ -773,6 +781,12 @@ export type DbEvent = {
   salary_cap?: number | null;
   /** Slice 195c: Max Spieler pro Verein im Lineup. NULL = unlimited (Multi-Liga-Events). */
   max_per_club?: number | null;
+  /**
+   * Slice 385 (E-3, D107): Liste typisierter Aufstellungs-Regeln (Weg B).
+   * NULL/[] = keine Regel. Generischer Validator in rpc_save_lineup (fail-closed
+   * bei unbekanntem type). Erste Regel: min_per_own_club (feste Zahl, E-3a).
+   */
+  lineup_rules?: LineupRule[] | null;
   reward_structure?: RewardTier[] | null;
   scope: EventScope;
   lineup_size: 7 | 11;

@@ -32,6 +32,10 @@ const FORM_LABELS: EventFormLabels = {
   maxPerClub: 'Max. Spieler pro Verein',
   maxPerClubPlaceholder: 'Unbegrenzt',
   maxPerClubHint: 'FPL-Style: max. wieviele Spieler eines Vereins darf jeder Lineup haben? Leer = unbegrenzt.',
+  // Slice 385 (E-3a) — Aufstellungs-Regel, nur bei Vereins-Events wirksam
+  minPerOwnClub: 'Min. Spieler vom eigenen Verein',
+  minPerOwnClubPlaceholder: 'Keine Regel',
+  minPerOwnClubHint: 'Mindestanzahl Spieler aus dem Event-Verein im Lineup (z. B. 5). Leer = keine Regel. Nur bei Vereins-Events wirksam.',
   // Slice 384 (E-3 Türsteher) — nur bei Vereins-Events wirksam
   requiresFollow: 'Nur Follower des Vereins',
   minFanRank: 'Mindest-Fan-Rang',

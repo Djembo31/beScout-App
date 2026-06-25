@@ -2,26 +2,24 @@
 
 ```
 status: idle
-slice: 384
-title: E-3 Türsteher — Follower-Pflicht + Fan-Rang-Gate auf Events (rpc_lock_event_entry)
+slice: 385
+title: E-3 Aufstellungs-Regel-Fundament — JSONB events.lineup_rules + generischer Validator + min_per_own_club
 size: M
 slice-type: Migration (Money-nahe RPC) + Service + UI + i18n
-scope: Money-nah / §3 (Eintritts-RPC — selbst gebaut, Reviewer-Pflicht). Kein neuer Geld-Flow (Zugangs-Gate VOR Geld).
-spec: worklog/specs/384-event-entry-gates.md
+scope: Money-nah / §3 (selbst gebaut, Reviewer-Pflicht).
+spec: worklog/specs/385-lineup-rules-foundation.md
 stage: LOG
-impact: inline (Spec §3 — 1 RPC + 1 Service-Wrapper-Check + Builder/Service/Type/i18n-Kette grep-verifiziert)
-proof: worklog/proofs/384-money-smoke.txt
-proof-note: AC1-AC12 ALLE PASS — force-rollback Money-Smoke (kein Geld bei Reject) + tsc 0 + 140 vitest + i18n DE/TR + UI-Playwright post-Deploy live (beide Builder, 0 Console-Errors, kein MISSING_MESSAGE).
-review: worklog/reviews/384-review.md (reviewer PASS, 2 NIT — beide bewusst nicht geheilt, dokumentiert)
-nit-note: NIT#1 Gate-Felder nicht disabled bei club-losem Event = bewusste Drift (Konsistenz mit min_subscription_tier-Schwester-Gate, gateHint kommuniziert). NIT#2 belassen.
-review: pending
-ceo-decision: Anil 2026-06-25 — E-3 Weg A (Türsteher zuerst), Follower + Fan-Rang. Architektur D107 (§3b Epic).
+impact: inline (1 Migration/RPC + Read-Pfad 3 Selects/Mapper/Type + Write-Pfad mutations/useEventForm/EventFormModal + i18n; grep-verifiziert)
+proof: worklog/proofs/385-lineup-rules-smoke.txt
+proof-note: AC-1..AC-7 force-rollback PASS (AC-6 = 0 Ressourcen-Move bei Reject) + Patch-Audit live + tsc 0 + 142 vitest + DE/TR. Offen: AC-12 UI-Playwright post-Deploy.
+review: worklog/reviews/385-review.md (reviewer PASS, 3 NIT bewusst nicht geheilt — kosmetisch/Scope-Out)
+ceo-decision: Anil 2026-06-25 — E-3a "min. X vom Verein" = FESTE ZAHL. Architektur D107 (Weg B, JSONB-Regel-Liste).
 ```
 
 ## Zuletzt
 
-- **Slice 383** (2026-06-25) — E-2b Pro-Liga-Payout (L, Money/CEO, reviewer PASS, AC1-AC12 PASS).
-- **Slice 382** (2026-06-25) — E-1b Lineup-Picker-Liga-Vorfilter + Club-Admin-Liga-Picker (M, reviewer REWORK→geheilt).
-- **Slice 381** (2026-06-25) — E-2a BeScout-Saison Rename + Pro-Liga-Anzeige (M, reviewer PASS).
+- **Slice 384** (2026-06-25) — E-3 Türsteher: Follower-Pflicht + Fan-Rang-Gate (M, Money-nah, reviewer PASS, AC1-AC12 PASS).
+- **Slice 383** (2026-06-25) — E-2b Pro-Liga-Payout (L, Money/CEO, reviewer PASS).
+- **Slice 382** (2026-06-25) — E-1b Lineup-Picker-Liga-Vorfilter (M, reviewer REWORK→geheilt).
 
-Nächstes: SPEC schreiben → Anil-Approval (M-Slice) → BUILD (selbst, kein Worktree-Agent für Money-nah).
+Nächstes: SPEC fertig → Anil-Approval (M-Slice) → BUILD (selbst, kein Worktree-Agent für Money-nah).

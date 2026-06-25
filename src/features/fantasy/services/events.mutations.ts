@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { getFixturesByGameweek } from './fixtures';
 import { notifText } from '@/lib/notifText';
-import type { EventCurrency } from '@/types';
+import type { EventCurrency, LineupRule } from '@/types';
 
 // ============================================
 // Event Mutations
@@ -38,6 +38,8 @@ export async function createEvent(params: {
   requiresFollow?: boolean;
   /** Slice 384 (E-3 Türsteher): Mindest-Fan-Rang für Eintritt. NULL = offen (nur bei club_id wirksam). */
   minFanRankTier?: string | null;
+  /** Slice 385 (E-3, D107): Aufstellungs-Regeln (Topf 2, Weg B). NULL/[] = keine Regel. */
+  lineupRules?: LineupRule[] | null;
   rewardStructure?: Array<{ rank: number; pct: number }> | null;
   currency?: EventCurrency;
   isLigaEvent?: boolean;
@@ -76,6 +78,7 @@ export async function createEvent(params: {
       max_per_club: params.maxPerClub ?? null,
       requires_follow: params.requiresFollow ?? false,
       min_fan_rank_tier: params.minFanRankTier || null,
+      lineup_rules: params.lineupRules ?? null,
       reward_structure: params.rewardStructure ?? null,
       is_liga_event: params.isLigaEvent ?? false,
       status: 'registering',
@@ -135,7 +138,7 @@ export async function createNextGameweekEvents(
   // Load current GW events as templates
   const { data: templates, error: tplErr } = await supabase
     .from('events')
-    .select('name, type, format, entry_fee, ticket_cost, currency, prize_pool, max_entries, club_id, league_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, requires_follow, min_fan_rank_tier, salary_cap, is_liga_event')
+    .select('name, type, format, entry_fee, ticket_cost, currency, prize_pool, max_entries, club_id, league_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, requires_follow, min_fan_rank_tier, salary_cap, lineup_rules, is_liga_event')
     .eq('club_id', clubId)
     .eq('gameweek', currentGw);
 
@@ -188,6 +191,7 @@ export async function createNextGameweekEvents(
     requires_follow: t.requires_follow ?? false,
     min_fan_rank_tier: t.min_fan_rank_tier ?? null,
     salary_cap: t.salary_cap,
+    lineup_rules: t.lineup_rules ?? null,
     is_liga_event: t.is_liga_event ?? false,
     starts_at: startsAt,
     locks_at: locksAt,
@@ -276,7 +280,7 @@ export const EDITABLE_FIELDS: Record<string, string[]> = {
     'name', 'type', 'format', 'gameweek', 'entry_fee', 'ticket_cost', 'currency', 'prize_pool',
     'max_entries', 'starts_at', 'locks_at', 'ends_at', 'sponsor_name',
     'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
-    'max_per_club', 'requires_follow', 'min_fan_rank_tier',
+    'max_per_club', 'requires_follow', 'min_fan_rank_tier', 'lineup_rules',
     'min_sc_per_slot', 'wildcards_allowed', 'max_wildcards_per_lineup',
     'reward_structure', 'is_liga_event', 'league_id',
   ],
@@ -284,7 +288,7 @@ export const EDITABLE_FIELDS: Record<string, string[]> = {
     'name', 'type', 'format', 'gameweek', 'entry_fee', 'ticket_cost', 'prize_pool',
     'max_entries', 'starts_at', 'locks_at', 'ends_at', 'sponsor_name',
     'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
-    'max_per_club', 'requires_follow', 'min_fan_rank_tier',
+    'max_per_club', 'requires_follow', 'min_fan_rank_tier', 'lineup_rules',
     'min_sc_per_slot', 'wildcards_allowed', 'max_wildcards_per_lineup',
     'reward_structure', 'is_liga_event', 'league_id',
   ],

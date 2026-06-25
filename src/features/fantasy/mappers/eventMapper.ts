@@ -81,5 +81,8 @@ export function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userL
     // Slice 382 (E-1b) — die ECHTE Event-Liga-Bindung (events.league_id, E-1/380),
     // getrennt von der Vereins-Liga oben. Treibt den Lineup-Picker-Vorfilter.
     boundLeagueId: db.league_id ?? null,
+    // Slice 385 (E-3, D107) — Aufstellungs-Regeln (Topf 2). Server-Wahrheit ist
+    // rpc_save_lineup; hier nur durchgereicht für Anzeige/Toast-Werte.
+    lineupRules: db.lineup_rules ?? null,
   };
 }

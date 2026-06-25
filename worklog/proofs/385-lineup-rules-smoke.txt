@@ -1,0 +1,53 @@
+Slice 385 — E-3 Aufstellungs-Regel-Fundament (lineup_rules + min_per_own_club)
+PROOF — 2026-06-25
+
+============================================================
+A) PATCH-AUDIT (pg_get_functiondef live, nach apply_migration)
+============================================================
+col_type(events.lineup_rules) = jsonb                       ✅ Spalte additiv
+has_rule (def ILIKE '%min_per_own_club_not_met%')   = true  ✅ neuer Block live
+keeps_e1 (def ILIKE '%player_not_in_event_league%') = true  ✅ E-1-Block byte-erhalten
+keeps_maxclub (def ILIKE '%max_per_club_exceeded%') = true  ✅ max_per_club-Block erhalten
+ACL (proacl) = {postgres, authenticated, service_role}      ✅ kein anon/PUBLIC (AR-44)
+
+============================================================
+B) FORCE-ROLLBACK MONEY/RESSOURCE-SMOKE (DO-Block, RAISE EXCEPTION -> ROLLBACK)
+   Setup (alles in der rollback'ten Txn): event club_id=Sakaryaspor, registering,
+   locks_at=+1d; jarvis-qa event_entry; holdings qty5 für 7 Sak-Spieler + 1 Hoffenheim.
+   JWT-sub-Impersonation (S369): set_config('request.jwt.claim.sub', jarvis).
+   Formation 1-2-2-2 (7 Starter, Bank leer).
+============================================================
+AC-2 reject(6own/min7): min_per_own_club_not_met | AC-6 lineups=0 locks=0 (erwartet 0/0)   ✅
+AC-3 unknown:           unknown_lineup_rule       | lineups=0 (erwartet 0)                  ✅
+AC-4a value=0:          invalid_lineup_rule_value                                            ✅
+AC-4b value=99:         invalid_lineup_rule_value                                            ✅
+AC-5 NULL no-op:        ok=true locks=7 (erwartet true/7)                                    ✅
+AC-1 pass(7own/min7):   ok=true locks=7 (erwartet true/7)                                    ✅
+AC-7 clubless(min1):    {"ok":false,"min":1,"used":0,"error":"min_per_own_club_not_met"}     ✅ fail-closed
+
+-> AC-6 zentral bewiesen: bei JEDEM Reject (AC-2/3/4) bleiben lineups=0 + holding_locks=0,
+   d.h. der Validator läuft VOR INSERT/UPDATE + VOR jeder Wildcard-Bewegung. Keine
+   Ressource wird bei Reject bewegt. Nichts committed (RAISE EXCEPTION = voller Rollback).
+
+============================================================
+C) tsc + vitest
+============================================================
+npx tsc --noEmit                                    -> 0 Fehler (clean)
+CI=true vitest run (betroffene Files)               -> 142 passed
+  inkl. events-v2.test.ts EDITABLE_FIELDS-Count nachgezogen:
+  upcoming 26->27, registering 25->26, +toContain('lineup_rules') (380/382/384-CI-Rot-Klasse)
+  re-run: 76 passed
+
+============================================================
+D) Read-Pfad (S200) + i18n
+============================================================
+events.queries.ts: lineup_rules in allen 3 Selects (getEventsByClubId/-Ids/getAllEventsAdmin) ✅
+/api/events: select('*') -> lineup_rules automatisch dabei ✅
+DbEvent.lineup_rules + FantasyEvent.lineupRules + eventMapper + LineupRule-Type ✅
+i18n DE+TR: minPerOwnClubNotMet, lineupRuleInvalid (fantasy) + minPerOwnClubLabel/Placeholder/Hint (admin) ✅
+
+============================================================
+E) OFFEN (post-Deploy, wie S384): AC-12 UI-Playwright
+   EventFormModal-Input "Min. Spieler vom eigenen Verein" in beiden Buildern
+   (Platform-Admin DE-hardcoded + Club-Admin t()), 0 Console-Errors, kein
+   MISSING_MESSAGE, Mobile 393px. -> nach Vercel-Deploy von main.
