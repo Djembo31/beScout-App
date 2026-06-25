@@ -445,27 +445,33 @@ describe('ALLOWED_TRANSITIONS', () => {
 // EDITABLE_FIELDS
 // ============================================
 describe('EDITABLE_FIELDS', () => {
-  it('upcoming has all 24 fields', () => {
-    // Slice 380 (E-1) added 'league_id' (Liga-Bindung) → 23→24. Count-Assertion nachgezogen (382).
-    expect(EDITABLE_FIELDS.upcoming).toHaveLength(24);
+  it('upcoming has all 26 fields', () => {
+    // Slice 380 (E-1) added 'league_id' → 23→24. Slice 384 (E-3) added 'requires_follow' +
+    // 'min_fan_rank_tier' (Türsteher) → 24→26. Count-Assertion nachgezogen.
+    expect(EDITABLE_FIELDS.upcoming).toHaveLength(26);
     expect(EDITABLE_FIELDS.upcoming).toContain('name');
     expect(EDITABLE_FIELDS.upcoming).toContain('entry_fee');
     expect(EDITABLE_FIELDS.upcoming).toContain('ticket_cost');
     expect(EDITABLE_FIELDS.upcoming).toContain('currency');
     expect(EDITABLE_FIELDS.upcoming).toContain('salary_cap');
     expect(EDITABLE_FIELDS.upcoming).toContain('max_per_club');
+    expect(EDITABLE_FIELDS.upcoming).toContain('requires_follow');
+    expect(EDITABLE_FIELDS.upcoming).toContain('min_fan_rank_tier');
     expect(EDITABLE_FIELDS.upcoming).toContain('reward_structure');
     expect(EDITABLE_FIELDS.upcoming).toContain('is_liga_event');
     expect(EDITABLE_FIELDS.upcoming).toContain('league_id');
   });
 
-  it('registering has 23 fields (no currency)', () => {
-    // Slice 380 (E-1) added 'league_id' → 22→23. Count-Assertion nachgezogen (382).
-    expect(EDITABLE_FIELDS.registering).toHaveLength(23);
+  it('registering has 25 fields (no currency)', () => {
+    // Slice 380 (E-1) added 'league_id' → 22→23. Slice 384 (E-3) added 'requires_follow' +
+    // 'min_fan_rank_tier' → 23→25. Count-Assertion nachgezogen.
+    expect(EDITABLE_FIELDS.registering).toHaveLength(25);
     expect(EDITABLE_FIELDS.registering).toContain('name');
     expect(EDITABLE_FIELDS.registering).toContain('entry_fee');
     expect(EDITABLE_FIELDS.registering).toContain('ticket_cost');
     expect(EDITABLE_FIELDS.registering).toContain('max_per_club');
+    expect(EDITABLE_FIELDS.registering).toContain('requires_follow');
+    expect(EDITABLE_FIELDS.registering).toContain('min_fan_rank_tier');
     expect(EDITABLE_FIELDS.registering).toContain('is_liga_event');
     expect(EDITABLE_FIELDS.registering).toContain('league_id');
     expect(EDITABLE_FIELDS.registering).not.toContain('currency');

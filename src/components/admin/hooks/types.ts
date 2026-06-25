@@ -15,6 +15,8 @@ export type EventFormState = {
   minSubTier: string;
   salaryCap: string;
   maxPerClub: string;                      // Slice 195c: Max Spieler pro Verein (FPL-Style). '' = unlimited.
+  requiresFollow: boolean;                 // Slice 384 (E-3): nur Follower des Vereins dürfen eintreten.
+  minFanRankTier: string;                  // Slice 384 (E-3): Mindest-Fan-Rang für Eintritt. '' = offen.
   minScPerSlot: string;                    // Platform only
   wildcardsAllowed: boolean;               // Platform only
   maxWildcards: string;                    // Platform only
@@ -57,6 +59,8 @@ export const INITIAL_FORM_STATE: EventFormState = {
   minSubTier: '',
   salaryCap: '',
   maxPerClub: '',
+  requiresFollow: false,
+  minFanRankTier: '',
   minScPerSlot: '1',
   wildcardsAllowed: false,
   maxWildcards: '0',

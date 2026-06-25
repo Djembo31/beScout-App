@@ -1,0 +1,52 @@
+Slice 384 — E-3 Türsteher: Follower-Pflicht + Fan-Rang-Gate auf Event-Eintritt
+PROOF — 2026-06-25 · Money-nah (rpc_lock_event_entry), §3 selbst gebaut
+
+================================================================
+A) MIGRATION + PATCH-AUDIT (Live, apply_migration → success)
+================================================================
+Migration: 20260625210000_slice_384_event_entry_gates.sql
+
+Schema (information_schema.columns):
+  events.requires_follow   = boolean, NOT NULL, default false   ✅ AC-1
+  events.min_fan_rank_tier = text, nullable                     ✅ AC-1
+
+PATCH-AUDIT (pg_get_functiondef ILIKE-Score, erwartet 8):
+  auth_uid_mismatch + event_fee_config + min_subscription_tier + min_tier
+  + scout_events_enabled + event_entry_lock + follow_required + fan_rank_too_low
+  = 8 / 8   ✅ AC-5  (alle bestehenden Patches erhalten + beide neuen Gates da)
+
+ACL (proacl): {postgres=X/postgres, service_role=X/postgres}  ✅
+  (Inner-RPC; Client ruft SEC-DEFINER-Wrapper lock_event_entry. anon/PUBLIC ausgeschlossen, CREATE OR REPLACE erhielt ACL, S368c.)
+
+================================================================
+B) MONEY-SMOKE — force-rollback (DO-Block + Abschluss-RAISE = null Persistenz)
+   Impersonation via set_config('request.jwt.claim.sub', jarvis), Club = Sakaryaspor.
+   Seed tickets=100; alle Inserts/Updates rolled back.
+================================================================
+AC2  check_rejects_bogus   = true                                  ✅ CHECK lehnt 'bogus' ab
+AC3a follow_reject         err=follow_required  bal_unchanged=true ✅ Nicht-Follower blockiert, KEIN Geld bewegt
+AC3b follow_ok             = true   bal=90 (exp 90)                ✅ Follower → Eintritt, -10
+AC4a rank_noRow            err=fan_rank_too_low bal_unchanged=true ✅ kein Fan-Rang = fail-closed, KEIN Geld bewegt
+AC4b rank_ultra            err=fan_rank_too_low                    ✅ ultra(2) < legende(3) blockiert
+AC4c rank_legende_ok       = true   bal_delta=10 (exp 10)          ✅ legende(3) >= 3 → Eintritt, -10
+AC6  noclub_noop           ok=true  err=none                       ✅ club_id NULL → Gate no-op (Spiegel subscription_required)
+
+Befund (faktenbasiert): Follow-INSERT triggert via club_followers_recalc_fan_rank (Slice 345)
+automatisch eine fan_rankings-Zeile → No-Row-Test räumt sie vor AC4a ab. Kein Bug, erwartetes Trigger-Verhalten.
+
+AC-7 (Idempotenz already_entered): Pfad byte-genau erhalten (PATCH-AUDIT) — Gates sitzen VOR dem
+already_entered-Check, ein berechtigter Re-Entry bleibt idempotent. Verifiziert durch Code-Erhalt.
+
+================================================================
+C) STATIC + UNIT (lokal)
+================================================================
+tsc --noEmit            : exit 0 (clean)                           ✅ AC-11
+vitest (3 Suiten)       : 140 passed (events-v2 EDITABLE_FIELDS 26/25 + useEventForm + useEventActions) ✅ AC-8/AC-11
+i18n namespace-aware    : fantasy.followRequired/fanRankTooLow DE+TR = true ;
+                          admin.requiresFollowLabel/minFanRank*/eventGateHint DE+TR = true  ✅ AC-10
+
+================================================================
+D) OFFEN (post-Deploy)
+================================================================
+AC-12 UI-Playwright gegen bescout.net (Admin-Builder rendert Toggle + Select, 0 Console-Errors,
+      Insert-Read-Roundtrip) — nach Vercel-Deploy von main. Eintritts-Reject-Toast = Logik-verifiziert (B).

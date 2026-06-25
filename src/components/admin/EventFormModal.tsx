@@ -43,6 +43,16 @@ export interface EventFormLabels {
   maxPerClub: string;          // Slice 195c: FPL-Style Max-Spieler-pro-Verein
   maxPerClubPlaceholder: string;
   maxPerClubHint?: string;
+  // Slice 384 (E-3 Türsteher) — nur bei Vereins-Events wirksam
+  requiresFollow?: string;     // Follower-Pflicht-Toggle
+  minFanRank?: string;         // Mindest-Fan-Rang-Select
+  minFanRankNone?: string;
+  minFanRankStammgast?: string;
+  minFanRankUltra?: string;
+  minFanRankLegende?: string;
+  minFanRankEhrenmitglied?: string;
+  minFanRankVereinsikone?: string;
+  gateHint?: string;           // "Nur bei Vereins-Events wirksam"
   minScPerSlot?: string;     // Platform-only
   wildcardsAllowed?: string; // Platform-only
   maxWildcards?: string;     // Platform-only
@@ -229,6 +239,50 @@ export function EventFormModal({
             </select>
           </div>
         </div>
+
+        {/* Türsteher: Follower-Pflicht + Fan-Rang (Slice 384 / E-3) — nur bei Vereins-Events wirksam */}
+        {(L.requiresFollow || L.minFanRank) && (
+          <div className="space-y-3 p-3 bg-white/[0.02] border border-white/10 rounded-xl">
+            {L.requiresFollow && (
+              <div className="flex items-center gap-2 min-h-[44px]">
+                <input
+                  type="checkbox"
+                  id="formRequiresFollow"
+                  checked={form.requiresFollow}
+                  onChange={(e) => setField('requiresFollow', e.target.checked)}
+                  disabled={isFieldDisabled('requires_follow')}
+                  className="w-4 h-4 accent-gold rounded"
+                />
+                <label htmlFor="formRequiresFollow" className="text-sm font-bold text-white/70">
+                  {L.requiresFollow}
+                </label>
+              </div>
+            )}
+            {L.minFanRank && (
+              <div>
+                <label htmlFor="formMinFanRank" className="block text-sm font-bold text-white/70 mb-1">
+                  {L.minFanRank}
+                </label>
+                <select
+                  id="formMinFanRank"
+                  value={form.minFanRankTier}
+                  onChange={(e) => setField('minFanRankTier', e.target.value)}
+                  disabled={isFieldDisabled('min_fan_rank_tier')}
+                  aria-label={L.minFanRank}
+                  className={cn(SELECT_CLS, disabledCls)}
+                >
+                  <option value="">{L.minFanRankNone}</option>
+                  <option value="stammgast">{L.minFanRankStammgast}</option>
+                  <option value="ultra">{L.minFanRankUltra}</option>
+                  <option value="legende">{L.minFanRankLegende}</option>
+                  <option value="ehrenmitglied">{L.minFanRankEhrenmitglied}</option>
+                  <option value="vereinsikone">{L.minFanRankVereinsikone}</option>
+                </select>
+              </div>
+            )}
+            {L.gateHint && <p className="text-[10px] text-white/40">{L.gateHint}</p>}
+          </div>
+        )}
 
         {/* Salary Cap */}
         <div>

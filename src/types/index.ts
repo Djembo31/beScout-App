@@ -760,6 +760,16 @@ export type DbEvent = {
   tier_bonuses?: Record<string, number> | null;
   min_tier?: string | null;
   min_subscription_tier?: string | null;
+  /**
+   * Slice 384 (E-3 Türsteher): Follower-Pflicht. Wenn true + club_id gesetzt, darf nur
+   * eintreten wer dem Verein folgt (rpc_lock_event_entry-Gate, no-op ohne club_id).
+   */
+  requires_follow?: boolean;
+  /**
+   * Slice 384 (E-3 Türsteher): Mindest-Fan-Rang für den Eintritt. NULL = offen.
+   * Gesetzt + club_id → nur ab dieser Fan-Stufe (Spiegel community_polls.min_fan_rank_tier).
+   */
+  min_fan_rank_tier?: string | null;
   salary_cap?: number | null;
   /** Slice 195c: Max Spieler pro Verein im Lineup. NULL = unlimited (Multi-Liga-Events). */
   max_per_club?: number | null;

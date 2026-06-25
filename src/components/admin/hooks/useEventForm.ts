@@ -32,6 +32,8 @@ function populateFromEvent(event: DbEvent): EventFormState {
     minSubTier: event.min_subscription_tier ?? '',
     salaryCap: event.salary_cap != null ? String(centsToBsd(event.salary_cap)) : '',
     maxPerClub: event.max_per_club != null ? String(event.max_per_club) : '',
+    requiresFollow: event.requires_follow ?? false,
+    minFanRankTier: event.min_fan_rank_tier ?? '',
     minScPerSlot: String(event.min_sc_per_slot ?? 1),
     wildcardsAllowed: event.wildcards_allowed ?? false,
     maxWildcards: String(event.max_wildcards_per_lineup ?? 0),
@@ -171,6 +173,8 @@ export function useEventForm(initialDefaults?: Partial<EventFormState>) {
         minSubscriptionTier: form.minSubTier || null,
         salaryCap: form.salaryCap ? bsdToCents(parseFloat(form.salaryCap) || 0) : null,
         maxPerClub: form.maxPerClub ? (parseInt(form.maxPerClub) || null) : null,
+        requiresFollow: form.requiresFollow,
+        minFanRankTier: form.minFanRankTier || null,
         minScPerSlot: parseInt(form.minScPerSlot) || 1,
         wildcardsAllowed: form.wildcardsAllowed,
         maxWildcardsPerLineup: form.wildcardsAllowed
@@ -215,6 +219,8 @@ export function useEventForm(initialDefaults?: Partial<EventFormState>) {
       maybePut('max_per_club', form.maxPerClub
         ? (parseInt(form.maxPerClub) || null)
         : null);
+      maybePut('requires_follow', form.requiresFollow);
+      maybePut('min_fan_rank_tier', form.minFanRankTier || null);
       maybePut('min_sc_per_slot', parseInt(form.minScPerSlot) || 1);
       maybePut('wildcards_allowed', form.wildcardsAllowed);
       maybePut('max_wildcards_per_lineup', form.wildcardsAllowed

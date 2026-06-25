@@ -34,6 +34,10 @@ export async function createEvent(params: {
   maxWildcardsPerLineup?: number;
   /** Slice 195c: Max Spieler pro Verein im Lineup. NULL/undefined = unlimited (Multi-Liga). */
   maxPerClub?: number | null;
+  /** Slice 384 (E-3 Türsteher): nur Follower des Vereins dürfen eintreten (nur bei club_id wirksam). */
+  requiresFollow?: boolean;
+  /** Slice 384 (E-3 Türsteher): Mindest-Fan-Rang für Eintritt. NULL = offen (nur bei club_id wirksam). */
+  minFanRankTier?: string | null;
   rewardStructure?: Array<{ rank: number; pct: number }> | null;
   currency?: EventCurrency;
   isLigaEvent?: boolean;
@@ -70,6 +74,8 @@ export async function createEvent(params: {
       wildcards_allowed: params.wildcardsAllowed ?? false,
       max_wildcards_per_lineup: params.maxWildcardsPerLineup ?? 0,
       max_per_club: params.maxPerClub ?? null,
+      requires_follow: params.requiresFollow ?? false,
+      min_fan_rank_tier: params.minFanRankTier || null,
       reward_structure: params.rewardStructure ?? null,
       is_liga_event: params.isLigaEvent ?? false,
       status: 'registering',
@@ -129,7 +135,7 @@ export async function createNextGameweekEvents(
   // Load current GW events as templates
   const { data: templates, error: tplErr } = await supabase
     .from('events')
-    .select('name, type, format, entry_fee, ticket_cost, currency, prize_pool, max_entries, club_id, league_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, salary_cap, is_liga_event')
+    .select('name, type, format, entry_fee, ticket_cost, currency, prize_pool, max_entries, club_id, league_id, created_by, sponsor_name, sponsor_logo, event_tier, tier_bonuses, min_tier, min_subscription_tier, requires_follow, min_fan_rank_tier, salary_cap, is_liga_event')
     .eq('club_id', clubId)
     .eq('gameweek', currentGw);
 
@@ -179,6 +185,8 @@ export async function createNextGameweekEvents(
     tier_bonuses: t.tier_bonuses,
     min_tier: t.min_tier,
     min_subscription_tier: t.min_subscription_tier,
+    requires_follow: t.requires_follow ?? false,
+    min_fan_rank_tier: t.min_fan_rank_tier ?? null,
     salary_cap: t.salary_cap,
     is_liga_event: t.is_liga_event ?? false,
     starts_at: startsAt,
@@ -268,7 +276,7 @@ export const EDITABLE_FIELDS: Record<string, string[]> = {
     'name', 'type', 'format', 'gameweek', 'entry_fee', 'ticket_cost', 'currency', 'prize_pool',
     'max_entries', 'starts_at', 'locks_at', 'ends_at', 'sponsor_name',
     'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
-    'max_per_club',
+    'max_per_club', 'requires_follow', 'min_fan_rank_tier',
     'min_sc_per_slot', 'wildcards_allowed', 'max_wildcards_per_lineup',
     'reward_structure', 'is_liga_event', 'league_id',
   ],
@@ -276,7 +284,7 @@ export const EDITABLE_FIELDS: Record<string, string[]> = {
     'name', 'type', 'format', 'gameweek', 'entry_fee', 'ticket_cost', 'prize_pool',
     'max_entries', 'starts_at', 'locks_at', 'ends_at', 'sponsor_name',
     'sponsor_logo', 'event_tier', 'min_subscription_tier', 'salary_cap',
-    'max_per_club',
+    'max_per_club', 'requires_follow', 'min_fan_rank_tier',
     'min_sc_per_slot', 'wildcards_allowed', 'max_wildcards_per_lineup',
     'reward_structure', 'is_liga_event', 'league_id',
   ],
@@ -408,7 +416,7 @@ export type LockEventEntryResult = {
    */
   balanceAfter?: number | null;
   alreadyEntered?: boolean;
-  error?: 'insufficient_tickets' | 'insufficient_balance' | 'event_full' | 'event_not_open' | 'scout_events_disabled' | string;
+  error?: 'insufficient_tickets' | 'insufficient_balance' | 'event_full' | 'event_not_open' | 'scout_events_disabled' | 'follow_required' | 'fan_rank_too_low' | string;
   have?: number;
   need?: number;
 };

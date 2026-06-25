@@ -182,6 +182,12 @@ export function useEventActions(clubId: string) {
         case 'tier_required':
           addToast(t('tierRequired', { need: '', have: 'Rookie' }), 'error');
           break;
+        case 'follow_required':
+          addToast(t('followRequired'), 'error');
+          break;
+        case 'fan_rank_too_low':
+          addToast(t('fanRankTooLow'), 'error');
+          break;
         default:
           addToast(
             t('errorGeneric', { error: te(mapErrorToKey(normalizeError(err))) }),

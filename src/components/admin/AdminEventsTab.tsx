@@ -48,6 +48,12 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     maxPerClub: t('maxPerClubLabel'), maxPerClubPlaceholder: t('maxPerClubPlaceholder'), maxPerClubHint: t('maxPerClubHint'),
     // Slice 382 (E-1b): Club-Admin-Liga-Picker (Anil: alle Ligen + Offen, Symmetrie zum Platform-Admin)
     league: t('leagueBindingLabel'), leagueOpen: t('leagueBindingOpen'),
+    // Slice 384 (E-3 Türsteher): Follower-Pflicht + Fan-Rang-Gate
+    requiresFollow: t('requiresFollowLabel'), minFanRank: t('minFanRankLabel'),
+    minFanRankNone: t('minFanRankNone'), minFanRankStammgast: t('minFanRankStammgast'),
+    minFanRankUltra: t('minFanRankUltra'), minFanRankLegende: t('minFanRankLegende'),
+    minFanRankEhrenmitglied: t('minFanRankEhrenmitglied'), minFanRankVereinsikone: t('minFanRankVereinsikone'),
+    gateHint: t('eventGateHint'),
     // NO minScPerSlot — Club admin doesn't have this
     // NO wildcardsAllowed — Club admin doesn't have this
     gameweek: t('gameweekFormLabel'), gameweekPlaceholder: t('gameweekPlaceholder'), maxEntries: t('maxParticipants'),
