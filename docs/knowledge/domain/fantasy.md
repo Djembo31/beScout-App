@@ -5,7 +5,7 @@ updated: 2026-06-25
 status: active
 tags: [fantasy, lineup, scoring, gameweek]
 consult_when: Spieltag, Lineup, Captain, Auto-Sub, Gameweek-Cycle, Scoring, Fantasy-Flows, Event-Eintritts-Gates (Abo/Stufe/Follower/Fan-Rang)
-verified-against: .claude/rules/fantasy.md @ 2026-06-24; rpc_lock_event_entry live @ 2026-06-25 (Slice 384)
+verified-against: .claude/rules/fantasy.md @ 2026-06-25
 ---
 
 > ⚠️ Migriert aus memory/features/ (Stand 2026-03-26) — Feature-Spec; Code-Regel siehe .claude/rules/fantasy.md.
