@@ -47,6 +47,10 @@ export type FantasyEvent = {
   leagueShort?: string;
   leagueLogoUrl?: string;
   leagueCountry?: string;
+  /** Slice 382 (E-1b): die ECHTE Event-Liga-Bindung (events.league_id, E-1/380).
+   *  Bewusst getrennt von `leagueId` (= Vereins-Liga via clubLookup, GameweekStatusBar).
+   *  null/undefined = offenes Event (keine Liga-Bindung). */
+  boundLeagueId?: string | null;
   gameweek?: number;
   startTime: number;
   endTime: number;

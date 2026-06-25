@@ -445,8 +445,9 @@ describe('ALLOWED_TRANSITIONS', () => {
 // EDITABLE_FIELDS
 // ============================================
 describe('EDITABLE_FIELDS', () => {
-  it('upcoming has all 23 fields', () => {
-    expect(EDITABLE_FIELDS.upcoming).toHaveLength(23);
+  it('upcoming has all 24 fields', () => {
+    // Slice 380 (E-1) added 'league_id' (Liga-Bindung) → 23→24. Count-Assertion nachgezogen (382).
+    expect(EDITABLE_FIELDS.upcoming).toHaveLength(24);
     expect(EDITABLE_FIELDS.upcoming).toContain('name');
     expect(EDITABLE_FIELDS.upcoming).toContain('entry_fee');
     expect(EDITABLE_FIELDS.upcoming).toContain('ticket_cost');
@@ -455,15 +456,18 @@ describe('EDITABLE_FIELDS', () => {
     expect(EDITABLE_FIELDS.upcoming).toContain('max_per_club');
     expect(EDITABLE_FIELDS.upcoming).toContain('reward_structure');
     expect(EDITABLE_FIELDS.upcoming).toContain('is_liga_event');
+    expect(EDITABLE_FIELDS.upcoming).toContain('league_id');
   });
 
-  it('registering has 22 fields (no currency)', () => {
-    expect(EDITABLE_FIELDS.registering).toHaveLength(22);
+  it('registering has 23 fields (no currency)', () => {
+    // Slice 380 (E-1) added 'league_id' → 22→23. Count-Assertion nachgezogen (382).
+    expect(EDITABLE_FIELDS.registering).toHaveLength(23);
     expect(EDITABLE_FIELDS.registering).toContain('name');
     expect(EDITABLE_FIELDS.registering).toContain('entry_fee');
     expect(EDITABLE_FIELDS.registering).toContain('ticket_cost');
     expect(EDITABLE_FIELDS.registering).toContain('max_per_club');
     expect(EDITABLE_FIELDS.registering).toContain('is_liga_event');
+    expect(EDITABLE_FIELDS.registering).toContain('league_id');
     expect(EDITABLE_FIELDS.registering).not.toContain('currency');
   });
 

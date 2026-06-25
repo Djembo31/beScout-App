@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import {
   Trophy, Crown,
@@ -27,6 +27,8 @@ import { PickerSortFilter } from '@/components/fantasy/PickerSortFilter';
 import EquipmentBadge from '@/components/gamification/EquipmentBadge';
 import type { EquipmentType } from '@/types';
 import { centsToBsd } from '@/lib/services/players';
+import { getClub } from '@/lib/clubs';
+import { getLeagueById } from '@/lib/leagues';
 import { useLineupPanelState } from './useLineupPanelState';
 import { BenchRow } from '@/features/fantasy/components/lineup/BenchRow';
 import type { BenchSlotKey } from '@/features/fantasy/store/lineupStore';
@@ -157,6 +159,31 @@ export default function LineupPanel({
     openPicker, closePicker, selectPlayerFromPicker,
     pickerMode, openBenchPicker,
   } = st;
+
+  // ── Slice 382 (E-1b): Liga-Vorfilter — spiegelt das rpc_save_lineup-Gate (E-1/380).
+  // boundLeagueId = events.league_id (NICHT die Vereins-Liga `leagueId`). Filter via clubId
+  // (eindeutig; getClub(short) ist bei mehrdeutigen Shorts unsicher, S276), fail-closed.
+  const boundLeagueId = event.boundLeagueId ?? null;
+  const boundLeagueName = useMemo(
+    () => (boundLeagueId ? getLeagueById(boundLeagueId)?.name ?? '' : ''),
+    [boundLeagueId],
+  );
+  const isInBoundLeague = useCallback(
+    (h: UserDpcHolding): boolean => {
+      if (!boundLeagueId) return true;
+      const cid = h.clubId ?? allPlayers.find(p => p.id === h.id)?.clubId;
+      return cid ? getClub(cid)?.league_id === boundLeagueId : false;
+    },
+    [boundLeagueId, allPlayers],
+  );
+  // Club-Chips im Picker ebenfalls auf Liga-Vereine reduzieren (sonst Chip → leere Liste).
+  const boundLeagueClubShorts = useMemo(() => {
+    if (!boundLeagueId) return null;
+    return new Set(effectiveHoldings.filter(isInBoundLeague).map(h => h.club));
+  }, [boundLeagueId, effectiveHoldings, isInBoundLeague]);
+  const pickerClubsList = boundLeagueClubShorts
+    ? availableClubsList.filter(c => boundLeagueClubShorts.has(c.short))
+    : availableClubsList;
 
 
   const getPlayerStatusStyle = (s: UserDpcHolding['status']) => {
@@ -917,6 +944,10 @@ export default function LineupPanel({
         if (synergyOnly && synergyClubs.length > 0) {
           availablePlayers = availablePlayers.filter(h => synergyClubs.includes(h.club));
         }
+        // Slice 382 (E-1b): Liga-Vorfilter — nur Spieler der Event-Liga (spiegelt rpc_save_lineup-Gate).
+        if (boundLeagueId) {
+          availablePlayers = availablePlayers.filter(isInBoundLeague);
+        }
         // Apply local sort
         availablePlayers = [...availablePlayers].sort((a, b) => {
           if (pickerSort === 'l5') return b.perfL5 - a.perfL5;
@@ -952,6 +983,15 @@ export default function LineupPanel({
                     <div className="text-xs text-white/40">{t('availableCount', { count: availablePlayers.length })}</div>
                   </div>
                 </div>
+                {/* Slice 382 (E-1b): Liga-Bindungs-Hinweis — erklärt, warum nur Liga-Spieler sichtbar sind */}
+                {boundLeagueId && (
+                  <div className="px-4 pb-2 -mt-0.5">
+                    <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gold/80 bg-gold/10 border border-gold/20 rounded-lg px-2.5 py-1.5">
+                      <Lock aria-hidden="true" className="size-3 shrink-0" />
+                      <span>{t('pickerLeagueBound', { league: boundLeagueName })}</span>
+                    </div>
+                  </div>
+                )}
                 {/* Search */}
                 <div className="px-4 pb-2.5">
                   <div className="relative">
@@ -976,7 +1016,7 @@ export default function LineupPanel({
                     onOnlyAvailableChange={setOnlyAvailable}
                     synergyOnly={synergyOnly}
                     onSynergyOnlyChange={setSynergyOnly}
-                    availableClubs={availableClubsList}
+                    availableClubs={pickerClubsList}
                     synergyClubs={synergyClubs}
                   />
                 </div>

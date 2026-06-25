@@ -66,7 +66,7 @@ Events kommen von **Creatorn** (BeScout / Verein / User / Sponsor). Jeder Creato
 
 **E-1 · Liga-Bindung der Aufstellung** ✅ DONE (Slice 380, 2026-06-25) *(Größe M, kein Money)*
 Echte `events.league_id`-Spalte (nullable, NULL=offen, kein Backfill — Bestand bleibt offen). `rpc_save_lineup` prüft: bei gebundenem Event müssen alle Lineup-Spieler (Starter+Bank) aus der Liga kommen (`player_not_in_event_league`, fail-closed bei club_id NULL). Erstell-UI: Liga-Auswahl + „Offen / alle Ligen" im **Platform-Admin** (cache-reaktiv). Reviewer PASS, Live-Smoke AC3-AC7. Proof `worklog/proofs/380-league-binding.txt`.
-- **Scope-Out → E-1b:** Lineup-Builder-Picker-Vorfilter (User sieht nur erlaubte Spieler) + Club-Admin-Liga-Picker. E-1 sichert Integrität via RPC-Reject + klare Fehlermeldung.
+- **E-1b** ✅ **DONE (Slice 382, 2026-06-25)** *(M, kein Money)*: Lineup-Picker-Liga-Vorfilter (User sieht nur erlaubte Liga-Spieler + Hinweis „Nur {Liga}-Spieler", spiegelt RPC-Gate exakt via `clubId→clubs.league_id`) + Club-Admin-Liga-Picker (alle Ligen + Offen, CEO). Neues `FantasyEvent.boundLeagueId` (≠ Vereins-`leagueId`). Nebenbei: S200 (Events-Read-Query zog `league_id` nicht) + pre-existing 380-CI-Rot (EDITABLE_FIELDS-Counts) gefixt. Reviewer REWORK→GEHEILT (S333-Namespace). Proof `worklog/proofs/382-picker-filter.txt`. Offen: UI-Playwright post-Deploy.
 
 **E-2 · BeScout-Saison: Wertung pro Liga (zusätzlich zu global)** *(Money/CEO — Entscheid D106)*
 **Anil-Entscheid (D106):** pro-Liga zahlt **echte Rewards**, aber **Preispool/Beträge admin-anpassbar** (nicht hardcodiert 500k/250k/100k). **Gestuft:**

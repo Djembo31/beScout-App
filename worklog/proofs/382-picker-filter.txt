@@ -1,0 +1,38 @@
+Slice 382 — E-1b Lineup-Picker-Liga-Vorfilter + Club-Admin-Liga-Picker — Proof
+Datum: 2026-06-25
+
+=== Build / Static ===
+npx tsc --noEmit -> EXIT 0
+CI vitest (events-v2 + fantasy/__tests__ + AdminEventsTab) -> 155 passed (10 files)
+JSON valid: messages/de.json + tr.json OK
+
+=== Mitgefixt: pre-existing CI-Rot aus Slice 380 ===
+EDITABLE_FIELDS-Count-Assertions waren seit 380 (league_id-Addition) stale:
+  upcoming 23->24, registering 22->23. CI war rot. Nachgezogen + league_id-contains-Assertion ergaenzt.
+
+=== S200-Befund (Read-Query zog league_id nicht) ===
+events.queries.ts: getEventsByClubId + getEventsByClubIds + getAllEventsAdmin zogen `is_liga_event`
+aber NICHT `league_id` -> db.league_id waere undefined -> boundLeagueId immer null -> Filter nie aktiv.
+league_id zu allen 3 Selects ergaenzt. (Picker-Hauptpfad /api/events nutzt select('*') -> war ok;
+Club-Views brauchten den Fix.)
+
+=== Reviewer (worklog/reviews/382-review.md) ===
+REWORK -> GEHEILT. Kern-Logik PASS:
+- Picker-Filter ≡ rpc_save_lineup-Gate (380) bewiesen: gleiche Quelle players.club_id -> clubs.league_id,
+  fail-closed, gilt Starter+Bank. clubId statt short (S276 umgangen).
+- Zwei-Achsen-Trennung (leagueId Vereins-Liga unveraendert, boundLeagueId additiv).
+Finding #1 (CRITICAL S333): leagueBindingLabel/Open lagen in fantasy-Namespace, Consumer nutzt
+  useTranslations('admin') -> MISSING_MESSAGE. GEHEILT: nach admin-Namespace verschoben (DE+TR).
+Finding #2 (NIT): getAllEventsAdmin league_id -> GEHEILT.
+
+=== Namespace-Fix verifiziert (node) ===
+admin.leagueBindingLabel  DE:true  TR:true
+admin.leagueBindingOpen   DE:true  TR:true
+fantasy.leagueBindingLabel removed  DE:true  TR:true
+fantasy.pickerLeagueBound stays     DE:true  TR:true   (LineupPanel = useTranslations('fantasy'))
+
+=== Offen (post-Deploy Playwright gegen bescout.net) ===
+AC-01/03 Picker-Vorfilter (liga-gebundenes offenes Event -> nur Liga-Spieler + Hinweis "Nur {Liga}-Spieler")
+AC-04 Save ohne player_not_in_event_league
+AC-05/06 Club-Admin Liga-Select sichtbar (ali) + Persistenz events.league_id
+AC-07 i18n DE+TR live (kein MISSING_MESSAGE) · AC-08 Mobile 393px

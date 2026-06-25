@@ -78,5 +78,8 @@ export function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userL
     // Slice 261 v2.1 — leagueId pflicht für scoped-league-Filter (GameweekStatusBar).
     // Vorher orphan in FantasyEvent-Type, jetzt Single-Source via clubLookup.
     leagueId: clubLookup?.league_id ?? undefined,
+    // Slice 382 (E-1b) — die ECHTE Event-Liga-Bindung (events.league_id, E-1/380),
+    // getrennt von der Vereins-Liga oben. Treibt den Lineup-Picker-Vorfilter.
+    boundLeagueId: db.league_id ?? null,
   };
 }

@@ -2,26 +2,24 @@
 
 ```
 status: idle
-slice: 381
-title: ✅ DONE — E-2a: BeScout-Saison Begriffs-Umzug + Pro-Liga-Ranglisten-Anzeige
+slice: 382
+title: ✅ DONE — E-1b: Lineup-Picker-Liga-Vorfilter + Club-Admin-Liga-Picker (E5)
 size: M
-slice-type: Migration (read-only RPC) + Service + UI + i18n (cross-domain, KEIN Money)
-spec: worklog/specs/381-bescout-season-perleague-rankings.md
+slice-type: UI + i18n (Frontend, KEIN Money) — macht E-1 RPC-Gate (380) im Picker sichtbar
+spec: worklog/specs/382-e1b-lineup-picker-league-prefilter.md
 stage: LOG complete
-impact: inline (Spec §3+§4 — read-only Aggregat, kein scout_scores-Umbau, 0 Money-Pfad)
-spec-approved: Anil 2026-06-25 ("passt")
-build: tsc EXIT 0 · 18 vitest grün · Rename-Negativ-Check grün
-proof: worklog/proofs/381-season-rpc.txt (RPC+Seed live + UI-Playwright post-Deploy ALLE PASS: DE h1 „BeScout-Saison", TR h1 „BeScout Sezonu"+Umschalter Genel/Lige Göre, Mobile 393px kein Overflow, 0 Console-Errors, Gesamt-Board befüllt, Pro-Liga Bundesliga 312/268/240, leere Liga Empty-State. Topf durchgehend unverändert). PROVE-Befund: Scoring-Cron nullte Seed-total_score (keine echten Slots, Pre-Mortem #5) → direkt nachgesetzt, scored_at-gegated → hält.
-review: worklog/reviews/381-review.md (reviewer PASS, 2 NIT non-block — Doppel-testid + Spec-Drift seasonScore-Key)
-ceo-decision: Anil 2026-06-25 (AskUserQuestion) — "Voll bauen + 1 Demo-Event seeden": Rename + Pro-Liga-Board mit Umschalter, plus 1 liga-gebundenes Demo-Event mit gewerteten Lineups für sichtbaren Proof.
-key-finding: Live 2026-06-25 — 0/444 Lineups auf liga-gebundenen Events (E-1 kein Backfill). 39 is_liga_event-Events (alle type=bescout, ended) ohne league_id. → Pro-Liga-Board heute leer ohne Seed.
-next: nach 381 → E-1b (Lineup-Picker-Vorfilter) ODER E-2b (Pro-Liga-Payout, Money/CEO). Anil-Wahl.
+impact: inline (Spec §3+§4 — Frontend-only, kein Schema/RPC-Change; events.league_id existiert seit 380)
+proof: worklog/proofs/382-picker-filter.txt (tsc 0, 155 vitest, Namespace-Fix verifiziert; UI-Playwright post-Deploy offen)
+review: worklog/reviews/382-review.md (reviewer REWORK→GEHEILT — S333-Namespace-Bug + NIT#2 gefixt; Kern Picker≡RPC-Parität PASS)
+ceo-decision: Anil 2026-06-25 (AskUserQuestion) — Club-Admin-Liga-Picker = "Alle Ligen + Offen" (volle Symmetrie zum Platform-Admin). E-1b nach E-2a gewählt ("erst e1b").
+build: tsc EXIT 0 · 155 vitest grün · MITGEFIXT pre-existing CI-Rot aus 380 (EDITABLE_FIELDS upcoming 23→24/registering 22→23 Counts stale) · S200-Befund: events-Read-Query zog league_id nicht → in 3 Selects ergänzt · Reviewer-Heal: S333-Namespace (admin statt fantasy)
+next: nach 382 → E-2b (Pro-Liga-Payout, Money/CEO) ODER E-3 (Teilnahme-Bedingungen). Anil-Wahl.
 ```
 
 ## Zuletzt
 
-- **Slice 380** (2026-06-25) — E-1: Fußball-Liga an Event-Aufstellung binden (M, reviewer PASS).
-- **Slice 379b** (2026-06-25) — Bounty-Review Wallet-Hinweis-Gate (XS, self-review PASS).
-- **Slice 379** (2026-06-25) — Ticket-Source-Drift gefixt (XS, self-review PASS).
+- **Slice 381** (2026-06-25) — E-2a BeScout-Saison Rename + Pro-Liga-Anzeige (M, reviewer PASS, UI live PASS).
+- **Slice 380** (2026-06-25) — E-1 Liga-Bindung der Event-Aufstellung (M, reviewer PASS).
+- **Slice 379b** (2026-06-25) — Bounty-Review Wallet-Hinweis-Gate (XS).
 
-Nächstes: SPEC-Approval durch Anil (M-Slice) → BUILD.
+Nächstes: SPEC-Approval durch Anil (M-Slice + 1 Produkt-Frage) → BUILD.

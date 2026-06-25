@@ -2,6 +2,17 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 382 | 2026-06-25 | feat(fantasy): E-1b — Lineup-Picker-Liga-Vorfilter + Club-Admin-Liga-Picker
+- Stage-Chain: SPEC (`382-e1b-...md`, M) → IMPACT inline → BUILD (Plumbing → Filter → Club-Caller → i18n) → REVIEW (`382-review.md` reviewer REWORK→GEHEILT) → PROVE (`382-picker-filter.txt`; UI-Playwright post-Deploy) → LOG.
+- **Dritter Bau-Slice von E5** (D104), Frontend-Zwilling zu E-1 (380): macht das serverseitige `rpc_save_lineup`-Liga-Gate im Lineup-Picker sichtbar + gibt Club-Admins den Liga-Select. KEIN Money/Schema/RPC-Change. CEO (AskUserQuestion): Club-Admin-Liga-Picker = alle Ligen + Offen.
+- **Teil A Picker-Vorfilter:** neues `FantasyEvent.boundLeagueId` (= `events.league_id`, getrennt von `leagueId`=Vereins-Liga) + Mapper. Filter `isInBoundLeague` in `LineupPanel` (via `clubId→getClub().league_id`, fail-closed, S276-sicher) auf `availablePlayers` (Starter+Bank) + Club-Chips + Liga-Hinweis-Banner. **Spiegelt exakt das RPC-Gate** (gleiche `players.club_id→clubs.league_id`-Quelle, Reviewer-bestätigt).
+- **Teil B Club-Admin-Picker:** `league`/`leagueOpen`-Labels in `AdminEventsTab.FORM_LABELS` (aktiviert den EventFormModal-Select; Optionen intern, Persistenz via geteiltem createEvent/EDITABLE_FIELDS aus 380 — kein 2. Schreibweg).
+- **🔴 S200-Befund (latent):** Events-Read-Query (`events.queries.ts`, 3 Selects) zog `is_liga_event` aber NICHT `league_id` → `boundLeagueId` wäre immer null → Filter inaktiv. `league_id` in alle 3 Selects ergänzt.
+- **🔴 Mitgefixt: pre-existing CI-Rot aus 380** — `EDITABLE_FIELDS`-Count-Assertions (upcoming 23→24, registering 22→23) seit der `league_id`-Addition stale (CI rot, nur in CI sichtbar). Counts + `league_id`-contains nachgezogen.
+- **Reviewer-Heal (REWORK):** S333-Namespace-Bug — `leagueBindingLabel`/`Open` lagen in `fantasy`, Consumer nutzt `useTranslations('admin')` → MISSING_MESSAGE. Nach `admin`-Namespace verschoben (DE+TR). `pickerLeagueBound` bleibt korrekt in `fantasy`. + NIT#2 (getAllEventsAdmin league_id).
+- **Proof:** tsc 0, 155 vitest grün, Namespace-Fix node-verifiziert. UI-Playwright offen post-Deploy (AC-01/03/04/05/06/07/08).
+- Files: 7 src + 2 i18n + 1 test. Commit: <hash>.
+
 ## 381 | 2026-06-25 | feat(rankings): E-2a — BeScout-Saison Begriffs-Umzug + Pro-Liga-Ranglisten-Anzeige
 - Stage-Chain: SPEC (`381-bescout-season-perleague-rankings.md`, M) → IMPACT inline → BUILD (Migration+RPC selbst → Service/Hook → UI → i18n/Rename) → REVIEW (`381-review.md` reviewer PASS, 2 NIT) → PROVE (`381-season-rpc.txt` RPC+Seed live; UI-Screenshots post-Deploy) → LOG.
 - **Zweiter Bau-Slice von E5** (D104/D105/D106). CEO-Entscheid (AskUserQuestion): „Voll bauen + 1 Demo-Event seeden" — Rename + Pro-Liga-Board + sichtbarer Seed.
