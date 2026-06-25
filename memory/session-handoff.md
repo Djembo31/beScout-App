@@ -1,11 +1,14 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 21:33)
+# Session Handoff — Auto (2026-06-25 22:17)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- 7c6ac014 docs(proof): Slice 385 AC-12 UI post-Deploy live PASS — AC-1..AC-12 alle PASS
+- 0bc296e8 docs(handoff): Slice 385 DONE — E-3 Regel-Fundament, next = E-3-Erweiterungen/E-4
+- 107282d1 feat(events): E-3 Aufstellungs-Regel-Fundament — lineup_rules JSONB + Validator (Slice 385)
 - 8a243601 docs(handoff): sync auto-block post Slice 384 + knowledge-coupling
 - 3f47f5eb docs(knowledge): fantasy.md verified-against Format-Fix (SOFT-Finding)
 - 7a91ff06 docs(knowledge): fantasy.md + reward-ranking.md — Event-Eintritts-Türsteher (S384) verdrahtet
@@ -13,9 +16,6 @@
 - f56019c2 docs(log): Slice 384 DONE — E-3 Türsteher AC1-AC12 PASS, Epic E-3 reconciled
 - 7bf23383 feat(events): E-3 Türsteher — Follower-Pflicht + Fan-Rang-Gate auf Event-Eintritt (Slice 384)
 - 6549a445 docs(decision): D107 — Event-Bedingungen Zwei-Töpfe + Regel-Liste (JSONB lineup_rules)
-- 8f6260a1 docs(handoff): Session-Close 2026-06-25 — E-2b (383) voll-DONE, next = E-3 (Teilnahme-Bedingungen)
-- 21da524d docs(proof): Slice 383 — AC11 UI-Playwright post-Deploy live PASS (AC1-AC12 alle PASS)
-- 2f51c278 docs(knowledge): bescout-liga — E-2b Pro-Liga-Payout DONE reconcilen (Slice 383)
 
 <!-- auto:handoff-end -->
 
@@ -23,7 +23,7 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = `107282d1` (== origin/main, alles gepusht).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **Letzter Slice = 385 (E-3 Aufstellungs-Regel-Fundament: JSONB `events.lineup_rules` + generischer Validator in `rpc_save_lineup` + Pilot-Regel `min_per_own_club` feste Zahl) DONE. tsc clean, 142 vitest grün, force-rollback AC1-7 PASS (AC-6 = 0 Ressourcen-Move bei Reject), Reviewer PASS (3 NIT). main == origin/main.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
+**Status: idle. HEAD = `7c6ac014` (== origin/main, alles gepusht).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **Letzter Slice = 385 (E-3 Aufstellungs-Regel-Fundament: JSONB `events.lineup_rules` + generischer Validator in `rpc_save_lineup` + Pilot-Regel `min_per_own_club` feste Zahl) DONE. tsc clean, 142 vitest grün, force-rollback AC1-7 PASS (AC-6 = 0 Ressourcen-Move bei Reject), Reviewer PASS (3 NIT). main == origin/main.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
 
 ## 🎯 HIER ANKNÜPFEN — E-3-Regel-Erweiterungen ODER E-4 (Anil-Wahl)
 - **✅ Slice 385 DONE (`107282d1`):** D107 Topf 2. `events.lineup_rules` (jsonb) + generischer Validator in `rpc_save_lineup` (Weg B: fail-closed bei unbekanntem type, Wert-Bounds 1..11 mit Regex-Guard VOR `::INT`-Cast, läuft VOR INSERT+Wildcard-Move) + Pilot-Regel `min_per_own_club` (feste Zahl, CEO-Entscheid Anil — deckt sich mit `max_per_club`). Read (3 Selects+`*`+DbEvent+FantasyEvent+Mapper+`LineupRule`-Type), Write (createEvent+EDITABLE_FIELDS 26→27/25→26+Klon+minPerOwnClub-Serialisierung), Builder-Input beide Admins, Toast+i18n DE/TR. Migration `20260625220000`. Knowledge fantasy.md (Bedingungs-Tabelle + Zwei-Töpfe-Note). Reviewer 3 NIT (kosmetisch/Scope-Out, `385-review.md`).
@@ -35,14 +35,7 @@
 - **NEUE ARCHITEKTUR D107 (`memory/decisions.md` + `event-creator-liga-epic.md` §3b, INDEX-Range D1–D107):** Event-Bedingungen = **zwei Töpfe**. (1) **Eintritts-Türsteher** (wer darf rein: Follower/Fan-Rang/Abo/Stufe) = **feste Spalten** in `rpc_lock_event_entry`. (2) **Aufstellungs-Regeln** (welche Karten ins Lineup: Alter/Nation/min-vom-Verein/Marktwert/Position) = **JSONB `lineup_rules`-Regel-Liste** (Weg B, EIN generischer Validator in `rpc_save_lineup`, neue Regel = kein Schema-Change). Creator-zentrierter Builder + Echtzeit-Treffer-Anzeige. Anil-Wunsch „einfach aber mächtig, wildeste Kombinationen". Anil hat Weg B + Claude-Ideen (MV-Deckel, Positions-Quote, Alters-Fenster, max-pro-Nation) freigegeben.
 - **✅ Slice 384 DONE (`7bf23383`+`f56019c2`):** E-3 **Türsteher** (Topf 1). `events.requires_follow` (BOOLEAN) + `events.min_fan_rank_tier` (TEXT, 6-Tier-CHECK) + 2 Gate-Blöcke in `rpc_lock_event_entry` (Spiegel Poll-356), nur bei club_id, fail-closed, VOR Geld. PATCH-AUDIT 8/8, force-rollback Money-Smoke AC1-AC7 (kein Geld bei Reject), UI-live beide Builder (0 Console-Errors, kein MISSING_MESSAGE), Reviewer PASS (2 NIT bewusst nicht geheilt — s. `384-review.md`). Migration `20260625210000`. **Nebenwissen:** Follow-INSERT triggert `club_followers_recalc_fan_rank` (S345) → erzeugt fan_rankings-Zeile (im Smoke berücksichtigt).
 
-## 🎯 HIER ANKNÜPFEN — E-3 Regel-Listen-Fundament (Topf 2, Weg B, D107)
-
-**➡️ NÄCHSTER SLICE = E-3 Aufstellungs-Regel-Fundament (M, Money-nah/Lineup).** Bewusst frischer Kontext gewählt (komplexer neuer RPC). ZUERST lesen: `event-creator-liga-epic.md` §3b + §5 (E-3-Block) + `decisions.md` **D107**.
-- **Was:** JSONB-Spalte `events.lineup_rules` (Liste typisierter Bedingungen, z.B. `[{"type":"min_per_own_club","value":5}]`) + **generischer Validator-Block in `rpc_save_lineup`** (whitelisted Regel-Typen, Wert-Bounds, **fail-closed bei unbekanntem Typ**) + **erste Pilot-Regel `min_per_own_club`** (E-3a, Gegenstück zu `max_per_club`).
-- **Anil-Entscheid offen (vor Bau klären, §6 Epic): E-3a „min. X vom Verein" = feste Zahl (Claude-Empfehlung, deckt sich mit max_per_club) ODER Prozent?**
-- **Pflicht-Reads (D87):** Live-`pg_get_functiondef('public.rpc_save_lineup(...)')` VOR Spec (großer RPC, in 384-Session NICHT gelesen — frisch holen) + `events.queries.ts`/`events.mutations.ts` für `lineup_rules`-Read/Write-Pfade (S200, alle 5 Reader wie bei 384) + Lineup-Picker-Consumer.
-- **Datenbedarf später (Regel-Erweiterungen, eigene Folge-Slices):** Alter/Geburtsdatum + Nationalität müssen auf `players` verfügbar sein, sonst Scraper/Spalte zuerst (MV `market_value_eur` existiert). Reihenfolge: Fundament+min_per_own_club zuerst, dann `age_*`/`nation_in`/`mv_max_eur`/`position_quota` je winziger Folge-Slice (kein Schema-Change dank JSONB).
-- Money-nah → Live-functiondef VOR Spec, force-rollback-Smoke, Reviewer-Pflicht. Selbst bauen (§3).
+> _(Stale-Anker „E-3 Regel-Listen-Fundament" entfernt — das ist Slice 385, jetzt DONE; aktueller Anker steht oben unter „HIER ANKNÜPFEN — E-3-Regel-Erweiterungen ODER E-4".)_
 
 **✅ AC11 (UI Playwright post-Deploy) ERLEDIGT (2026-06-25):** Liga-Tab live verifiziert — „Pro-Liga-Rewards"-Card rendert alle 7 Ligen (Default 1000/500/250), neuer „Monat abschließen"-Text, 0 Console-Errors (kein MISSING_MESSAGE). Write-Pfad `set_liga_reward_config` live bewiesen (Bundesliga #1→2000 gespeichert, „(Default)" verschwand, Test-Zeile danach gelöscht). Proof `383-money-smoke.txt` §E + `383-admin-liga-rewards.png`. → **Slice 383 voll-DONE, AC1-AC12 alle PASS.** (Winner-Liga-Badge erst sichtbar nach erstem echten Monatsabschluss — kein offener Punkt.)
 
