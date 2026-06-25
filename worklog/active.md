@@ -1,17 +1,17 @@
 # Active Slice
 
 ```
-status: active
+status: idle
 slice: 384
 title: E-3 Türsteher — Follower-Pflicht + Fan-Rang-Gate auf Events (rpc_lock_event_entry)
 size: M
 slice-type: Migration (Money-nahe RPC) + Service + UI + i18n
-scope: Money-nah / §3 (Eintritts-RPC — selbst bauen, Reviewer-Pflicht). Kein neuer Geld-Flow (Zugangs-Gate VOR Geld).
+scope: Money-nah / §3 (Eintritts-RPC — selbst gebaut, Reviewer-Pflicht). Kein neuer Geld-Flow (Zugangs-Gate VOR Geld).
 spec: worklog/specs/384-event-entry-gates.md
-stage: PROVE
+stage: LOG
 impact: inline (Spec §3 — 1 RPC + 1 Service-Wrapper-Check + Builder/Service/Type/i18n-Kette grep-verifiziert)
 proof: worklog/proofs/384-money-smoke.txt
-proof-note: DB-Smoke AC1-AC7 force-rollback PASS (kein Geld bei Reject) + tsc 0 + 140 vitest + i18n DE/TR. AC12 UI post-Deploy offen.
+proof-note: AC1-AC12 ALLE PASS — force-rollback Money-Smoke (kein Geld bei Reject) + tsc 0 + 140 vitest + i18n DE/TR + UI-Playwright post-Deploy live (beide Builder, 0 Console-Errors, kein MISSING_MESSAGE).
 review: worklog/reviews/384-review.md (reviewer PASS, 2 NIT — beide bewusst nicht geheilt, dokumentiert)
 nit-note: NIT#1 Gate-Felder nicht disabled bei club-losem Event = bewusste Drift (Konsistenz mit min_subscription_tier-Schwester-Gate, gateHint kommuniziert). NIT#2 belassen.
 review: pending

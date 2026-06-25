@@ -46,7 +46,21 @@ i18n namespace-aware    : fantasy.followRequired/fanRankTooLow DE+TR = true ;
                           admin.requiresFollowLabel/minFanRank*/eventGateHint DE+TR = true  ✅ AC-10
 
 ================================================================
-D) OFFEN (post-Deploy)
+D) UI-PLAYWRIGHT post-Deploy (bescout.net, Login ali) — AC-12 PASS
 ================================================================
-AC-12 UI-Playwright gegen bescout.net (Admin-Builder rendert Toggle + Select, 0 Console-Errors,
-      Insert-Read-Roundtrip) — nach Vercel-Deploy von main. Eintritts-Reject-Toast = Logik-verifiziert (B).
+Platform-Builder (/bescout-admin -> Events -> Neues Event, hardcoded DE):
+  ✅ Checkbox "Nur Follower des Vereins"
+  ✅ Select "Mindest-Fan-Rang": Ab Stammgast / Ab Ultra / Ab Legende / Ab Ehrenmitglied / Nur Vereinsikone
+     (kein "Zuschauer" — korrekt, sinnlose Stufe ausgelassen)
+  ✅ Hinweis "Follower-Pflicht und Fan-Rang wirken nur bei Vereins-Events (mit Club)."
+  ✅ 0 Console-Errors
+  Screenshot: worklog/proofs/384-builder-gates-platform.png
+
+Club-Admin-Builder (/club/sakaryaspor/admin -> Events -> Neues Event, i18n via t() admin-Namespace):
+  ✅ identische Felder live aufgelöst (t('requiresFollowLabel')/t('minFanRankLabel')/t('eventGateHint') etc.)
+  ✅ KEIN MISSING_MESSAGE (S333-Falle vermieden) — admin-Namespace-Keys lösen korrekt auf
+  ✅ 0 Console-Errors
+  Screenshot: worklog/proofs/384-builder-gates-club.png
+
+=> AC1-AC12 ALLE PASS. Eintritts-Reject-Toast (follow_required/fan_rank_too_low) = Logik-verifiziert (B)
+   + i18n-Keys live aufgelöst (D). Live-Walk eines echten Rejects (follower-/rang-loses Konto) = optionaler Folge-Verify.
