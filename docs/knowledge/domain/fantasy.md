@@ -1,11 +1,11 @@
 ---
 title: Fantasy Feature Spec
 created: 2026-03-14
-updated: 2026-06-24
+updated: 2026-06-25
 status: active
 tags: [fantasy, lineup, scoring, gameweek]
-consult_when: Spieltag, Lineup, Captain, Auto-Sub, Gameweek-Cycle, Scoring, Fantasy-Flows
-verified-against: .claude/rules/fantasy.md @ 2026-06-24
+consult_when: Spieltag, Lineup, Captain, Auto-Sub, Gameweek-Cycle, Scoring, Fantasy-Flows, Event-Eintritts-Gates (Abo/Stufe/Follower/Fan-Rang)
+verified-against: .claude/rules/fantasy.md @ 2026-06-24; rpc_lock_event_entry live @ 2026-06-25 (Slice 384)
 ---
 
 > ⚠️ Migriert aus memory/features/ (Stand 2026-03-26) — Feature-Spec; Code-Regel siehe .claude/rules/fantasy.md.
@@ -25,6 +25,7 @@ verified-against: .claude/rules/fantasy.md @ 2026-06-24
 
 ```
 User klickt "Beitreten" → Confirm Dialog → lock_event_entry RPC
+→ Eintritts-Gates (Abo/Stufe/Follower/Fan-Rang — bei club-Events, VOR jeder Geldbewegung, S384)
 → Fee abgezogen (Tickets ODER Scout) → event_entries Row → current_entries +1
 → joinedIds Cache instant update → "Nimmt teil" Badge → Lineup Tab
 ```
@@ -253,6 +254,8 @@ Event Status = running → Fixtures starten zu verschiedenen Zeiten
 | Club-Scoped | scope='club', club_id | NICHT geprueft | Player Picker filtert | LUECKE |
 | Min Subscription | min_subscription_tier | lock_event_entry prueft | - | OK |
 | Min Tier | min_tier | lock_event_entry prueft (gamification_tier_rank) | - | **GEFIXT** |
+| Follower-Pflicht | requires_follow | lock_event_entry prueft (club_followers EXISTS, nur club_id) | Builder-Toggle „Nur Follower" | **NEU S384** |
+| Min Fan-Rang | min_fan_rank_tier | lock_event_entry prueft (fan_rank_tier_rank, nur club_id, fail-closed) | Builder-Select „Mindest-Fan-Rang" | **NEU S384** |
 | Wildcards Allowed | wildcards_allowed | save_lineup prueft | UI toggle | OK |
 | Max Wildcards | max_wildcards_per_lineup | save_lineup prueft | UI counter | OK |
 | Max Wildcards | max_wildcards_per_lineup | save_lineup prueft | UI counter | OK |
