@@ -1,0 +1,32 @@
+Rest ⑤ — Bounty-Approval per UI (E2E, war zurückgestellt = cred-gated)
+Live gegen bescout.net, 2026-06-25. Login: ali@test.bescout.de (Sakaryaspor-Club-Admin, Passwort 123456 gesetzt).
+
+=== Setup (Seed) ===
+Club-Bounty auf Sakaryaspor geseedet: id=723397eb-5ba2-4b3e-abeb-cb82f682b57e, reward_cents=2000 (20 CR),
+  is_user_bounty=false → Escrow-Trigger (Slice 332) debitierte Sakaryaspor-Treasury, treasury_escrowed=true.
+Pending Submission von jarvis-qa: id=6615b41e-8720-461d-8095-397c835f23cd.
+
+=== UI-Flow (ali, Club-Admin-Panel /club/sakaryaspor/admin → Tab „Aufträge") ===
+Auftrag „QA Scout-Auftrag" sichtbar (Offen, 20 CR, 1/1) → „Einreichungen (1)" → Submission @jarvisqa „Ausstehend"
+→ „Prüfen" → Dialog „Einreichung prüfen" → „Genehmigen" geklickt.
+(UI-Note „Genehmigung kostet 20 Credits aus deinem Wallet" ist bei escrow-gedeckten Club-Bounties IRREFÜHREND —
+ RPC belastet das Admin-Wallet NICHT, Escrow deckt es. Verifiziert: ali-Wallet unverändert.)
+
+=== Ergebnis (DB-reconciled, Wahrheit) ===
+bounty.status          : open → completed            ✓
+submission.status      : pending → approved          ✓
+submission.reward_paid : 1900 (95% von 2000)         ✓
+jarvis-Wallet          : 1.167.827 → 1.169.727 (+1900) ✓
+ali-Wallet             : 1.100.000 (unverändert — kein Admin-Debit, Escrow-Pfad) ✓
+PLATTFORM-TOPF         : 50.003.297 → 50.003.397 (+100 cents) ✓
+  Ledger-Row           : source='bounty', amount=100 (= 5% von 2000)  ✓ (Slice 365 Fee-REIN, jetzt per echtem UI-Klick)
+
+Zero-Sum: Escrow −2000 (Sakaryaspor-Treasury) = 1900 (jarvis) + 100 (Topf). ✓
+
+Screenshot: worklog/proofs/370-bounty-approve-ui.png (lokal, PNGs gitignored).
+
+=== Nebenfund (separater Bug, NICHT vom Bounty-Flow) ===
+Console während Club-Admin-Interaktion: POST /rest/v1/rpc/credit_tickets → 400
+  P0001 „Ungueltige Ticket-Quelle: post_create".
+→ Die Ticket-Quelle 'post_create' fehlt im credit_tickets-Source-CHECK (CHECK-Drift-Klasse, vgl. errors-db.md S330).
+  Ticket-Gutschrift für „News/Post erstellen" schlägt still fehl. Eigener kleiner Fix-Slice (4-File-Sync / CHECK widern).
