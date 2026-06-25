@@ -4045,3 +4045,29 @@ Zusätzlich verknüllt der eine Schalter `is_liga_event` heute ZWEI Achsen: „F
 Bei E-2 wird `is_liga_event`/`monthly_liga_*` in zwei saubere Achsen entwirrt (Fußball-Liga-Bindung = E-1 `league_id` vs. Wertungs-Stärke = altes Flag) und das Nutzer-Wertungs-Konzept user-facing auf „BeScout-Saison" umbenannt. Verhindert, dass das System „die falschen Dinge zusammenzählt". Compliance: „Saison"/„Liga" sind unverfänglich (keine Securities-/Glücksspiel-Nähe).
 
 **Re-Visit-Trigger:** Falls „BeScout-Saison" sich beim Bau als unklar erweist (z. B. Kollision mit dem Saison-Zeitraum-Begriff selbst) → Namen erneut mit Anil prüfen.
+
+---
+
+## D106 — PRODUCT: BeScout-Saison Wertung pro Liga — echte Rewards mit anpassbarem Preispool, gestuft
+
+**Datum:** 2026-06-25 · **Status:** 🟡 Zielbild (E-2, noch nicht gebaut) · **Category:** PRODUCT (Money/Events) · **Kontext:** E-2-Vorbereitung. Live-Audit `close_monthly_liga` (D87) deckte auf: scout_scores ist NICHT pro Liga partitioniert. Anil-Entscheid (AskUserQuestion).
+
+### Befund (Live, NICHT neu erheben)
+- `scout_scores` = pro Nutzer 3 GLOBALE Werte (trader/manager/analyst), keine Liga-Achse. `close_monthly_liga(p_month)` rankt alle Nutzer global über 4 Dimensionen (trader/manager/analyst/overall=Median), zahlt Top-3 je Dim aus dem Plattform-Topf (hardcodiert 500k/250k/100k cents), zero-sum debit, Deckungs-Check + RAISE bei Unterdeckung. `monthly_liga_snapshots`/`_winners` haben KEINE league_id.
+- Für „pro Liga" fehlt eine **Punktzahl pro (Nutzer, Liga)**. E-1 (`events.league_id`) ist das Fundament: Manager-Leistung pro Liga = aggregierbar aus liga-gebundenen Event-Lineups. Trader/Analyst bleiben global (Handel/Research nicht liga-spezifisch).
+
+### Entscheidung (Anil)
+1. **Pro-Liga-Ranglisten zahlen echte Rewards** (Option 2, nicht display-only) — ABER **Reward-Beträge/Preispool MÜSSEN admin-anpassbar sein** (nicht hardcodiert 500k/250k/100k). Grund: Topf-Belastung kontrollierbar halten (7 Ligen × 4 Dim × 3 Ränge ≈ bis 84 Auszahlungen/Monat statt 12).
+2. **Gestufte Auslieferung** (in Schritte teilen):
+   - **E-2a** = Begriffs-Umzug `is_liga_event`/`monthly_liga_*` → user-facing „BeScout-Saison" (D105) + **Pro-Liga-Ranglisten-Anzeige** (Manager-Dim aus liga-gebundenen Events abgeleitet). **KEINE** Payout-Änderung. Niedriges Risiko.
+   - **E-2b** = Pro-Liga-**Payout** mit konfigurierbarer Reward-Struktur (Admin setzt Beträge) + Deckungs-Check + Idempotenz. Money/CEO, Reviewer-Pflicht.
+
+### Alternativen erwogen
+- **Nur Anzeige/Prestige (Option 1):** verworfen — Anil will echten Anreiz.
+- **Fixer Gesamt-Pot aufgeteilt (Option 3):** verworfen zugunsten echter per-Liga-Rewards, aber die „Anpassbarkeit" adressiert die Topf-Sorge.
+- **Alles in 1 L-Slice:** verworfen — Money-Risiko + Review-Größe; gestuft ist sicherer.
+
+### Auswirkung
+E-2a zuerst (Anzeige + Rename, kein Money). E-2b bringt konfigurierbare Reward-Struktur (neue Tabelle/Spalten für Reward-Beträge statt hardcodiert in `close_monthly_liga`) + per-Liga-Winner-Ermittlung. Compliance: Phase-1-Credits = Spielgeld (D99) → Topf-Risiko begrenzt, aber Anpassbarkeit ist die Steuerung. Anker: `worklog/notes/event-creator-liga-epic.md` E-2.
+
+**Re-Visit-Trigger:** Reale Topf-Belastung nach E-2b beobachten; vor Coin-Phase (D99 Phase 2) Reward-Beträge neu bewerten (dann tragen Credits Wert).

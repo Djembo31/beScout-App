@@ -68,8 +68,11 @@ Events kommen von **Creatorn** (BeScout / Verein / User / Sponsor). Jeder Creato
 Echte `events.league_id`-Spalte (nullable, NULL=offen, kein Backfill — Bestand bleibt offen). `rpc_save_lineup` prüft: bei gebundenem Event müssen alle Lineup-Spieler (Starter+Bank) aus der Liga kommen (`player_not_in_event_league`, fail-closed bei club_id NULL). Erstell-UI: Liga-Auswahl + „Offen / alle Ligen" im **Platform-Admin** (cache-reaktiv). Reviewer PASS, Live-Smoke AC3-AC7. Proof `worklog/proofs/380-league-binding.txt`.
 - **Scope-Out → E-1b:** Lineup-Builder-Picker-Vorfilter (User sieht nur erlaubte Spieler) + Club-Admin-Liga-Picker. E-1 sichert Integrität via RPC-Reject + klare Fehlermeldung.
 
-**E-2 · BeScout-Saison: Wertung pro Liga (zusätzlich zu global)** *(Größe M-L, Money/CEO — mehr Gewinner = mehr Payout)*
-Monats-/Saison-Abschluss + `scout_scores`/Rankings nach **Fußball-Liga** partitionieren. Rankings-UI: Umschalter „Pro Liga / Gesamt". Baut auf E-1. **Begriffs-Umzug (Section 0):** das bestehende `is_liga_event`/`monthly_liga_*` ist die heutige Nutzer-Wertung → in „BeScout-Saison" umbenennen; dabei die zwei Achsen entwirren (Fußball-Liga-Bindung = E-1 `league_id` vs. Wertungs-Stärke voll/gedeckelt = altes Flag).
+**E-2 · BeScout-Saison: Wertung pro Liga (zusätzlich zu global)** *(Money/CEO — Entscheid D106)*
+**Anil-Entscheid (D106):** pro-Liga zahlt **echte Rewards**, aber **Preispool/Beträge admin-anpassbar** (nicht hardcodiert 500k/250k/100k). **Gestuft:**
+- **E-2a** *(M, kein Money)* ← NÄCHSTER: Begriffs-Umzug `is_liga_event`/`monthly_liga_*` → user-facing „BeScout-Saison" (Section 0/D105) + **Pro-Liga-Ranglisten-Anzeige**. Manager-Dim **aus liga-gebundenen Events ableiten** (E-1 `events.league_id` → `lineups.total_score` je Liga); Trader/Analyst bleiben global. Rankings-UI Umschalter „Pro Liga / Gesamt". KEINE Payout-Änderung.
+- **E-2b** *(L, Money/CEO)*: Pro-Liga-**Payout** — `close_monthly_liga` pro Liga (Manager-Dim) + **konfigurierbare Reward-Struktur** (neue Tabelle/Spalten statt hardcodiert) + Deckungs-Check + Idempotenz. Reviewer-Pflicht, Live-functiondef VOR Spec (D87).
+- **Befund (Live 2026-06-25):** `scout_scores` ist NICHT pro Liga (3 globale Werte). `monthly_liga_snapshots`/`_winners` ohne league_id. close_monthly_liga rankt global, Top-3/Dim aus Topf (zero-sum). → per-Liga = neue (Nutzer,Liga)-Achse nötig.
 
 **E-3 · Teilnahme-Bedingungen erweitern** *(je XS-S, teils Money-nah)*
 - (a) „min. X Spieler vom Verein" (Gegenstück zu `max_per_club`) — in `rpc_save_lineup`.
