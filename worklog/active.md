@@ -2,6 +2,19 @@
 
 ```
 status: idle
+slice: 379b
+title: ✅ DONE — Bounty-Review Wallet-Kosten-Hinweis nur zeigen wenn Admin-Wallet wirklich belastet wird
+stage: LOG complete
+size: XS
+slice-type: UI (Bug-Fix, money-anzeige-nah, kein Money-Flow)
+spec: inline (Problem + Live-RPC-Wahrheitstabelle, XS)
+proof: worklog/proofs/379b-bounty-wallet-hint.txt
+proof-detail: 3-Zweig-Component-Test (unescrowed-club→sichtbar, escrowed-club→versteckt, user-bounty→versteckt) PASS; tsc EXIT 0; 59 bounties-Service-Tests grün; Live-RPC + Settle-Trigger verifiziert (kein Money-Seam)
+review: worklog/reviews/379b-review.md (self-review PASS, XS Anzeige-Gate, 1 LOW Scope-Out neutraler Text)
+result: approve_bounty_submission (Live, D87) belastet das Admin-Wallet NUR bei !is_user_bounty && !treasury_escrowed (User-Bounty→Creator zahlt, escrowed-Club→Topf zahlt). Hinweis-Gate exakt darauf gesetzt. treasury_escrowed zu DbBounty-Type + beiden Service-Selects ergänzt. TODO-Notiz-Bedingung war ungenau, per Live-RPC korrigiert. Kein i18n-/Money-RPC-Change.
+
+--- 379 (vorheriger, DONE) ---
+status: idle
 slice: 379
 title: ✅ DONE — credit_tickets/spend_tickets/CHECK Source-Drift gefixt (post_create + 2 latente Bugs)
 stage: LOG complete
@@ -12,7 +25,7 @@ proof-detail: AC1-AC5 alle PASS (post_create/research_publish/research_rating/ch
 review: worklog/reviews/379-review.md (self-review PASS, XS additiver Drift-Fix, 1 LOW kein-SSOT dokumentiert)
 result: 3 unabhängig gedriftete Gate-Flächen (credit_tickets-Allowlist, spend_tickets-Allowlist, ticket_transactions_source_check CHECK) auf eine 16-Wert-Union (RPC-Legacy ∪ TS TicketSource) gezogen. Fix von post_create (Anil-Fund, still 400) + 2 latente: research_publish/research_rating (RPC) + chip_refund (war in RPCs erlaubt, scheiterte am CHECK). Live-Smoke fand Fläche #3 (CHECK) erst nach RPC-Fix. Additiv, Grants unverändert, kein src-Change. Knowledge: errors-db.md S379. Migration 20260625160000.
 
-## Problem (inline-Spec, XS)
+## Problem 379 (inline-Spec, XS)
 - **Evidence:** Live-400 „Ungueltige Ticket-Quelle: post_create" (Anil-Fund 2026-06-25, Handoff). Live-`pg_get_functiondef` (D87) bestätigt: `credit_tickets` UND `spend_tickets` tragen identische hartcodierte Allowlist `p_source NOT IN (...)`, die von TS-`TicketSource` (src/types/index.ts:2006) abgedriftet ist.
 - **Es gibt KEINEN CHECK-Constraint** auf `ticket_transactions.source`/`user_tickets` — RPC-Body ist einzige Schranke (= einzige Fix-Stelle).
 - **Im TS, fehlt im RPC (alle scheitern still, Live-Count=0):** post_create (posts.ts:161, 3 Tk), research_publish (research.ts:227, 10 Tk), research_rating (research.ts:368, 5 Tk), event_entry_refund (Type-only, kein Caller).

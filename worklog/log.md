@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 379b | 2026-06-25 | fix(bounty): Wallet-Kosten-Hinweis nur zeigen wenn Admin-Wallet wirklich belastet wird
+- Stage-Chain: SPEC inline (Problem + Live-RPC-Wahrheitstabelle, XS UI) → IMPACT inline (Hinweis-Gate + treasury_escrowed-Verfügbarkeit) → BUILD (Type + Service-Selects + Component-Gate) → REVIEW (`379b-review.md` self-review PASS) → PROVE (3-Zweig-Test + tsc + Service-Tests) → LOG.
+- **Evidence (Anil-Fund, 370-proof Z.12):** Bounty-Review-Dialog zeigt „Genehmigung kostet {reward} Credits aus deinem Wallet" auch bei escrow-gedeckten Club-Bounties, wo das Admin-Wallet NICHT belastet wird (Escrow/Topf deckt).
+- **Live-RPC-Wahrheit (D87, `approve_bounty_submission`):** Admin-Wallet wird bei Approval NUR belastet bei `!is_user_bounty && !treasury_escrowed`. User-Bounty → Creator-Wallet zahlt; treasury_escrowed Club-Bounty → Club-Topf zahlt (Escrow bei Erstellung, Slice 332). Die TODO-Notiz-Bedingung (`is_user_bounty || !treasury_escrowed`) war ungenau — per Live-RPC-Lesung korrigiert (hätte bei User-Bounties fälschlich gezeigt).
+- **Kein Money-Seam:** scheinbare Inkonsistenz (completed Club-Bounty live `escrowed=false` trotz Escrow-Pfad im Proof) durch `trg_bounties_settle` aufgelöst — setzt `treasury_escrowed:=false` erst bei status→completed; zum Approval-Zeitpunkt (open) war escrowed=true → proof korrekt.
+- **Fix:** `DbBounty += treasury_escrowed?`; `treasury_escrowed` in beide Service-Selects (getBountiesByClub + getAllActiveBounties); Hinweis-Gate `{viewBounty && !is_user_bounty && !treasury_escrowed && ...}`. Kein i18n-/Money-RPC-Change.
+- **Proof (`379b-bounty-wallet-hint.txt`):** 3-Zweig-Component-Test (unescrowed-club→sichtbar, escrowed-club→versteckt, user-bounty→versteckt) PASS; tsc EXIT 0; 59 bounties-Service-Tests grün. Live Playwright entfiel (alle 3 Live-Bounties completed/closed, kein open+escrowed für Screenshot) — Bedingung deterministisch gegen Live-RPC + Test bewiesen.
+- **Scope-Out:** neutraler „aus dem Topf gedeckt"-Text für escrowed-Fall = optionaler Folge-Slice (bräuchte DE+TR-Strings). → Beide Anil-Funde dieser Session (379 Tickets + 379b Bounty-UI) erledigt.
+
 ## 379 | 2026-06-25 | fix(tickets): credit_tickets/spend_tickets/CHECK Source-Drift — post_create + 2 latente Bugs
 - Stage-Chain: SPEC inline (active.md, XS Migration) → IMPACT inline (Allowlist-Gate-Flächen + 0 src) → BUILD (1 Migration, 2 apply-Calls) → REVIEW (`379-review.md` self-review PASS) → PROVE (AC1-AC5 live, BEGIN…ROLLBACK) → LOG.
 - **Evidence (Anil-Fund 2026-06-25):** Live-400 „Ungueltige Ticket-Quelle: post_create" beim News/Post-Erstellen → Ticket-Gutschrift (3 Tk, `posts.ts:161`) schlug still fehl.

@@ -448,7 +448,10 @@ export default function AdminBountiesTab({ club }: { club: ClubWithAdmin }) {
                 className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40 resize-none"
               />
             </div>
-            {viewBounty && (
+            {/* Wallet-Kosten-Hinweis NUR wenn das Admin-Wallet bei Approval wirklich belastet wird.
+                Live-RPC approve_bounty_submission (D87): is_user_bounty → Creator-Wallet zahlt;
+                treasury_escrowed → Club-Topf zahlt (Escrow bei Erstellung); nur !beide → Admin-Wallet. */}
+            {viewBounty && !viewBounty.is_user_bounty && !viewBounty.treasury_escrowed && (
               <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300">
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                 <span>{t('approvalCost', { reward: formatScout(viewBounty.reward_cents) })}</span>

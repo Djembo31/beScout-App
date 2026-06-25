@@ -153,12 +153,87 @@ const bountyScouting: BountyWithCreator = {
   submission_count: 0,
 };
 
+// Bounty funding variants for the wallet-cost-hint condition (Slice 379b).
+// bountyOpen is a club bounty with treasury_escrowed undefined/false.
+const bountyClubEscrowed: BountyWithCreator = {
+  ...bountyOpen,
+  id: 'b-escrowed',
+  title: 'Escrowed Club Bounty',
+  is_user_bounty: false,
+  treasury_escrowed: true,
+};
+const bountyClubUnescrowed: BountyWithCreator = {
+  ...bountyOpen,
+  id: 'b-unescrowed',
+  title: 'Unescrowed Club Bounty',
+  is_user_bounty: false,
+  treasury_escrowed: false,
+};
+const bountyUserFunded: BountyWithCreator = {
+  ...bountyOpen,
+  id: 'b-user',
+  title: 'User Funded Bounty',
+  is_user_bounty: true,
+  treasury_escrowed: false,
+};
+
+const pendingSubmission = {
+  id: 'sub-1',
+  bounty_id: 'b-escrowed',
+  user_id: 'scout-1',
+  title: 'My submission',
+  content: 'Scouting content',
+  status: 'pending',
+  admin_feedback: null,
+  reviewed_by: null,
+  reviewed_at: null,
+  reward_paid: null,
+  evaluation: null,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  user_handle: 'scout',
+  user_display_name: 'Scout',
+  user_avatar_url: null,
+} as unknown as Parameters<typeof mockGetBountySubmissions>[0];
+
+// Drive the UI to the review modal where the wallet-cost hint lives.
+async function openReviewModal(bounty: BountyWithCreator) {
+  mockGetBountiesByClub.mockResolvedValue([bounty]);
+  mockGetBountySubmissions.mockResolvedValue([{ ...pendingSubmission, bounty_id: bounty.id }]);
+  renderWithProviders(<AdminBountiesTab club={club} />);
+  await waitFor(() => expect(screen.getByText(bounty.title)).toBeInTheDocument());
+  fireEvent.click(screen.getByText('submissions'));
+  await waitFor(() => expect(screen.getByText('review')).toBeInTheDocument());
+  fireEvent.click(screen.getByText('review'));
+  await waitFor(() => expect(screen.getByText('reviewTitle')).toBeInTheDocument());
+}
+
 // ============================================
 // Tests
 // ============================================
 describe('AdminBountiesTab', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  // --- Wallet-cost hint condition (Slice 379b) ---
+  // approve_bounty_submission charges the admin wallet ONLY for a club bounty
+  // that is NOT treasury-escrowed. For user bounties (creator pays) and
+  // treasury-escrowed club bounties (club pot pays) the admin pays nothing,
+  // so the "kostet X aus deinem Wallet" hint must NOT appear.
+  it('shows wallet-cost hint for an UNescrowed club bounty (admin wallet is charged)', async () => {
+    await openReviewModal(bountyClubUnescrowed);
+    expect(screen.getByText('approvalCost')).toBeInTheDocument();
+  });
+
+  it('hides wallet-cost hint for a treasury-escrowed club bounty (club pot pays)', async () => {
+    await openReviewModal(bountyClubEscrowed);
+    expect(screen.queryByText('approvalCost')).not.toBeInTheDocument();
+  });
+
+  it('hides wallet-cost hint for a user-funded bounty (creator wallet pays)', async () => {
+    await openReviewModal(bountyUserFunded);
+    expect(screen.queryByText('approvalCost')).not.toBeInTheDocument();
   });
 
   // --- 1. Loading state ---

@@ -1528,6 +1528,8 @@ export type DbBounty = {
   type: 'general' | 'scouting';
   fixture_id: string | null;
   is_user_bounty?: boolean;
+  /** Club-Bounty: reward pre-escrowed from the club treasury at creation (Slice 332) → admin wallet NOT charged on approval. */
+  treasury_escrowed?: boolean;
   created_at: string;
   updated_at: string;
 };

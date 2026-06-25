@@ -1,0 +1,42 @@
+Slice 379b — Bounty-Review: Wallet-Kosten-Hinweis nur zeigen, wenn Admin-Wallet wirklich belastet wird
+Project: skzjfhvgccaeplydsunz · Date: 2026-06-25
+
+PROBLEM (Anil live-Fund, 370-proof Zeile 12): Review-Dialog zeigt „Genehmigung kostet
+{reward} Credits aus deinem Wallet" (i18n approvalCost) IMMER wenn eine Submission geprüft
+wird — auch bei escrow-gedeckten Club-Bounties, wo das Admin-Wallet NICHT belastet wird.
+
+=== Live-RPC-Wahrheit (D87) — approve_bounty_submission, wer zahlt bei Approval? ===
+  is_user_bounty=true                         → Creator-Wallet (created_by) zahlt, Admin unberührt.
+  is_user_bounty=false AND treasury_escrowed  → Club-Topf zahlt (Escrow bei Erstellung), Admin unberührt.
+  is_user_bounty=false AND NOT treasury_escrowed → ADMIN-Wallet (p_admin_id) wird belastet.  ← einziger Debit-Fall
+→ Korrekte Hinweis-Bedingung = !is_user_bounty && !treasury_escrowed.
+  (TODO-Notiz schlug `is_user_bounty || !treasury_escrowed` vor = FALSCH, hätte Hinweis auch
+   bei User-Bounties gezeigt, wo der Admin nichts zahlt — durch Live-RPC-Lesung korrigiert.)
+
+=== Kein Money-Seam (Verifikation der scheinbaren Inkonsistenz) ===
+Live zeigt completed Club-Bounty 723397eb mit treasury_escrowed=false, obwohl 370-proof
+„Escrow-Pfad" claimte. Aufgelöst: trg_bounties_settle setzt bei status→completed
+`NEW.treasury_escrowed := false` (Escrow konsumiert). Beim Approval war die Bounty noch
+`open` + escrowed=true → kein Admin-Debit (proof korrekt). Post-Settlement-State ist
+irrelevant für die UI, die nur OPEN-Bounties zur Genehmigung zeigt.
+
+=== Fix ===
+- src/types/index.ts: DbBounty += treasury_escrowed?: boolean.
+- src/lib/services/bounties.ts: treasury_escrowed in beide Select-Strings
+  (getBountiesByClub + getAllActiveBounties) — sonst undefined im UI.
+- src/components/admin/AdminBountiesTab.tsx: Hinweis-Gate
+  `{viewBounty && !viewBounty.is_user_bounty && !viewBounty.treasury_escrowed && (...)}`.
+
+=== PROVE ===
+[1] Component-Test (3 Finanzierungs-Zweige, src/components/admin/__tests__/AdminBountiesTab.test.tsx):
+    - UNescrowed club bounty   → approvalCost-Hinweis SICHTBAR    PASS
+    - treasury-escrowed club    → approvalCost-Hinweis VERSTECKT   PASS
+    - user-funded bounty        → approvalCost-Hinweis VERSTECKT   PASS
+    Test Files 1 passed · Tests 17 passed (14 alt + 3 neu).
+[2] tsc --noEmit: EXIT 0.
+[3] bounties service tests: 59 passed (Select-String-Änderung regress-frei).
+
+=== Scope ===
+Keine i18n-Änderung (approvalCost-String unverändert, nur Anzeige-Gate). Money-RPC unberührt.
+Reine Anzeige-Korrektur (kein Wallet-/Topf-Flow berührt). Optionaler Folge-Slice (nicht gemacht):
+neutraler Info-Text „aus dem Topf gedeckt" für escrowed-Fall (bräuchte neue DE+TR-Strings).
