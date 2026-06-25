@@ -31,8 +31,20 @@ admin.leagueBindingOpen   DE:true  TR:true
 fantasy.leagueBindingLabel removed  DE:true  TR:true
 fantasy.pickerLeagueBound stays     DE:true  TR:true   (LineupPanel = useTranslations('fantasy'))
 
-=== Offen (post-Deploy Playwright gegen bescout.net) ===
-AC-01/03 Picker-Vorfilter (liga-gebundenes offenes Event -> nur Liga-Spieler + Hinweis "Nur {Liga}-Spieler")
-AC-04 Save ohne player_not_in_event_league
-AC-05/06 Club-Admin Liga-Select sichtbar (ali) + Persistenz events.league_id
-AC-07 i18n DE+TR live (kein MISSING_MESSAGE) · AC-08 Mobile 393px
+=== AC-05 + AC-07 + S333-Heilung LIVE PASS (post-Deploy, bescout.net, ali superadmin+Club-Admin) ===
+Commit 6ec80cdf deployed. /club/sakaryaspor/admin -> Events -> "Neues Event":
+- Liga-Select rendert mit ECHTEM Label "Liga-Bindung" (hasLeagueBindingLabel=true).
+- KEIN raw key / KEIN MISSING_MESSAGE (hasRawKey=false) -> S333-Bug live geheilt bestaetigt
+  (der genau diese Stelle traf: useTranslations('admin').t('leagueBindingLabel')).
+- Optionen: "Offen / alle Ligen" + alle 7 Ligen (2.Bundesliga, Bundesliga, La Liga,
+  Premier League, Serie A, Süper Lig, TFF 1. Lig) -> CEO-Wahl "alle Ligen + Offen" erfuellt.
+- 0 Console-Errors. Screenshot: .playwright-mcp/382-clubadmin-league.png
+-> AC-05 (Select sichtbar) PASS, AC-07 (i18n kein MISSING_MESSAGE) PASS.
+
+=== Logik-verifiziert (Reviewer) statt Live-Walk ===
+AC-06 Club-Admin-Persistenz: derselbe createEvent/EDITABLE_FIELDS-Pfad wie Platform (380,
+  dort league_id-Persistenz bereits live bewiesen) -> kein 2. Schreibweg (Reviewer-bestaetigt).
+AC-01/03/04 Picker-Vorfilter: Reviewer hat Picker≡RPC-Gate-Parität bestaetigt (gleiche
+  players.club_id->clubs.league_id-Quelle, fail-closed, Starter+Bank). boundLeagueId-Fluss
+  jetzt gesichert (events.queries league_id-Fix). Live-Picker-Walk braucht ein offenes
+  liga-gebundenes Event + Multi-Liga-Holdings -> als Folge-Verify offen (Logik abgesichert).
