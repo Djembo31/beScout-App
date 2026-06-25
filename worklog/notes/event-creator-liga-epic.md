@@ -12,6 +12,8 @@
 -
 -
 
+> **✅ 2026-06-25 eingebaut (Anil-Wunsch → §3b + E-3):** Builder soll „einfach, aber mächtig" werden — beliebige Bedingungen für die „wildesten Kombinationen": **Altersgrenze** (gezielte Talent-Förderung), **Nationalität**, **min-X-vom-Verein** (E-3a), **max-Spieler-eines-Vereins für Nicht-Vereins-Events** (Wettbewerbsverzerrung verhindern — existiert als `max_per_club`), **Equipment-Reward ja/nein**, Teilnehmerzahl/Preispool/Typ/Liga (existieren). Builder **user-/creator-zentriert** statt globales Formular. **Architektur-Entscheidung: Weg B (Regel-Liste, JSONB) — D107.** Claude-Ergänzungen übernommen: Marktwert-Deckel pro Karte, Positions-Quote, Alters-*fenster*, min/max pro Nationalität.
+
 ---
 
 ## 0. Begriffs-Klarstellung — „Liga" eindeutig machen (Anil-Entscheid 2026-06-25)
@@ -53,6 +55,46 @@ Events kommen von **Creatorn** (BeScout / Verein / User / Sponsor). Jeder Creato
 - **Alle anderen Events** wählen beim Erstellen: **„nur Liga X"** oder **„offen / alle Ligen"**.
 - **Land** = nur Gruppierung/Filter über der Liga; fürs Aufstellen zählt die Liga.
 
+---
+
+## 3b. Bedingungs-System — „einfach, aber mächtig" (Anil-Entscheid 2026-06-25, D107)
+
+**Ziel:** Aus „wer die teuersten Karten hat, gewinnt" ein **Skill-Spiel** machen. Ein Event soll beliebig zugeschnitten werden können („U21 + nur Süper Lig + nur Stürmer", „nur TR-Spieler unter 5 Mio €", „min. 5 Gala-Spieler + nur Follower") — die „wildesten Kombinationen" sind der Reiz. Für Fans = echtes Scouten statt Geld-ausgeben; für Vereine = Bindungs-Werkzeug (eigene Talente fördern, Treue belohnen).
+
+### Zwei getrennte Töpfe (NIE vermischen)
+| Topf | Frage | Beispiele | Sitz | Form |
+|---|---|---|---|---|
+| **Eintritts-Türsteher** | *Wer darf teilnehmen?* | Follower-Pflicht · Fan-Rang (`min_fan_rank_tier`) · Abo · Stufe | `rpc_lock_event_entry` | **feste Spalten** (Geld-/Eintritts-Pfad bleibt simpel + auditierbar) |
+| **Aufstellungs-Regel** | *Welche Karten dürfen ins Lineup?* | Liga · **Alter** · **Nationalität** · min/max-pro-Verein · **Marktwert-Deckel** · **Position** | `rpc_save_lineup` | **Regel-Liste (JSONB `lineup_rules`)** = Weg B |
+
+### Weg B — Regel-Liste statt Spalte-pro-Regel
+EIN JSONB-Feld `lineup_rules` auf `events` hält eine Liste typisierter Bedingungen:
+```jsonc
+[ {"type":"age_max","value":21},
+  {"type":"nation_in","value":["TR","DE"]},
+  {"type":"min_per_own_club","value":5},
+  {"type":"mv_max_eur","value":5000000} ]
+```
+EIN generischer Validator-Block im RPC liest sie ab. **Neue Regel-Art = kein Schema-Change**, nur neuer Validator-Fall + eine Builder-Zeile. Strenge Server-Validierung Pflicht (whitelisted Regel-Typen, Wert-Bounds, **fail-closed** bei unbekanntem Typ) — JSONB im Lineup-Pfad → Reviewer-Pflicht.
+
+### Regel-Katalog (Start — erweiterbar)
+| Regel-Typ | Bedeutung | Quelle |
+|---|---|---|
+| `age_max` / `age_min` / Alters-*fenster* | gezielte Talent-Förderung (U21, 18–23) | Anil |
+| `nation_in` / max-pro-Nation | „wildeste Kombi", Anti-Verzerrung übers Land | Anil + Claude |
+| `min_per_own_club` | Gegenstück zu `max_per_club` (Gala: „min. 5 eigene") | Anil (E-3a) |
+| `max_per_club` | **existiert** (`max_per_club`) — gegen „ganze Mannschaft = alle hohe Punkte" | da |
+| `mv_max_eur` | Marktwert-Deckel pro Karte = Underdog-Event | Claude |
+| `position_quota` | „min. 2 DEF" / „nur ATT" | Claude |
+
+### Creator-zentrierter Builder (statt globalem Formular)
+Gleicher Bau-Kern, Optionen **nach Creator gefiltert**: **User** → Tickets/Gratis + Scope „Freunde"; **Verein** → + Follower-/Fan-Rang-Gate + Vereinstopf; **Sponsor** → Liga-Bindung optional (alle Ligen mischbar). Eigener Schritt (E-4/E-6), erst durch Regel-Liste sauber möglich. Heutiger User-Builder (`CreateEventModal.tsx`) ist nur ein Toast (Mock) — wird echter Builder.
+
+### Builder-Pflicht: Echtzeit-Treffer-Anzeige
+Der Builder MUSS beim Setzen einer Bedingung zeigen „~X Spieler / ~Y Nutzer erfüllen das" — sonst baut der Ersteller versehentlich ein **totes Event** (Über-Filterung → niemand qualifiziert). Wichtigste UX-Sicherung gegen leere Events.
+
+---
+
 ## 4. Code-Ist-Stand (Audit 2026-06-25)
 **✅ Existiert + erzwungen:** Eintritt Tickets/Credits (`currency`/`ticket_cost`) · Fee-Split inkl. BeScout-Anteil (`event_fee_config`) · Abo-Gate (`min_subscription_tier`) · Gamification-Stufe (`min_tier`) · Club-Scope · nur eigene SC + max-pro-Verein + Salary-Cap + Wildcards (`rpc_save_lineup`) · Liga-Wertung voll vs. 25 % (`is_liga_event`) · Monats-/Saison-Abschluss.
 
@@ -74,11 +116,12 @@ Echte `events.league_id`-Spalte (nullable, NULL=offen, kein Backfill — Bestand
 - **E-2b** ✅ **DONE (Slice 383, 2026-06-25)** *(L, Money/CEO)*: Pro-Liga-**Payout**. `close_monthly_liga` zahlt ZUSÄTZLICH (CEO Anil) je aktive Liga die Manager-Top-3 — Ranking = exakt das `rpc_get_season_ranking`-Aggregat (Display==Payout), nur manager-Dim (trader/analyst global). Neue Config-Tabelle `liga_reward_config` (PRO LIGA EINZELN einstellbar, Default 100k/50k/25k cents, fehlend=Default) + `get_liga_reward_config`/`set_liga_reward_config` (platform_admin-Gate) + AdminLigaTab-Editor. `league_id` additiv auf snapshots/winners + UNIQUE `NULLS NOT DISTINCT`. EIN zero-sum Debit deckt global+pro-Liga, Deckungs-Check VOR Lock, Idempotenz erhalten. Reviewer **PASS** (3 NIT). Money-Smoke AC1-AC10 force-rollback PASS + **AC11 UI-Playwright post-Deploy live PASS** (Card 7 Ligen, Write-Pfad `set_liga_reward_config`, 0 Console-Errors). **AC1-AC12 alle PASS, voll-DONE.** Migration `20260625200000`. Knowledge: errors-db S383.
 - **Befund (Live 2026-06-25):** `scout_scores` ist NICHT pro Liga (3 globale Werte). `monthly_liga_snapshots`/`_winners` ohne league_id. close_monthly_liga rankt global, Top-3/Dim aus Topf (zero-sum). → per-Liga = neue (Nutzer,Liga)-Achse nötig.
 
-**E-3 · Teilnahme-Bedingungen erweitern** *(je XS-S, teils Money-nah)*
-- (a) „min. X Spieler vom Verein" (Gegenstück zu `max_per_club`) — in `rpc_save_lineup`.
-- (b) Follower-Pflicht — Gate in `rpc_lock_event_entry`.
-- (c) Fan-Rang-Gate auf Events (`min_fan_rank_tier`, wie bei Polls/Posts) — in `rpc_lock_event_entry`.
-- (Abo-Gate + Stufen-Gate existieren schon.)
+**E-3 · Teilnahme-Bedingungen erweitern** *(je XS-S, teils Money-nah · Architektur = §3b / D107)*
+> **Umgestellt 2026-06-25 (D107):** statt 3 Einzel-Spalten jetzt zwei Töpfe — Türsteher = feste Spalten, Aufstellungs-Regeln = JSONB `lineup_rules`-Regel-Liste (Weg B). Reihenfolge unten = Vorschlag.
+- **E-3-Türsteher** (feste Spalten, `rpc_lock_event_entry`): (b) **Follower-Pflicht** + (c) **Fan-Rang-Gate** (`min_fan_rank_tier`, wie Polls/Posts) — beide DERSELBE RPC = ein kleiner Slice. (Abo- + Stufen-Gate existieren schon.)
+- **E-3-Regel-Liste-Fundament** (`rpc_save_lineup`): JSONB-Spalte `lineup_rules` + generischer Validator + erste Regel **min_per_own_club** (E-3a) als Pilot-Regel. Money-nah → Live-functiondef VOR Spec (D87), Reviewer-Pflicht.
+- **E-3-Regel-Erweiterungen** (je winziger Folge-Slice, kein Schema-Change): `age_max`/`age_min` · `nation_in`/max-pro-Nation · `mv_max_eur` · `position_quota`. Builder bekommt „Bedingung hinzufügen ▾" + Echtzeit-Treffer-Anzeige (§3b).
+- **Datenbedarf prüfen (vor Regel-Bau):** Alter/Geburtsdatum + Nationalität müssen auf `players` verfügbar sein (sonst Scraper/Spalte zuerst). MV (`market_value_eur`) existiert.
 
 **E-4 · User-Events** *(Größe L, Money/CEO — User zahlt Pot aus Wallet)*
 Creator-Typ „user" in DB-Type + CHECK · Scope „friends"/„public" · Erstell-Flow echt in DB (heute nur Toast) · Pot-Escrow aus User-Wallet (Muster wie User-Bounty `create_user_bounty`/Settle). Compliance: Credits = Phase-1-Spielgeld (ok); echtes Geld bleibt Phase 3.
@@ -97,7 +140,8 @@ BeScout-Ticket-Events: Tickets-Eintritt → Gewinn Credits/**Equipment**/Tickets
 
 ## 6. Offene Fragen (vor dem jeweiligen Slice klären)
 - **E-2:** Reward-Höhe pro Liga vs. global — gleicher Pot je Liga, oder ein Gesamt-Pot aufgeteilt? (Money/CEO-Entscheid.)
-- **E-3a:** „min. X vom Verein" — fixe Zahl je Event oder Prozent der Aufstellung?
+- **E-3a:** „min. X vom Verein" — fixe Zahl je Event oder Prozent der Aufstellung? (Claude-Empfehlung: **fixe Zahl** — deckt sich mit `max_per_club`, einfacher, rundungsfrei. Final-Entscheid offen.)
+- **E-3-Reihenfolge:** Türsteher (b+c) zuerst oder Regel-Liste-Fundament (E-3a) zuerst? (vor erstem Slice festlegen)
 - **E-5:** Was genau ist „Equipment-Gewinn"? (Chips? Cosmetics?) — Anil konkretisiert.
 - **E-6:** Darf ein User/Sponsor an seinen Events **mitverdienen** (Eintritt > Pot), oder ist der Eintritt gedeckelt auf den Pot? (Compliance/Glücksspiel-Nähe prüfen.)
 

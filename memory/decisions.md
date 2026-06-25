@@ -4073,3 +4073,31 @@ E-2a zuerst (Anzeige + Rename, kein Money). E-2b bringt konfigurierbare Reward-S
 **Umsetzung E-2b (Slice 383, 2026-06-25 — Anil-Konkretisierung via AskUserQuestion):** (1) **Zusätzlich** statt ersetzen — globaler Manager-Payout bleibt, Pro-Liga-Manager kommt on top (Doppel-Payout bei global+Liga-Top-3 = gewollt). (2) **Pro Liga EINZELN** konfigurierbar (Tabelle `liga_reward_config` league_id×rank, nicht ein globaler Satz). (3) Default **100k/50k/25k cents** (=1000/500/250 CR). Pro-Liga-Ranking = exakt `rpc_get_season_ranking`-Aggregat (Display==Payout), nur manager-Dim. Zero-sum aus Topf, EIN Debit deckt global+pro-Liga. Reviewer PASS. Diese Konkretisierung präzisiert D106 (kein neuer D<n> — gleiche Entscheidung, verfeinert).
 
 **Re-Visit-Trigger:** Reale Topf-Belastung nach E-2b beobachten; vor Coin-Phase (D99 Phase 2) Reward-Beträge neu bewerten (dann tragen Credits Wert).
+
+---
+
+## D107 — ARCHITECTURE: Event-Bedingungen — zwei Töpfe (Eintritts-Gate vs. Aufstellungs-Regel) + Regel-Liste (JSONB) statt Spalte-pro-Regel
+
+**Datum:** 2026-06-25 · **Status:** 🟢 Aktiv (Zielbild E-3+, Bau startet) · **Category:** ARCHITECTURE (Events) · **Kontext:** E-3-Vorbereitung. Anil will den Event-Builder zu „einfach, aber mächtig" ausbauen — beliebige Teilnahme-/Aufstellungs-Bedingungen für „die wildesten Kombinationen" (Alter, Nationalität, min-vom-Verein, Marktwert, Position …), Builder user-/creator-zentriert statt ein globales Formular. Code-Ist-Stand live verifiziert (`useEventForm.ts` 21 Felder, `CreateEventModal.tsx` = Mock/Toast, `rpc_save_lineup`/`rpc_lock_event_entry`).
+
+### Befund (Live 2026-06-25, NICHT neu erheben)
+- **Zwei Builder heute:** Admin-Builder (`useEventForm.ts` + `EventFormModal.tsx`, 21 Felder, schreibt echt) — nur Plattform/Club-Admin. User-Builder (`CreateEventModal.tsx`) = nur Toast, schreibt NICHT in DB (Phase-4-gated, `creatorId:'user1'` hardcoded).
+- **Bestehende Bedingungen:** Liga-Bindung (`league_id`, E-1) · max-pro-Verein (`max_per_club`, Slice 195c — Anils Wettbewerbsverzerrungs-Sorge teils gelöst) · Salary-Cap · min-Abo (`min_subscription_tier`) · min-Gamification-Stufe (`min_tier`/`event_tier`) · Wildcards · Eintritt Tickets/Credits · Teilnehmer-Limit (`max_entries`) · Preis-Pool · Typ/Format.
+
+### Entscheidung (Anil 2026-06-25)
+1. **Zwei getrennte Bedingungs-Töpfe** (nie vermischen):
+   - **Eintritts-Türsteher** = *wer darf teilnehmen?* → Follower-Pflicht, Fan-Rang (`min_fan_rank_tier`), Abo, Stufe. Sitz: `rpc_lock_event_entry`. Bleiben **feste Spalten** (Geld-/Eintritts-Pfad einfach + auditierbar).
+   - **Aufstellungs-Regel** = *welche Karten dürfen ins Lineup?* → Liga, Alter, Nationalität, min/max-pro-Verein, Marktwert-Deckel, Position. Sitz: `rpc_save_lineup`.
+2. **Weg B — Regel-Liste statt Spalte-pro-Regel** für die Aufstellungs-Regeln: EIN JSONB-Feld (`lineup_rules`) auf `events` hält eine Liste typisierter Bedingungen (z.B. `[{type:'age_max',value:21},{type:'nation_in',value:['TR','DE']},{type:'min_per_own_club',value:5}]`). EIN generischer Validator-Block im RPC liest sie ab. Neue Regel-Art = **kein** Schema-Change, nur neuer Validator-Fall + Builder-Zeile.
+3. **Bedingungs-Katalog (Start):** Anils Wünsche — Altersgrenze/-fenster · Nationalität · min-X-vom-Verein (Gegenstück zu max_per_club) · Equipment-Reward ja/nein. Claude-Ergänzungen (übernommen) — Marktwert-Deckel pro Karte (Underdog-Events) · Positions-Quote · min/max pro Nationalität.
+4. **User-/Creator-zentrierter Builder:** gleicher Bau-Kern, aber Optionen nach Creator gefiltert (User: Tickets/Gratis + Scope Freunde · Verein: + Follower-/Fan-Rang-Gate + Vereinstopf · Sponsor: Liga-Bindung optional). Eigener Schritt (E-4/E-6), erst durch Regel-Liste sauber möglich.
+
+### Alternativen erwogen
+- **Weg A — Spalte pro Regel (Status quo fortführen):** verworfen — skaliert nicht zu „wildeste Kombinationen": nach ~8 Wünschen 30 Spalten + endloses Formular + Migration pro Regel.
+- **JSONB auch für Eintritts-/Geld-Gates:** verworfen — Money-Pfad muss simpel + reviewbar bleiben; JSONB nur im kreativen (nicht-Geld-) Aufstellungs-Teil.
+- **Voll generische Regel-Engine sofort (alle Regeln):** verworfen — „nicht übertreiben"; gestuft pro Slice einführen.
+
+### Auswirkung
+E-3 wird auf die Regel-Liste umgestellt (statt 3 Einzel-Spalten). JSONB im Lineup-Pfad → strenge Server-Validierung (whitelisted Regel-Typen, Wert-Bounds, fail-closed) + Reviewer-Pflicht. Builder zeigt „Bedingung hinzufügen ▾" + Echtzeit-„~X Spieler / ~Y Nutzer erfüllen das" (gegen tote Events durch Über-Filterung). Compliance: Phase-1-Credits/Tickets (D99). Anker: `worklog/notes/event-creator-liga-epic.md` §3b + §5 (E-3).
+
+**Re-Visit-Trigger:** Wenn `lineup_rules`-Validator >~8 Regel-Typen trägt oder Cross-Regel-Abhängigkeiten entstehen (Regel A schließt B aus) → eigenes Regel-Schema/Versionierung erwägen.
