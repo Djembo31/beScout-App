@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 21:16)
+# Session Handoff — Auto (2026-06-25 21:30)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -9,6 +9,9 @@
 ```
 
 ## Session Commits: 10
+- 3f47f5eb docs(knowledge): fantasy.md verified-against Format-Fix (SOFT-Finding)
+- 7a91ff06 docs(knowledge): fantasy.md + reward-ranking.md — Event-Eintritts-Türsteher (S384) verdrahtet
+- 847ee35e docs(handoff): Session-Close 2026-06-25 — D107 + E-3 Türsteher (384) DONE
 - f56019c2 docs(log): Slice 384 DONE — E-3 Türsteher AC1-AC12 PASS, Epic E-3 reconciled
 - 7bf23383 feat(events): E-3 Türsteher — Follower-Pflicht + Fan-Rang-Gate auf Event-Eintritt (Slice 384)
 - 6549a445 docs(decision): D107 — Event-Bedingungen Zwei-Töpfe + Regel-Liste (JSONB lineup_rules)
@@ -16,9 +19,6 @@
 - 21da524d docs(proof): Slice 383 — AC11 UI-Playwright post-Deploy live PASS (AC1-AC12 alle PASS)
 - 2f51c278 docs(knowledge): bescout-liga — E-2b Pro-Liga-Payout DONE reconcilen (Slice 383)
 - a6e0b2c5 docs(knowledge): E-2b Pro-Liga-Payout — reward-ranking + treasury RAUS-Kanal (Slice 383)
-- 5a41fd2c feat(rankings): E-2b — Pro-Liga-Payout (BeScout-Saison Manager) + konfigurierbare Beträge (Slice 383)
-- 28ac6897 docs(handoff): Session-Close 2026-06-25 — E-2a (381) + E-1b (382) DONE, next = E-2b (Pro-Liga-Payout, Money/CEO)
-- 5879ade1 docs(proof): Slice 382 — AC-05/07 + S333-Heilung LIVE PASS (Club-Admin Liga-Select, kein MISSING_MESSAGE)
 
 <!-- auto:handoff-end -->
 
