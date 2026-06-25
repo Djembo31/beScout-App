@@ -16,6 +16,8 @@ export type EventFormState = {
   salaryCap: string;
   maxPerClub: string;                      // Slice 195c: Max Spieler pro Verein (FPL-Style). '' = unlimited.
   minPerOwnClub: string;                   // Slice 385 (E-3a): min. Spieler aus dem Event-Verein. '' = keine Regel.
+  ageMin: string;                          // Slice 386 (E-3): min. Alter jedes aufgestellten Spielers. '' = keine Regel.
+  ageMax: string;                          // Slice 386 (E-3): max. Alter jedes aufgestellten Spielers. '' = keine Regel.
   requiresFollow: boolean;                 // Slice 384 (E-3): nur Follower des Vereins dürfen eintreten.
   minFanRankTier: string;                  // Slice 384 (E-3): Mindest-Fan-Rang für Eintritt. '' = offen.
   minScPerSlot: string;                    // Platform only
@@ -61,6 +63,8 @@ export const INITIAL_FORM_STATE: EventFormState = {
   salaryCap: '',
   maxPerClub: '',
   minPerOwnClub: '',
+  ageMin: '',
+  ageMax: '',
   requiresFollow: false,
   minFanRankTier: '',
   minScPerSlot: '1',

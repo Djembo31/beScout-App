@@ -1,0 +1,47 @@
+Slice 386 — E-3 Alters-Fenster (age_min/age_max) — PROOF
+Datum: 2026-06-25
+RPC: rpc_save_lineup (CREATE OR REPLACE, Migration 20260625230000)
+Methode: force-rollback DO-Block (BEGIN…RAISE EXCEPTION 'REPORT' → 0 Persistenz),
+         JWT-sub-Impersonation jarvis-qa, Test-Event club 05cb07aa…, Formation 1-2-2-2.
+
+=== Money-Smoke (force-rollback) — 15/15 ACs PASS ===
+AC-2 reject age_max(starter30): age_max_exceeded => PASS
+AC-8 no-resource-move (locks 0->0): PASS
+AC-1 happy age_max=21 (all 20): ok=true => PASS
+AC-4a reject age_min=30 (all 20): age_min_not_met => PASS
+AC-4b happy age_min=30 (all 33): ok=true => PASS
+AC-5 fail-closed null-age: age_max_exceeded (age=NULL) => PASS
+AC-6a age_max=13: invalid_lineup_rule_value => PASS
+AC-6b age_max=51: invalid_lineup_rule_value => PASS
+AC-6c min_per_own_club=0 (Regr.385): invalid_lineup_rule_value => PASS
+AC-6d min_per_own_club=99 (Regr.385): invalid_lineup_rule_value => PASS
+AC-7a multi-rule [min_per_own_club:7, age_max:21] ok: ok=true => PASS
+AC-7b multi-rule age reject: age_max_exceeded => PASS
+AC-9a lineup_rules NULL no-op: ok=true => PASS
+AC-9b lineup_rules [] no-op: ok=true => PASS
+
+=== AC-3 isoliert (Bank-Prüfung, korrigierter bench_gk-Slot) ===
+AC-3  reject age_max(bench30): age_max_exceeded => PASS   (Bank-Spieler wird geprüft)
+AC-3b control bench-young ok:  ok=true          => PASS   (Gegenprobe: junger Bank-GK ok)
+
+Hinweis: im ersten Lauf war AC-3 ein Test-Harness-Tippfehler (v_gk2 in att3-Slot statt
+bench_gk → korrekt mit extra_slot_for_formation abgelehnt = RPC-Verhalten korrekt),
+isoliert mit richtigem bench_gk-Slot wiederholt → PASS.
+
+=== AC-10 PATCH-AUDIT (pg_get_functiondef Live) ===
+has_max_per_club      = true   (E-1/max_per_club Block erhalten)
+has_salary_cap        = true
+has_e1_liga           = true   (player_not_in_event_league)
+has_spend_wc          = true   (spend_wildcards)
+has_earn_wc           = true   (earn_wildcards)
+has_385_rule          = true   (min_per_own_club_not_met)
+has_age_max           = true   (age_max_exceeded — NEU)
+has_age_min           = true   (age_min_not_met — NEU)
+has_age_bound (14..50)= true   (Bound PRO TYP — Alter)
+has_count_bound(1..11)= true   (Bound PRO TYP — Zähl-Regel, 385 byte-äquivalent)
+
+→ Validator-Block additiv erweitert; alle Nicht-Validator-Blöcke unverändert.
+→ Design-Fix: globaler 1..11-Bound (385) → pro Regeltyp (Fundament jetzt echt generisch).
+
+=== Daten-Check (Voraussetzung) ===
+players.age 99,4% befüllt (4529/4556 aktiv, 14..50). nationality 95,5%, market_value_eur 86,4%, position 100%.

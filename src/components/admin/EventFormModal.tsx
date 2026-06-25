@@ -46,6 +46,12 @@ export interface EventFormLabels {
   minPerOwnClub?: string;      // Slice 385 (E-3a): min. Spieler aus dem Event-Verein
   minPerOwnClubPlaceholder?: string;
   minPerOwnClubHint?: string;
+  ageMin?: string;             // Slice 386 (E-3): min. Alter jedes aufgestellten Spielers
+  ageMinPlaceholder?: string;
+  ageMinHint?: string;
+  ageMax?: string;             // Slice 386 (E-3): max. Alter jedes aufgestellten Spielers
+  ageMaxPlaceholder?: string;
+  ageMaxHint?: string;
   // Slice 384 (E-3 Türsteher) — nur bei Vereins-Events wirksam
   requiresFollow?: string;     // Follower-Pflicht-Toggle
   minFanRank?: string;         // Mindest-Fan-Rang-Select
@@ -350,6 +356,55 @@ export function EventFormModal({
             />
             {L.minPerOwnClubHint && (
               <p className="mt-1 text-[10px] text-white/40">{L.minPerOwnClubHint}</p>
+            )}
+          </div>
+        )}
+
+        {/* Alters-Fenster (Slice 386 — E-3 Aufstellungs-Regel, Starter + Bank) */}
+        {L.ageMax && (
+          <div>
+            <label htmlFor="formAgeMax" className="block text-sm font-bold text-white/70 mb-1">
+              {L.ageMax}
+            </label>
+            <input
+              id="formAgeMax"
+              type="number"
+              inputMode="numeric"
+              min="14"
+              max="50"
+              value={form.ageMax}
+              onChange={(e) => setField('ageMax', e.target.value)}
+              placeholder={L.ageMaxPlaceholder}
+              disabled={isFieldDisabled('lineup_rules')}
+              aria-label={L.ageMax}
+              className={cn(INPUT_CLS, 'min-h-[44px]', disabledCls)}
+            />
+            {L.ageMaxHint && (
+              <p className="mt-1 text-[10px] text-white/40">{L.ageMaxHint}</p>
+            )}
+          </div>
+        )}
+
+        {L.ageMin && (
+          <div>
+            <label htmlFor="formAgeMin" className="block text-sm font-bold text-white/70 mb-1">
+              {L.ageMin}
+            </label>
+            <input
+              id="formAgeMin"
+              type="number"
+              inputMode="numeric"
+              min="14"
+              max="50"
+              value={form.ageMin}
+              onChange={(e) => setField('ageMin', e.target.value)}
+              placeholder={L.ageMinPlaceholder}
+              disabled={isFieldDisabled('lineup_rules')}
+              aria-label={L.ageMin}
+              className={cn(INPUT_CLS, 'min-h-[44px]', disabledCls)}
+            />
+            {L.ageMinHint && (
+              <p className="mt-1 text-[10px] text-white/40">{L.ageMinHint}</p>
             )}
           </div>
         )}

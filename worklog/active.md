@@ -2,24 +2,21 @@
 
 ```
 status: idle
-slice: 385
-title: E-3 Aufstellungs-Regel-Fundament — JSONB events.lineup_rules + generischer Validator + min_per_own_club
-size: M
-slice-type: Migration (Money-nahe RPC) + Service + UI + i18n
-scope: Money-nah / §3 (selbst gebaut, Reviewer-Pflicht).
-spec: worklog/specs/385-lineup-rules-foundation.md
+slice: 386
+title: E-3 Alters-Fenster — age_min/age_max Aufstellungs-Regel (DONE)
+size: S
 stage: LOG
-impact: inline (1 Migration/RPC + Read-Pfad 3 Selects/Mapper/Type + Write-Pfad mutations/useEventForm/EventFormModal + i18n; grep-verifiziert)
-proof: worklog/proofs/385-lineup-rules-smoke.txt
-proof-note: AC-1..AC-12 ALLE PASS — force-rollback AC-1..AC-7 (AC-6 = 0 Ressourcen-Move bei Reject) + Patch-Audit live + tsc 0 + 142 vitest + DE/TR + AC-12 UI-live (Club-Admin, Label aufgelöst, kein MISSING_MESSAGE, Input min1/max11). Voll-DONE.
-review: worklog/reviews/385-review.md (reviewer PASS, 3 NIT bewusst nicht geheilt — kosmetisch/Scope-Out)
-ceo-decision: Anil 2026-06-25 — E-3a "min. X vom Verein" = FESTE ZAHL. Architektur D107 (Weg B, JSONB-Regel-Liste).
+spec: worklog/specs/386-lineup-rule-age-window.md
+proof: worklog/proofs/386-age-rule-smoke.txt
+proof-note: 15/15 ACs force-rollback PASS + PATCH-AUDIT + tsc 0 + vitest 1955/1956 (einziger Fail = vorbestehender 374-kazan-Compliance-Test, nicht 386)
+review: worklog/reviews/386-review.md
+review-note: reviewer PASS, 2 NIT bewusst nicht geheilt
 ```
 
 ## Zuletzt
 
-- **Slice 384** (2026-06-25) — E-3 Türsteher: Follower-Pflicht + Fan-Rang-Gate (M, Money-nah, reviewer PASS, AC1-AC12 PASS).
-- **Slice 383** (2026-06-25) — E-2b Pro-Liga-Payout (L, Money/CEO, reviewer PASS).
-- **Slice 382** (2026-06-25) — E-1b Lineup-Picker-Liga-Vorfilter (M, reviewer REWORK→geheilt).
+- **Slice 386** (2026-06-25) — E-3 Alters-Fenster age_min/age_max + Bound-pro-Typ-Fundament-Fix (S, Money-nah, reviewer PASS, 15/15 ACs). UI-Playwright post-Deploy offen.
+- **Slice 385** (2026-06-25) — E-3 Aufstellungs-Regel-Fundament: JSONB lineup_rules + Validator + min_per_own_club (M, reviewer PASS).
+- **Slice 384** (2026-06-25) — E-3 Türsteher: Follower-Pflicht + Fan-Rang-Gate (M, reviewer PASS).
 
-Nächstes: SPEC fertig → Anil-Approval (M-Slice) → BUILD (selbst, kein Worktree-Agent für Money-nah).
+Nächstes: AC-13 UI-Playwright post-Deploy (Age-Inputs beide Builder). Dann E-3-Erweiterung nation/mv/position ODER E-4. **Offener vorbestehender Compliance-Fund:** `COMPL-tr-kazan` (374) — Micro-Slice.

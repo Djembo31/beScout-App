@@ -735,8 +735,10 @@ export type EventCurrency = 'tickets' | 'scout';
  * Typisierte Bedingung, welche Karten ins Lineup dürfen. Server-Validator in
  * rpc_save_lineup ist fail-closed bei unbekanntem `type`. Erweiterbar ohne Schema-Change.
  * - min_per_own_club: mind. N Starter aus dem Event-Verein (feste Zahl, E-3a).
+ * - age_max / age_min: jeder aufgestellte Spieler (Starter + Bank) muss age <= / >= N sein (Slice 386).
  */
-export type LineupRule = { type: 'min_per_own_club'; value: number };
+export type LineupRuleType = 'min_per_own_club' | 'age_min' | 'age_max';
+export type LineupRule = { type: LineupRuleType; value: number };
 
 export type DbEvent = {
   id: string;

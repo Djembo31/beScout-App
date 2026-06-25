@@ -419,6 +419,17 @@ export function useEventActions(clubId: string) {
         case 'invalid_lineup_rule_value':
           addToast(t('lineupRuleInvalid'), 'error');
           break;
+        // Slice 386 (E-3) — Alters-Fenster-Regel
+        case 'age_max_exceeded':
+          addToast(t('ageMaxExceeded', {
+            limit: event.lineupRules?.find(r => r.type === 'age_max')?.value ?? 0,
+          }), 'error');
+          break;
+        case 'age_min_not_met':
+          addToast(t('ageMinNotMet', {
+            limit: event.lineupRules?.find(r => r.type === 'age_min')?.value ?? 0,
+          }), 'error');
+          break;
         case 'holding_lock_failed':
           addToast(t('holdingLockFailed'), 'error');
           break;

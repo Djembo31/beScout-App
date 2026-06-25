@@ -36,6 +36,13 @@ const FORM_LABELS: EventFormLabels = {
   minPerOwnClub: 'Min. Spieler vom eigenen Verein',
   minPerOwnClubPlaceholder: 'Keine Regel',
   minPerOwnClubHint: 'Mindestanzahl Spieler aus dem Event-Verein im Lineup (z. B. 5). Leer = keine Regel. Nur bei Vereins-Events wirksam.',
+  // Slice 386 (E-3) — Alters-Fenster (gilt für Starter + Bank)
+  ageMax: 'Max. Alter',
+  ageMaxPlaceholder: 'Keine Regel',
+  ageMaxHint: 'Jeder aufgestellte Spieler (Starter + Bank) darf höchstens dieses Alter haben (z. B. 21 für U21). Leer = keine Regel.',
+  ageMin: 'Min. Alter',
+  ageMinPlaceholder: 'Keine Regel',
+  ageMinHint: 'Jeder aufgestellte Spieler (Starter + Bank) muss mindestens dieses Alter haben (z. B. 30). Leer = keine Regel.',
   // Slice 384 (E-3 Türsteher) — nur bei Vereins-Events wirksam
   requiresFollow: 'Nur Follower des Vereins',
   minFanRank: 'Mindest-Fan-Rang',
