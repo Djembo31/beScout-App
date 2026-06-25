@@ -2158,6 +2158,9 @@ export type DbMonthlyLigaWinner = {
   handle?: string;
   display_name?: string | null;
   avatar_url?: string | null;
+  // Slice 383 (E-2b): NULL = globale Wertung, gesetzt = Pro-Liga-Manager (BeScout-Saison)
+  league_id?: string | null;
+  league_name?: string | null;
 };
 
 // ============================================

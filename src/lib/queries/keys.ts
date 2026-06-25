@@ -299,11 +299,13 @@ export const qk = {
     scoreRoad: (uid: string) => ['gamification', 'scoreRoad', uid] as const,
     leaderboardByDim: (dim: string, n: number) => ['gamification', 'leaderboard', dim, n] as const,
     currentSeason: ['gamification', 'currentSeason'] as const,
-    monthlyWinners: (month?: string) => ['gamification', 'monthlyWinners', month ?? 'all'] as const,
+    monthlyWinners: (month?: string, limit?: number) => ['gamification', 'monthlyWinners', month ?? 'all', limit ?? 12] as const,
     friendsLeaderboard: (uid: string) => ['gamification', 'friendsLeaderboard', uid] as const,
     monthlyLeaderboard: (month: string, dim: string) => ['gamification', 'monthlyLeaderboard', month, dim] as const,
     seasonRanking: (leagueId: string | null) => ['gamification', 'seasonRanking', leagueId ?? 'all'] as const,
     clubLeaderboard: (clubId: string) => ['gamification', 'clubLeaderboard', clubId] as const,
+    // Slice 383 (E-2b): pro-Liga Reward-Config (BeScout-Saison-Payout-Beträge)
+    ligaRewardConfig: ['gamification', 'ligaRewardConfig'] as const,
   },
 
   // ── Airdrop ──

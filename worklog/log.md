@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 383 | 2026-06-25 | feat(rankings): E-2b — Pro-Liga-Payout (BeScout-Saison Manager) + konfigurierbare Beträge
+- Stage-Chain: SPEC (`383-perleague-payout.md`, L, Money/CEO) → IMPACT inline → BUILD (1 Migration selbst via apply_migration + Service/Hook/UI, KEIN Worktree §3) → REVIEW (`383-review.md` reviewer PASS, 3 NIT) → PROVE (`383-money-smoke.txt` force-rollback AC1-AC10 + tsc 0 + 67 vitest; UI-Playwright post-Deploy offen) → LOG.
+- **Vierter Bau-Slice von E5** (D104/D106). CEO (AskUserQuestion, Anil): (1) **zusätzlich** zum globalen Manager-Payout, (2) Beträge **pro Liga einzeln** einstellbar, (3) Default **100k/50k/25k cents**. Macht die E-2a-Anzeige (`rpc_get_season_ranking`) zu echtem Geld.
+- **`close_monthly_liga` CREATE OR REPLACE** (gegen Live-Baseline, D87): globaler 4-Dim-Block byte-identisch (Konstanten 500k/250k/100k + overall-Median erhalten, PATCH-AUDIT S356). NEU: Pro-Liga-Manager-LOOP über aktive Ligen NACH global / VOR Coverage-Check — Ranking = exakt `rpc_get_season_ranking`-Aggregat (Display==Payout), nur manager-Dim. EIN zero-sum Debit deckt global+pro-Liga, Idempotenz erhalten.
+- **Schema additiv:** Config-Tabelle `liga_reward_config` (league_id×rank1/2/3 cents, CHECK monoton ≥0, fehlend=Default, RLS 4 Ops Write-nur-RPC) + `league_id` auf `monthly_liga_snapshots/_winners` + UNIQUE `NULLS NOT DISTINCT` (globale NULL-Idempotenz erhalten, Pro-Liga-Kollision vermieden). Globaler Winner-Insert auf `league_id IS NULL` eingeschränkt.
+- **RPCs:** `get_liga_reward_config` (Helper, Default-Single-Source) + `set_liga_reward_config` (platform_admin-Gate `auth.uid`+`platform_admins.role`, Defense-in-Depth, AR-44) + `get_monthly_liga_winners` DROP+CREATE additiv `league_id`/`league_name` (Grant=public-readable erhalten).
+- **Frontend:** Service `getLigaRewardConfig`/`setLigaRewardConfig` (throw + Discriminator-Guard), Hooks `useLigaRewardConfigs`/`useSetLigaRewardConfig` (invalidate), AdminLigaTab Reward-Editor-Card (pro Liga 3 Inputs in CR, monoton-Validierung, isPending-Guard) + Winner-Liga-Badge + Text. Admin-Strings DE-hardcoded (S196-exempt).
+- **Proof:** Force-Rollback-Money-Smoke — global 12 + pro-Liga 3 Winner, Zero-Sum pot_delta=debit=total_paid=3.675.000, AC5 Display==Payout (Bundesliga-Top1=rpc-Top1), AC7 Config wirkt (200k), AC8 insufficient_treasury→0 Persistenz, AC9 month_already_closed. Migration `20260625200000`.
+- Files: 1 Migration + 6 src + 0 i18n (Admin DE). Commit: <hash>. Knowledge: errors-db S383.
+
 ## 382 | 2026-06-25 | feat(fantasy): E-1b — Lineup-Picker-Liga-Vorfilter + Club-Admin-Liga-Picker
 - Stage-Chain: SPEC (`382-e1b-...md`, M) → IMPACT inline → BUILD (Plumbing → Filter → Club-Caller → i18n) → REVIEW (`382-review.md` reviewer REWORK→GEHEILT) → PROVE (`382-picker-filter.txt`; UI-Playwright post-Deploy) → LOG.
 - **Dritter Bau-Slice von E5** (D104), Frontend-Zwilling zu E-1 (380): macht das serverseitige `rpc_save_lineup`-Liga-Gate im Lineup-Picker sichtbar + gibt Club-Admins den Liga-Select. KEIN Money/Schema/RPC-Change. CEO (AskUserQuestion): Club-Admin-Liga-Picker = alle Ligen + Offen.

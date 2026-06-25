@@ -12,6 +12,7 @@ export type {
   ScoutLeaderboardEntry,
   LigaSeasonRow,
   MonthlyWinnerRow,
+  LigaRewardConfigRow,
 } from './scoutScores';
 
 export {
@@ -23,6 +24,8 @@ export {
   getFriendsLeaderboard,
   getMonthlyLeaderboard,
   getClubLeaderboard,
+  getLigaRewardConfig,
+  setLigaRewardConfig,
 } from './scoutScores';
 
 // ============================================

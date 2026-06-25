@@ -128,7 +128,77 @@ export type MonthlyWinnerRow = {
   handle: string;
   display_name: string | null;
   avatar_url: string | null;
+  // Slice 383 (E-2b): NULL = globale Wertung, gesetzt = Pro-Liga-Manager (BeScout-Saison)
+  league_id: string | null;
+  league_name: string | null;
 };
+
+// ============================================
+// Pro-Liga Reward-Config (E-2b / Slice 383)
+// Admin setzt pro Fußball-Liga die BeScout-Saison-Manager-Payout-Beträge (cents).
+// Fehlende Config-Zeile = Plattform-Default 100000/50000/25000.
+// ============================================
+
+export type LigaRewardConfigRow = {
+  league_id: string;
+  league_name: string;
+  league_short: string;
+  rank1_cents: number;
+  rank2_cents: number;
+  rank3_cents: number;
+  is_default: boolean; // true wenn keine Config-Zeile existiert (Plattform-Default)
+};
+
+const LIGA_REWARD_DEFAULTS = { rank1_cents: 100000, rank2_cents: 50000, rank3_cents: 25000 } as const;
+
+/**
+ * Fetch all active leagues with their BeScout-Saison reward config (or platform default).
+ * Throws on error (no silent-fail) so the admin editor shows a real error state.
+ */
+export async function getLigaRewardConfig(): Promise<LigaRewardConfigRow[]> {
+  const { data, error } = await supabase
+    .from('leagues')
+    .select('id, name, short, liga_reward_config(rank1_cents, rank2_cents, rank3_cents)')
+    .eq('is_active', true)
+    .order('name', { ascending: true });
+
+  if (error) throw new Error(error.message);
+
+  return (data ?? []).map((row: Record<string, unknown>) => {
+    const cfg = Array.isArray(row.liga_reward_config) ? row.liga_reward_config[0] : row.liga_reward_config;
+    const c = cfg as { rank1_cents: number; rank2_cents: number; rank3_cents: number } | undefined;
+    return {
+      league_id: row.id as string,
+      league_name: row.name as string,
+      league_short: row.short as string,
+      rank1_cents: c?.rank1_cents ?? LIGA_REWARD_DEFAULTS.rank1_cents,
+      rank2_cents: c?.rank2_cents ?? LIGA_REWARD_DEFAULTS.rank2_cents,
+      rank3_cents: c?.rank3_cents ?? LIGA_REWARD_DEFAULTS.rank3_cents,
+      is_default: !c,
+    };
+  });
+}
+
+/**
+ * Set the per-league reward amounts (platform-admin only, enforced in the RPC).
+ * Throws on RPC error or {success:false} so the caller surfaces the failure.
+ */
+export async function setLigaRewardConfig(
+  leagueId: string,
+  rank1Cents: number,
+  rank2Cents: number,
+  rank3Cents: number,
+): Promise<void> {
+  const { data, error } = await supabase.rpc('set_liga_reward_config', {
+    p_league_id: leagueId,
+    p_rank1_cents: rank1Cents,
+    p_rank2_cents: rank2Cents,
+    p_rank3_cents: rank3Cents,
+  });
+  if (error) throw new Error(error.message);
+  const result = data as { success?: boolean; error?: string };
+  if (!result?.success) throw new Error(result?.error ?? 'set_liga_reward_config_failed');
+}
 
 /** Fetch the currently active Liga season */
 export async function getCurrentLigaSeason(): Promise<LigaSeasonRow | null> {

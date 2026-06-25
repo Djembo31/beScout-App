@@ -1,20 +1,28 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, Button } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
-import { useCurrentLigaSeason, useMonthlyLigaWinners } from '@/lib/queries/gamification';
+import {
+  useCurrentLigaSeason,
+  useMonthlyLigaWinners,
+  useLigaRewardConfigs,
+  useSetLigaRewardConfig,
+} from '@/lib/queries/gamification';
+import type { LigaRewardConfigRow } from '@/lib/services/gamification';
 import { supabase } from '@/lib/supabaseClient';
 import { fmtScout } from '@/lib/utils';
-import { Loader2, Trophy, Calendar, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Loader2, Trophy, Calendar, AlertTriangle, CheckCircle, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function AdminLigaTab() {
   const t = useTranslations('bescoutAdmin');
   const { addToast } = useToast();
   const { data: season, isLoading: seasonLoading } = useCurrentLigaSeason();
-  const { data: winners = [] } = useMonthlyLigaWinners();
+  // Slice 383: höheres Limit, damit globale (12) + Pro-Liga-Manager-Sieger sichtbar sind.
+  const { data: winners = [] } = useMonthlyLigaWinners(undefined, 60);
+  const { data: rewardConfigs = [] } = useLigaRewardConfigs();
 
   const [closing, setClosing] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -129,7 +137,11 @@ export function AdminLigaTab() {
         </div>
         <p className="text-[13px] text-white/50 mb-4">
           Snapshots alle User-Scores, berechnet Rankings pro Dimension, und vergibt Rewards an Top 3.
-          Rewards: #1 = 5.000 CR, #2 = 2.500 CR, #3 = 1.000 CR.
+          Global: #1 = 5.000 CR, #2 = 2.500 CR, #3 = 1.000 CR (Trader / Manager / Analyst / Gesamt).
+          <span className="block mt-1 text-white/40">
+            Zusätzlich pro Fußball-Liga: Manager-Top-3 der BeScout-Saison — Beträge unten je Liga einstellbar.
+            Auszahlung zero-sum aus dem Plattform-Topf.
+          </span>
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3">
@@ -150,6 +162,27 @@ export function AdminLigaTab() {
               {closing ? <Loader2 className="size-4 animate-spin" /> : prevMonthClosed ? 'Bereits abgeschlossen' : `${previousMonth} abschließen`}
             </Button>
           </div>
+        </div>
+      </Card>
+
+      {/* Pro-Liga Reward-Config (Slice 383 / E-2b) */}
+      <Card className="p-5">
+        <div className="flex items-center gap-2 mb-2">
+          <Coins className="size-4 text-gold" />
+          <h3 className="text-sm font-black text-white">Pro-Liga-Rewards (BeScout-Saison)</h3>
+        </div>
+        <p className="text-[13px] text-white/50 mb-4">
+          Manager-Top-3 pro Fußball-Liga. Beträge in Credits, müssen fallend sein (#1 ≥ #2 ≥ #3 ≥ 0).
+          0 deaktiviert die Auszahlung für diese Liga. Fehlt eine Liga in der Konfiguration, gilt der
+          Default 1.000 / 500 / 250 CR.
+        </p>
+        <div className="space-y-2">
+          {rewardConfigs.map((cfg) => (
+            <LigaRewardRow key={cfg.league_id} cfg={cfg} />
+          ))}
+          {rewardConfigs.length === 0 && (
+            <p className="text-white/40 text-[13px]">Keine aktiven Ligen gefunden.</p>
+          )}
         </div>
       </Card>
 
@@ -208,6 +241,11 @@ export function AdminLigaTab() {
                 )}>
                   {w.dimension}
                 </span>
+                {w.league_name && (
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-gold/10 text-gold/80 shrink-0">
+                    {w.league_name}
+                  </span>
+                )}
                 <span className="text-[11px] font-mono text-gold w-4">#{w.rank}</span>
                 <span className="text-[12px] font-bold text-white flex-1 truncate">
                   {w.display_name || w.handle}
@@ -232,5 +270,83 @@ function InfoCell({ label, value, highlight }: { label: string; value: string; h
         {value}
       </span>
     </div>
+  );
+}
+
+// Slice 383 (E-2b): pro-Liga Reward-Editor (Beträge in Credits, intern cents = ×100).
+function LigaRewardRow({ cfg }: { cfg: LigaRewardConfigRow }) {
+  const { addToast } = useToast();
+  const setConfig = useSetLigaRewardConfig();
+  const origR1 = Math.round(cfg.rank1_cents / 100);
+  const origR2 = Math.round(cfg.rank2_cents / 100);
+  const origR3 = Math.round(cfg.rank3_cents / 100);
+  const [r1, setR1] = useState(origR1);
+  const [r2, setR2] = useState(origR2);
+  const [r3, setR3] = useState(origR3);
+
+  // Re-sync wenn Config nach Save (oder anderer Quelle) neu lädt.
+  useEffect(() => {
+    setR1(Math.round(cfg.rank1_cents / 100));
+    setR2(Math.round(cfg.rank2_cents / 100));
+    setR3(Math.round(cfg.rank3_cents / 100));
+  }, [cfg.rank1_cents, cfg.rank2_cents, cfg.rank3_cents]);
+
+  const dirty = r1 !== origR1 || r2 !== origR2 || r3 !== origR3;
+  const valid = r1 >= r2 && r2 >= r3 && r3 >= 0;
+
+  const handleSave = useCallback(async () => {
+    if (!valid) {
+      addToast('Beträge müssen fallend sein (#1 ≥ #2 ≥ #3 ≥ 0)', 'error');
+      return;
+    }
+    try {
+      await setConfig.mutateAsync({
+        leagueId: cfg.league_id,
+        rank1Cents: r1 * 100,
+        rank2Cents: r2 * 100,
+        rank3Cents: r3 * 100,
+      });
+      addToast(`${cfg.league_name}: Rewards gespeichert`, 'success');
+    } catch (err) {
+      addToast(`Fehler: ${err instanceof Error ? err.message : 'unbekannt'}`, 'error');
+    }
+  }, [valid, setConfig, cfg.league_id, cfg.league_name, r1, r2, r3, addToast]);
+
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+      <div className="flex items-center gap-2 sm:w-44 shrink-0">
+        <span className="text-[12px] font-bold text-white truncate">{cfg.league_name}</span>
+        {cfg.is_default && <span className="text-[9px] text-white/30 shrink-0">(Default)</span>}
+      </div>
+      <div className="flex items-center gap-2 flex-1">
+        <RewardInput label="#1" value={r1} onChange={setR1} />
+        <RewardInput label="#2" value={r2} onChange={setR2} />
+        <RewardInput label="#3" value={r3} onChange={setR3} />
+      </div>
+      <Button
+        onClick={handleSave}
+        disabled={!dirty || !valid || setConfig.isPending}
+        className="shrink-0 text-[12px] px-3 py-2"
+      >
+        {setConfig.isPending ? <Loader2 className="size-4 animate-spin" /> : 'Speichern'}
+      </Button>
+    </div>
+  );
+}
+
+function RewardInput({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
+  return (
+    <label className="flex flex-col gap-0.5 flex-1">
+      <span className="text-[9px] text-white/30">{label} (CR)</span>
+      <input
+        type="number"
+        inputMode="numeric"
+        min={0}
+        value={Number.isFinite(value) ? value : 0}
+        onChange={(e) => onChange(parseInt(e.target.value, 10) || 0)}
+        className="w-full min-h-[40px] px-2 rounded-lg bg-white/[0.04] border border-white/10 text-[13px] text-white font-mono tabular-nums focus:border-gold/40 outline-none"
+        aria-label={`${label} Reward in Credits`}
+      />
+    </label>
   );
 }

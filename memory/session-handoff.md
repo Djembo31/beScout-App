@@ -1,14 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 18:12)
+# Session Handoff — Auto (2026-06-25 18:35)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 3 Files
 ```
  M memory/session-handoff.md
+ M worklog/active.md
+?? worklog/specs/383-perleague-payout.md
 ```
 
 ## Session Commits: 10
+- 28ac6897 docs(handoff): Session-Close 2026-06-25 — E-2a (381) + E-1b (382) DONE, next = E-2b (Pro-Liga-Payout, Money/CEO)
 - 5879ade1 docs(proof): Slice 382 — AC-05/07 + S333-Heilung LIVE PASS (Club-Admin Liga-Select, kein MISSING_MESSAGE)
 - 6ec80cdf feat(fantasy): E-1b — Lineup-Picker-Liga-Vorfilter + Club-Admin-Liga-Picker (Slice 382)
 - f6dfa18c docs(proof): Slice 381 — UI-Playwright post-Deploy ALLE PASS (DE/TR Header, Mobile, Pro-Liga-Board befüllt)
@@ -18,7 +21,6 @@
 - 90c3c587 feat(events): E-1 — Fußball-Liga an die Event-Aufstellung binden (Slice 380)
 - dd23faca docs(decision): D105 — "Liga"=Fußball / Nutzer-Wettbewerb="BeScout-Saison" + E4 abgeschlossen
 - 4bc4444e docs(trackers): E5 Event-/Creator-/BeScout-Liga-Epic (D104) in MASTERPLAN+TODO+Handoff verankert
-- ecc083da docs(decision): D104 — Event-/Creator-/BeScout-Liga-Zielbild + Roadmap
 
 <!-- auto:handoff-end -->
 
@@ -28,20 +30,18 @@
 
 **Status: idle. HEAD = `5879ade1`.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **CI grün (Slice 382 fixte einen seit 380 roten Test), Push normal, main == origin/main, tsc clean.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
 
-## 🎯 HIER ANKNÜPFEN — E5 E-2b: Pro-Liga-Payout (Money/CEO, L)
+## 🎯 HIER ANKNÜPFEN — E5 E-3: Teilnahme-Bedingungen (XS-S)
 
-**➡️ NÄCHSTER SLICE = E-2b (L, MONEY/CEO-Scope — §3, SELBST bauen + Reviewer-Pflicht).** ZUERST lesen: `worklog/notes/event-creator-liga-epic.md` (E-2-Block) + `memory/decisions.md` **D106** (E-2-Entscheid: echte Rewards pro Liga, **admin-anpassbarer Preispool**, gestuft) + **D96/D98** (Topf-Modell). **D87-Pflicht: Live-`pg_get_functiondef('close_monthly_liga')` VOR Spec** (Money-RPC, nie aus Migrations-Datei ableiten).
+**➡️ NÄCHSTER SLICE = E-3 (XS-S, teils Money-nah).** ZUERST lesen: `worklog/notes/event-creator-liga-epic.md` (E-3-Block) + `memory/decisions.md` D104. E-3 = Teilnahme-Bedingungen erweitern: (a) „min. X Spieler vom Verein" (Gegenstück zu `max_per_club`) in `rpc_save_lineup` · (b) Follower-Pflicht-Gate in `rpc_lock_event_entry` · (c) Fan-Rang-Gate auf Events (`min_fan_rank_tier`, wie Polls/Posts). Offene Frage E-3a (§6 Epic): fixe Zahl je Event oder Prozent? (vor Bau klären). Abo-/Stufen-Gate existieren schon. Money-nah → Live-functiondef VOR Spec (D87), Reviewer-Pflicht.
 
-**E-2b-Scope (per D106):**
-1. **`close_monthly_liga` pro Liga** zahlen — die Manager-Dim pro (Nutzer, Liga) ist seit E-2a ableitbar (`rpc_get_season_ranking(p_league_id)`, read-only Aggregat aus liga-gebundenen Event-Lineups). E-2b muss daraus echten Payout machen.
-2. **Konfigurierbare Reward-Struktur** — Admin setzt Beträge (neue Tabelle/Spalten statt hardcodiert 500k/250k/100k cents). Grund D106: 7 Ligen × 4 Dim × 3 Ränge ≈ bis 84 Auszahlungen/Monat → Topf-Belastung kontrollierbar halten.
-3. Zero-Sum-Debit aus dem Plattform-Topf + **inline Deckungs-Check unter Singleton-Row-Lock** (`book_platform_treasury` hat KEINEN Negativ-Guard) + D103 Hard-Gate (RAISE bei Unterdeckung) + Idempotenz (`month_already_closed`). Muster = Slice 376 (Monats-Liga global aus Topf).
+**⚠️ OFFEN aus E-2b (Slice 383): UI-Playwright post-Deploy (AC11)** gegen bescout.net `/bescout-admin` Liga-Tab (Login `ali@test.bescout.de`/`123456` = platform_admin): (1) „Pro-Liga-Rewards"-Card rendert pro aktive Liga 3 Inputs, Speichern→Toast, kein MISSING_MESSAGE (Admin=DE); (2) „Monat abschließen"-Card neuer Text; (3) Winner-Liste zeigt Liga-Badge bei Pro-Liga-Zeilen. Mobile 393px. Vercel baut von main — nach Deploy verifizieren.
 
-**🔑 Design-Kern (Live-Audit 2026-06-25, NICHT neu erheben):**
-- `scout_scores` ist **NICHT** pro Liga — nur 3 globale Werte/Nutzer (trader/manager/analyst). `monthly_liga_snapshots`/`_winners` haben **keine** league_id. `close_monthly_liga(p_month)` rankt global über 4 Dim (trader/manager/analyst/overall=Median), Top-3/Dim aus Plattform-Topf (hardcodiert 500k/250k/100k cents, zero-sum debit, Deckungs-Check+RAISE; Slice 376).
-- **Pro-Liga-Wertung existiert bereits als read-only Aggregat (E-2a, 381):** `rpc_get_season_ranking(p_league_id uuid DEFAULT NULL, p_limit int)` = `SUM(lineups.total_score)` über `is_liga_event AND status='ended' [AND league_id=L]`. NULL=Gesamt, UUID=pro Liga. **Trader/Analyst bleiben global.** E-2b kann diese Ableitung als Basis der per-Liga-Winner-Ermittlung nutzen (oder eine parallele Snapshot-Tabelle mit league_id bauen — Design-Entscheid in der Spec).
-- **Offene Produkt-Frage E-2b (D106/§6 Epic):** Reward-Höhe pro Liga vs. global — gleicher Pot je Liga, oder ein Gesamt-Pot aufgeteilt? (Money/CEO-Entscheid VOR Bau, AskUserQuestion.)
-- Money-Muster (Pflicht): Live-functiondef VOR Spec (D87) · zero-sum debit aus Topf (nicht minten) · Deckungs-Check inline unter Row-Lock · force-rollback-Smokes (`BEGIN;…ROLLBACK;`) · Reviewer-Pflicht. Quelle: `treasury.md` §10 + Slice 376-Proof.
+### ✅ Diese Session (2026-06-25) — E-2b (383) DONE
+- **✅ E-2b DONE — Slice 383:** Pro-Liga-Payout. `close_monthly_liga` CREATE OR REPLACE (gegen Live-Baseline D87): globaler 4-Dim-Block byte-identisch (Konstanten 500k/250k/100k + overall-Median + Idempotenz, PATCH-AUDIT S356), NEU Pro-Liga-Manager-LOOP NACH global / VOR Coverage — Ranking = exakt `rpc_get_season_ranking`-Aggregat (Display==Payout), nur manager-Dim (trader/analyst global). **CEO-Entscheid (AskUserQuestion):** (1) **zusätzlich** zum globalen Payout (Doppel-Payout gewollt), (2) Beträge **pro Liga einzeln**, (3) Default **100k/50k/25k cents** (→ D106 Umsetzung dokumentiert).
+  - Schema additiv: Config-Tabelle `liga_reward_config` (league_id×rank1/2/3 cents, CHECK monoton ≥0, fehlend=Default, RLS 4 Ops) + `league_id` auf `monthly_liga_snapshots/_winners` + UNIQUE **`NULLS NOT DISTINCT`** (globale NULL-Idempotenz erhalten). Globaler Winner-Insert auf `league_id IS NULL` eingeschränkt (S383-Pattern).
+  - RPCs: `get_liga_reward_config` (Helper) + `set_liga_reward_config` (platform_admin-Gate, AR-44) + `get_monthly_liga_winners` DROP+CREATE additiv `league_id`/`league_name`. Frontend: Service/Hooks + AdminLigaTab Reward-Editor + Winner-Liga-Badge (Admin DE-hardcoded, S196-exempt).
+  - **EIN zero-sum Debit** deckt global+pro-Liga; Coverage-Check VOR Lock; Idempotenz erhalten. Reviewer **PASS** (3 NIT). Money-Smoke AC1-AC10 force-rollback PASS (Zero-Sum pot_delta=debit=total_paid=3.675.000; AC5 Display==Payout; AC7 Config wirkt; AC8 insufficient_treasury→0 Persistenz). Migration `20260625200000`. Proof `383-money-smoke.txt`. Knowledge errors-db **S383**.
+  - **Keine geseedeten Live-Artefakte** (Smokes BEGIN…ROLLBACK; Topf live unverändert).
 
 ### ✅ Diese Session (2026-06-25) — E-2a (381) + E-1b (382) gebaut, beide DONE
 - **✅ E-2a DONE — Slice 381** (`0532cc21`+`f6dfa18c`): BeScout-Saison Begriffs-Umzug (user-facing „Liga"→„BeScout-Saison": `rankings.title`, `fantasy.seasonBadge` EventCard-Badge, `profile.scoutCardSeasonLabel`; DB-Spalten unverändert, D105) + **Pro-Liga-Ranglisten-Anzeige**. Neue read-only RPC `rpc_get_season_ranking` (SEC DEFINER, JSONB, anon-gesperrt) + Service `getSeasonRanking` (throw) + Hook `useSeasonRanking` + Widget `LeagueSeasonLeaderboard` (Umschalter Gesamt/Pro Liga, `useLeagueScope`-SSOT). KEINE Payout-Änderung. Reviewer PASS (2 NIT). **UI LIVE PASS** (DE „BeScout-Saison"/TR „BeScout Sezonu", Mobile 393px, Gesamt-Board=30, Pro-Liga Bundesliga=312/268/240, leere Liga=Empty). Migration `20260625190000`. Knowledge: `bescout-liga.md` Update-Block.

@@ -1,0 +1,58 @@
+Slice 383 (E-2b) — Pro-Liga-Payout — PROVE (Force-Rollback-Money-Smoke + Migration-Verify)
+Project skzjfhvgccaeplydsunz · 2026-06-25 · alle Smokes BEGIN…(implizit)…ROLLBACK via finalem RAISE → keine echten Wallets/Snapshots verändert.
+
+================================================================================
+A) MIGRATION-VERIFY (post-apply) — AC1/AC2/AC3 + PATCH-AUDIT
+================================================================================
+constraints:
+  lrc_monotonic = CHECK ((rank1_cents>=0) AND (rank2_cents>=0) AND (rank3_cents>=0)
+                         AND (rank1_cents>=rank2_cents) AND (rank2_cents>=rank3_cents))
+  monthly_liga_snapshots_month_user_dim_league_key = UNIQUE NULLS NOT DISTINCT (month, user_id, dimension, league_id)
+  monthly_liga_winners_month_dim_rank_league_key   = UNIQUE NULLS NOT DISTINCT (month, dimension, rank, league_id)
+rls (liga_reward_config) = SELECT + INSERT + UPDATE + DELETE (4 Ops, alle adressiert; SELECT true, Writes false)
+helper_default get_liga_reward_config('00000000-…') = {"rank1":100000,"rank2":50000,"rank3":25000}  (AC1 fehlende Zeile=Default)
+PATCH-AUDIT (S356) close_monthly_liga:
+  GLOBAL_CONSTANTS_OK   (500000 / 250000 / 100000 byte-identisch erhalten)
+  MEDIAN+IDEMPOTENZ+COVERAGE+DEBIT_OK  (GREATEST/LEAST-Median + month_already_closed + insufficient_treasury + book_platform_treasury + FOR UPDATE alle erhalten)
+
+================================================================================
+B) HAUPT-SMOKE (Test-Monat 2099-01-01) — AC4/AC5/AC6/AC7/AC9/AC10
+   Config Bundesliga rank1=200000 vorab gesetzt (AC7-Probe), dann close, dann 2. close, RAISE-Report, ROLLBACK.
+================================================================================
+REPORT >>> res={"ok": true, "month": "2099-01-01", "payouts_credited": 15, "total_paid_cents": 3675000, "winners_inserted": 3}
+  | global_w=12 perliga_w=3 total_winner_reward=3675000
+  | pot_before=50003397 pot_after=46328397 debit=3675000 pot_delta=3675000
+  | bund_r1=200000 bund_top1=535bbcaf-f33c-4c66-8861-b15cbff2e136 rpc_top1=535bbcaf-f33c-4c66-8861-b15cbff2e136 AC5match=t
+  | active_leagues=7 leagues_with_winners=1
+  | AC9_res2={"error": "month_already_closed", "month": "2099-01-01"}
+
+Auswertung:
+  AC4 "zusätzlich"  : 12 globale Winner (league_id NULL, 4 Dim × 3) + 3 Pro-Liga-Manager-Winner (league_id gesetzt). PASS
+  total_winner_reward 3.675.000 = global 3.400.000 (500k+250k+100k)×4 + Bundesliga (200k+50k+25k=275k). PASS
+  AC6 Zero-Sum      : pot_delta = debit = total_paid_cents = 3.675.000; alle 15 Winner haben Wallets (12+3). PASS
+  AC7 Config wirkt  : Bundesliga Rang1 = 200.000 (gesetzt) statt Default 100.000. PASS
+  AC5 Display==Payout: Bundesliga-Rang1-Winner = rpc_get_season_ranking(Bundesliga)-Top1 (jarvisqa). PASS
+  AC10 leere Ligen  : 7 aktive Ligen, nur 1 (Bundesliga) mit Pro-Liga-Winnern; 6 leere → 0 Zeilen, kein Fehler. PASS
+  AC9 Idempotenz    : 2. close = month_already_closed (kein 2. Payout/Debit). PASS
+
+================================================================================
+C) COVERAGE-SMOKE (Test-Monat 2099-02-01) — AC8
+   Topf via Debit auf ~1M gedrückt, dann close → erwartet RAISE + 0 Persistenz, ROLLBACK.
+================================================================================
+AC8 >>> caught=[insufficient_treasury: Topf 1003397 cents < benoetigt 3575000 cents (Monat 2099-02-01)]
+        snapshots_after=0 winners_after=0
+Auswertung: RAISE insufficient_treasury (Topf < global 3.4M + Bundesliga-Default 175k = 3.575M);
+            0 Snapshots / 0 Winners persistiert → Monat retry-bar (Idempotenz erhalten). PASS
+
+================================================================================
+D) RETURN-SHAPE / TESTS / TYPECHECK
+================================================================================
+close_monthly_liga Return-Shape unverändert: {ok, month, winners_inserted, payouts_credited, total_paid_cents}
+  → INV/db-invariants Return-Shape-Assertion (376 AC7) unberührt; transactions.type='liga_reward' bereits im CHECK (kein neuer Typ).
+get_monthly_liga_winners: additiv league_id + league_name (TABLE-Shape erweitert via DROP+CREATE); Grant = REVOKE PUBLIC + GRANT anon,authenticated (= Original-Verhalten "public-readable", kein anon-Drift).
+npx tsc --noEmit : EXIT 0 (clean)
+vitest src/lib/gamification.test.ts + src/lib/services/__tests__/gamification.test.ts : 67 passed (2 files)
+
+================================================================================
+FAZIT: AC1-AC10 + AC12 (DB + Service + tsc) PASS. AC11 (UI Playwright post-Deploy) offen — separat.
+Alle Money-Smokes rolled back; einziger persistenter Effekt = die Migration selbst (Schema/RPCs). Keine echten Wallets/Topf verändert.

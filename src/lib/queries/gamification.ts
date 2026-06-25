@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { qk } from './keys';
 import {
   getScoutScores,
@@ -10,6 +10,8 @@ import {
   getFriendsLeaderboard,
   getMonthlyLeaderboard,
   getClubLeaderboard,
+  getLigaRewardConfig,
+  setLigaRewardConfig,
 } from '@/lib/services/gamification';
 import { getSeasonRanking } from '@/lib/services/scoutScores';
 
@@ -47,12 +49,34 @@ export function useCurrentLigaSeason() {
   });
 }
 
-/** Fetch monthly Liga winners */
-export function useMonthlyLigaWinners(month?: string) {
+/** Fetch monthly Liga winners. `limit` controls how many rows (per-league winners
+ *  interleave after global ones — Admin passes a higher limit to see them all). */
+export function useMonthlyLigaWinners(month?: string, limit: number = 12) {
   return useQuery({
-    queryKey: qk.gamification.monthlyWinners(month),
-    queryFn: () => getMonthlyLigaWinners(month),
+    queryKey: qk.gamification.monthlyWinners(month, limit),
+    queryFn: () => getMonthlyLigaWinners(month, limit),
     staleTime: FIVE_MIN,
+  });
+}
+
+/** Fetch per-league BeScout-Saison reward config (E-2b). All active leagues + amounts. */
+export function useLigaRewardConfigs() {
+  return useQuery({
+    queryKey: qk.gamification.ligaRewardConfig,
+    queryFn: () => getLigaRewardConfig(),
+    staleTime: FIVE_MIN,
+  });
+}
+
+/** Mutation: set a league's BeScout-Saison reward amounts (platform-admin only). */
+export function useSetLigaRewardConfig() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (vars: { leagueId: string; rank1Cents: number; rank2Cents: number; rank3Cents: number }) =>
+      setLigaRewardConfig(vars.leagueId, vars.rank1Cents, vars.rank2Cents, vars.rank3Cents),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.gamification.ligaRewardConfig });
+    },
   });
 }
 

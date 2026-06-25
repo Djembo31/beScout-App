@@ -4070,4 +4070,6 @@ Bei E-2 wird `is_liga_event`/`monthly_liga_*` in zwei saubere Achsen entwirrt (F
 ### Auswirkung
 E-2a zuerst (Anzeige + Rename, kein Money). E-2b bringt konfigurierbare Reward-Struktur (neue Tabelle/Spalten für Reward-Beträge statt hardcodiert in `close_monthly_liga`) + per-Liga-Winner-Ermittlung. Compliance: Phase-1-Credits = Spielgeld (D99) → Topf-Risiko begrenzt, aber Anpassbarkeit ist die Steuerung. Anker: `worklog/notes/event-creator-liga-epic.md` E-2.
 
+**Umsetzung E-2b (Slice 383, 2026-06-25 — Anil-Konkretisierung via AskUserQuestion):** (1) **Zusätzlich** statt ersetzen — globaler Manager-Payout bleibt, Pro-Liga-Manager kommt on top (Doppel-Payout bei global+Liga-Top-3 = gewollt). (2) **Pro Liga EINZELN** konfigurierbar (Tabelle `liga_reward_config` league_id×rank, nicht ein globaler Satz). (3) Default **100k/50k/25k cents** (=1000/500/250 CR). Pro-Liga-Ranking = exakt `rpc_get_season_ranking`-Aggregat (Display==Payout), nur manager-Dim. Zero-sum aus Topf, EIN Debit deckt global+pro-Liga. Reviewer PASS. Diese Konkretisierung präzisiert D106 (kein neuer D<n> — gleiche Entscheidung, verfeinert).
+
 **Re-Visit-Trigger:** Reale Topf-Belastung nach E-2b beobachten; vor Coin-Phase (D99 Phase 2) Reward-Beträge neu bewerten (dann tragen Credits Wert).
