@@ -30,8 +30,8 @@
 
 ## 🟡 P1 — als Nächstes
 - ✅ **U-1 Header-Guthaben-Staleness — ERLEDIGT (Slice 371):** `handleCastPollVote`/`handleUnlockResearch` invalidieren jetzt `qk.wallet.all`. tsc+72 vitest grün, Money-Logik unberührt. **⏳ OFFEN nur noch: Live-Playwright AC1/AC2** (Header zeigt sofort −10 CR ohne Reload) = erster Schritt nächste Session nach Vercel-Deploy. Pattern S371 → errors-frontend.md.
-- **⑤ Bounty-Approval per UI** ⏸ ZURÜCKGESTELLT (Anil 2026-06-25): Fee-REIN RPC-bewiesen (365/370), nur UI-Klick offen. Creds: kede5 (`kede5@gmx.de`, Club-Admin), Kandidaten 12345/123456/test123.
-- **Topf-Card-Visual (357)** ⏸ ZURÜCKGESTELLT (Anil 2026-06-25): Card code-komplett + Saldo RPC-bewiesen; nur Screenshot offen → braucht Plattform-Admin `ali@test.bescout.de` (Passwort fehlt; kede5=Manager reicht nicht für /bescout-admin).
+- ✅ **Topf-Card-Visual (357) — ERLEDIGT (2026-06-25):** Cred-Blocker gelöst — `ali@test.bescout.de` Passwort auf `123456` gesetzt + zu `platform_admins` (superadmin) hinzugefügt (Seed-Konto). Live-Login + Treasury-Tab verifiziert (Saldo 500.032,97 Credits, REIN/RAUS/Kontoauszug). Proof `worklog/proofs/357-topf-card-de.png`. QA-Creds → memory `reference_qa_test_credentials`.
+- **⑤ Bounty-Approval per UI** — Cred-Blocker gelöst (ali ist Sakaryaspor-Club-Admin). OFFEN nur noch: frische pending Bounty+Submission auf Sakaryaspor seeden, dann Approve-Klick in Club-Admin-UI (Fee-REIN selbst ist RPC-bewiesen 365/370). Nächster schneller Rest.
 - **Aufräum-Haken aus FRE-Investigation (2026-06-18):**
   - ✅ **`csf_multiplier` raus** — erledigt Slice 348 (aus TS + RPC + DROP COLUMN).
   - **Fan-Rang aktualisiert verzögert** (nur nach Event-Scoring/Cron, kein Trigger auf Abo/Holdings — reward-ranking.md W2-A). Follow zählt seit FRE-2 (345) mit Recalc-Trigger; Abo/Holdings noch verzögert. Bei Bedarf recalc-Frage konkret entscheiden (vgl. D92 Re-Visit).
