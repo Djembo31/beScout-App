@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 379 | 2026-06-25 | fix(tickets): credit_tickets/spend_tickets/CHECK Source-Drift — post_create + 2 latente Bugs
+- Stage-Chain: SPEC inline (active.md, XS Migration) → IMPACT inline (Allowlist-Gate-Flächen + 0 src) → BUILD (1 Migration, 2 apply-Calls) → REVIEW (`379-review.md` self-review PASS) → PROVE (AC1-AC5 live, BEGIN…ROLLBACK) → LOG.
+- **Evidence (Anil-Fund 2026-06-25):** Live-400 „Ungueltige Ticket-Quelle: post_create" beim News/Post-Erstellen → Ticket-Gutschrift (3 Tk, `posts.ts:161`) schlug still fehl.
+- **Root-Cause (Live-`pg_get_functiondef`, D87):** Drei unabhängig gedriftete Gate-Flächen, alle abweichend vom TS-`TicketSource` (src/types/index.ts) UND voneinander: (1) `credit_tickets`-Allowlist, (2) `spend_tickets`-Allowlist, (3) CHECK `ticket_transactions_source_check`. `post_create`/`research_publish`/`research_rating` fehlten in den RPC-Allowlists (alle Live-Count=0 = nie erfolgreich); `chip_refund` war in beiden RPCs erlaubt, scheiterte aber am CHECK (zweiter latenter Bug, erst im PROVE-Smoke nach RPC-Fix sichtbar).
+- **Fix (`20260625160000`, 2 apply-Calls):** alle 3 Flächen auf dieselbe 16-Wert-Union (RPC-Legacy ∪ TS TicketSource) gezogen. Rein additiv (Bestandswerte ⊆ Union → ADD CONSTRAINT ohne Verletzung). RPC-Bodies sonst byte-identisch (Auth-Guard/Cap/admin_grant-Gate/Insert unverändert); Grants nicht angefasst (CREATE OR REPLACE erhält ACL).
+- **Proof (`379-ticket-source.txt`, AC1-AC5):** AC1 post_create ok · AC2 research_publish+research_rating ok · chip_refund ok (CHECK-Fix) · AC3 bogus_src weiter RAISED · AC4 0 missing in credit/spend/CHECK (16/16) · AC5 proacl unverändert {service_role,authenticated}. tsc EXIT 0, kein src-Change.
+- **Knowledge:** errors-db.md S379 (Enum-Drift hat mehrere Gate-Flächen — alle via functiondef+constraintdef enumerieren, nicht nur die im Fehler genannte; DO-Block-RAISE-Smoke-Trick).
+- **Scope-Out:** kein Single-SSOT für Ticket-Quellen eingeführt (3 DB-Flächen + Type manuell synchron — möglicher Folge-Slice, kein Über-Engineering bei XS). Nächster offener Bug: Bounty-Review-UI-Hinweis (Bug 2).
+
 ## 378 | 2026-06-25 | feat(treasury): special-Events (type='special') zahlen Prize aus dem Plattform-Topf (E3 RAUS-Kanal #3)
 - Stage-Chain: SPEC (`378-special-events-from-pot.md`, M, Money/CEO) → IMPACT inline (§3+§4) → BUILD (1 Migration + AdminTreasuryTab + 2 i18n) → REVIEW (`378-review.md` reviewer PASS, 1 LOW pre-existing + 1 NIT) → PROVE (9/9 force-rollback) → LOG.
 - **Kontext (Anil-Wahl „Reste komplett", E3-Topf D96):** `type='special'`-Events (39 live, 0 prized) minteten ihren Prize noch (wie bescout vor 377). Anil: special = plattform-finanziert, aus dem Topf. Dritter RAUS-Kanal nach Monats-Liga (376) + bescout (377). `sponsor` (Deposit-Pfad fehlt) + `creator` (Phase 4) bleiben bewusst minting.

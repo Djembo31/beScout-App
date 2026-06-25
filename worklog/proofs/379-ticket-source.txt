@@ -1,0 +1,37 @@
+Slice 379 — credit_tickets/spend_tickets source-allowlist drift (+ CHECK constraint)
+Project: skzjfhvgccaeplydsunz · Date: 2026-06-25
+
+PROBLEM (Anil live-Fund): POST credit_tickets → 400 "Ungueltige Ticket-Quelle: post_create".
+Live-pg_get_functiondef (D87) deckte THREE drift surfaces auf, alle unabhängig voneinander
+UND vom TS-Type (src/types/index.ts TicketSource) abgedriftet:
+  1. credit_tickets allowlist (RPC body)   — fehlte post_create/research_publish/research_rating/event_entry_refund
+  2. spend_tickets  allowlist (RPC body)   — identisch gedriftet
+  3. ticket_transactions_source_check CHECK — fehlte post_create/research_publish/research_rating/chip_refund/cosmetic_shop
+     → chip_refund war in BEIDEN RPCs erlaubt, scheiterte aber am CHECK (zweiter latenter Bug).
+Der Live-Smoke (Surface 3) wurde erst nach dem RPC-Fix sichtbar — Beweis warum PROVE Pflicht ist.
+
+FIX: alle 3 Flächen auf dieselbe 16-Wert-Union (RPC-Legacy ∪ TS TicketSource) gezogen.
+Rein additiv (alle Bestandswerte ⊆ Union → keine Zeile verletzt). Migration:
+  supabase/migrations/20260625160000_slice379_ticket_source_allowlist_drift.sql
+Applied via mcp__supabase__apply_migration (2 Calls: RPCs + CHECK-Widen).
+
+=== AC1-AC3 — Live BEGIN…ROLLBACK Smoke (DO-Block, RAISE→Rollback, jarvis-qa) ===
+AC1 post_create        = {"ok": true, "new_balance": 664}   PASS
+AC2a research_publish  = {"ok": true, "new_balance": 674}   PASS
+AC2b research_rating   = {"ok": true, "new_balance": 679}   PASS
+chip_refund (CHECK-Fix)= {"ok": true, "new_balance": 681}   PASS  (war pre-fix vom CHECK abgelehnt)
+AC3 bogus_src          = RAISED(Ungueltige Ticket-Quelle: bogus_src)  PASS (unbekannt weiter abgelehnt)
+→ Transaktion per RAISE abgebrochen, keine Persistenz (Ticket-Saldo unverändert).
+
+=== AC4 — Allowlist/CHECK-Gleichheit (16 erwartete Werte) ===
+missing_in_credit=0 · missing_in_spend=0 · missing_in_check=0 · expected_total=16   PASS
+→ credit_tickets, spend_tickets und CHECK tragen jetzt identisch alle 16 Werte.
+
+=== AC5 — Grants unverändert (CREATE OR REPLACE erhält ACL, S368c) ===
+credit_tickets: {postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}
+spend_tickets:  {postgres=X/postgres,service_role=X/postgres,authenticated=X/postgres}
+→ kein anon/PUBLIC, byte-identisch zu pre-apply.   PASS
+
+=== Scope ===
+KEIN src-Change (TS-Type kannte post_create längst) → tsc unverändert.
+KEIN INV-18-Snapshot (Tickets ≠ transactions). Tickets = Gamification-Währung, NICHT cents-Wallet.

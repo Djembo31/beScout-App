@@ -2,6 +2,39 @@
 
 ```
 status: idle
+slice: 379
+title: ✅ DONE — credit_tickets/spend_tickets/CHECK Source-Drift gefixt (post_create + 2 latente Bugs)
+stage: LOG complete
+size: XS
+slice-type: Migration (RPC-Allowlist + CHECK-Widen, Ticket-Gamification-Währung, NICHT cents-Wallet)
+proof: worklog/proofs/379-ticket-source.txt
+proof-detail: AC1-AC5 alle PASS (post_create/research_publish/research_rating/chip_refund ok, bogus weiter RAISED, 16/16 in credit+spend+CHECK, proacl unverändert); tsc EXIT 0
+review: worklog/reviews/379-review.md (self-review PASS, XS additiver Drift-Fix, 1 LOW kein-SSOT dokumentiert)
+result: 3 unabhängig gedriftete Gate-Flächen (credit_tickets-Allowlist, spend_tickets-Allowlist, ticket_transactions_source_check CHECK) auf eine 16-Wert-Union (RPC-Legacy ∪ TS TicketSource) gezogen. Fix von post_create (Anil-Fund, still 400) + 2 latente: research_publish/research_rating (RPC) + chip_refund (war in RPCs erlaubt, scheiterte am CHECK). Live-Smoke fand Fläche #3 (CHECK) erst nach RPC-Fix. Additiv, Grants unverändert, kein src-Change. Knowledge: errors-db.md S379. Migration 20260625160000.
+
+## Problem (inline-Spec, XS)
+- **Evidence:** Live-400 „Ungueltige Ticket-Quelle: post_create" (Anil-Fund 2026-06-25, Handoff). Live-`pg_get_functiondef` (D87) bestätigt: `credit_tickets` UND `spend_tickets` tragen identische hartcodierte Allowlist `p_source NOT IN (...)`, die von TS-`TicketSource` (src/types/index.ts:2006) abgedriftet ist.
+- **Es gibt KEINEN CHECK-Constraint** auf `ticket_transactions.source`/`user_tickets` — RPC-Body ist einzige Schranke (= einzige Fix-Stelle).
+- **Im TS, fehlt im RPC (alle scheitern still, Live-Count=0):** post_create (posts.ts:161, 3 Tk), research_publish (research.ts:227, 10 Tk), research_rating (research.ts:368, 5 Tk), event_entry_refund (Type-only, kein Caller).
+- **Im RPC-Legacy, nicht im TS (behalten — additiv, kein Narrow):** streak_bonus, live_prediction, cosmetic_shop.
+- **Klasse:** errors-db.md S330 CHECK-/Allowlist-Drift (hier ohne CHECK, im RPC-Body).
+
+## Fix
+- Beide Allowlists auf Union (RPC-Legacy + alle TS-`TicketSource`) ziehen → Drift-Klasse abgestellt, beide RPCs identisch. Body sonst byte-identisch (Auth-Guard/Cap/admin_grant-Gate/Insert unverändert). Grants nicht angefasst (CREATE OR REPLACE erhält ACL {service_role,authenticated}, post-Apply proacl-Verify).
+- KEIN src-Change (Type kennt post_create längst). KEIN CHECK/INV-18 (Tickets nicht in transactions).
+
+## AC
+- AC1: `credit_tickets(jarvis,3,'post_create',uuid)` → ok:true, Zeile in ticket_transactions (BEGIN…ROLLBACK).
+- AC2: research_publish + research_rating je ok:true.
+- AC3: Unbekannte Quelle (`bogus_src`) → weiterhin RAISE „Ungueltige Ticket-Quelle".
+- AC4: spend_tickets-Allowlist == credit_tickets-Allowlist (Set-Diff leer).
+- AC5: proacl beider Fn unverändert {service_role,authenticated}, kein anon.
+
+## Proof-Plan
+worklog/proofs/379-ticket-source.txt — Live BEGIN…ROLLBACK Smoke (AC1-AC5) + proacl.
+
+--- 378 (vorheriger, DONE) ---
+status: idle
 slice: 378
 title: ✅ DONE — E3 Slice 4b: special-Events (type='special') zahlen Prize aus dem Plattform-Topf (RAUS-Kanal #3)
 stage: LOG complete
