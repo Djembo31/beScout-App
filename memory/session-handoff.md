@@ -1,17 +1,18 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 23:57)
+# Session Handoff — Auto (2026-06-27 00:34)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
-## Session Commits: 6
+## Session Commits: 7
+- 681e246b docs(proof): Slice 405 — post-Deploy Playwright AC1-6 LIVE PASS + LOG + Welle-1-Stand
+- 0083bd9b feat(trading): Slice 405 — Welle 1.1 Player-Detail Order-Kauf Shape-Norm + est-total [Money-Trust UI]
 - c2f341c2 docs(tracker): Welle-1-Stand glätten — 403+404 DONE, aktive Pointer + Handoff reconciled
 - ad44fc4e docs(proof): Slice 404 — post-Deploy Playwright voll bewiesen (AC01-08 LIVE PASS)
 - 287dc980 feat(trading): Slice 404 — Welle 1.1 Markt-Tab Kauf order-gebunden ("was du siehst = was du zahlst") [Money-Trust UI]
 - 4e84215a feat(trading): Slice 403 — Welle 1.2 buy_from_ipo Idempotency-Key (Doppelkauf-Schutz Erstverkauf) [Money/CEO]
 - 36d82f68 docs(decision): D111 — Beta abgebrochen → Mock→Pro-Programm (7-Domänen-Audit + 7-Wellen-Plan + Stale-Glättung)
-- cc64463f docs(distill): D110 e2e-Audit-Methode + Wissen verdrahtet + Handoff frische Session
 
 <!-- auto:handoff-end -->
 
