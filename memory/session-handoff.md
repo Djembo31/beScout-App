@@ -1,14 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 02:46)
+# Session Handoff — Auto (2026-06-26 02:48)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
-## Session Commits: 5
+## Session Commits: 6
+- 640f3e41 docs(handoff): sync auto-block post Session 2026-06-26
 - 9bcfe781 docs(handoff): Session 2026-06-26 — 386/387/388 DONE + AC-13 UI-live PASS, next = nation/mv/E-4
 - 6b7330da docs(proof): AC-13 UI-live post-Deploy PASS für 386+388 — beide Builder, kein MISSING_MESSAGE
 - 7cabc155 feat(events): E-3 Min-pro-Position — min_per_position Aufstellungs-Regel (Slice 388)
@@ -21,9 +19,15 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. HEAD = `7c6ac014` (== origin/main, alles gepusht).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **Letzter Slice = 385 (E-3 Aufstellungs-Regel-Fundament: JSONB `events.lineup_rules` + generischer Validator in `rpc_save_lineup` + Pilot-Regel `min_per_own_club` feste Zahl) DONE. tsc clean, 142 vitest grün, force-rollback AC1-7 PASS (AC-6 = 0 Ressourcen-Move bei Reject), Reviewer PASS (3 NIT). main == origin/main.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
+**Status: idle. Letzter Slice = 389 (E-3 mv_max_eur Underdog) DONE, Commit `29854ac5`.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **389: Marktwert-Deckel pro Karte (Starter+Bank, MV=0 fail-closed = CEO-Entscheid Anil, Eingabe in Mio. €, BIGINT-Overflow-Fix). force-rollback 13/13 + PATCH-AUDIT, Reviewer PASS (2 NIT), tsc 0, vitest 3268/3269. Migration `20260626130000`.** Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
 
-## 🎯 HIER ANKNÜPFEN (Session 2026-06-26) — E-3-Regel-Erweiterungen weiter ODER E-4
+## 🎯 HIER ANKNÜPFEN (Session 2026-06-26) — E-3-Regel-Reste ODER E-4
+
+- **✅ Slice 389 (`29854ac5`):** E-3 **mv_max_eur** (Underdog-Events). Jede aufgestellte Karte (Starter + Bank) `market_value_eur <= N EUR`. **CEO (Anil):** MV=0 → **fail-closed** (Trade-off: 491 echte Jugend ausgeschlossen → Backlog Re-Scrape 32 Mis-Scrapes) + Eingabe in **Mio. €** (DB=EUR, `Math.round(×1e6)`). **Fundament-Fix:** `v_rule_value` INT→**BIGINT** + Bound 1..1e9 (EUR-Großwerte hätten `::INT` crashen lassen). 13/13 force-rollback, Reviewer PASS. **Faktenkorrektur:** `market_value_eur` nie NULL, Edge = MV=0.
+- **➡️ NÄCHSTER = E-3-Regel-Reste** (je winziger Folge-Slice, kein Schema-Change, Muster 386/388/389): `nation_in`/max-pro-Nation (Daten nationality 95,5 %, mehr UI = Multi-Select) · `mv_min_eur` (Star-Event, Spiegel von 389) · `max_per_position` (trivial, Spiegel von 388) **ODER E-4 User-Events** (L, Money/CEO, eigene Alignment-Session). Money-nah → Live-functiondef VOR Spec (D87), force-rollback-Smoke, Reviewer-Pflicht.
+- **⏳ OFFEN aus E-3 (gebündelt):** AC-12/AC-13 UI-Playwright post-Deploy für 386/388/389 (Regel-Inputs beide Builder, kein MISSING_MESSAGE, Mobile 393px) — nach Vercel-Deploy von main.
+
+## 📦 (vorige Session) — E-3-Regel-Erweiterungen 386/387/388
 
 **Diese Session (2026-06-26) — 3 Slices + UI-Verify, alle gepusht, CI grün. HEAD = `6b7330da`.**
 - **✅ Slice 386 (`aa8f695a`):** E-3 **Alters-Fenster** (`age_min`/`age_max`, Starter+Bank, fail-closed bei age NULL). **Fundament-Fix:** Wert-Bound von global `1..11` (385-Bug) auf **pro Regeltyp** gezogen. 15/15 force-rollback, Reviewer PASS, **AC-13 UI-live PASS** (beide Builder).
