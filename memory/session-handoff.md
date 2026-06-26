@@ -1,39 +1,21 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 03:58)
+# Session Handoff — Auto (2026-06-26 04:41)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 19 Files
-```
- M .claude/rules/errors-db.md
- M docs/knowledge/domain/fantasy.md
- M memory/session-handoff.md
- M messages/de.json
- M messages/tr.json
- M src/app/(app)/bescout-admin/AdminEventsManagementTab.tsx
- M src/components/admin/AdminEventsTab.tsx
- M src/components/admin/EventFormModal.tsx
- M src/components/admin/hooks/types.ts
- M src/components/admin/hooks/useEventForm.ts
- M src/features/fantasy/hooks/useEventActions.ts
- M src/types/index.ts
- M worklog/active.md
- M worklog/notes/event-creator-liga-epic.md
-?? supabase/migrations/20260626140000_e3_mvmin_maxpos.sql
-?? worklog/proofs/390-mvmin-maxpos-smoke.txt
-?? worklog/proofs/390-vitest.txt
-?? worklog/reviews/390-review.md
-?? worklog/specs/390-lineup-rule-mvmin-maxpos.md
-```
+## Working Tree: Clean
 
-## Session Commits: 7
+## Session Commits: 10
+- 229a0b95 docs(handoff): Slice 391 DONE — Resume-Anker auf nationality_iso → Slice 392 (nation-Regeln)
+- 32383e2c feat(db): nationality-Normalisierung — generierte Spalte players.nationality_iso (Slice 391)
+- daaa74e7 docs(handoff): Slice 390 DONE — Resume-Anker auf nationality-Normalisieren (391) → nation-Regeln (392)
+- 1acdb784 feat(events): E-3 mv_min_eur (Star-Event) + max_per_position — zwei Spiegel-Regeln (Slice 390)
 - c743e004 docs(handoff): Slice 389 DONE — Tracker-Reconcile + Resume-Anker auf mv_max_eur
 - 29854ac5 feat(events): E-3 Marktwert-Deckel pro Karte — mv_max_eur (Underdog-Events, Slice 389)
 - 640f3e41 docs(handoff): sync auto-block post Session 2026-06-26
 - 9bcfe781 docs(handoff): Session 2026-06-26 — 386/387/388 DONE + AC-13 UI-live PASS, next = nation/mv/E-4
 - 6b7330da docs(proof): AC-13 UI-live post-Deploy PASS für 386+388 — beide Builder, kein MISSING_MESSAGE
 - 7cabc155 feat(events): E-3 Min-pro-Position — min_per_position Aufstellungs-Regel (Slice 388)
-- 1b894543 fix(i18n): Compliance — Glücksspiel-Verb kazanılır → elde edilir (Slice 387)
 
 <!-- auto:handoff-end -->
 
@@ -45,12 +27,17 @@
 
 ## 🎯 HIER ANKNÜPFEN (Session 2026-06-26) — Plan: ALLE E-3-Regeln rein, DANN ein Playwright-Durchlauf (Anil)
 
+**SESSION-CLOSE 2026-06-26 (sauber):** 3 Slices komplett geliefert + gepusht (389 mv_max, 390 mv_min+max_pos, 391 nationality_iso) — alle Reviewer PASS, force-rollback grün, Knowledge verdrahtet. **DISTILL geprüft:** Architektur-Lehren (BIGINT-Overflow-Fix, GENERATED-Spalte zero-drift, TS↔SQL-Drift) = Code-Patterns → in `errors-db.md` S389/S390/S391 + `fantasy.md` (Regeln 4/5/6 + nationality_iso) verdrahtet; **kein neuer `D<n>`** (alles in D104/D107-Scope). Working tree clean, main == origin/main. **Offen für nächste Session: Slice 392 (s.u.) + danach gebündelter Playwright.** Neue Arbeitsweise-Memory: [[feedback_report_design_smells]].
+
 **Anil-Plan:** alle restlichen E-3-Aufstellungs-Regeln bauen, dann EIN gebündelter Playwright-Durchlauf über alle (386/388/389/390/392).
 - **✅ Slice 390 DONE:** `max_per_position` (Spiegel 388, Komposition/Starter-only, reject `> value`) + `mv_min_eur` (Star-Event, Spiegel 389, Starter+Bank, fail-closed MV=0/NULL, Mio→EUR). Gemeinsamer Positions-Zweig (min/max), force-rollback 14/14, Reviewer PASS. Migration `20260626140000`.
 - **✅ Slice 391 DONE:** nationality-Normalisierung — generierte Spalte `players.nationality_iso` (`normalize_nationality()` IMMUTABLE, GENERATED ALWAYS STORED, Port von `src/lib/utils/countryNameToIso.ts`). Nicht-destruktiv, zero-drift/trigger/backfill. Coverage 100% (alle 166 nicht-leeren Werte gemappt), Türkei 762 vereint. Migration `20260626150000`. **Display unberührt** (liest weiter mapNationalityToIso(nationality)). errors-db S391 (GENERATED-zero-drift-Pattern + TS↔SQL-Duplikat-Drift).
-- **➡️ NÄCHSTER = Slice 392 `nation_in` + `max_per_nation`** (nutzen `nationality_iso`, NICHT raw nationality): `nation_in` (Whitelist, Multi-Select-UI, **Array-Wert** `{type,values:["TR","DE"]}` → Validator-Dispatch VOR dem numerischen `^[0-9]+$`-Guard, eigener Zweig mit `CONTINUE`; Starter+Bank Eignung, fail-closed bei `nationality_iso=''`) + `max_per_nation` (Zahl, Spiegel max_per_club, **Starter-only**, GROUP BY `nationality_iso` WHERE `<>''`). Country-Multi-Select-UI: Länder-Liste aus den vorhandenen ISO-Codes ableiten ODER `getCountries`-Helper prüfen. Muster = 388/389/390 (Validator-Branch + JSONB-Serialisierung). Money-nah → force-rollback-Smoke + Reviewer-Pflicht.
-- **⏳ DANACH: EIN gebündelter Playwright-Durchlauf** über ALLE E-3-Regel-Inputs (386 age, 388 min_pos, 389 mv_max, 390 max_pos+mv_min, 392 nation) — beide Builder, kein MISSING_MESSAGE, Mobile 393px.
-- **⏳ DANACH: gebündelter Playwright-Durchlauf** über alle E-3-Regel-Inputs (386 age, 388 min_pos, 389 mv_max, 390 max_pos+mv_min, 392 nation) — beide Builder, kein MISSING_MESSAGE, Mobile 393px, je 1 Reject-Toast user-facing. Login `jarvis-qa@bescout.net`/`JarvisQA2026!` bzw. ali (Club+Platform-Admin). DOM-Evaluate als Backup (Headless-Klick-Quirk, s. 385).
+- **➡️ NÄCHSTER = Slice 392 `nation_in` + `max_per_nation`** (nutzen `nationality_iso`, NICHT raw nationality) — **das große UI-Stück, frisch & fokussiert bauen (Anil: voller Such-Multi-Select gewählt, kein Kompromiss).**
+  - **`nation_in`** (Whitelist „nur diese Länder"): **Array-Wert** `{type:'nation_in',values:["TR","DE"]}` → Validator-Dispatch VOR dem numerischen `^[0-9]+$`-Guard (der bricht bei Array!), **eigener Zweig mit `CONTINUE`** (überspringt numerische Pfad-Logik); validiere `jsonb_typeof(rule->'values')='array'` + nicht-leer + jedes Element 2..6 Zeichen; jeder aufgestellte Spieler (**Starter + Bank**, Eignung) `nationality_iso = ANY(values)`, **fail-closed bei `nationality_iso=''`** → Reject `nation_not_allowed`.
+  - **`max_per_nation`** (Zahl, trivial, Spiegel max_per_club): **Starter-only**, `GROUP BY nationality_iso WHERE nationality_iso<>'' AND pid NOT NULL`, MAX(cnt) > value → `max_per_nation_exceeded` (numerischer Pfad, Bound 1..11).
+  - **UI-Entscheidung (Anil 2026-06-26): voller durchsuchbarer Multi-Select** mit Länder-NAMEN + Flaggen, Auswahl als Chips. Bausteine: **`CountryFlag` existiert** (`src/components/ui/CountryFlag.tsx`); **`getCountries()` reicht NICHT** (nur 7 Liga-Länder). → Options-Liste = distinct `nationality_iso` aus DB (RPC/Query, ~100 Codes) ODER feste Football-Nation-Liste; Namen via **`new Intl.DisplayNames([locale],{type:'region'}).of(code)`** (built-in, DE+TR, kein Daten-File) — **Sonderfälle:** `GB-ENG/SCT/WLS/NIR` (Intl kennt sie nicht → manuell „England/Schottland/Wales/Nordirland" + TR) und `XK` Kosovo (ggf. nicht unterstützt → manuell). UI-Pattern: **Full-Screen Picker** (`ui-components.md` „Full-Screen Picker", Header+Suche+`flex-1 overflow-y-auto`, min-h-44px Items). Form-State `nationIn: string[]`.
+  - Muster sonst = 388/389/390 (Validator-Branch + JSONB-Serialisierung im Form, beide Builder, Toast-i18n DE+TR). Money-nah → Live-functiondef Post-391 VOR Spec (D87), force-rollback-Smoke (inkl. Array-Edge + fail-closed `''`), Reviewer-Pflicht. **Knowledge-Falle:** der generische Validator hat bisher NUR numerische Werte angenommen — `nation_in` ist der erste Nicht-Zahl-Typ → Dispatch-Reihenfolge im Validator ist der kritische Punkt (Array-Zweig + CONTINUE VOR `(value)::BIGINT`).
+- **⏳ DANACH (Anil-Plan „dann ein Playwright-Durchlauf"): EIN gebündelter Playwright-Durchlauf** über ALLE E-3-Regel-Inputs (386 age, 388 min_pos, 389 mv_max, 390 max_pos+mv_min, 392 nation) — beide Builder (Club `/club/sakaryaspor/admin` + Platform `/bescout-admin`), kein MISSING_MESSAGE, Mobile 393px, je 1 Reject-Toast user-facing. Login `jarvis-qa@bescout.net`/`JarvisQA2026!` bzw. ali (Club+Platform-Admin, PW 123456). DOM-Evaluate als Backup (Headless-Klick-Quirk, s. 385).
 - **Alternativ-Track wenn Anil will:** E-4 User-Events (L, Money/CEO, eigene Alignment-Session).
 
 ## 📦 (vorige Session) — E-3-Regel-Erweiterungen 386/387/388
