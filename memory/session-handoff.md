@@ -1,17 +1,39 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 02:48)
+# Session Handoff — Auto (2026-06-26 03:58)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 19 Files
+```
+ M .claude/rules/errors-db.md
+ M docs/knowledge/domain/fantasy.md
+ M memory/session-handoff.md
+ M messages/de.json
+ M messages/tr.json
+ M src/app/(app)/bescout-admin/AdminEventsManagementTab.tsx
+ M src/components/admin/AdminEventsTab.tsx
+ M src/components/admin/EventFormModal.tsx
+ M src/components/admin/hooks/types.ts
+ M src/components/admin/hooks/useEventForm.ts
+ M src/features/fantasy/hooks/useEventActions.ts
+ M src/types/index.ts
+ M worklog/active.md
+ M worklog/notes/event-creator-liga-epic.md
+?? supabase/migrations/20260626140000_e3_mvmin_maxpos.sql
+?? worklog/proofs/390-mvmin-maxpos-smoke.txt
+?? worklog/proofs/390-vitest.txt
+?? worklog/reviews/390-review.md
+?? worklog/specs/390-lineup-rule-mvmin-maxpos.md
+```
 
-## Session Commits: 6
+## Session Commits: 7
+- c743e004 docs(handoff): Slice 389 DONE — Tracker-Reconcile + Resume-Anker auf mv_max_eur
+- 29854ac5 feat(events): E-3 Marktwert-Deckel pro Karte — mv_max_eur (Underdog-Events, Slice 389)
 - 640f3e41 docs(handoff): sync auto-block post Session 2026-06-26
 - 9bcfe781 docs(handoff): Session 2026-06-26 — 386/387/388 DONE + AC-13 UI-live PASS, next = nation/mv/E-4
 - 6b7330da docs(proof): AC-13 UI-live post-Deploy PASS für 386+388 — beide Builder, kein MISSING_MESSAGE
 - 7cabc155 feat(events): E-3 Min-pro-Position — min_per_position Aufstellungs-Regel (Slice 388)
 - 1b894543 fix(i18n): Compliance — Glücksspiel-Verb kazanılır → elde edilir (Slice 387)
-- aa8f695a feat(events): E-3 Alters-Fenster — age_min/age_max Aufstellungs-Regel (Slice 386)
 
 <!-- auto:handoff-end -->
 
@@ -19,13 +41,16 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. Letzter Slice = 389 (E-3 mv_max_eur Underdog) DONE, Commit `29854ac5`.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **389: Marktwert-Deckel pro Karte (Starter+Bank, MV=0 fail-closed = CEO-Entscheid Anil, Eingabe in Mio. €, BIGINT-Overflow-Fix). force-rollback 13/13 + PATCH-AUDIT, Reviewer PASS (2 NIT), tsc 0, vitest 3268/3269. Migration `20260626130000`.** Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
+**Status: idle. Letzter Slice = 390 (E-3 mv_min_eur + max_per_position) DONE.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **390: zwei Spiegel-Regeln (max_per_position Starter-only/388-Spiegel; mv_min_eur Star-Event Starter+Bank/389-Spiegel, fail-closed MV=0). force-rollback 14/14 + PATCH-AUDIT, Reviewer PASS (2 NIT), tsc 0, vitest 3268/3269. Migration `20260626140000`.** Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
 
-## 🎯 HIER ANKNÜPFEN (Session 2026-06-26) — E-3-Regel-Reste ODER E-4
+## 🎯 HIER ANKNÜPFEN (Session 2026-06-26) — Plan: ALLE E-3-Regeln rein, DANN ein Playwright-Durchlauf (Anil)
 
-- **✅ Slice 389 (`29854ac5`):** E-3 **mv_max_eur** (Underdog-Events). Jede aufgestellte Karte (Starter + Bank) `market_value_eur <= N EUR`. **CEO (Anil):** MV=0 → **fail-closed** (Trade-off: 491 echte Jugend ausgeschlossen → Backlog Re-Scrape 32 Mis-Scrapes) + Eingabe in **Mio. €** (DB=EUR, `Math.round(×1e6)`). **Fundament-Fix:** `v_rule_value` INT→**BIGINT** + Bound 1..1e9 (EUR-Großwerte hätten `::INT` crashen lassen). 13/13 force-rollback, Reviewer PASS. **Faktenkorrektur:** `market_value_eur` nie NULL, Edge = MV=0.
-- **➡️ NÄCHSTER = E-3-Regel-Reste** (je winziger Folge-Slice, kein Schema-Change, Muster 386/388/389): `nation_in`/max-pro-Nation (Daten nationality 95,5 %, mehr UI = Multi-Select) · `mv_min_eur` (Star-Event, Spiegel von 389) · `max_per_position` (trivial, Spiegel von 388) **ODER E-4 User-Events** (L, Money/CEO, eigene Alignment-Session). Money-nah → Live-functiondef VOR Spec (D87), force-rollback-Smoke, Reviewer-Pflicht.
-- **⏳ OFFEN aus E-3 (gebündelt):** AC-12/AC-13 UI-Playwright post-Deploy für 386/388/389 (Regel-Inputs beide Builder, kein MISSING_MESSAGE, Mobile 393px) — nach Vercel-Deploy von main.
+**Anil-Plan:** alle restlichen E-3-Aufstellungs-Regeln bauen, dann EIN gebündelter Playwright-Durchlauf über alle (386/388/389/390/392).
+- **✅ Slice 390 DONE:** `max_per_position` (Spiegel 388, Komposition/Starter-only, reject `> value`) + `mv_min_eur` (Star-Event, Spiegel 389, Starter+Bank, fail-closed MV=0/NULL, Mio→EUR). Gemeinsamer Positions-Zweig (min/max), force-rollback 14/14, Reviewer PASS. Migration `20260626140000`.
+- **➡️ NÄCHSTER = Slice 391 nationality-Normalisierung (CEO-Entscheid Anil „Normalisieren-Slice zuerst").** **Grund/Blocker (S390-Fund):** `players.nationality` kaputt — Türkei = `Türkiye`(528)/`Turkey`(108)/`TR`(92) = 728 Spieler in 3 Schreibweisen, 207 leer, 168 distinct. `nation_in`/`max_per_nation` würden still falsch ausschließen/zählen (Silent-Data-Liar, Prio-Markt TR). 391 = kanonische Form (ISO-Code) + Backfill der 168 Werte + Re-Drift-Guard (Trigger/CI). **Kein API-Key nötig** (deterministisches Mapping). Nützt auch Flags/Filter. ⚠️ Vor Backfill prüfen: wer rendert Flags aus nationality (Format-Abhängigkeit)? + Display behalten.
+- **Dann Slice 392:** `nation_in` (Whitelist, Multi-Select-UI, **Array-Wert** → Validator-Dispatch VOR dem numerischen `^[0-9]+$`-Guard, eigener Zweig mit `CONTINUE`) + `max_per_nation` (Zahl, Spiegel max_per_club, Starter-only, GROUP BY nationality WHERE NOT NULL). Beide auf normalisierten Daten.
+- **⏳ DANACH: gebündelter Playwright-Durchlauf** über alle E-3-Regel-Inputs (386 age, 388 min_pos, 389 mv_max, 390 max_pos+mv_min, 392 nation) — beide Builder, kein MISSING_MESSAGE, Mobile 393px, je 1 Reject-Toast user-facing. Login `jarvis-qa@bescout.net`/`JarvisQA2026!` bzw. ali (Club+Platform-Admin). DOM-Evaluate als Backup (Headless-Klick-Quirk, s. 385).
+- **Alternativ-Track wenn Anil will:** E-4 User-Events (L, Money/CEO, eigene Alignment-Session).
 
 ## 📦 (vorige Session) — E-3-Regel-Erweiterungen 386/387/388
 
