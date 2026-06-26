@@ -2,34 +2,23 @@
 
 ```
 status: idle
-slice: 401
-title: e2e-Durchsetzungs-Audit — Befund gesichert + 400-Rest + Tracker-Stale-Heal — DONE
-size: XS (Ops/Doc-Spur — 1 Zeile toter Code + Doku, kein Money/Security/User-facing)
+slice: 402
+title: Treasury-RAUS e2e real bewiesen — echte Monats-Liga-Auszahlung (Mai 2026) — DONE
+size: S (Money/CEO — Live-RPC-Vollzug, kein Code-Change; CEO-approved Anil 2026-06-26)
 stage: LOG (DONE)
-spec: inline (siehe unten)
-impact: inline (kein Consumer-Drift — toter Display-Map-Key + Doc-Files)
-proof: worklog/proofs/401-cleanup.txt (tsc EXIT 0 + grep creator weg)
-review: self-review (Ops/Doc, kein Money/Security)
+spec: inline (Vollzugs-Plan, s. notes/401-e2e-enforcement-audit.md Punkt B + Treasury-Epic RAUS-Block)
+impact: Live-DB State-Change (echte Wallets + Topf-Debit + Snapshots/Winners), permanent, idempotent-gesperrt
+proof: worklog/proofs/402-raus-liga-payout.txt (Vorher/Nachher Zero-Sum-Reconcile)
+review: self-review (Money — Zero-Sum-Reconcile IST der Review; RPC byte-identisch zur 376-Baseline, kein Code-Change)
 ```
 
-## Inline-Spec (Ops/Doc-Spur)
-
-**Problem:** Lückenloser e2e-Durchsetzungs-Check (4 parallele Verifikations-Agents, alle Slices 329–400 gegen Live-DB+Code) deckte auf:
-1. **Echter Code-Drift:** Slice 400 „restlos über 11 Flächen entfernt" war 1 Fläche zu kurz — `AdminEventFeesSection.tsx:20` hält noch den toten `creator`-Key in einer `Record<string,…>`-TYPE_META-Map (tsc-unsichtbar, DB hat keinen creator-Eintrag → nie gerendert).
-2. **Stale Tracker-Fakten:** `s7-phase3-remaining.md` sagt `referral_reward` „ohne RPC" (FALSCH — `reward_referral` existiert + feuert) + listet Research als Dormant (lebt: 3 Rows, gerendert); `reconciled-through-slice: 354` bei HEAD 400.
-3. **Offene Punkte aus dem Check** sind in keinem Epic/Tracker festgehalten → drohen verloren zu gehen.
-
-**Plan (BUILD):**
-- A. Audit-Befund als bleibende Quelle: `worklog/notes/401-e2e-enforcement-audit.md` (4 Cluster-Summen + klassifizierte offene Punkte).
-- B. Code-Fix: `AdminEventFeesSection.tsx:20` creator-Zeile löschen (schließt 400-„restlos").
-- C. Tracker-Stale-Heal: `s7-phase3-remaining.md` (referral_reward + Research korrigieren, reconciled-through→401, Block-2/3-Befunde mit Evidenz präzisieren).
-- D. Offene Punkte in die Epics: `358-platform-treasury-epic.md` (RAUS-nie-real-gelaufen 376/377/378) + `event-creator-liga-epic.md` (E-7-Rest) + `MASTERPLAN.md` + `TODO.md`.
-
-**ACs:** (1) `grep creator src/app/(app)/bescout-admin/AdminEventFeesSection.tsx` = 0; (2) tsc clean; (3) alle offenen Check-Punkte in mind. 1 Tracker mit Evidenz; (4) Stale-Fakten korrigiert.
-
-**Proof:** `worklog/proofs/401-cleanup.txt`.
+## Inline-Spec (Money/CEO, CEO-approved)
+**Ziel:** Der einzige substantielle e2e-Gap aus Audit 401 — Treasury-RAUS (376/377/378) bewiesen-korrekt aber nie real gelaufen (0 Ledger-Rows). 1× echte `close_monthly_liga('2026-05-01')` auf Live → erste echte `monthly_liga`-Debit-Row + winners + Zero-Sum.
+**Vorab (D87):** Live-`pg_get_functiondef` gelesen; aktive Season „2025/26" existiert; Topf 500.183 Cr deckt erwartete ~35.750 Cr Auszahlung (34.000 global + 1.750 Bundesliga-Manager).
+**ACs:** (1) RPC ok:true + total_paid_cents; (2) Topf-Saldo_neu = Saldo_alt − total_paid; (3) Σ neue liga_reward-Tx = total_paid; (4) genau 1 neue monthly_liga-Debit-Row = total_paid; (5) winners/snapshots-Rows > 0. = Zero-Sum bewiesen.
+**Smells (Backlog, Launch-relevant):** (a) globale Dims zahlen fix nach Rang ohne Mindest-Delta>0; (b) overall+3 Einzel-Dims überschneiden (User kann 4× kassieren).
 
 ## Zuletzt
-- **Slice 401** (2026-06-26) — e2e-Audit-Befund + 400-Rest + Tracker-Heal, IN ARBEIT.
-- **Slice 400** (2026-06-26) — E-7 creator-Drift-Cleanup, DONE (Reviewer PASS).
-- **Slice 399** (2026-06-26) — E-4b Teil 2 User-Events fertig, DONE + live (`ea27cfe3`).
+- **Slice 402** (2026-06-26) — Treasury-RAUS e2e real, IN ARBEIT.
+- **Slice 401** (2026-06-26) — e2e-Audit + 400-Rest + Tracker-Heal, DONE (`213f626c`).
+- **Slice 400** (2026-06-26) — E-7 creator-Drift-Cleanup, DONE.

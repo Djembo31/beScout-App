@@ -6,7 +6,7 @@
 
 ## 🔴 P0 — jetzt
 - **🔍 e2e-Durchsetzungs-Audit DONE (Slice 401, 2026-06-26)** — 4 Verifikations-Agents prüften alle Slices 329–400 gegen Live-DB+Code. Befund: neue Geld-/Feature-Maschine ist **e2e verkabelt, keine Build-without-Wire-Löcher**. Quelle: `worklog/notes/401-e2e-enforcement-audit.md`. **2 priorisierte Folge-Stränge (Anil-Wahl):**
-  - **(B) RAUS-Geld real beweisen (Money/CEO):** RAUS-Kanäle 376/377/378 sind bewiesen-korrekt aber **nie real gelaufen** (`platform_treasury_ledger` 0 Rows für monthly_liga/bescout_event/special_event). 1× echte Monats-Liga-Auszahlung live → echte Rows + winners + Zero-Sum. Anker `358-platform-treasury-epic.md` (Block „RAUS-Seite nie real GELAUFEN").
+  - **(B) ✅ RAUS-Geld real bewiesen (Slice 402, 2026-06-26):** `close_monthly_liga('2026-05-01')` live → erste echte `monthly_liga`-Debit-Row (3.575.000 cents = 35.750 Cr), Zero-Sum geschlossen (Topf −X = Σ 15 liga_reward-Tx = Ledger-Debit), 15 winners + 515 snapshots. Mai 2026 idempotent-gesperrt. Proof `402-raus-liga-payout.txt`. **⏳ Rest (niedrig):** analog 1× echter bescout/special-Event-Settle für 377/378 (sobald prized Event live durchläuft).
   - **(C) S7 Mock→Pro durchziehen:** echte tote/halbfertige Features — s. unten (C) + `s7-phase3-remaining.md` (Block-Befunde mit Evidenz präzisiert).
 - **✅ E4 Money-Modell-Glattzug + Mock→Pro-E2E-Härtung (D99) — ABGESCHLOSSEN (Anil 2026-06-25).** Slice-Sequenz 366→379b alle DONE. Einziger offener Punkt T-1 Cold-Start-Liquidität ist **kein Code-Blocker**, sondern Teil der Launch-Prep → gehört in die Test-IPO/Reset-Phase (`memory/project_launch_sequence_reset.md`), entschieden wenn Anil die Vereins-IPOs startet. Mock→Pro + S7 werden im laufenden Plan (E5 + (C)) weiter durchgezogen. Plan-Anker `worklog/notes/366-e4-money-model-cleanup-epic.md`.
   - ✅ **Schritt 1: D99-OFFEN ratifiziert** (Commit b52e8b09) — Naming „Credits" jetzt/$SCOUT=ICO-Coin · Phasen 1/2/3 · CASP=schnellster sicherer Weg (Route Anwalt) · Pricing 1 Card=MV/1.000 Credits (kein 100×-Widerspruch).
@@ -44,6 +44,7 @@
 - **E0 Welle 4** — Historie abspecken (`git filter-repo`, mit Backup, eigener bewusster Schritt). LOW.
 
 ## 🟢 P2 — Backlog
+- **Monats-Liga-Reward-Smells (aus Slice 402 Live-Lauf, Launch-relevant):** (a) globale Dims (trader/manager/analyst/overall) zahlen Top-3 **fix nach Rang ohne Mindest-Saison-Delta>0** → bei vielen inaktiven/Bot-Usern gewinnen evtl. Leute mit 0/negativem Delta; (b) `overall` + 3 Einzel-Dims **überschneiden** → ein Top-User kann 4× kassieren. Beide = Produkt-Entscheid (Gate einbauen? Dims entkoppeln?) vor echtem Launch. `close_monthly_liga`.
 - Polls P4 (User-Auszahl-Idee an Teilnehmer) — **VERWORFEN** (Anil 2026-06-18: Glücksspiel-Risiko). Nicht ohne neue Ansage.
 - FRE-4 Airdrop (Club belohnt Top-Treue mit $SCOUT) — **erst in der echten-Coin-Phase** (Phase 3 nach CASP, ADR-026 post-Pilot). Nicht in der jetzigen Phase bauen.
 - Andere Event-Quellen (bescout/sponsor/user) — Plattform-Topf/Sponsor-Deposit/User-Wallet.

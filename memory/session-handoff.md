@@ -1,14 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 18:10)
+# Session Handoff — Auto (2026-06-26 18:37)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
 ## Session Commits: 10
+- 213f626c docs(audit): Slice 401 — e2e-Durchsetzungs-Audit (329–400) gesichert + 400-Rest + Tracker-Stale-Heal
 - da24ea14 docs(distill): Slice 400 — Knowledge S400 (Enum-Wert-Entfernen) + Handoff-Anker frische Session
 - b26b18c7 docs(400): Tracker-Reconcile — E-7 creator-Cleanup DONE in MASTERPLAN/TODO
 - 3899c289 refactor(events): E-7 creator-Drift restlos entfernt — 11 Flächen + chk_event_type verengt [Slice 400]
@@ -18,7 +16,6 @@
 - 20fce03e docs(399): Live-Verify post-Deploy PASS (AC1-AC6) + LOG — User-Events end-to-end nutzbar
 - ea27cfe3 feat(events): User-Events fertig — Discovery + F2/F3 + Cancel + Admin-Gebühr [Slice 399]
 - d4bacb31 docs(distill): D108-Addendum E-4b-Realisierung + Wissen verdrahtet + Tracker reconciled (397/398)
-- bf0948ed docs(398): Live-Verify PASS — bench-i18n behoben (95->0 Console-Errors), Tracker reconciled
 
 <!-- auto:handoff-end -->
 

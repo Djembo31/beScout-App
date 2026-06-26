@@ -1,0 +1,45 @@
+Slice 402 — Treasury-RAUS e2e REAL bewiesen — echte Monats-Liga-Auszahlung — PROOF
+==================================================================================
+2026-06-26 · Live-DB skzjfhvgccaeplydsunz · CEO-approved (Anil, AskUserQuestion)
+
+KONTEXT: Audit 401 fand den einzigen substantiellen e2e-Gap — Treasury-RAUS (376/377/378)
+bewiesen-korrekt (force-rollback) aber NIE real gelaufen (0 Ledger-Rows). Dieser Slice
+führt 1× echten close_monthly_liga('2026-05-01') auf Live aus → erster echter Topf-Abfluss.
+
+VORHER (Baseline)
+-----------------
+topf_saldo            = 50.018.397 cents
+monthly_liga_rows     = 0
+liga_reward_tx        = 0
+winners / snapshots   = 0 / 0
+
+VOLLZUG
+-------
+$ SELECT close_monthly_liga('2026-05-01');
+→ {"ok":true,"month":"2026-05-01","payouts_credited":15,"total_paid_cents":3575000,"winners_inserted":3}
+  (winners_inserted=3 ist GET DIAGNOSTICS der letzten Loop-Iteration = BL-Manager, kein Total — irreführend, kosmetisch)
+
+NACHHER + ZERO-SUM-RECONCILE
+----------------------------
+AC1 RPC ok:true + total_paid 3.575.000 cents (= 35.750 Cr)            PASS
+    erwartet: global 34.000 Cr (4 Dims × 5000/2500/1000) + BL 1.750 Cr (1000/500/250) = 35.750 ✅
+AC2 topf_saldo_nachher 46.443.397 == 50.018.397 − 3.575.000           PASS (Topf sank exakt)
+AC3 Σ liga_reward-Tx = 3.575.000 (15 Tx)                              PASS (= Topf-Debit)
+AC4 genau 1 neue monthly_liga-Debit-Row, Betrag 3.575.000            PASS (erste echte RAUS-Row)
+AC5 winners=15 (12 global + 3 BL-Manager) · snapshots=515 (128×4+3)  PASS
+
+ZERO-SUM: Topf −3.575.000 = Σ Wallet-Gutschriften +3.575.000 = Ledger-Debit 3.575.000. GESCHLOSSEN.
+RPC byte-identisch zur 376-Baseline (kein Code-Change) → Money-Logik unverändert, nur erstmals real ausgeführt.
+
+GESEEDETE LIVE-ARTEFAKTE (PERMANENT — NICHT aufräumen, e2e-Beweis)
+-----------------------------------------------------------------
+- Monat 2026-05-01 ist ABGESCHLOSSEN → idempotent gesperrt, NICHT wiederholbar.
+- platform_treasury_ledger: +1 Row source='monthly_liga' debit 3.575.000. Topf live 46.443.397 cents.
+- 15 transactions type='liga_reward' + 15 Wallet-Gutschriften an Top-User (12 global-Dim + 3 Bundesliga-Manager).
+- 515 monthly_liga_snapshots + 15 monthly_liga_winners (month=2026-05-01).
+
+DESIGN-SMELLS (gemeldet, Produkt-Backlog Launch-relevant — KEIN Blocker):
+- (a) Globale Dims zahlen fix nach Rang ohne Mindest-Delta>0 → bei vielen inaktiven/Bot-Usern
+      gewinnen evtl. Leute mit 0/negativem Saison-Delta. Gate fehlt.
+- (b) overall + 3 Einzel-Dims überschneiden → ein Top-User kann 4× kassieren (gewollt? bei
+      wenig Aktiven konzentriert sich Geld). Beide → TODO P2.

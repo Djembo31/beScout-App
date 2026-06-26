@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 402 | 2026-06-26 | feat(treasury): Treasury-RAUS e2e REAL bewiesen — echte Monats-Liga-Auszahlung (Mai 2026) [Money/CEO]
+- Stage-Chain: SPEC (inline active.md, S Money/CEO, CEO-approved) → IMPACT (Live-DB State-Change, permanent/idempotent) → BUILD (kein Code — Live-RPC-Vollzug) → REVIEW self-review (Zero-Sum-Reconcile IST der Money-Review; RPC byte-identisch zur 376-Baseline) → PROVE (`proofs/402-raus-liga-payout.txt`) → LOG.
+- **Schließt den einzigen substantiellen e2e-Gap aus Audit 401:** Treasury-RAUS (376/377/378) war bewiesen-korrekt aber **nie real gelaufen** (0 Ledger-Rows). `close_monthly_liga('2026-05-01')` auf Live ausgeführt → **erste echte `monthly_liga`-Debit-Row**.
+- **Vollzug (CEO-approved Anil via AskUserQuestion):** `{ok:true, total_paid_cents:3575000, payouts_credited:15}` = 35.750 Cr (34.000 global 4-Dim + 1.750 Bundesliga-Manager, exakt wie D87-Vorhersage).
+- **Zero-Sum bewiesen:** Topf 50.018.397→46.443.397 (−3.575.000) = Σ 15 `liga_reward`-Tx (+3.575.000) = 1 Ledger-Debit (3.575.000). + 15 winners + 515 snapshots (month=2026-05-01). Kein Code-Change → Money-Logik byte-identisch, nur erstmals real durchflossen.
+- **Geseedete Live-Artefakte (PERMANENT, NICHT aufräumen):** Mai 2026 idempotent-gesperrt; Topf live 46.443.397 cents; 15 echte Wallet-Gutschriften + liga_reward-Tx + monthly_liga-Ledger-Row.
+- **🚩 2 Design-Smells gemeldet → TODO P2 (Launch-relevant, kein Blocker):** (a) globale Dims zahlen fix nach Rang ohne Mindest-Delta>0; (b) overall+3 Einzel-Dims überschneiden (User kann 4× kassieren). Files: 3 worklog (proof + active + log) + 4 Tracker. Kein src/-Change.
+
 ## 401 | 2026-06-26 | docs(audit): e2e-Durchsetzungs-Audit (329–400) gesichert + 400-Rest + Tracker-Stale-Heal
 - Stage-Chain: SPEC (inline active.md, XS Ops/Doc) → IMPACT (inline, kein Consumer-Drift) → BUILD (1 src + 6 doc) → REVIEW self-review (Ops/Doc, kein Money/Security) → PROVE (`proofs/401-cleanup.txt`) → LOG.
 - **Auslöser (Anil):** „alles seit Mock→Pro — e2e durchgesetzt?" → 4 parallele Verifikations-Agents prüften ALLE Slices 329–400 gegen Live-DB (`skzjfhvgccaeplydsunz`) + echten Code + i18n (nicht Vermerke nachgeplappert; jede Behauptung mit file:line/grep/functiondef/SELECT-Evidenz).

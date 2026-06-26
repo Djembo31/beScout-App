@@ -56,5 +56,5 @@
 
 ## Konsequenz / nächste Schritte (priorisiert)
 1. **Slice 401 (jetzt, Hygiene):** 400-Rest fixen + Stale-Tracker heilen + diese Befunde in die Epics einarbeiten. ← dieser Slice.
-2. **RAUS-Geld real beweisen (Money/CEO):** EINE echte Monats-Liga-Auszahlung auf Live-DB → echte `monthly_liga`-Ledger-Rows + winners. Schließt den einzigen substantiellen e2e-Gap der Geld-Maschine. (Anker `358-platform-treasury-epic.md`.)
+2. ✅ **RAUS-Geld real bewiesen (Slice 402, 2026-06-26):** `close_monthly_liga('2026-05-01')` live → erste echte `monthly_liga`-Debit-Row (3.575.000 cents), Zero-Sum geschlossen, 15 winners. Der substantielle e2e-Gap ist zu. (⏳ analog noch 1× bescout/special-Event-Settle für 377/378.) 2 Smells → TODO P2.
 3. **S7 Mock→Pro durchziehen (CEO pro Feature):** Block-3-Dormant (toter Code: Monthly-Board, Creator-Fund/Ad-Revenue, Wildcard-Earn, Club-Missionen → aktivieren ODER löschen) + Block-2-Redundanz (scout_scores↔user_stats, club_votes↔community_polls). Anker `s7-phase3-remaining.md`.
