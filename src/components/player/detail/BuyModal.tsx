@@ -205,6 +205,15 @@ export default function BuyModal({
   const affordableQty = balanceCents !== null ? Math.floor(balanceCents / Math.max(activePriceCents, 1)) : 0;
   const marketMaxQty = hasMarket ? Math.min(activeRemaining, affordableQty) : 0;
 
+  // S405: Bei der Kauf-Bestätigung (erscheint nur wenn der Käufer eigene Sell-Orders
+  // hält) den Preis der GEBUNDENEN fremden Order zeigen — die, gegen die buy_from_order
+  // /buy_player_sc tatsächlich bucht (gewählt via pendingBuyOrderId, sonst günstigste).
+  // NICHT den Floor (schließt eigene Orders ein → unterschätzt die Kosten, S7-303 F-1).
+  const pendingOrder = pendingBuyOrderId
+    ? userFilteredOrders.find(o => o.id === pendingBuyOrderId) ?? null
+    : cheapestOrder;
+  const pendingPriceBsd = pendingOrder ? centsToBsd(pendingOrder.price) : floorBsd;
+
   return (
     <Dialog
       open={open}
@@ -252,7 +261,7 @@ export default function BuyModal({
               pendingBuyQty={pendingBuyQty}
               pendingOrderId={pendingBuyOrderId}
               userOrders={userOrders}
-              floorBsd={player.prices.floor ?? 0}
+              priceBsd={pendingPriceBsd}
               balanceCents={balanceCents}
               buying={buying}
               onConfirmBuy={onConfirmBuy}

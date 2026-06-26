@@ -247,10 +247,17 @@ export function usePlayerTrading({
     },
     onSuccess: (result, { quantity }) => {
       if (!userId) return;
-      const priceBsd = result.price_per_dpc ? formatScout(result.price_per_dpc) : '?';
+      // Slice 405: Buy-Hook routet `orderId ? buy_from_order : buy_player_sc` — die RPCs
+      // liefern divergente Return-Shapes (buy_player_sc: new_balance/price_per_dpc;
+      // buy_from_order: buyer_new_balance/price, Migration 358:131/269). onSuccess MUSS
+      // beide normalisieren, sonst zeigt der Order-Kauf Preis "?" + kein optimistisches
+      // Wallet-Update + Holding-Preis 0 (errors-frontend.md S404; Markt-Pfad in 404 gelöst).
+      const priceCents = result.price_per_dpc ?? result.price;
+      const newBalance = result.new_balance ?? result.buyer_new_balance;
+      const priceBsd = priceCents ? formatScout(priceCents) : '?';
       setBuySuccess(t('buySuccess', { quantity, price: priceBsd }));
-      if (result.new_balance != null) setWalletBalance(qc, userId, result.new_balance);
-      optimisticallyAddHolding(userId, quantity, result.price_per_dpc ?? 0);
+      if (newBalance != null) setWalletBalance(qc, userId, newBalance);
+      optimisticallyAddHolding(userId, quantity, priceCents ?? 0);
       invalidateAfterTrade(playerId, userId);
       setTimeout(() => setBuySuccess(null), 5000);
     },

@@ -181,6 +181,24 @@ describe('usePlayerTrading — Buy', () => {
     expect(buyFromMarketMock).not.toHaveBeenCalled();
   });
 
+  it('S405: normalizes buy_from_order shape (buyer_new_balance/price) in onSuccess', async () => {
+    // buy_from_order liefert buyer_new_balance/price — NICHT new_balance/price_per_dpc
+    // (Markt-RPC-Shape). onSuccess MUSS via ?? normalisieren, sonst bleibt der Order-Kauf
+    // ohne optimistisches Wallet-Update und der Toast zeigt Preis "?".
+    buyFromOrderMock.mockResolvedValue({ success: true, buyer_new_balance: 333, price: 77 });
+    const qc = makeClient();
+    const { result } = renderHook(() => usePlayerTrading(DEFAULT_PROPS), { wrapper: wrapperFor(qc) });
+
+    act(() => { result.current.executeBuy(1, 'order-xyz'); });
+    await waitFor(() => expect(result.current.buying).toBe(false));
+
+    // Balance aus buyer_new_balance (new_balance ?? buyer_new_balance):
+    expect(setWalletBalanceMock).toHaveBeenCalledWith(qc, 'u1', 333);
+    // Toast-Preis aus `price` (formatScout(77) = 0.00077), kein "?":
+    expect(result.current.buySuccess).toContain('0.00077');
+    expect(result.current.buySuccess).not.toContain('?');
+  });
+
   it('handleBuy short-circuits into pendingBuy when userOrders exist', async () => {
     const ownOrder = { id: 'o1', is_own: true, player_id: 'p1' } as unknown as PublicOrder;
     const qc = makeClient();

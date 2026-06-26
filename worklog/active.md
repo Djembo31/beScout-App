@@ -1,36 +1,25 @@
 # Active Slice
 
 ```
-status: idle
-slice: 404
-title: Welle 1.1 — Markt-Tab Kauf order-gebunden („was du siehst = was du zahlst") [Money-Trust UI] — DONE
-size: L (UI cross-component — Markt-Buy auf order-gebundene Pipeline, geteilte Order-Quelle useSellOrders)
-stage: LOG (DONE)
-spec: worklog/specs/404-welle1-market-buy-order-bound.md
-impact: skipped (Consumer in Spec §3 gegreppt; kein RPC/Migration, kein Cross-Domain — reine UI/Routing-Konsolidierung)
-proof: worklog/proofs/404-vitest.txt
-proof2: worklog/proofs/404-wysiwyp.txt — LIVE bescout.net: Modal/Liste/Charge alle = 15 CR (Order-Preis≠Floor), qty-Selektor max=5, echter Kauf −15 exakt (DB reconciled), DE+TR kein Roh-Key. ALLE AC01-08 PASS.
-review: worklog/reviews/404-review.md — PASS (1 NIT konsistenz-bewusst belassen, 1 INFO=pre-existing Player-Detail-Shape-Bug→405)
+status: active
+slice: 405
+title: Welle 1.1 — Player-Detail Order-Kauf Shape-Norm + BuyConfirmation est-total (was du siehst = was du zahlst, kanonischer Pfad)
+size: S (UI/Hook — 2 Reviewer-Funde aus 404: onSuccess Shape-Norm + est-total aus Order-Preis statt Floor)
+stage: PROVE
+spec: worklog/specs/405-player-detail-shape-norm-estcost.md
+impact: skipped (kein RPC/Migration/Cross-Domain; Money byte-identisch — Consumer in Spec §3/§4 gegreppt)
+proof: worklog/proofs/405-vitest.txt
+proof-note: vitest 47 grün + tsc clean; post-Deploy Playwright AC-5 pending
+review: worklog/reviews/405-review.md — PASS (1 NIT status-quo, 1 INFO kosmetisch)
 ```
 
 ## Zuletzt
-- **Slice 404** (2026-06-26) — Markt-Tab order-gebunden, **post-Deploy Playwright voll bewiesen** (AC01-08), DONE.
+- **Slice 404** (2026-06-26) — Markt-Tab order-gebunden, post-Deploy Playwright voll bewiesen (AC01-08), DONE.
 - **Slice 403** (2026-06-26) — buy_from_ipo Idempotency, DONE.
 
-Nächstes: **405** (Reviewer-Fund: `usePlayerTrading.onSuccess` Shape-Norm `new_balance ?? buyer_new_balance` + BuyConfirmation.tsx est-total) ODER **1.3** (Club-Geld-Doppelschreibung, Money) ODER **1.4** (Orderbuch-Gabelung, CEO). Kanon: `memory/session-handoff.md`.
+## Inline-Notiz
+Slice 405 schließt die zwei vom 404-Reviewer faktisch gegen die Live-RPC verifizierten Player-Detail-Funde:
+- **Bug A** `usePlayerTrading.ts:248-253` — onSuccess liest nur `buy_player_sc`-Shape → Order-Kauf: Toast „?", kein optimist. Balance, Holding-Preis 0. Fix: `?? buyer_new_balance` / `?? price` (Pattern S404).
+- **Bug B** `BuyConfirmation.tsx:27` — est-total aus `floorBsd` statt gebundenem Order-Preis (Floor inkl. eigener Orders, Charge gegen fremde → unterschätzt). Fix: BuyModal resolved bound-order-Preis → `priceBsd`.
 
-## Inline-Notiz (Welle 1 Start)
-**Welle 1 — Trading & Kaufprozess** (Mock→Pro, D111). Slice 403 = Plan-Punkt 1.2. Kern-Smell der Welle = „von allem zwei"; 1.2 schließt das Idempotenz-Loch im Erstverkauf (einziger der 3 Kauf-RPCs ohne `idempotency_key`) end-to-end. CEO-Architektur-Gabelung 1.4 (Orderbuch `orders` vs `offers` = ein Buch?) wird VOR Slice 1.4 separat geklärt.
-
-## Inline-Spec (Money/CEO, CEO-approved)
-**Ziel:** Der einzige substantielle e2e-Gap aus Audit 401 — Treasury-RAUS (376/377/378) bewiesen-korrekt aber nie real gelaufen (0 Ledger-Rows). 1× echte `close_monthly_liga('2026-05-01')` auf Live → erste echte `monthly_liga`-Debit-Row + winners + Zero-Sum.
-**Vorab (D87):** Live-`pg_get_functiondef` gelesen; aktive Season „2025/26" existiert; Topf 500.183 Cr deckt erwartete ~35.750 Cr Auszahlung (34.000 global + 1.750 Bundesliga-Manager).
-**ACs:** (1) RPC ok:true + total_paid_cents; (2) Topf-Saldo_neu = Saldo_alt − total_paid; (3) Σ neue liga_reward-Tx = total_paid; (4) genau 1 neue monthly_liga-Debit-Row = total_paid; (5) winners/snapshots-Rows > 0. = Zero-Sum bewiesen.
-**Smells (Backlog, Launch-relevant):** (a) globale Dims zahlen fix nach Rang ohne Mindest-Delta>0; (b) overall+3 Einzel-Dims überschneiden (User kann 4× kassieren).
-
-## Zuletzt
-- **Slice 402** (2026-06-26) — Treasury-RAUS e2e REAL bewiesen (Zero-Sum), DONE (`ba53bb46`).
-- **D109/D110** (2026-06-26) — Reward-Smells CEO-akzeptiert + e2e-Audit-Methode (`b4a10eb1`).
-- **Slice 401** (2026-06-26) — e2e-Audit + 400-Rest + Tracker-Heal, DONE (`213f626c`).
-
-Nächstes (frische Session): **(C) S7 Mock→Pro** (3 TOTER-CODE aktivieren/löschen) ODER Event-Backlog (E-5/E-6). Kanon: `memory/session-handoff.md` zuerst lesen.
+Money-Flow byte-identisch (kein RPC). Nächstes nach 405: **1.3** (Club-Geld-Doppelschreibung, Money) ODER **1.4** (Orderbuch-Gabelung, CEO). Kanon: `memory/session-handoff.md`.

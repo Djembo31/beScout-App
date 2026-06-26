@@ -11,7 +11,14 @@ import type { PublicOrder } from '@/types';
 interface BuyConfirmationProps {
   pendingBuyQty: number;
   userOrders: PublicOrder[];
-  floorBsd: number;
+  /**
+   * Slice 405: Preis der GEBUNDENEN Order (gewählt, sonst günstigste fremde), an
+   * die der Kauf tatsächlich bucht — NICHT der Floor. floor_price schließt eigene
+   * offene Sell-Orders ein (trading.md S7-303 F-1), der Kauf bucht aber gegen die
+   * günstigste fremde Order → Floor würde die Kosten unterschätzen, gerade weil
+   * BuyConfirmation nur erscheint wenn der Käufer eigene Orders hält.
+   */
+  priceBsd: number;
   balanceCents: number | null;
   buying: boolean;
   onConfirmBuy: (qty: number, orderId?: string) => void;
@@ -20,11 +27,11 @@ interface BuyConfirmationProps {
 }
 
 export default function BuyConfirmation({
-  pendingBuyQty, userOrders, floorBsd, balanceCents,
+  pendingBuyQty, userOrders, priceBsd, balanceCents,
   buying, onConfirmBuy, onCancel, pendingOrderId,
 }: BuyConfirmationProps) {
   const t = useTranslations('playerDetail');
-  const estTotalCents = Math.round(floorBsd * 100) * pendingBuyQty;
+  const estTotalCents = Math.round(priceBsd * 100) * pendingBuyQty;
 
   return (
     <Card className="overflow-hidden">
@@ -43,8 +50,8 @@ export default function BuyConfirmation({
         </div>
         <div className="bg-black/20 rounded-lg px-3 py-2 space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-white/40">{t('estCost', { qty: pendingBuyQty, price: fmtScout(floorBsd) })}</span>
-            <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(floorBsd * pendingBuyQty)} CR</span>
+            <span className="text-white/40">{t('estCost', { qty: pendingBuyQty, price: fmtScout(priceBsd) })}</span>
+            <span className="font-mono font-bold tabular-nums text-gold">{fmtScout(priceBsd * pendingBuyQty)} CR</span>
           </div>
           {balanceCents !== null && (
             <div className="flex items-center justify-between text-xs">

@@ -23,7 +23,8 @@ vi.mock('@/components/ui', () => ({
 const defaultProps = {
   pendingBuyQty: 3,
   userOrders: [{ quantity: 5, filled_qty: 2 }] as any[],
-  floorBsd: 100,
+  // S405: priceBsd = gebundener Order-Preis (nicht Floor) — est-total rechnet daraus.
+  priceBsd: 100,
   balanceCents: 50000,
   buying: false,
   onConfirmBuy: vi.fn(),
@@ -36,10 +37,16 @@ describe('BuyConfirmation', () => {
     expect(screen.getByText('notice')).toBeInTheDocument();
   });
 
-  it('shows estimated cost', () => {
+  it('shows estimated cost from bound order price (not floor)', () => {
     renderWithProviders(<BuyConfirmation {...defaultProps} />);
-    // floorBsd * qty = 100 * 3 = 300
+    // S405: priceBsd * qty = 100 * 3 = 300 (Order-Preis, nicht Floor)
     expect(screen.getByText('300 CR')).toBeInTheDocument();
+  });
+
+  it('recomputes estimated cost when bound order price differs from floor', () => {
+    // S405-Kern: ein anderer Order-Preis → andere est-total (beweist: kein Floor-Hardcode)
+    renderWithProviders(<BuyConfirmation {...defaultProps} priceBsd={250} />);
+    expect(screen.getByText('750 CR')).toBeInTheDocument();
   });
 
   it('shows balance after label', () => {
