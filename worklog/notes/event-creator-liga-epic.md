@@ -131,8 +131,24 @@ Echte `events.league_id`-Spalte (nullable, NULL=offen, kein Backfill — Bestand
 - **Datenbedarf (Daten-Check 2026-06-25, Slice 386):** `players.age` 99,4% · `nationality` 95,5% (168 Länder) · `market_value_eur` 86,4% · `position` 100% (GK/DEF/MID/ATT) — alle Folge-Regeln baubar.
 
 **E-4 · User-Events** *(Größe L, Money/CEO — User zahlt Pot aus Wallet)*
-Creator-Typ „user" in DB-Type + CHECK · Scope „friends"/„public" · Erstell-Flow echt in DB (heute nur Toast) · Pot-Escrow aus User-Wallet (Muster wie User-Bounty `create_user_bounty`/Settle). Compliance: Credits = Phase-1-Spielgeld (ok); echtes Geld bleibt Phase 3.
-- **Vormerkung aus 380-Review (vereinslose Events):** Sobald Events ohne `club_id` existieren, muss der Track-F-Wildcard-Lookup in `rpc_save_lineup` von `club_id → clubs.league_id` auf `COALESCE(events.league_id, club→league)` umgestellt werden — sonst `invalid_event_no_league` bei clublosem + league-gebundenem Event mit Wildcard. Heute kein Treffer (alle Events haben club_id).
+
+### ✅ Modell gelockt (Anil-Alignment 2026-06-26, → D108)
+- **Geld-Modell B (dynamischer Pot):** Jeder Teilnehmer zahlt Eintritt (Credits) → **5 % BeScout → Plattform-Topf**, Rest **wächst den Pot**. Optionaler **Start-Pot** aus Ersteller-Wallet (Anreiz). **Ersteller verdient nichts** (fee_config `user` = platform 500 / beneficiary 0). Jeder Eintritt finanziert seinen eigenen Pot-Anteil → **zero-sum, kein Minting**.
+- **Start auch ohne volle Teilnehmerzahl:** Pot = was tatsächlich reinkam (kein fester Vorab-Pool).
+- **Mindest-Teilnehmerzahl (`events.min_entries`, neu):** Ersteller-wählbar (leer = egal). Nicht erreicht bis Deadline → **Absage + voller Refund** (Eintritte + Start-Pot).
+- **Auszahlung:** Ersteller wählt Verteilung (Top-3 / Winner-all / custom) → bestehende `reward_structure` (JSONB) + Reuse `RewardStructureEditor` (Templates top3/top5/winner/top10 + 100 %-Check).
+- **Anti-Müll:** **Erstell-Gebühr, admin-steuerbar** (BeScout-Admin) → Topf. Kein Event-Limit (Anil-Entscheid). Default-Höhe admin-setzbar.
+- **Typ:** sauberer `user` (nicht das gedriftete `creator` — fee_config-`creator`-Zeile [5/5, „verdient mit"] ist orphan + widerspricht Modell B; mit aufräumen). „Creator" bleibt Oberkonzept, kein DB-Typ.
+- **Scope:** **öffentlich** zuerst (Freunde/privat = späterer Slice).
+- **Erstellen darf:** jeder eingeloggte User (Defaults: Bounds wie User-Bounty 500–100.000 cents, harte Server-Validierung).
+
+### 🔎 Ist-Befund (Live-RPCs 2026-06-26) — der eigentliche Neubau
+Zwei getrennte Geld-Ströme heute: **① Preis-Pot** (treasury-escrow → `score_event` mintet Gewinner → Rest-Refund an Quelle) ist **voll + zero-sum**. **② Eintritt** ist **nur halb gebaut**: `rpc_lock_event_entry` **sperrt** den Eintritt (+ rechnet `fee_split` aus), `rpc_unlock_event_entry`/`rpc_cancel_event_entries` **lösen die Sperre wieder auf** — aber **`score_event` fasst die gesperrten Eintritte NIE an**. Die Verbindung **„Eintritt → Pot" existiert nicht** (dormanter Pfad, alle Live-Events liefen Tickets/gratis). **→ Diese fehlende Hälfte (Eintritt abbuchen → 5 % Topf, Rest → Pot → Gewinner) ist der E-4-Kern.**
+
+### Decomposition
+- **E-4a (Geld-Kern, L, Money/CEO):** Typ `user` + `event_fee_config`-Zeile + `events.min_entries` + admin-steuerbare Erstell-Gebühr (Config + Setter-RPC + bescout-admin-UI) + `create_user_event`-RPC (Gebühr → Topf, optionaler Seed-Escrow aus Wallet) + **dynamischer Entry-Pot-Settle** (die fehlende Hälfte: Eintritt charge → 5 % Topf, Rest → Pot → Gewinner per `reward_structure`) + `min_entries`-Absage/Refund + Trigger-`user`-Zweig (Seed-Escrow/Refund). Reviewer-Pflicht, force-rollback-Smokes, /impact + Live-functiondef VOR BUILD (D87).
+- **E-4b (UI, M):** echter Builder (entmockt `CreateEventModal`) + Reuse `RewardStructureEditor` + E-3-Bedingungen + öffentliche Discovery + Live-Pot-Vorschau („Pot wächst").
+- **Vormerkung aus 380-Review (vereinslose Events):** Sobald Events ohne `club_id` existieren, muss der Track-F-Wildcard-Lookup in `rpc_save_lineup` von `club_id → clubs.league_id` auf `COALESCE(events.league_id, club→league)` umgestellt werden — sonst `invalid_event_no_league` bei clublosem + league-gebundenem Event mit Wildcard. **E-4 macht user-Events club-los → dieser Fix gehört in E-4a.**
 
 **E-5 · Ticket-Events voll verdrahten** *(Größe M)*
 BeScout-Ticket-Events: Tickets-Eintritt → Gewinn Credits/**Equipment**/Tickets. Eintritt existiert; Reward-Auszahlung + Equipment-Gewinn prüfen/bauen. (Hängt mit Ticket-Sinn zusammen — siehe „Tickets"-Frage aus dieser Session.)

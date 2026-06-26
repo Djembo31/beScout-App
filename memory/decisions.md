@@ -4101,3 +4101,32 @@ E-2a zuerst (Anzeige + Rename, kein Money). E-2b bringt konfigurierbare Reward-S
 E-3 wird auf die Regel-Liste umgestellt (statt 3 Einzel-Spalten). JSONB im Lineup-Pfad → strenge Server-Validierung (whitelisted Regel-Typen, Wert-Bounds, fail-closed) + Reviewer-Pflicht. Builder zeigt „Bedingung hinzufügen ▾" + Echtzeit-„~X Spieler / ~Y Nutzer erfüllen das" (gegen tote Events durch Über-Filterung). Compliance: Phase-1-Credits/Tickets (D99). Anker: `worklog/notes/event-creator-liga-epic.md` §3b + §5 (E-3).
 
 **Re-Visit-Trigger:** Wenn `lineup_rules`-Validator >~8 Regel-Typen trägt oder Cross-Regel-Abhängigkeiten entstehen (Regel A schließt B aus) → eigenes Regel-Schema/Versionierung erwägen.
+
+---
+
+## D108 — PRODUCT/ARCHITECTURE: User-Events Geld-Modell — dynamischer Pot aus Eintritten, Ersteller verdient nichts, admin-steuerbare Erstell-Gebühr
+
+**Datum:** 2026-06-26 · **Status:** 🟢 Aktiv (E-4-Alignment, Bau startet mit Slice 396/E-4a) · **Category:** PRODUCT + ARCHITECTURE (Events/Money) · **Kontext:** E-4 (User-Events) Alignment mit Anil. Ein normaler Nutzer soll echte Fantasy-Events erstellen können (heute `CreateEventModal` = Mock-Toast). Money/CEO-Scope (§3). Präzisiert D104 (Creator-Oberbegriff) für den Creator-Typ „User".
+
+### Befund (Live-RPCs 2026-06-26, NICHT neu erheben)
+- Zwei getrennte Geld-Ströme bei Events: **① Preis-Pot** (treasury-escrow via `trg_events_escrow_prize` → `score_event` mintet Gewinner → `trg_events_prize_settle` Rest-Refund an Quelle) ist **voll + zero-sum**. **② Eintritt** ist **nur halb gebaut:** `rpc_lock_event_entry` **sperrt** den Eintritt (+ rechnet `event_entries.fee_split` aus), `rpc_unlock_event_entry`/`rpc_cancel_event_entries` lösen die Sperre wieder auf — aber **`score_event` fasst die gesperrten Eintritte NIE an.** Die Verbindung **„Eintritt → Pot" existiert nicht** (dormant; alle 208 Live-Events liefen Tickets/gratis, 0 mit Pot). → Diese fehlende Hälfte ist der E-4-Kern.
+- `events_type_check` = bescout/club/sponsor/special (KEIN `user`). `event_fee_config` hat eine orphan `creator`-Zeile (5/5 = „verdient mit"), die D108 widerspricht → nicht nutzen. `reward_structure` (JSONB, Default 50/30/20) + `RewardStructureEditor` (Templates top3/top5/winner/top10 + 100%-Check) existieren bereits.
+
+### Entscheidung (Anil 2026-06-26)
+1. **Geld-Modell B — dynamischer Pot:** Jeder Teilnehmer zahlt Eintritt (Credits) → **5 % BeScout → Plattform-Topf**, Rest **wächst den Pot**. Optionaler **Start-Pot** aus Ersteller-Wallet (Anreiz). **Ersteller verdient nichts** (`event_fee_config('user')` = platform 500 / beneficiary 0). Jeder Eintritt finanziert seinen eigenen Pot-Anteil → **zero-sum, kein Minting** über das hinaus was reinkam.
+2. **Start auch ohne volle Teilnehmerzahl** — Pot = was tatsächlich reinkam (kein fester Vorab-Pool). Plus **Ersteller-wählbare Mindest-Teilnehmerzahl** (`events.min_entries`, neu): nicht erreicht → **Absage + voller Refund** (Eintritte + Start-Pot).
+3. **Auszahlung Ersteller-wählbar** (Top-3 / Winner-all / custom) → bestehende `reward_structure` + Reuse `RewardStructureEditor`.
+4. **Anti-Müll = Erstell-Gebühr, vom BeScout-Admin steuerbar** (Config + Setter-RPC + Default), Gebühr → Topf. **Kein** Event-Limit (Anil-Entscheid).
+5. **Typ `user`** (sauber, nicht das gedriftete `creator`); Scope **öffentlich** zuerst (Freunde/privat = späterer Slice); jeder eingeloggte User darf erstellen (Bounds wie User-Bounty, harte Server-Validierung).
+6. **Decomposition:** E-4a (Geld-Kern, Slice 396, L/Money) → E-4b (Builder-UI) → (Freunde-Scope später). „Eintritt→Pot"-Settle (die fehlende Hälfte) wird in E-4a gebaut.
+
+### Alternativen erwogen
+- **Modell A (Geschenk-Pot, Eintritt frei):** verworfen als Default — Anil will den dynamischen Eintritts-Pot (öffnet mehr Event-Formen, Start ohne volle Teilnehmerzahl). A bleibt als Sonderfall möglich (Entry=0 + Seed>0).
+- **Modell C (Ersteller verdient an Eintritten mit, wie Verein 5/5):** **verworfen — Glücksspiel-/Operator-Nähe** (auch mit Phase-1-Credits); Ersteller darf nie mehr rausholen als er reinlegt. Direkter Grund für `beneficiary 0`.
+- **Anti-Müll via Bedingung (min-Stufe / max-3-offene-Events) statt Gebühr:** Anil wählte die **Gebühr** (admin-steuerbar) — einfachster fairer Hebel, jeder darf trotzdem erstellen, skaliert mit Missbrauch.
+- **Pot live in `events.prize_pool` mitwachsen (Charge-on-join):** verworfen zugunsten **Lock-on-join + Charge-at-settle** — vervollständigt den bestehenden (halb-gebauten) Pfad statt das Lock-Modell umzubauen; sauberer Refund-Pfad bei Absage.
+
+### Auswirkung
+Slice 396 (E-4a) baut: Typ `user` + `min_entries` + `event_fee_config('user')` + admin-steuerbare Erstell-Gebühr (Config+Setter) + `create_user_event`-RPC (Gebühr→Topf, Seed-Escrow aus Wallet) + **dynamischer Entry-Pot-Settle** (Eintritt charge → 5 % Topf, Rest → Pot → Gewinner) + min_entries-Absage/Refund + Trigger-`user`-Zweige + club-loser Wildcard-Fix (380-Vormerkung). Money/CEO: Reviewer-Pflicht, force-rollback-Smokes, Live-`pg_get_functiondef` VOR Edit (D87), neue Topf-Sources `event_create_fee`/`event_entry_fee` (source-CHECK widen). Compliance: Credits = Phase-1-Spielgeld (D99), kein echtes Geld. Anker: `worklog/specs/396-user-events-money-core.md` + `worklog/notes/event-creator-liga-epic.md` E-4.
+
+**Re-Visit-Trigger:** Wenn echtes Geld / Cash-Out (Phase 2/3) kommt → Operator-/Glücksspiel-Lizenzfrage für User-Events neu prüfen (Modell C bleibt verboten ohne Lizenz). Wenn Erstell-Gebühr Spam nicht bremst → Event-Limit nachrüsten (war bewusst weggelassen).

@@ -1,11 +1,19 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 06:53)
+# Session Handoff — Auto (2026-06-26 08:29)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 4 Files
+```
+ M memory/session-handoff.md
+ M worklog/active.md
+ M worklog/notes/event-creator-liga-epic.md
+?? worklog/specs/396-user-events-money-core.md
+```
 
 ## Session Commits: 10
+- dddff999 docs(tracker): Slice 395 DONE — Lineup-Reject-Coverage komplett reconciled (MASTERPLAN+TODO), Next-Pointer auf E-4
+- cf973238 feat(fantasy): Lineup-Reject-Coverage komplett — 22 restliche rpc_save_lineup-Codes regel-spezifisch (DE/TR) [Slice 395]
 - 52924411 docs(handoff): Wissen verdrahtet + SOFT-Findings als Heuristik-Artefakt verankert (kein echter Drift)
 - 37bcf87f docs(learning): Wissen verdrahten 393/394 — Reject-Mapping + Observability-Tier-4
 - 54399703 docs(tracker): Playwright-Bündel DONE + 393/394 reconciled — Next-Pointer auf E-4/Backlog
@@ -14,8 +22,6 @@
 - 2fbc4ab6 feat(events): E-3 Regel-Rejects regel-spezifisch — 9 Validator-Codes → eigene DE/TR-Toast-Meldung (Slice 393)
 - c7e2cada docs(handoff): Session-Close 2026-06-26 — Slice 392 DONE, E-3-Regelsatz komplett, Resume-Anker auf Playwright-Bündel/E-4
 - ed8e8019 docs(tracker): Slice 392 DONE — E-3-Regelsatz komplett, Stand auf MASTERPLAN+TODO reconciled
-- 6252cbb9 feat(events): E-3 nation_in (Länder-Whitelist) + max_per_nation — letzte E-3-Aufstellungs-Regeln (Slice 392)
-- 2a0ee5c3 docs(handoff): Session-Close 2026-06-26 — 389/390/391 DONE, 392 (nation-Regeln, voller Multi-Select) verankert
 
 <!-- auto:handoff-end -->
 
@@ -23,22 +29,23 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. E-3-Regelsatz KOMPLETT + gebündelter Playwright DONE + 2 Funde gefixt (393/394).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Letzter HEAD = `cd300cc8`. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
+**Status: active — Slice 396 (E-4a User-Events Geld-Kern) in SPEC, WARTET AUF ANIL-APPROVAL.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
 
-## ✅ DIESE SESSION (2026-06-26 spät) — E-3 abgeschlossen + gehärtet
-- **Gebündelter E-3-Playwright DONE** (`worklog/proofs/e3-bundle-playwright-verify.md`): beide Builder (Club `/club/sakaryaspor/admin`→Events→Neu + Platform `/bescout-admin`→Tab „Even") live gegen bescout.net, Mobile 393px. **14/14 Regel-Inputs, 9/9 Labels, 0 Leaks/MISSING_MESSAGE, alle 44px, NationMultiSelect voll funktional** (Suche „türk"→Türkei→„1 gewählt"). Statisch vorab: 29 Club-Keys DE+TR vollständig. **Builder-Render = PASS.** Login = ali (Club+Platform-Admin, PW 123456; war schon eingeloggt).
-- **✅ Slice 393 (`2fbc4ab6`) — Fund 1:** E-3 Reject-Toasts fielen ALLE auf `'generic'` → 9 Validator-Codes regel-spezifisch gemappt (snake_case-Passthrough KNOWN_KEYS + DE/TR im `errors`-NS). Reviewer PASS.
-- **✅ Slice 394 (`cd300cc8`) — Fund 2:** 7× `[AuthProvider] Profile load failed after retry` (console-only). Diagnose: `get_auth_state(ali)`=62ms gesund, ali-Profil valide → bekannte JWT-Hydration-Race, graceful Fallback, **kein Defekt**. Fix = additive `captureMessage` (Sentry war blind). Auth-Logik bewusst NICHT angefasst. Reviewer PASS.
+## 🔴 ERSTE AKTION (Anil-Auftrag, expliziert): Spec 396 mit FRISCHEM/KALTEM KOPF prüfen
+- Anil will die **Spec `worklog/specs/396-user-events-money-core.md` neu mit kaltem Kopf gecheckt** haben, BEVOR irgendwas gebaut wird. Empfehlung: Cold-Context-**Reviewer-Agent auf die SPEC** (nicht Code — es gibt noch keinen) ODER selbst kritisch durchlesen gegen Modell D108 + Money-Regeln (§3) + treasury.md §7/§10 + die Live-RPC-Realität (Befund unten). Such nach: Lücken im Geldfluss, Zero-Sum-Bruch, Trigger-vs-RPC-Doppel-Escrow, source-CHECK-Vergessen, Rundungs-/Idempotenz-Löcher.
+- **DANN** Anil die 3 offenen CEO-Mini-Fragen vorlegen (s.u.) → bei Freigabe `/impact` → BUILD (4 Wellen). **KEIN BUILD vor Anil-Approval** (Money/CEO §3).
 
-## ➡️ NÄCHSTE SESSION (Anil-Wahl)
-- **E-4 User-Events** (L, Money/CEO — User zahlt Pot aus Wallet, eigene Alignment-Session: Wie viel zahlt User? Wohin Pot? Wer kassiert?). Money-nah → Live-functiondef VOR Spec (D87).
-- **Backlog (XS-S, kein Blocker):**
-  - **„Lineup-Reject-Coverage komplett"** (393-Reviewer-Fund): ~20 WEITERE `rpc_save_lineup`-Codes (Formation/Salary/Wildcard/Bench: `salary_cap_exceeded`, `max_per_club_exceeded`, `too_many_wildcards`, `invalid_formation`, …) fallen noch auf `'generic'`. Gleiches Muster wie 393. Detection: `pg_get_functiondef`-`'error'`-Literale ↔ `KNOWN_KEYS ∪ ERROR_MAP`.
-  - **Dynamischer Reject-Kontext** (393-Scope-Out): limit/age/MV im Toast-Text — braucht Throw-Refactor in `lineups.mutations.ts:62` (wirft heute nur den nackten Code, verwirft `limit`/`age`/`player`).
-  - **Tieferer Auth-Fix** (394-Scope-Out): NUR wenn Sentry echte Nutzer-Frequenz von `auth.profileLoadFailedAfterRetry` zeigt → `get_auth_state` null-uid-soft / JWT-unabhängiger Fallback.
-  - „Bedingung hinzufügen ▾"-Builder + Echtzeit-Treffer (Design-Smell #1, E-4/E-6) · Nation-Liste-Pflege-UI (392-NIT#1, kuratierte 61).
-- **Wissen verdrahtet (2026-06-26):** S393 → `errors-frontend.md` (Reject-Code ohne Mapping → stiller generic) · Tier-4 → `pattern_observability_stack.md` (captureMessage am erschöpften Recovery-Pfad) · D88-Kopplung → `fantasy.md` (Reject-Codes user-facing). Commit `37bcf87f`. **DISTILL: kein neuer D<n>** (alle Lehren = Code-Patterns).
-- **Bekannt SOFT (Nightly, kein Blocker, NICHT echter Drift):** `audit:knowledge:check` flaggt `missions.md`/`reward-ranking.md` verify-drift — **faktenbasiert geprüft: Artefakt der Datums-Heuristik** (die einzigen neuen Migrationen seit Verify-Datum sind E-3-Lineup/Nationality, die missions/reward-ranking/scoring NICHT berühren; `grep` bestätigt). `verified-against`-Daten bewusst NICHT blind gebumpt (=behauptet statt verifiziert, §1). Nächste Session ODER Nightly: bei echtem Touch von 383/384 auf reward-ranking-Domain kurz gegenlesen, sonst Daten auf heute ziehen.
+## 📋 E-4a Slice 396 — Stand
+- **Modell gelockt = D108** (`memory/decisions.md`): Geld-Modell B (dynamischer Pot aus Eintritten −5 % BeScout → Topf, optionaler Start-Pot aus Wallet, **Ersteller verdient nichts**), Start auch ohne volle Teilnehmerzahl, **`min_entries`** Ersteller-wählbar (sonst Absage+Refund), Auszahlung Ersteller-wählbar (Top-3/Winner-all, Reuse `RewardStructureEditor`), **Anti-Müll = admin-steuerbare Erstell-Gebühr → Topf** (kein Event-Limit), Typ `user` (5/0), Scope **öffentlich** zuerst.
+- **Befund (Live-RPCs 2026-06-26, im Spec §1):** Event-Geld = 2 Ströme. ① Preis-Pot (treasury-escrow → `score_event` mintet → settle-refund) = **voll/zero-sum**. ② Eintritt = **nur halb gebaut**: `rpc_lock_event_entry` SPERRT nur, `rpc_unlock_event_entry`/`rpc_cancel_event_entries` lösen auf, **`score_event` fasst gesperrte Eintritte NIE an** → „Eintritt→Pot" existiert nicht (dormant; 208 Events alle ended, 0 Pool). **Diese fehlende Hälfte (Lock-on-join + Charge-at-settle) = E-4a-Kern.**
+- **Spec-Wellen:** W1 Schema (type `user` + `min_entries` + `event_fee_config('user')` + `platform_event_config` Erstell-Gebühr-Config+Setter + treasury-source-CHECK widen `event_create_fee`/`event_entry_fee`) · W2 `create_user_event` (Gebühr→Topf + Seed-Escrow Wallet) · W3 dynamischer Entry-Pot-Settle (score_event user-Branch) + Trigger-user-Zweige + min_entries-Absage/Refund · W4 club-loser Wildcard-Fix (380-Vormerkung) + Wissens-Kopplung.
+- **3 offene CEO-Mini-Fragen (Anil entscheidet vor BUILD):** (a) Event ganz ohne Geld (Entry=0 **und** Seed=0) erlauben oder ablehnen? *(Empf. ablehnen)* (b) Default-Erstell-Gebühr? *(Empf. 10 Cr = 1000 cents)* (c) Settle-Trigger nur Ersteller oder auch platform_admin? *(Empf. beide)*.
+- **Live-functiondef VOR jedem RPC-Edit re-fetchen (D87)** — Bodies in dieser Session gelesen (rpc_lock_event_entry, score_event, create_user_bounty, trg_events_escrow_prize/prize_settle, rpc_cancel_event_entries, rpc_unlock_event_entry, rpc_save_lineup) aber vor Edit erneut ziehen (Drift). Reuse-Vorbilder: `create_user_bounty` (Wallet-Escrow), `set_liga_reward_config` (admin-Setter), `RewardStructureEditor` (Verteilungs-UI, für E-4b).
+
+## ✅ Vorige Session (2026-06-26) — 395 DONE + E-4-Alignment
+- **Slice 395 DONE** (`cf973238`/`dddff999`): Lineup-Reject-Coverage komplett (22 restliche `rpc_save_lineup`-Codes regel-spezifisch DE/TR, Reviewer PASS). rpc_save_lineup-Reject-Coverage damit komplett (nur dynamischer Toast-Kontext bleibt Folge-Slice via Throw-Refactor `lineups.mutations.ts:62`).
+- **E-4-Alignment komplett** → D108 + Epic-Update + Spec 396. (393/394 davor DONE, E-3-Regelsatz komplett.)
+- **Bekannt SOFT (Nightly, kein Blocker, NICHT echter Drift):** `audit:knowledge:check` flaggt `missions.md`/`reward-ranking.md` verify-drift — Artefakt der Datums-Heuristik (neue Migrationen berühren diese Domänen nicht; `verified-against` bewusst nicht blind gebumpt, §1).
 
 ## 🎯 SESSION-CLOSE 2026-06-26 (spät, sauber) — E-3-Regelsatz KOMPLETT
 
