@@ -1,0 +1,82 @@
+Slice 396 — User-Events Geld-Kern (E-4a) — Money Proof
+=======================================================
+Datum: 2026-06-26 · Money/CEO (§3) · force-rollback (BEGIN…DO…RAISE = Rollback, Ergebnis im Fehlertext)
+Project: skzjfhvgccaeplydsunz · Migrationen applied: 170000 (W1+W2), 170100 (W3+W4), 170200 (fantasy_reward fix), revoke_public_ar44
+
+ACTORS: creator=kemal_demirtas 557d1145… (200M) · bot010 3ad78f29… · bot011 2686f61e… · bot008 1bfabaff… · ali (platform_admin) aaaaaaaa-0005…
+
+──────────────────────────────────────────────────────────────────────
+SMOKE A — AC1 Create + AC8 echter Lock-Pfad (B1+B2) + AC4 Settle + Zero-Sum
+──────────────────────────────────────────────────────────────────────
+REPORT >>> ZeroSum diff=0 (before=300714308 after=300714308)
+  | createFee_topf_delta=5000 creator_bal_delta=-5000
+  | settle={"success": true, "winner_name": "Cem", "scored_count": 3, "prize_distributed": 3000}
+  | locked_after=0 entries_left=0 status=ended
+  | topf_evt=[event_create_fee:5000]
+
+✓ AC1: Ersteller balance −5000, Topf +5000 (source event_create_fee)
+✓ AC8: rpc_lock_event_entry (echter Pfad) für 3 Teilnehmer OK → B1 (scout_events_enabled=true) + B2 (event_entry_lock im CHECK) live bewiesen
+✓ AC4: Pot = 3×1000 = 3000 voll an Gewinner verteilt; **ZeroSum diff=0** (Geld weder erzeugt noch vernichtet)
+✓ locked_balance der Teilnehmer nach Settle = 0 (keine stuck locks); event_entries gelöscht; status=ended
+
+──────────────────────────────────────────────────────────────────────
+SMOKE B — AC2 Auth + AC3 Insufficient + AC7 Fee-Setter + AC5 Cancel + AC11 Cancel-Auth
+──────────────────────────────────────────────────────────────────────
+REPORT >>> AC2=auth_uid_mismatch | AC3=insufficient_balance evt_POOR=0 | AC7_nonadmin=not_authorized
+  | AC7_admin_fee=7777 | AC11_unauth=not_authorized
+  | AC5 ok=true refunded=1 locked(b1) 1000->0 topf_delta_oncancel=0 status=cancelled
+
+✓ AC2: create mit auth.uid() ≠ p_user_id → auth_uid_mismatch
+✓ AC3: insufficient balance → reject, 0 Event erstellt (POOR count=0, keine Bewegung)
+✓ AC7: Fee-Setter nonadmin→not_authorized; platform_admin→7777 gesetzt
+✓ AC11: cancel durch Nicht-Ersteller/Nicht-Admin → not_authorized
+✓ AC5: cancel durch Ersteller → refunded=1, locked 1000→0 (Eintritt entsperrt), KEIN Topf-Eintrag, status=cancelled
+
+──────────────────────────────────────────────────────────────────────
+SMOKE C — Rest→Topf (event_entry_fee) + AC6 Idempotenz
+──────────────────────────────────────────────────────────────────────
+reward_structure=[33,33,33,1], 3 Teilnehmer tie rank1 → slots 1-3 verbraucht (990 je), rank4(1%) unverteilt
+REPORT >>> ZeroSum diff=0 | 1st_distributed=2970 | AC6_2nd=Event bereits ausgewertet
+  | topf_evt=[event_create_fee:5000,event_entry_fee:30]
+
+✓ Rest (3000−2970=30) → Topf als event_entry_fee (bisher nie ausgelöster Zweig, jetzt bewiesen)
+✓ ZeroSum diff=0 auch mit Rest
+✓ AC6: 2. score_event-Call → "Event bereits ausgewertet" (scored_at-Guard, keine Doppel-Auszahlung)
+
+──────────────────────────────────────────────────────────────────────
+AC9 — PATCH-AUDIT (nicht-user-Pfade byte-identisch)
+──────────────────────────────────────────────────────────────────────
+trg_escrow_md5  = ebbedeb467f82ad27c8a8c46d55aa22c   (von keiner 396-Migration berührt)
+trg_settle_md5  = 9117453fc780d0ef0f8998fca8f869fc   (unangetastet)
+trg_resync_md5  = 49ea3621b3f5f3d580af14d40cd3bf99   (unangetastet)
+score_event_has_orig_prizepool      = true   (v_prize_pool := v_event.prize_pool; intakt)
+score_event_has_user_guard          = true   (IF type='user' THEN v_prize_pool := v_user_pot;)
+score_event_nonuser_distrib_intact  = true   (FLOOR-per-person-Distribution unverändert)
+save_lineup_has_coalesce_fix        = true   (v_event_league_id := v_event.league_id; W4)
+save_lineup_nation_rule_intact      = true   (max_per_nation etc. unverändert)
+→ Alle 396-Money-Blöcke sind mit `IF v_event.type='user'` geguarded → non-user-Verhalten identisch.
+
+──────────────────────────────────────────────────────────────────────
+SECURITY — AR-44 ACL (nach revoke_public_ar44)
+──────────────────────────────────────────────────────────────────────
+create_user_event        acl = {postgres=X, authenticated=X, service_role=X}   (kein PUBLIC, kein anon)
+cancel_user_event        acl = {postgres=X, authenticated=X, service_role=X}
+set_user_event_create_fee acl = {postgres=X, authenticated=X, service_role=X}
+✓ AC2 anon-REVOKE erfüllt. Alle 3 RPCs SEC DEFINER + auth.uid()-Guard.
+
+──────────────────────────────────────────────────────────────────────
+AC10 — tsc + vitest
+──────────────────────────────────────────────────────────────────────
+npx tsc --noEmit          → EXIT 0 (clean)
+CI=true vitest run src/lib → 85 Dateien / 1662 Tests passed (108s)
+
+──────────────────────────────────────────────────────────────────────
+GEFUNDENE LATENTE BUGS (vom Smoke aufgedeckt, mitgefixt)
+──────────────────────────────────────────────────────────────────────
+1. event_entry_lock fehlte im transactions_type_check (B2) — rpc_lock_event_entry schrieb ihn seit jeher,
+   nie gefeuert (scout_events_enabled=false + alle Events tickets/gratis). Gefixt in 170000.
+2. fantasy_reward fehlte im transactions_type_check — score_event-Preisverteilung schrieb ihn,
+   nie gefeuert (alle Live-Events prize_pool=0). Gefixt in 170200.
+3. chk_event_type (event_fee_config) musste 'user' aufnehmen (Impact-Analyse übersehen) — gefixt in 170000.
+
+Keine geseedeten Live-Artefakte (alle Smokes BEGIN…RAISE=Rollback; Topf live unverändert).

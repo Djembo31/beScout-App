@@ -1,7 +1,7 @@
 ---
 title: Treasury & CSF — Money/Reward-Modell (Kanon)
 created: 2026-06-15
-updated: 2026-06-25
+updated: 2026-06-26
 status: active
 tags: [treasury, csf, money, ipo, scout-cards, fan-rewards, fee-split]
 consult_when: Treasury, CSF, IPO/Erstverkauf, Escrow, Fan-Rewards, Geld-Flows, Credits/cents-Einheit, Fee-Splits-Mechanik, Liquidation, Club-Treasury, Ledger
@@ -173,13 +173,20 @@ Die Geldquelle eines Events ist **`events.type`** (= Kategorie UND Finanzierung)
 | **bescout** | Plattform-Topf (`platform_treasury`) | ✅ Slice 377 (Escrow bei Insert, Spiegel 331, RAUS-Kanal #2) |
 | **special** | Plattform-Topf (`platform_treasury`) | ✅ Slice 378 (Escrow bei Insert, source `special_event`, RAUS-Kanal #3) |
 | **sponsor** | Sponsor (sponsor_name) | ❌ Sponsor-Deposit fehlt |
-| **creator** | User-Wallet | ❌ (`PAID_FANTASY_ENABLED`=false, Phase 4) |
+| **creator** | User-Wallet | ❌ (Legacy/gedriftet, `PAID_FANTASY_ENABLED`=false, Phase 4 — NICHT nutzen, D108) |
+| **user** | **Teilnehmer-Eintritte = Pot** (kein Seed); Erstell-Gebühr → Topf | ✅ Slice 396 (E-4a, D108 V3) |
 
 **Scope-Regel:** Reconcile (Minting → echte Quelle) erfolgt **eine Quelle pro Slice**. Escrow-Trigger keyt auf `type` (`'club'`→Club-Treasury, `'bescout'`→Plattform-Topf; NICHT auf „wer hat angelegt"). Offene Permissions-Frage (separat): darf ein Club-Admin überhaupt non-club-Typen anlegen?
 
 **Slice 377 (bescout RAUS-Kanal #2):** Die 3 Event-Trigger (`trg_events_escrow_prize`/`_prize_settle`/`_resync_prize_escrow`) tragen einen additiven `type='bescout'`-Zweig gegen `platform_treasury` (Escrow-Debit bei Insert + Deckungs-Check inline unter Singleton-Row-Lock, D103 Hard-Gate; Rest/voll-Refund bei ended/cancelled; Resync zwei-Treasury-fähig inkl. type-Switch club↔bescout). `score_event` bleibt unangetastet (mintet weiter +D in Wallets, jetzt durch Topf-Escrow gedeckt → zero-sum). `bescout_event`-source seit Slice 357 im Ledger-CHECK. Bug-Pattern: `errors-db.md` „Escrow-bei-INSERT … Multi-Treasury-Generalisierung (S377)".
 
 **Slice 378 (special RAUS-Kanal #3):** Plattform-Zweig der 3 Trigger auf `type IN ('bescout','special')` erweitert, Ledger-`source` per CASE (`special`→`'special_event'`, `bescout`→`'bescout_event'`), Refund-source (resync delta<0) nach `OLD.type` (Halter). `'special_event'` additiv in source-CHECK gewidert + AdminTreasuryTab-Label + i18n DE/TR. Zero-sum identisch 377, score_event weiter unangetastet. **Noch minting:** `sponsor` (Deposit-Pfad fehlt) · `creator` (Phase 4) — je eigener Slice.
+
+**Slice 396 (User-Events Geld-Kern, E-4a, D108 V3) — der EINZIGE Event-Typ, der den Pot NICHT aus einer Kasse escrowed, sondern aus den Eintritten bildet:**
+- **Geld-Modell:** Ersteller zahlt nur die **Erstell-Gebühr** (`platform_event_config.user_event_create_fee_cents`, Default 5000 = 50 Cr, admin via `set_user_event_create_fee`) aus seiner Wallet → Topf (source `event_create_fee`). **KEIN Seed/vorgelegter Pot** (`prize_pool=0`, `prize_escrowed=false`). Der **Pot = Σ Teilnehmer-Eintritte** (`event_fee_config('user')=0/0` → Eintritt 100 % → Pot, kein Plattform-Schnitt). BeScout verdient nur über die Erstell-Gebühr.
+- **Mechanik (Lock-on-join + Charge-at-settle):** `rpc_lock_event_entry` sperrt den Eintritt (`ticket_cost` = money-autoritative Spalte; `entry_fee` gespiegelt nur als Display). `score_event` `type='user'`-Zweig (additiv, geguarded): Pot = `Σ event_entries.fee_split.prize_pool`; je Eintritt `balance/locked −= amount_locked` (tx `event_entry_charge`); Pot per `reward_structure` an Gewinner (mint, tx `fantasy_reward`); **FLOOR-Rest → Topf** (`event_entry_fee`, Zero-Sum exakt); `event_entries` gelöscht (Idempotenz via `scored_at`). 0-Lineups-Pfad: ganzer Pot → Topf.
+- **Trigger UNANGETASTET:** escrow/settle/resync no-oppen für `type='user'` (kein Branch trifft + `prize_escrowed=false`). Settle-Owner = `score_event` (ended), `cancel_user_event` (cancelled, Auth created_by/platform_admin, Unlock-Refund + DELETE). PATCH-AUDIT: nicht-user-Zweige byte-identisch.
+- **Latente Pre-existing-Bugs mitgefixt:** `event_entry_lock` + `fantasy_reward` fehlten im `transactions_type_check` (nie gefeuert: scout_events_enabled=false + Events prize_pool=0); `chk_event_type` brauchte 'user'. `scout_events_enabled` global an (B1). Bug-Pattern: errors-db.md S396.
 
 ---
 

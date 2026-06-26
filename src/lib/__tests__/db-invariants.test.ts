@@ -657,6 +657,9 @@ describe('DB Invariants', () => {
           'event_entry_unlock', 'scout_subscription', 'scout_subscription_earning',
           // Slice 330 additions (waren im Live-CHECK, fehlten im Snapshot — in Slice 359 nachgezogen)
           'pbt_liquidation', 'success_fee',
+          // Slice 396 — User-Events Geld-Kern. event_entry_lock + fantasy_reward waren latent
+          // (rpc_lock_event_entry/score_event schrieben sie, fehlten aber im CHECK; nie gefeuert in Prod).
+          'event_entry_lock', 'event_entry_charge', 'event_create_fee', 'fantasy_reward',
         ],
       },
       {

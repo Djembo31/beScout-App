@@ -20,6 +20,9 @@ export function getActivityIcon(type: string): string {
   if (type === 'poll_vote_cost') return 'Vote';
   if (type === 'poll_earning' || type === 'poll_earn') return 'Vote';
   if (type === 'event_entry_unlock') return 'Trophy';
+  if (type === 'event_entry_lock') return 'Trophy';
+  if (type === 'event_entry_charge') return 'Trophy';
+  if (type === 'event_create_fee') return 'Trophy';
   if (type === 'scout_subscription') return 'Users';
   if (type === 'mission_reward') return 'Target';
   if (type === 'bounty_cost') return 'Target';
@@ -59,6 +62,9 @@ export function getActivityColor(type: string): string {
   if (type === 'poll_vote_cost') return 'text-amber-400 bg-amber-400/10';
   if (type === 'poll_earning' || type === 'poll_earn') return 'text-green-500 bg-green-500/10';
   if (type === 'event_entry_unlock') return 'text-emerald-400 bg-emerald-400/10';
+  if (type === 'event_entry_lock') return 'text-purple-400 bg-purple-400/10';
+  if (type === 'event_entry_charge') return 'text-amber-400 bg-amber-400/10';
+  if (type === 'event_create_fee') return 'text-amber-400 bg-amber-400/10';
   if (type === 'scout_subscription') return 'text-amber-400 bg-amber-400/10';
   if (type === 'mission_reward') return 'text-gold bg-gold/10';
   if (type === 'bounty_cost') return 'text-amber-400 bg-amber-400/10';
@@ -99,6 +105,9 @@ export function getActivityLabelKey(type: string): string {
   if (type === 'poll_vote_cost') return 'pollVoteCost';
   if (type === 'poll_earning' || type === 'poll_earn') return 'pollEarning';
   if (type === 'event_entry_unlock') return 'eventEntryUnlock';
+  if (type === 'event_entry_lock') return 'eventEntryLock';
+  if (type === 'event_entry_charge') return 'eventEntryCharge';
+  if (type === 'event_create_fee') return 'eventCreateFee';
   if (type === 'scout_subscription') return 'scoutSubscription';
   if (type === 'mission_reward') return 'missionReward';
   if (type === 'bounty_cost') return 'bountyCost';

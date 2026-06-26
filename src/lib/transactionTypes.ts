@@ -50,6 +50,8 @@ export const ALL_CREDIT_TX_TYPES = [
   'pbt_liquidation',
   // Slice 037: event entry refund (DB canonical)
   'event_entry_unlock',
+  // Slice 396: user-events money (DB canonical)
+  'event_entry_lock', 'event_entry_charge', 'event_create_fee',
   // Gamification drops (DB canonical)
   'mystery_box_reward', 'founding_pass',
 ] as const;

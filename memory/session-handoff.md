@@ -1,27 +1,14 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 08:29)
+# Session Handoff — Auto (2026-06-26 13:49)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 3 Files
 ```
  M memory/session-handoff.md
  M worklog/active.md
- M worklog/notes/event-creator-liga-epic.md
-?? worklog/specs/396-user-events-money-core.md
+ M worklog/specs/396-user-events-money-core.md
 ```
-
-## Session Commits: 10
-- dddff999 docs(tracker): Slice 395 DONE — Lineup-Reject-Coverage komplett reconciled (MASTERPLAN+TODO), Next-Pointer auf E-4
-- cf973238 feat(fantasy): Lineup-Reject-Coverage komplett — 22 restliche rpc_save_lineup-Codes regel-spezifisch (DE/TR) [Slice 395]
-- 52924411 docs(handoff): Wissen verdrahtet + SOFT-Findings als Heuristik-Artefakt verankert (kein echter Drift)
-- 37bcf87f docs(learning): Wissen verdrahten 393/394 — Reject-Mapping + Observability-Tier-4
-- 54399703 docs(tracker): Playwright-Bündel DONE + 393/394 reconciled — Next-Pointer auf E-4/Backlog
-- 5a5e28dd docs(handoff): Session-Close 2026-06-26 — 393/394 DONE + E-3-Bündel-Playwright DONE, Resume-Anker auf E-4/Backlog
-- cd300cc8 fix(auth): AuthProvider Profile-Load-Failure nach Sentry instrumentieren — war console-only (Slice 394)
-- 2fbc4ab6 feat(events): E-3 Regel-Rejects regel-spezifisch — 9 Validator-Codes → eigene DE/TR-Toast-Meldung (Slice 393)
-- c7e2cada docs(handoff): Session-Close 2026-06-26 — Slice 392 DONE, E-3-Regelsatz komplett, Resume-Anker auf Playwright-Bündel/E-4
-- ed8e8019 docs(tracker): Slice 392 DONE — E-3-Regelsatz komplett, Stand auf MASTERPLAN+TODO reconciled
 
 <!-- auto:handoff-end -->
 
@@ -29,18 +16,18 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: active — Slice 396 (E-4a User-Events Geld-Kern) in SPEC, WARTET AUF ANIL-APPROVAL.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
+**Status: idle — Slice 396 (E-4a User-Events Geld-Kern) DONE + committet.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
 
-## 🔴 ERSTE AKTION (Anil-Auftrag, expliziert): Spec 396 mit FRISCHEM/KALTEM KOPF prüfen
-- Anil will die **Spec `worklog/specs/396-user-events-money-core.md` neu mit kaltem Kopf gecheckt** haben, BEVOR irgendwas gebaut wird. Empfehlung: Cold-Context-**Reviewer-Agent auf die SPEC** (nicht Code — es gibt noch keinen) ODER selbst kritisch durchlesen gegen Modell D108 + Money-Regeln (§3) + treasury.md §7/§10 + die Live-RPC-Realität (Befund unten). Such nach: Lücken im Geldfluss, Zero-Sum-Bruch, Trigger-vs-RPC-Doppel-Escrow, source-CHECK-Vergessen, Rundungs-/Idempotenz-Löcher.
-- **DANN** Anil die 3 offenen CEO-Mini-Fragen vorlegen (s.u.) → bei Freigabe `/impact` → BUILD (4 Wellen). **KEIN BUILD vor Anil-Approval** (Money/CEO §3).
+## ✅ Slice 396 E-4a DONE (2026-06-26, Money/CEO) — Modell V3 (Anil-Korrektur beim BUILD)
+- **Modell V3 (D108 korrigiert):** Anil verwarf beim BUILD den Seed/Start-Pot („Schrott"). Gebaut: **kein Seed** · Ersteller zahlt NUR die Erstell-Gebühr (50 Cr, admin via `set_user_event_create_fee`) → Topf · **Pot = Σ Teilnehmer-Eintritte** (`event_fee_config('user')=0/0`, kein Schnitt) · BeScout verdient nur über die Gebühr · Ersteller spielt mit = zahlt Eintritt.
+- **Gebaut (4 Migrationen):** `create_user_event` + `cancel_user_event` + `set_user_event_create_fee` + `score_event` user-Zweig (Pot=Σ Eintritte, charge, FLOOR-Rest→Topf) + `rpc_save_lineup` Wildcard-COALESCE-Fix (380-Vormerkung erledigt) + Schema (events.type+'user', min_entries, `platform_event_config`, scout_events_enabled=true). **3 latente Pre-existing-Bugs mitgefixt:** `event_entry_lock`+`fantasy_reward` fehlten im tx-CHECK, `chk_event_type` brauchte 'user' (nie in Prod gefeuert).
+- **Beweis:** force-rollback AC1-AC11 + Rest→Topf + Idempotenz, **Zero-Sum diff=0** in 3 Configs; PATCH-AUDIT (3 Trigger md5 unverändert, non-user byte-identisch); AR-44 ACL sauber; tsc+vitest 1662 grün. Reviewer **PASS** (`worklog/reviews/396-review.md`). Proof `worklog/proofs/396-money-smoke.txt`.
+- **Keine geseedeten Live-Artefakte** (alle Smokes BEGIN…RAISE=Rollback; Topf live unverändert).
 
-## 📋 E-4a Slice 396 — Stand
-- **Modell gelockt = D108** (`memory/decisions.md`): Geld-Modell B (dynamischer Pot aus Eintritten −5 % BeScout → Topf, optionaler Start-Pot aus Wallet, **Ersteller verdient nichts**), Start auch ohne volle Teilnehmerzahl, **`min_entries`** Ersteller-wählbar (sonst Absage+Refund), Auszahlung Ersteller-wählbar (Top-3/Winner-all, Reuse `RewardStructureEditor`), **Anti-Müll = admin-steuerbare Erstell-Gebühr → Topf** (kein Event-Limit), Typ `user` (5/0), Scope **öffentlich** zuerst.
-- **Befund (Live-RPCs 2026-06-26, im Spec §1):** Event-Geld = 2 Ströme. ① Preis-Pot (treasury-escrow → `score_event` mintet → settle-refund) = **voll/zero-sum**. ② Eintritt = **nur halb gebaut**: `rpc_lock_event_entry` SPERRT nur, `rpc_unlock_event_entry`/`rpc_cancel_event_entries` lösen auf, **`score_event` fasst gesperrte Eintritte NIE an** → „Eintritt→Pot" existiert nicht (dormant; 208 Events alle ended, 0 Pool). **Diese fehlende Hälfte (Lock-on-join + Charge-at-settle) = E-4a-Kern.**
-- **Spec-Wellen:** W1 Schema (type `user` + `min_entries` + `event_fee_config('user')` + `platform_event_config` Erstell-Gebühr-Config+Setter + treasury-source-CHECK widen `event_create_fee`/`event_entry_fee`) · W2 `create_user_event` (Gebühr→Topf + Seed-Escrow Wallet) · W3 dynamischer Entry-Pot-Settle (score_event user-Branch) + Trigger-user-Zweige + min_entries-Absage/Refund · W4 club-loser Wildcard-Fix (380-Vormerkung) + Wissens-Kopplung.
-- **3 offene CEO-Mini-Fragen (Anil entscheidet vor BUILD):** (a) Event ganz ohne Geld (Entry=0 **und** Seed=0) erlauben oder ablehnen? *(Empf. ablehnen)* (b) Default-Erstell-Gebühr? *(Empf. 10 Cr = 1000 cents)* (c) Settle-Trigger nur Ersteller oder auch platform_admin? *(Empf. beide)*.
-- **Live-functiondef VOR jedem RPC-Edit re-fetchen (D87)** — Bodies in dieser Session gelesen (rpc_lock_event_entry, score_event, create_user_bounty, trg_events_escrow_prize/prize_settle, rpc_cancel_event_entries, rpc_unlock_event_entry, rpc_save_lineup) aber vor Edit erneut ziehen (Drift). Reuse-Vorbilder: `create_user_bounty` (Wallet-Escrow), `set_liga_reward_config` (admin-Setter), `RewardStructureEditor` (Verteilungs-UI, für E-4b).
+## ➡️ NÄCHSTER: E-4b (Builder-UI) ODER Backlog (Anil-Wahl)
+- **E-4b (M, UI — entkoppelt von Money, kann FE-Agent):** `CreateEventModal` entmocken → ruft `create_user_event` (Service+Hook neu) · Cancel-UI → `cancel_user_event` · Admin-Gebühr-Slider → `set_user_event_create_fee` · **EventType-UI-Union-Kaskade** (`DbEvent.type`+`EventType`+'user' → zieht `EventScopeBadge.TYPE_CONFIG` + `EventCategoryCards`-Record + `helpers.getTypeStyle` nach, tsc-Zwang) · **JoinConfirmDialog** Money-Branch (hinter `PAID_FANTASY_ENABLED` versteckt → für Credits-Eintritt sichtbar machen) · öffentliche Discovery + Live-Pot-Vorschau · **`mapErrorToKey` für neue Reject-Codes** (auth_uid_mismatch/insufficient_balance/min_gt_max/… sonst generic-Toast, S393) · Cache-Invalidierung (`['events']`+`['wallet']`+`/api/events?bust=1`) in den neuen Hooks · `min_entries` in die 3 expliziten Select-Listen (`events.queries.ts:25,38,126`) + `DbEvent`-Type · orphan `event_fee_config('creator')`-Cleanup. Impact-Detail: `worklog/impact/396-user-events-money-core.md`.
+- **Offene LOW aus Review (deferred, money-neutral):** cancelled User-Event ohne `scored_at` ist von `score_event` re-betretbar (0 entries/lineups → kein Geld) → optional „terminal status guard in score_event".
+- Anker: `worklog/notes/event-creator-liga-epic.md` (E-4/E-5/E-6/E-7) + `decisions.md` D108 V3.
 
 ## ✅ Vorige Session (2026-06-26) — 395 DONE + E-4-Alignment
 - **Slice 395 DONE** (`cf973238`/`dddff999`): Lineup-Reject-Coverage komplett (22 restliche `rpc_save_lineup`-Codes regel-spezifisch DE/TR, Reviewer PASS). rpc_save_lineup-Reject-Coverage damit komplett (nur dynamischer Toast-Kontext bleibt Folge-Slice via Throw-Refactor `lineups.mutations.ts:62`).

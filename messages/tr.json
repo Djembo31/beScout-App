@@ -4339,6 +4339,8 @@
     "platformPotSrcMonthlyLiga": "Aylık Lig",
     "platformPotSrcBescoutEvent": "BeScout Etkinliği",
     "platformPotSrcSpecialEvent": "Özel Etkinlik",
+    "platformPotSrcEventCreateFee": "Etkinlik oluşturma ücreti",
+    "platformPotSrcEventEntryFee": "Etkinlik giriş ücreti",
     "eventCurrency": "Birim",
     "ticketsLabel": "Bilet",
     "scoutEventsTitle": "Credits Etkinlikleri",
@@ -4874,6 +4876,9 @@
     "tipSend": "Bahşiş gönderildi",
     "offerExecute": "Teklif yürütüldü (Alım)",
     "eventEntryUnlock": "Etkinlik girişi iade edildi",
+    "eventEntryLock": "Etkinlik girişi kilitlendi",
+    "eventEntryCharge": "Etkinlik girişi",
+    "eventCreateFee": "Etkinlik oluşturma ücreti",
     "scoutSubscription": "Danışmanlık sözleşmesi yapıldı"
   },
   "feed": {

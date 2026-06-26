@@ -9,6 +9,7 @@ paths:
 
 ## Events
 - `entry_fee`, `prize_pool`, `max_entries`, `event_tier` (arena/club/user)
+- `events.type`: bescout/club/sponsor/special/**user** (Slice 396) + Legacy `creator` (gedriftet, NICHT nutzen, D108). User-Events: `currency='scout'`, `ticket_cost` = money-autoritativ (NICHT `entry_fee`, das ist Display-Spiegel), `club_id=NULL`, `prize_pool=0`/`prize_escrowed=false` (Pot ist virtuell = Σ Eintritte, erst beim Settle real). Erstellt via `create_user_event` (SEC DEFINER, Gebühr→Topf, KEIN Seed); abgesagt via `cancel_user_event` (Auth created_by/platform_admin). Geldfluss-Kanon: `docs/knowledge/domain/treasury.md` (Slice 396) + D108 V3.
 - `current_entries` ist Teilnehmer-Count (NICHT `participant_count`)
 - Events klonen bei neuem GW (`cron_process_gameweek`)
 - Fantasy Events sind GLOBAL — kein Club noetig (ADR-017)
@@ -24,6 +25,7 @@ paths:
 
 ## Scoring
 - `score_event` v4: GW Events → `player_gameweek_scores`, Non-GW → `_temp_event_scores`
+- **`score_event` `type='user'`-Zweig (Slice 396, additiv geguarded):** Pot = Σ `event_entries.fee_split.prize_pool`; Eintritte abbuchen (`balance/locked −= amount_locked`, tx `event_entry_charge`); `v_prize_pool := v_user_pot` (statt `events.prize_pool`=0); bestehende FLOOR-Distribution mintet an Gewinner (tx `fantasy_reward`); **FLOOR-Rest + 0-Lineups-Pot → Topf** (`event_entry_fee`). Zero-Sum exakt, Idempotenz via `scored_at`. Non-user-Pfade byte-identisch (PATCH-AUDIT). **Reject-Codes** (create/cancel) brauchen `mapErrorToKey`-Mapping bei UI-Verdrahtung = E-4b (errors-frontend S393).
 - `sync_fixture_scores`: API-Football `fantasy_points` (0-15) → Scores (40-150)
 - `perf_l5`/`perf_l15`/`perf_season` = `LEAST(100, ROUND(AVG(score) über letzte 5/15/alle GW-Rows ORDER BY gameweek DESC))` — Quelle `cron_recalc_perf` (live-verifiziert Slice 309/D77). **KEIN /1.5** (frühere Doc-Behauptung war falsch; GW-Scores 40-150 werden NICHT durch 1.5 geteilt, sondern direkt gemittelt + bei 100 gecappt). Helper: `deriveL5FromRecentScores` (Display aus FormBars).
 - Score-Farben: >=100 Gold, 70-99 Weiss, <70 Rot

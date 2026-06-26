@@ -4339,6 +4339,8 @@
     "platformPotSrcMonthlyLiga": "Monats-Liga",
     "platformPotSrcBescoutEvent": "BeScout-Event",
     "platformPotSrcSpecialEvent": "Sonder-Event",
+    "platformPotSrcEventCreateFee": "Event-Erstellgebühr",
+    "platformPotSrcEventEntryFee": "Event-Eintritts-Fee",
     "eventCurrency": "Einheit",
     "ticketsLabel": "Tickets",
     "scoutEventsTitle": "Credits-Events",
@@ -4874,6 +4876,9 @@
     "tipSend": "Tipp gesendet",
     "offerExecute": "Gebot ausgeführt (Kauf)",
     "eventEntryUnlock": "Event-Eintritt erstattet",
+    "eventEntryLock": "Event-Eintritt gesperrt",
+    "eventEntryCharge": "Event-Eintritt",
+    "eventCreateFee": "Event-Erstellgebühr",
     "scoutSubscription": "Beratervertrag abgeschlossen"
   },
   "feed": {
