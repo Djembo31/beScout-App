@@ -1,0 +1,11 @@
+SLICE 398 — F1-Quickfix: fehlende fantasy.bench*-i18n-Keys
+============================================================
+Build-Validierung (node, 2026-06-26):
+  OK — 9 Keys x2 Sprachen + Params korrekt
+  Keys: benchTitle benchSubTitle benchGkLabel benchOutfieldLabel{n}
+        benchSubOrderLabel{order} benchRemoveSlot{label} benchEmptySlot{label}
+        benchMoveUp benchMoveDown
+  DE+TR fantasy-Namespace, Param-Platzhalter verifiziert.
+
+Live-Re-Verify (post-Deploy gegen bescout.net): pending — EventDetail
+  von E2E-Event 7052f7d7 oeffnen, Console auf bench-MISSING_MESSAGE pruefen (erwartet 0).

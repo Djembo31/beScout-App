@@ -2,6 +2,12 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 398 | 2026-06-26 | fix(i18n): fehlende fantasy.bench*-Keys ergänzt — Roh-Key-Leak im Lineup-Builder behoben (F1 aus Slice 397)
+- Stage-Chain: SPEC (inline XS, S198) → IMPACT skipped (reine i18n) → BUILD (de.json+tr.json) → REVIEW self-review (XS Pattern-Wiederholung) → PROVE (`398-bench-i18n.txt` Validierung + Live-Re-Verify post-Deploy) → LOG.
+- **Behebt 397-Live-Fund F1:** `BenchRow.tsx` (Feat 195d) nutzt 9 `fantasy.bench*`-Keys, von denen KEINER in den Sprachdateien existierte → 95 MISSING_MESSAGE + **Roh-Key-Leak in sichtbarer UI** (Label-Text „fantasy.benchGkLabel"). Global (jedes Event mit Lineup-Bench), pre-existing.
+- **Fix:** 9 Keys × DE+TR im `fantasy`-Namespace (`benchTitle`/`benchSubTitle`/`benchGkLabel`/`benchOutfieldLabel`{n}/`benchSubOrderLabel`{order}/`benchRemoveSlot`{label}/`benchEmptySlot`{label}/`benchMoveUp`/`benchMoveDown`). Param-Platzhalter verifiziert. Compliance-neutral (Fantasy-Lineup-Begriffe). Kein Code-Change.
+- Files: 2 (de.json + tr.json). Commit: <pending>. **Offen: Live-Re-Verify post-Deploy (0 bench-MISSING_MESSAGE).**
+
 ## 397 | 2026-06-26 | feat(events): User-Events Builder-UI verkabelt (E-4b Teil 1) — CreateEventModal entmockt, Credit-Eintritt sichtbar [Money-nah]
 - Stage-Chain: SPEC (`397-user-events-builder-ui.md`, M, UI) → IMPACT (reuse `impact/396-*.md` §B/§F/§H + Explore-Map, kein neues File) → BUILD (14 Files) → REVIEW (`397-review.md` reviewer **PASS**, 3 NIT, NIT#1 geheilt) → PROVE (`proofs/397-service-test.txt` 6/6 + tsc0; Live-Playwright AC-2/3/5 = post-Deploy) → LOG.
 - **Verkabelt den toten E-4a-Geldkern (396):** Vorher Mock (`CreateEventModal.onCreate` → nur Toast, 0 DB-Write, `type:'creator'`); 0 `src/`-Konsumenten von `create_user_event`. Jetzt echter Builder → `create_user_event` via neuem Service + Hook.

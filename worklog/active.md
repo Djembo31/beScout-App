@@ -1,23 +1,26 @@
 # Active Slice
 
 ```
-status: idle
-slice: 397
-title: E-4b User-Events Builder-UI verkabeln (Teil 1) — DONE + Live-verifiziert
-size: M
-stage: LOG (DONE)
-spec: worklog/specs/397-user-events-builder-ui.md
-impact: reuse worklog/impact/396-user-events-money-core.md §B/§F/§H + Explore-Map 2026-06-26 (E-4b-Fläche kartiert, kein neues impact-File)
-build: DONE — 14 Files. Typ-Union 'user' (5 Lookups) + Service createUserEvent + Hook useCreateUserEvent (S371) + CreateEventModal-Rewrite + FantasyHeader-Gate-Öffnung + FantasyContent-Wiring + JoinConfirmDialog-Entkopplung (type==='user') + errorMessages 11 Codes + i18n DE/TR + NIT#1-Heal (ganze Credits). tsc grün, 6/6 Service-Test + 285 Fantasy-Tests grün, i18n-Parität OK.
-proof: worklog/proofs/397-service-test.txt
-proof-note: Service 6/6 + tsc0 grün. Live-Playwright AC-2/3/5 DB-Reconcile = post-Deploy (Vercel baut von main), NACH Push gegen bescout.net.
-review: worklog/reviews/397-review.md (PASS, 3 NIT — NIT#1 geheilt, NIT#2/#3 bewusst belassen)
-ceo: 3 Forks entschieden (2026-06-26): (1) Credit-Eintritt von PAID_FANTASY_ENABLED entkoppeln + sichtbar · (2) jeder eingeloggte User darf erstellen · (3) Split 397 (Erstellen+Eintritt) / 398 (Discovery+Pot-Preview+Cancel+Admin-Fee).
+status: active
+slice: 398
+title: F1-Quickfix — fehlende fantasy.bench*-i18n-Keys (Roh-Key-Leak im Lineup-Builder)
+size: XS
+stage: PROVE
+spec: inline (XS, S198-Muster — 9 fehlende Keys × DE+TR)
+impact: skipped (reine i18n-Addition, 0 Logik, 0 Consumer-Drift)
+proof: worklog/proofs/398-bench-i18n.txt
+review: self-review (XS, S198 i18n-Pattern-Wiederholung, kein Money/Security)
 ```
 
+## Inline-Spec (XS)
+
+**Problem (Slice 397 Live-Fund F1):** `src/features/fantasy/components/lineup/BenchRow.tsx` nutzt 9 `fantasy.bench*`-Keys, die in KEINER Sprachdatei existieren → 95 MISSING_MESSAGE-Console-Errors + **Roh-Key-Leak in sichtbarer UI** (Button-/Label-Text „fantasy.benchGkLabel"). Pre-existing seit Feat 195d, trifft JEDES Event mit Lineup-Bench (global, nicht nur User-Events).
+
+**Keys (mit Param):** `benchTitle`, `benchSubTitle`, `benchGkLabel`, `benchOutfieldLabel`{n}, `benchSubOrderLabel`{order}, `benchRemoveSlot`{label}, `benchEmptySlot`{label}, `benchMoveUp`, `benchMoveDown`.
+
+**ACs:** (1) alle 9 Keys in de.json+tr.json fantasy-Namespace · (2) Param-Platzhalter korrekt (`{n}`/`{order}`/`{label}`) · (3) Live: EventDetail öffnen → 0 bench-MISSING_MESSAGE, kein Roh-Key im UI · (4) Wording compliance-neutral (Fantasy-Lineup-Begriffe).
+
+**Proof:** Live-Re-Open des E2E-Events `7052f7d7…` gegen bescout.net → Console 0 bench-Errors.
+
 ## Zuletzt
-
-- **Slice 396** (2026-06-26) — User-Events Geld-Kern (E-4a), Money/CEO, DONE. RPCs `create_user_event`/`cancel_user_event`/`set_user_event_create_fee` live, aber 0 UI-Konsumenten (toter Geldkern).
-- **Slice 395** (2026-06-26) — Lineup-Reject-Coverage komplett. DONE.
-
-Nächstes: SPEC-Approval → /impact (E-4b-Fläche bereits kartiert, ggf. dünn) → BUILD → REVIEW (Pflicht, money-nah) → PROVE (Service-vitest + Live-Playwright) → LOG. Danach 398 (Discovery/Cancel/Admin-Fee).
+- **Slice 397** (2026-06-26) — E-4b Teil 1 User-Events Builder verkabelt, DONE + live (`21523534`/`10d7cda3`).
