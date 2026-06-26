@@ -87,6 +87,12 @@ Mehrere Acting-User (verschiedene Seller/Club-Admins) in EINEM `DO $$ BEGIN PERF
 
 **Wichtig:** Seed ist **echt + append-only** (permanent) — als bewusste Liquidität dokumentieren (handoff/proof), nicht „aufräumen". `create_ipo` braucht Club-Admin der Spieler-Club + `p_start_immediately=true` → sofort `open` (kein Announce/Cooldown). Live-Beleg: 369-AC5 (4 Sell-Orders + 3 IPOs geseedet → echter Buy → `/api/push` 200).
 
+### Event-Status-abhängiger Live-Test: GW-Live-Sync flippt Events nach `running` (Slice 399, 2026-06-26)
+
+**Problem:** Ein Live-Test einer Event-**Status**-Transition (z.B. Cancel = nur `registering`/`late-reg` erlaubt, fail-closed RPC) gegen ein Event im **aktiven/laufenden Gameweek** schlägt scheinbar fehl: ein per `create_user_event` (oder SQL-`UPDATE … 'registering'`) gesetztes Event wird binnen ~1 Min von einem GW-Status-Sync auf `running` geflippt → die money/state-RPC weist es korrekt mit `event_not_open` ab (fail-closed = **kein** Bug). Symptom: Button rendert (Client-State noch `registering`), aber Klick → Reject; DB zeigt `running`.
+
+**Lösung:** Test-Event für einen **nicht-live Zukunfts-Gameweek** (`gameweek = aktiv+1`) erstellen → bleibt `registering` (kein Live-Sync) → im UI per „Nächster Spieltag"-Nav öffnen → Transition testen. Alternativ ein knapper `UPDATE … 'registering'` + sofort (nächster Tool-Call) die UI-Aktion, bevor der Sync flippt. Vor der Status-Assertion immer den **DB-Status frisch lesen** (nicht dem Client-Render trauen). Live-Beleg: 399-AC3 (Cancel-Happy via GW35-Event `cancelled`) + AC4 (running → kein Button + RPC-Reject). Verwandt: `/api/events` ist server-/edge-gecacht → nach SQL-Seed `fetch('/api/events?bust=1')` + Reload, sonst rendert das neue Event nicht.
+
 ## useSafeMutation Test-Patterns (codifiziert Slice 164, aus 159/161/162/163)
 
 Wenn Component/Hook auf `useSafeMutation` migriert wird, erfordert das **Test-Mock-Expansion** (transitive Imports) + **Handler-Testing-Pattern** (Observer ist async).
