@@ -1,11 +1,13 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 17:07)
+# Session Handoff — Auto (2026-06-26 17:18)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- af52c56b docs(handoff): auto-block sync (Session-Close 2026-06-26, Slice 399)
+- 37dbdf12 docs(distill): Slice 399 Tracker-Reconcile (E-4 KOMPLETT) + Wissen verdrahtet
 - 98ef9503 docs(handoff): Slice 399 DONE — Resume-Anker auf Backlog (E-5/E-6/E-7/S7)
 - 20fce03e docs(399): Live-Verify post-Deploy PASS (AC1-AC6) + LOG — User-Events end-to-end nutzbar
 - ea27cfe3 feat(events): User-Events fertig — Discovery + F2/F3 + Cancel + Admin-Gebühr [Slice 399]
@@ -14,8 +16,6 @@
 - fbf1e094 fix(i18n): fehlende fantasy.bench*-Keys ergaenzt — Roh-Key-Leak im Lineup-Builder [Slice 398]
 - 10d7cda3 docs(397): Live-Verify post-Deploy PASS (Money Zero-Sum + S371) + 3 pre-existing Funde dokumentiert
 - 21523534 feat(events): User-Events Builder-UI verkabelt (E-4b Teil 1) [Slice 397]
-- dc582eaf docs(handoff): Session-Close 2026-06-26 — Slice 396 E-4a DONE, Resume-Anker auf E-4b/Backlog
-- 0cd799b5 feat(events): User-Events Geld-Kern (E-4a) — Eintritts-Pot, Erstell-Gebühr→Topf, kein Seed [Slice 396]
 
 <!-- auto:handoff-end -->
 

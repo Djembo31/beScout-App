@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 400 | 2026-06-26 | refactor(events): E-7 creator-Drift restlos entfernt (11 Flächen + chk_event_type verengt)
+- Stage-Chain: SPEC (`400-creator-drift-cleanup.md`, S, Migration) → IMPACT (inline §3 Consumer-Tabelle) → BUILD (10 src/i18n-Files + 1 Migration) → REVIEW (`400-review.md` reviewer **PASS**, 1 NIT → über NIT hinaus geheilt) → PROVE (`proofs/400-cleanup.txt`) → LOG.
+- **Smell-Audit-getrieben** (Anil: „Design-Smells melden"): Explore-Agent + DB-Queries kartierten den deprecated Event-Typ `creator` (D108) über **11 tote Flächen** (DbEvent.type war schon creator-frei → alle latent, kein User-Bug). CEO-approved „voller Schnitt + Bonus" (AskUserQuestion).
+- **Geschnitten:** `EventType`-Union (`features/fantasy/types.ts`) · `DbEventFeeConfig.event_type` (`types/index.ts`) · `getTypeStyle`-case (`helpers.ts`) · `EventScopeBadge.TYPE_CONFIG`-Key · `EventCategoryCards`/`EventBrowser` counts-Maps · `eventMapper` No-op-Ternary (`type: db.type`) · i18n `eventCategories.creator` DE+TR · `EventScopeBadge.test` (creator→user umgewidmet) · **Bonus:** tote `FantasyEvent.creatorId/creatorName`-Felder.
+- **DB (Migration `20260626180000`):** `DELETE event_fee_config WHERE event_type='creator'` (Waisenzeile) + **`chk_event_type` verengt** auf creator-freie Whitelist = `events_type_check` (die von der Impact-Analyse übersehene „letzte Tür" für Re-Insert). Money byte-identisch: nur `rpc_lock_event_entry` liest die Tabelle, nie nach `creator` (D87-Reader-Check vor DELETE).
+- **Beweis:** tsc exit 0 (alle exhaustiven Record<EventType>-Maps tsc-erzwungen creator-frei) · vitest 8/8 · DB jetzt 5 Zeilen (kein creator) · grep clean · JSON-Parse de+tr ok (S399). Knowledge-Kopplung (D88): `fantasy.md` events.type + E-7-Tail auf DONE aktualisiert.
+
 ## 399 | 2026-06-26 | feat(events): User-Events fertig — Discovery + F2/F3 + Cancel + Admin-Gebühr (E-4b Teil 2) [Money-nah]
 - Stage-Chain: SPEC (`399-user-events-discovery-finish.md`, M, UI) → IMPACT (reuse `impact/396-*.md` §B/§F/§H + Spec §3) → BUILD (15 Files) → REVIEW (`399-review.md` reviewer **PASS**, 3 NIT, alle akzeptiert/dokumentiert) → PROVE (`proofs/399-service-test.txt` 16/16 + tsc0; `proofs/399-live-verify.txt` Live-Playwright AC1-AC6 alle PASS) → LOG.
 - **Schließt das User-Events-Feature ab (Anti-Build-without-Wire D53)** — nach 396 (Geldkern) + 397 (Builder) + 398 (bench-i18n) war es erstellbar aber nicht auffindbar/abbrechbar.

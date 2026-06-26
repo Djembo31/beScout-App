@@ -1,0 +1,50 @@
+Slice 400 — E-7 creator-Drift-Cleanup — PROOF
+Datum: 2026-06-26
+
+=== AC-1 + AC-2 [DB] event_fee_config nach Migration (DELETE creator) ===
+SELECT event_type FROM event_fee_config ORDER BY event_type;
+→ bescout, club, special, sponsor, user   (5 Zeilen, KEIN creator)
+Migration: supabase/migrations/20260626180000_remove_creator_event_fee_config.sql
+apply_migration → {"success":true}
+
+=== AC-3 [tsc] ===
+npx tsc --noEmit → exit 0 (grün)
+Beweist: alle exhaustiven Record<EventType>-Maps creator-frei + eventMapper type:db.type assignable.
+
+=== AC-4 [grep] kein creator-Event-Typ-Treffer in src/ ===
+grep -rn "'creator'" src/ | grep -vi "creator_fund|creatorId|creatorName|creatorPayout|creatorIds"
+→ nur 1 Treffer: src/features/fantasy/types.ts:8 (Kommentar „Legacy 'creator' restlos entfernt") — beabsichtigt.
+
+=== AC-5 [test] ===
+CI=true npx vitest run src/components/ui/__tests__/EventScopeBadge.test.tsx
+→ Test Files 1 passed (1) / Tests 8 passed (8)
+(creator-Test umbenannt auf user-Typ; deckt identische Community-Optik ab.)
+
+=== AC-6 [i18n] ===
+node -e JSON.parse(de.json)+JSON.parse(tr.json) → "json ok"
+grep '"creator"' messages/de.json messages/tr.json → NO creator i18n key
+
+=== Money-Sicherheit (Code-Reading #3) ===
+pg_proc.prosrc ILIKE '%event_fee_config%' → nur rpc_lock_event_entry liest die Tabelle
+(nach event_type = <Event-Typ>, nie 'creator', da CHECK 'creator' verbietet + 0 Prod-Events).
+→ DELETE folgenlos, Money byte-identisch.
+
+=== Geschnittene Flächen (11) ===
+DB: event_fee_config creator-Zeile (DELETE)
+src/features/fantasy/types.ts: EventType-Union creator raus + creatorId/creatorName (tote Felder)
+src/types/index.ts: DbEventFeeConfig.event_type creator raus
+src/features/fantasy/helpers.ts: getTypeStyle case creator raus
+src/components/ui/EventScopeBadge.tsx: TYPE_CONFIG creator-Key + Kommentar
+src/components/fantasy/events/EventCategoryCards.tsx: counts creator-Key raus
+src/components/fantasy/events/EventBrowser.tsx: counts creator: 0 raus
+src/features/fantasy/mappers/eventMapper.ts: No-op-Ternary → type: db.type
+messages/de.json + tr.json: eventCategories.creator (tot) raus
+src/components/ui/__tests__/EventScopeBadge.test.tsx: creator-Test → user-Test
+
+=== POST-REVIEW: chk_event_type verengt (NIT #1 geheilt, restloser Schnitt) ===
+event_fee_config hatte einen ZWEITEN CHECK (chk_event_type), der 'creator' noch erlaubte
+(die letzte Tür für Re-Insert). Verengt auf creator-freie Whitelist = events_type_check:
+ALTER TABLE event_fee_config DROP/ADD CONSTRAINT chk_event_type
+  CHECK (event_type IN ('bescout','club','sponsor','special','user'));
+Verify (live): CHECK ((event_type = ANY (ARRAY['bescout','club','sponsor','special','user'])))
+→ creator kann nicht mehr re-inserted werden. Money-neutral (nur Verengung).

@@ -1067,7 +1067,7 @@ export type DbFanWish = {
 };
 
 export type DbEventFeeConfig = {
-  event_type: 'bescout' | 'club' | 'sponsor' | 'special' | 'creator' | 'user';
+  event_type: 'bescout' | 'club' | 'sponsor' | 'special' | 'user';
   platform_pct: number;
   beneficiary_pct: number;
   updated_at: string;

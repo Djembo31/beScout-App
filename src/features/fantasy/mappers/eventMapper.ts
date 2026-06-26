@@ -24,7 +24,7 @@ export function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userL
     id: db.id,
     name: db.name,
     description: `${db.name} – ${db.format} Format`,
-    type: db.type === 'special' ? 'special' : db.type,
+    type: db.type,
     mode: db.format === '11er' ? 'tournament' : 'league',
     status: deriveEventStatus(db),
     format: (db.format || '7er') as LineupFormat,

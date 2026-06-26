@@ -7,7 +7,7 @@ import type { EventType } from '@/components/fantasy/types';
 
 // ============================================
 // EVENT TYPE BADGE (replaces old EventScopeBadge)
-// Shows event ownership: BeScout, Club, Sponsor, Special, Creator
+// Shows event ownership: BeScout, Club, Sponsor, Special, User
 // ============================================
 
 interface EventTypeBadgeProps {
@@ -34,7 +34,6 @@ const TYPE_CONFIG: Record<EventType, {
   club: { icon: Building2, color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20', label: 'Club Event' },
   sponsor: { icon: Gift, color: 'text-sky-400', bg: 'bg-sky-500/10', border: 'border-sky-500/20', label: 'Sponsor' },
   special: { icon: Star, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20', label: 'Special' },
-  creator: { icon: UserPlus, color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', label: 'Community' },
   // Slice 397 (E-4b): von Nutzern erstellte Events.
   user: { icon: UserPlus, color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', label: 'Community' },
 };

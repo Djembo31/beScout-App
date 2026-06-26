@@ -43,8 +43,8 @@ describe('EventTypeBadge', () => {
     expect(screen.getByTestId('star-icon')).toBeInTheDocument();
   });
 
-  it('renders "Community" for creator type', () => {
-    render(<EventTypeBadge type="creator" />);
+  it('renders "Community" for user type', () => {
+    render(<EventTypeBadge type="user" />);
     expect(screen.getByText('Community')).toBeInTheDocument();
     expect(screen.getByTestId('user-icon')).toBeInTheDocument();
   });

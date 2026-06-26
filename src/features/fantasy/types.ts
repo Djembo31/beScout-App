@@ -5,8 +5,8 @@
 import type { LineupRule } from '@/types';
 
 // Slice 397 (E-4b): 'user' = von Nutzern erstellte Events (create_user_event, D108).
-// 'creator' = Legacy-Drift, NICHT mehr nutzen (D108) — bleibt nur für Altbestand in der Union.
-export type EventType = 'bescout' | 'special' | 'club' | 'sponsor' | 'creator' | 'user';
+// Slice 400 (E-7): Legacy 'creator' restlos entfernt (DB-CHECK verbietet ihn, 0 Prod-Events).
+export type EventType = 'bescout' | 'special' | 'club' | 'sponsor' | 'user';
 export type EventMode = 'tournament' | 'league';
 export type EventStatus = 'registering' | 'late-reg' | 'running' | 'upcoming' | 'ended';
 export type LineupFormat = '7er' | '11er' | '11er-reserve';
@@ -44,8 +44,6 @@ export type FantasyEvent = {
   clubLogo?: string;
   sponsorName?: string;
   sponsorLogo?: string;
-  creatorId?: string;
-  creatorName?: string;
   leagueId?: string;
   leagueName?: string;
   leagueShort?: string;
