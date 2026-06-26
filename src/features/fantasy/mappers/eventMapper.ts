@@ -69,6 +69,9 @@ export function dbEventToFantasyEvent(db: DbEvent, joinedIds: Set<string>, userL
     ticketCost: db.ticket_cost ?? 0,
     currency: db.currency ?? 'tickets',
     isLigaEvent: db.is_liga_event ?? false,
+    // Slice 399 (E-4b Teil 2): Ersteller + Mindest-Teilnehmer für Cancel-Gate/Anzeige.
+    createdBy: db.created_by ?? null,
+    minEntries: db.min_entries ?? null,
     clubId: db.club_id ?? undefined,
     clubName: (db as Record<string, unknown>).clubs ? ((db as Record<string, unknown>).clubs as { name: string; logo_url: string | null }).name : undefined,
     clubLogo: (db as Record<string, unknown>).clubs ? ((db as Record<string, unknown>).clubs as { name: string; logo_url: string | null }).logo_url ?? undefined : undefined,

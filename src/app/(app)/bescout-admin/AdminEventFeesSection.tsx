@@ -5,6 +5,7 @@ import { Loader2, Globe, Building2, Gift, Star, UserPlus } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getEventFeeConfigs, updateEventFeeConfig } from '@/lib/services/platformAdmin';
+import { getUserEventCreateFee, setUserEventCreateFee } from '@/features/fantasy/services/events.mutations';
 import type { DbEventFeeConfig } from '@/types';
 
 type FeeKey = 'platform_pct' | 'beneficiary_pct';
@@ -14,6 +15,8 @@ const TYPE_META: Record<string, { icon: React.ElementType; color: string; label:
   club:     { icon: Building2, color: 'text-emerald-400', label: 'Club',      beneficiaryLabel: 'Club' },
   sponsor:  { icon: Gift,     color: 'text-sky-400',     label: 'Sponsor',   beneficiaryLabel: 'Club (Host)' },
   special:  { icon: Star,     color: 'text-purple-400',  label: 'Special',   beneficiaryLabel: '\u2014' },
+  // Slice 399: User-Events (Pot = \u03a3 Eintritte, kein Beneficiary-Schnitt \u2014 D108).
+  user:     { icon: UserPlus, color: 'text-orange-400',  label: 'User',      beneficiaryLabel: '\u2014' },
   creator:  { icon: UserPlus, color: 'text-orange-400',  label: 'Community', beneficiaryLabel: 'Creator' },
 };
 
@@ -24,12 +27,38 @@ export function AdminEventFeesSection({ adminId }: { adminId: string }) {
   const [editType, setEditType] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<{ platform_pct: number; beneficiary_pct: number }>({ platform_pct: 0, beneficiary_pct: 0 });
   const [saving, setSaving] = useState(false);
+  // Slice 399 (E-4b Teil 2): User-Event-Erstell-Gebühr (platform_event_config Singleton).
+  const [createFeeCredits, setCreateFeeCredits] = useState<number>(50);
+  const [createFeeSaving, setCreateFeeSaving] = useState(false);
 
   useEffect(() => {
     getEventFeeConfigs()
       .then(data => { setConfigs(data); setLoading(false); })
       .catch((e) => { console.error('[AdminEventFeesSection] Load failed:', e); setLoading(false); });
   }, []);
+
+  useEffect(() => {
+    getUserEventCreateFee()
+      .then(cents => setCreateFeeCredits(Math.round(cents / 100)))
+      .catch((e) => console.error('[AdminEventFeesSection] Create-fee load failed:', e));
+  }, []);
+
+  const handleSaveCreateFee = async () => {
+    if (createFeeSaving || createFeeCredits < 0 || !Number.isFinite(createFeeCredits)) return;
+    setCreateFeeSaving(true);
+    try {
+      const res = await setUserEventCreateFee(Math.round(createFeeCredits) * 100);
+      if (res.ok) {
+        addToast('User-Event-Erstellgebuehr aktualisiert', 'success');
+      } else {
+        addToast(res.error ?? 'Fehler', 'error');
+      }
+    } catch (e) {
+      addToast(e instanceof Error ? e.message : 'Fehler', 'error');
+    } finally {
+      setCreateFeeSaving(false);
+    }
+  };
 
   const handleSave = async (eventType: string) => {
     setSaving(true);
@@ -181,6 +210,37 @@ export function AdminEventFeesSection({ adminId }: { adminId: string }) {
       {/* Footer hint */}
       <div className="mt-3 text-[10px] text-white/20 px-1">
         Werte in Basispunkten (bps). 500 bps = 5%. Platform + Beneficiary duerfen zusammen max 100% sein.
+      </div>
+
+      {/* Slice 399: User-Event-Erstellgebuehr (eigene Singleton-Config, NICHT bps) */}
+      <div className="mt-4 pt-4 border-t border-white/[0.06]">
+        <div className="flex items-center gap-2 mb-2">
+          <UserPlus className="size-4 text-orange-400" aria-hidden="true" />
+          <span className="font-bold text-sm text-white">User-Event-Erstellgebuehr</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            step={1}
+            value={createFeeCredits}
+            onChange={e => setCreateFeeCredits(Math.max(0, parseInt(e.target.value) || 0))}
+            aria-label="User-Event-Erstellgebuehr in Credits"
+            className="w-28 px-3 py-2 min-h-[44px] bg-surface-base border border-white/10 rounded-lg text-white font-mono text-sm tabular-nums text-right focus:outline-none focus:border-gold/40"
+          />
+          <span className="text-xs text-white/40">Credits</span>
+          <button
+            onClick={handleSaveCreateFee}
+            disabled={createFeeSaving}
+            className="ml-auto text-xs px-3 py-2 min-h-[44px] rounded-lg bg-gold/20 text-gold hover:bg-gold/30 transition-colors disabled:opacity-40"
+          >
+            {createFeeSaving ? '…' : 'Speichern'}
+          </button>
+        </div>
+        <div className="mt-2 text-[10px] text-white/20">
+          Einmalige Gebuehr, die ein User beim Erstellen eines Events zahlt (geht in den Plattform-Topf). 0 = kostenlos.
+        </div>
       </div>
     </Card>
   );

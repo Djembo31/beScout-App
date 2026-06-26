@@ -1,0 +1,35 @@
+=== Slice 399 PROVE — Service-Tests (cancelUserEvent + setUserEventCreateFee) ===
+Date: 2026-06-26
+
+ [32m✓[39m src/features/fantasy/services/__tests__/cancelUserEvent.test.ts[2m > [22mcancelUserEvent[2m > [22mreturns ok + refundedCount on success[32m 4[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/cancelUserEvent.test.ts[2m > [22mcancelUserEvent[2m > [22mpasses the event id as p_event_id[32m 1[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/cancelUserEvent.test.ts[2m > [22mcancelUserEvent[2m > [22mreturns the RPC reject code on soft-reject (!ok)[32m 0[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/cancelUserEvent.test.ts[2m > [22mcancelUserEvent[2m > [22mreturns event_not_open reject as-is[32m 1[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/cancelUserEvent.test.ts[2m > [22mcancelUserEvent[2m > [22msurfaces a transport error[32m 1[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/cancelUserEvent.test.ts[2m > [22msetUserEventCreateFee[2m > [22mreturns ok + feeCents on success[32m 1[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/cancelUserEvent.test.ts[2m > [22msetUserEventCreateFee[2m > [22mpasses the cents amount as p_cents[32m 1[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/cancelUserEvent.test.ts[2m > [22msetUserEventCreateFee[2m > [22mreturns invalid_amount reject as-is[32m 0[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/cancelUserEvent.test.ts[2m > [22msetUserEventCreateFee[2m > [22mreturns not_authorized reject as-is[32m 1[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/cancelUserEvent.test.ts[2m > [22msetUserEventCreateFee[2m > [22msurfaces a transport error[32m 0[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/createUserEvent.test.ts[2m > [22mcreateUserEvent[2m > [22mreturns ok + eventId + feeCharged on success[32m 4[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/createUserEvent.test.ts[2m > [22mcreateUserEvent[2m > [22mmaps params to RPC args (entry fee stays in cents)[32m 2[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/createUserEvent.test.ts[2m > [22mcreateUserEvent[2m > [22mpasses optional min/max as null when omitted[32m 1[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/createUserEvent.test.ts[2m > [22mcreateUserEvent[2m > [22mreturns the RPC reject code on soft-reject (!ok)[32m 1[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/createUserEvent.test.ts[2m > [22mcreateUserEvent[2m > [22mreturns insufficient_balance reject as-is[32m 1[2mms[22m[39m
+ [32m✓[39m src/features/fantasy/services/__tests__/createUserEvent.test.ts[2m > [22mcreateUserEvent[2m > [22msurfaces a transport error[32m 1[2mms[22m[39m
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+
+=== tsc ===
+tsc EXIT: 0
+
+=== Reject-Mapping (S393) ===
+  not_user_event -> not_user_event
+  event_not_open -> event_not_open
+  not_authorized -> permissionDenied
+  event_not_found -> eventNotFound
+  invalid_amount -> invalid_amount
+
+=== Self-Verify greps ===
+creator in discovery (expect 0): 0
+min_entries in select lists (expect 3): 3

@@ -99,6 +99,12 @@ export type FantasyEvent = {
   ticketCost: number;
   currency: 'tickets' | 'scout';
   isLigaEvent: boolean;
+  /** Slice 399 (E-4b Teil 2): Ersteller des Events (events.created_by). Treibt das
+   *  Cancel-Gate für User-Events (nur der Ersteller/Admin darf absagen). */
+  createdBy?: string | null;
+  /** Slice 399 (E-4b Teil 2): Mindest-Teilnehmerzahl (events.min_entries, User-Events).
+   *  null = keine. Nur Anzeige; Server-Wahrheit ist die RPC. */
+  minEntries?: number | null;
 };
 
 export type LineupPlayer = {

@@ -761,6 +761,11 @@ export type DbEvent = {
   entry_fee: number;
   prize_pool: number;
   max_entries: number | null;
+  /**
+   * Slice 396 (E-4a): Mindest-Teilnehmerzahl für User-Events (`type='user'`).
+   * NULL = egal. Nicht erreicht bis Deadline → Absage + Refund (cancel_user_event).
+   */
+  min_entries?: number | null;
   current_entries: number;
   starts_at: string;
   locks_at: string;

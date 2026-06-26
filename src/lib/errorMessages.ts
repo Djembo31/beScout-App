@@ -60,6 +60,8 @@ const KNOWN_KEYS = new Set([
   'name_required', 'invalid_entry_fee', 'invalid_gameweek', 'invalid_locks_at',
   'invalid_reward_structure', 'reward_structure_not_100', 'invalid_min_entries',
   'min_gt_max', 'wallet_not_found', 'not_user_event', 'event_not_open',
+  // Slice 399 (E-4b Teil 2): set_user_event_create_fee-Reject (Admin-Gebühr).
+  'invalid_amount',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [

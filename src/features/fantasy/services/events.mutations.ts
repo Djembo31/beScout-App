@@ -156,6 +156,67 @@ export async function createUserEvent(params: {
   return { ok: true, eventId: result.event_id, feeCharged: result.fee_charged };
 }
 
+export interface CancelUserEventResult {
+  ok: boolean;
+  /** Anzahl der refundeten Eintritte (RPC: refunded_count). */
+  refundedCount?: number;
+  error?: string;
+}
+
+/**
+ * Slice 399 (E-4b Teil 2) — sagt ein User-Event ab (`cancel_user_event`, D108).
+ * RPC-Guard: nur Ersteller (created_by) ODER platform_admin; Status muss
+ * registering/late-reg sein. Refundet alle Scout-Eintritte (locked_balance),
+ * löscht entries/lineups/holding_locks, setzt status='cancelled'.
+ * Reject-Codes: event_not_found, not_user_event, not_authorized, event_not_open.
+ * Soft-return (kein throw) — Vorbild cancelEventEntries.
+ */
+export async function cancelUserEvent(eventId: string): Promise<CancelUserEventResult> {
+  const { data, error } = await supabase.rpc('cancel_user_event', {
+    p_event_id: eventId,
+  });
+
+  if (error) return { ok: false, error: error.message };
+
+  const result = data as { ok: boolean; refunded_count?: number; error?: string };
+  if (!result.ok) return { ok: false, error: result.error ?? 'cancel_user_event_failed' };
+  return { ok: true, refundedCount: result.refunded_count };
+}
+
+export interface SetUserEventCreateFeeResult {
+  ok: boolean;
+  feeCents?: number;
+  error?: string;
+}
+
+/**
+ * Slice 399 (E-4b Teil 2) — setzt die User-Event-Erstell-Gebühr (`set_user_event_create_fee`).
+ * RPC-Guard: nur platform_admin; p_cents >= 0. Reject: not_authorized, invalid_amount.
+ */
+export async function setUserEventCreateFee(cents: number): Promise<SetUserEventCreateFeeResult> {
+  const { data, error } = await supabase.rpc('set_user_event_create_fee', {
+    p_cents: cents,
+  });
+
+  if (error) return { ok: false, error: error.message };
+
+  const result = data as { ok: boolean; fee_cents?: number; error?: string };
+  if (!result.ok) return { ok: false, error: result.error ?? 'set_user_event_create_fee_failed' };
+  return { ok: true, feeCents: result.fee_cents };
+}
+
+/** Slice 399: aktuelle User-Event-Erstell-Gebühr (cents) aus platform_event_config (Singleton). */
+export async function getUserEventCreateFee(): Promise<number> {
+  const { data, error } = await supabase
+    .from('platform_event_config')
+    .select('user_event_create_fee_cents')
+    .eq('id', true)
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  return data?.user_event_create_fee_cents ?? 5000;
+}
+
 /**
  * Clone events from currentGw to nextGw for a club.
  * Idempotent: skips if events for nextGw already exist. Guard: max GW 38.

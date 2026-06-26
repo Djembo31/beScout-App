@@ -58,7 +58,9 @@ const CATEGORIES: CategoryConfig[] = [
     shimmer: 'rgba(56,189,248,0.08)',
   },
   {
-    type: 'creator',
+    // Slice 399 (E-4b Teil 2): User-Events-Discovery. Ersetzt die tote `creator`-Karte
+    // (0 Events in Prod, Typ laut D108 deprecated) — orange UserPlus-Optik war dafür gedacht.
+    type: 'user',
     icon: UserPlus,
     bg: 'linear-gradient(145deg, #c2410c 0%, #9a3412 25%, #431407 60%, #1a0800 100%)',
     glow1: 'radial-gradient(ellipse at 20% 10%, rgba(251,146,60,0.35) 0%, transparent 55%)',

@@ -92,7 +92,10 @@ export function EventDetailHeader({ event, isScored, resetting, onReset }: Event
         {event.status === 'ended' && (
           <span className="flex items-center gap-1"><Clock aria-hidden="true" className="size-4" />{t('ended')}</span>
         )}
-        {(event.ticketCost ?? 0) > 0 && (
+        {/* Slice 399 (F2/F3): 🎟-Chip NUR bei currency='tickets'. Scout-Eintritt (User-
+            Events) steht währungs-korrekt im OverviewPanel (formatEventCost → CR) —
+            sonst rohe cents als „1000 Tickets" geleakt. */}
+        {event.currency === 'tickets' && (event.ticketCost ?? 0) > 0 && (
           <span className="flex items-center gap-1.5 text-[12px] text-amber-400/70 font-medium">
             <span aria-hidden="true">&#127915;</span>
             <span>{t('ticketCost', { cost: event.ticketCost })}</span>

@@ -21,7 +21,8 @@ const CATEGORIES: { id: EventCategory; labelKey: string; icon: typeof Trophy }[]
   { id: 'bescout', labelKey: 'bescout', icon: Sparkles },
   { id: 'sponsor', labelKey: 'sponsor', icon: Gift },
   { id: 'club', labelKey: 'club', icon: Building2 },
-  { id: 'creator', labelKey: 'creator', icon: UserPlus },
+  // Slice 399 (E-4b Teil 2): User-Events-Filterpille (ersetzt tote `creator`-Pille, D108).
+  { id: 'user', labelKey: 'user', icon: UserPlus },
   { id: 'special', labelKey: 'special', icon: Star },
 ];
 

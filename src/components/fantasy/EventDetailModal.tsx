@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { Ban, Loader2 } from 'lucide-react';
 import { Dialog, AlertDialog } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -13,6 +14,7 @@ import dynamic from 'next/dynamic';
 import type { FixtureDeadline } from '@/lib/services/fixtures';
 import { useLineupBuilder } from '@/features/fantasy/hooks/useLineupBuilder';
 import { useLineupSave } from '@/features/fantasy/hooks/useLineupSave';
+import { useCancelUserEvent } from '@/features/fantasy/hooks/useCancelUserEvent';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 
 // Extracted components
@@ -81,6 +83,9 @@ export const EventDetailModal = ({
   // Confirm-Dialogs (replace native confirm/alert)
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
+  // Slice 399 (E-4b Teil 2): Cancel-UI für User-Events (nur Ersteller/Admin).
+  const [cancelConfirmOpen, setCancelConfirmOpen] = useState(false);
+  const { cancel: cancelUserEventFn, isPending: cancelling } = useCancelUserEvent();
 
   // Resolve an unknown error into a translated message via errors-namespace.
   // Protects against i18n-Key-Leak (raw keys like 'event_locked' leaking to UI).
@@ -204,6 +209,17 @@ export const EventDetailModal = ({
     setLeaveConfirmOpen(true);
   };
 
+  // Slice 399: User-Event absagen (Ersteller/Admin). Refund läuft RPC-seitig (cancel_user_event).
+  const handleCancelUserEvent = async () => {
+    if (!event || cancelling) return;
+    const ok = await cancelUserEventFn(event.id);
+    if (ok) {
+      setCancelConfirmOpen(false);
+      onReset(event); // triggert refetch (entfernt/aktualisiert das cancelled Event)
+      onClose();
+    }
+  };
+
   const handleLeave = async () => {
     if (!user || !event || leaving) return;
     setLeaving(true);
@@ -222,6 +238,14 @@ export const EventDetailModal = ({
 
   const isScored = !!event.scoredAt;
 
+  // Slice 399: Cancel-Button NUR für den Ersteller (oder kein Gate-Leak) eines noch
+  // offenen User-Events. Fremd-/Club-/laufende Events zeigen ihn nie (RPC ist 2. Netz).
+  const canCancelUserEvent =
+    event.type === 'user' &&
+    !!user &&
+    event.createdBy === user.id &&
+    (event.status === 'registering' || event.status === 'late-reg');
+
   // Join: opens lineup tab -- actual join happens on lineup save
   const handleConfirmJoin = () => {
     setTab('lineup');
@@ -233,7 +257,7 @@ export const EventDetailModal = ({
       onClose={onClose}
       title={event.name}
       size="lg"
-      preventClose={joining || leaving || resetting}
+      preventClose={joining || leaving || resetting || cancelling}
     >
         {/* Header: Status Badges + Meta */}
         <EventDetailHeader
@@ -242,6 +266,22 @@ export const EventDetailModal = ({
           resetting={resetting}
           onReset={openResetConfirm}
         />
+
+        {/* Slice 399 (E-4b Teil 2): Creator-Cancel für offene User-Events. */}
+        {canCancelUserEvent && (
+          <div className="flex justify-end -mt-1 mb-3">
+            <button
+              onClick={() => setCancelConfirmOpen(true)}
+              disabled={cancelling}
+              className="flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] text-xs font-bold text-red-400 hover:bg-red-500/10 border border-red-500/30 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {cancelling
+                ? <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
+                : <Ban aria-hidden="true" className="size-3.5" />}
+              {cancelling ? t('userEventCancelling') : t('userEventCancelBtn')}
+            </button>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex overflow-x-auto scrollbar-hide -mx-4 md:-mx-5 border-b border-white/10 mb-4">
@@ -401,6 +441,18 @@ export const EventDetailModal = ({
           onConfirm={handleLeave}
           onCancel={() => { if (!leaving) setLeaveConfirmOpen(false); }}
           confirming={leaving}
+          confirmVariant="danger"
+        />
+        {/* Slice 399: Cancel-User-Event-Confirm (destruktiv, Refund an Teilnehmer). */}
+        <AlertDialog
+          open={cancelConfirmOpen}
+          title={t('userEventCancelBtn')}
+          message={t('userEventCancelConfirmMsg', { name: event.name })}
+          confirmLabel={t('userEventCancelBtn')}
+          cancelLabel={t('cancelBtn')}
+          onConfirm={handleCancelUserEvent}
+          onCancel={() => { if (!cancelling) setCancelConfirmOpen(false); }}
+          confirming={cancelling}
           confirmVariant="danger"
         />
 
