@@ -434,6 +434,12 @@ export function useEventActions(clubId: string) {
         case 'min_per_position_not_met':
           addToast(t('minPerPositionNotMet'), 'error');
           break;
+        // Slice 389 (E-3) — Marktwert-Deckel (Limit in Mio. €, DB-Wert ist EUR)
+        case 'mv_max_exceeded': {
+          const mvRule = event.lineupRules?.find(r => r.type === 'mv_max_eur');
+          addToast(t('mvMaxExceeded', { limit: mvRule ? mvRule.value / 1_000_000 : 0 }), 'error');
+          break;
+        }
         case 'holding_lock_failed':
           addToast(t('holdingLockFailed'), 'error');
           break;

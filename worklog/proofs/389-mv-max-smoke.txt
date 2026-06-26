@@ -1,0 +1,50 @@
+Slice 389 — E-3 Marktwert-Deckel pro Karte (mv_max_eur, Underdog-Events) — PROOF
+Datum: 2026-06-26
+RPC: rpc_save_lineup (CREATE OR REPLACE, Migration 20260626130000_e3_mv_max_lineup_rule)
+Methode: force-rollback DO-Block (RAISE EXCEPTION='REPORT >>>' → 0 Persistenz),
+         JWT-Impersonation jarvis-qa (535bbcaf…), temp Event 1-2-2-2, club_id NULL,
+         echte Spieler nach MV-Band selektiert (billig ≤2,5M / teuer 200M / MV=0).
+CEO-Entscheid (AskUserQuestion 2026-06-26): MV=0 fail-closed + Eingabe in Mio €.
+
+=== Daten-Fund (Live, korrigiert Handoff "Null-Edge") ===
+players.market_value_eur = integer (EUR), NIE NULL (0/4556). 621 (13,6 %) = 0.
+Davon 491 (79 %) U21-Jugend, 32 perf≥60 (Mis-Scrape-Verdacht), 20 in echten Holdings.
+→ echter Edge ist Zero (MV=0), kein Null. Fail-closed-Entscheid dokumentiert (Backlog: Re-Scrape 32).
+
+=== Money-Smoke (force-rollback) — 13/13 PASS ===
+AC-2 reject starter 200M (cap 5M): err=mv_max_exceeded limit=5000000 => PASS
+AC-7 holding_locks nach reject = 0 => PASS          (kein Ressourcen-Move bei Reject)
+AC-1 happy (alle <=2.5M, cap 5M): ok=true => PASS
+AC-3 reject bench 200M: err=mv_max_exceeded => PASS  (Bank wird geprüft, Auto-Sub-Schutz)
+AC-4 fail-closed MV=0: err=mv_max_exceeded mv=0 => PASS
+AC-5a value=0: err=invalid_lineup_rule_value => PASS
+AC-5b value=2e9 (BIGINT, kein ::INT-Crash): err=invalid_lineup_rule_value => PASS
+AC-5c1 own_club=99 invalid: PASS                     (Regression 385 Bound)
+AC-5c2 age_max=13 invalid: PASS                      (Regression 386 Bound)
+AC-6a multi happy [mv_max5M + min_per_position ATT2]: ok=true => PASS
+AC-6b multi reject [+ ATT3]: err=min_per_position_not_met => PASS  (mv + andere Regel koexistieren)
+AC-8a lineup_rules NULL ok: PASS
+AC-8b lineup_rules [] ok: PASS
+
+KERN-BEWEIS: (1) Marktwert-Deckel greift für Starter UND Bank, fail-closed bei MV=0.
+(2) BIGINT-Cast verhindert ::INT-Overflow bei EUR-Großwerten → sauberer Reject statt Crash (AC-5b).
+
+=== PATCH-AUDIT (pg_get_functiondef Live) ===
+bigint_fix=true  bigint_cast=true  has_mv_branch=true  reads_mv=true  mv_bound(>1e9)=true  mv_error=true
+keeps_385=true  keeps_386=true  keeps_388=true  keeps_maxclub=true  keeps_salary=true  keeps_e1=true  keeps_wildcard=true
+grants = {postgres, authenticated, service_role}  (KEIN anon — AR-44 erhalten, CREATE OR REPLACE behält ACL)
+→ Validator additiv erweitert + v_rule_value INT→BIGINT; alle Nicht-Validator-Blöcke unverändert.
+
+=== AC-10 WRITE-PFAD (Logik, useEventForm.ts) ===
+pushMvMax: Math.round(millionen * 1_000_000) → 5 ⇒ 5000000, 0,5 ⇒ 500000.
+mvMaxMillionsFromRules: EUR/1_000_000 → 5000000 ⇒ "5" (Round-Trip stabil).
+
+=== tsc / vitest ===
+pnpm exec tsc --noEmit: exit 0 (grün).
+CI=true pnpm exec vitest run: 3268 passed, 1 skipped, 230 Files (exit 0). ("Error: Boom!" = absichtlicher ErrorBoundary-Test.)
+
+=== REVIEW ===
+reviewer-Agent: PASS (2 NITPICK, beide non-blocking) — worklog/reviews/389-review.md
+
+=== OFFEN: AC-12 UI-live post-Deploy (bescout.net) ===
+MV-Input beide Builder, kein MISSING_MESSAGE, Mobile 393px — nach Vercel-Deploy von main.

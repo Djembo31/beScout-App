@@ -50,6 +50,10 @@ const FORM_LABELS: EventFormLabels = {
   minPosDef: 'ABW',
   minPosMid: 'MF',
   minPosAtt: 'ANG',
+  // Slice 389 (E-3) — Marktwert-Deckel pro Karte (Underdog, Eingabe in Mio. €, gilt für Starter + Bank)
+  mvMax: 'Max. Marktwert (Mio. €)',
+  mvMaxPlaceholder: 'Keine Regel',
+  mvMaxHint: 'Jede aufgestellte Karte (Starter + Bank) darf höchstens diesen Marktwert haben (z. B. 1 = 1 Mio. €). Spieler ohne Marktwert sind ausgeschlossen. Leer = keine Regel.',
   // Slice 384 (E-3 Türsteher) — nur bei Vereins-Events wirksam
   requiresFollow: 'Nur Follower des Vereins',
   minFanRank: 'Mindest-Fan-Rang',

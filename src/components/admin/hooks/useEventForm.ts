@@ -27,10 +27,17 @@ function posRuleValueFromRules(rules: LineupRule[] | null | undefined, position:
   return rule ? String(rule.value) : '';
 }
 
+/** Liest den mv_max_eur-Deckel als Millionen-String ('' = keine). DB-Wert ist EUR, UI zeigt Mio. (Slice 389). */
+function mvMaxMillionsFromRules(rules: LineupRule[] | null | undefined): string {
+  const rule = (rules ?? []).find(r => r.type === 'mv_max_eur');
+  return rule ? String(rule.value / 1_000_000) : '';
+}
+
 /** Serialisiert die flachen Form-Felder in die lineup_rules-Liste (null = keine Regel). */
 function rulesFromForm(fields: {
   minPerOwnClub: string; ageMin: string; ageMax: string;
   minPosGk: string; minPosDef: string; minPosMid: string; minPosAtt: string;
+  mvMaxMillions: string;
 }): LineupRule[] | null {
   const rules: LineupRule[] = [];
   const pushVal = (type: 'min_per_own_club' | 'age_min' | 'age_max', raw: string) => {
@@ -41,6 +48,11 @@ function rulesFromForm(fields: {
     const n = parseInt(raw, 10);
     if (raw && !Number.isNaN(n) && n >= 1) rules.push({ type: 'min_per_position', position, value: n });
   };
+  // Slice 389: Admin gibt Millionen ein, DB speichert EUR-Ganzzahl. parseFloat (0,5 Mio möglich), Math.round gegen Float-Staub.
+  const pushMvMax = (raw: string) => {
+    const m = parseFloat(raw);
+    if (raw && !Number.isNaN(m) && m > 0) rules.push({ type: 'mv_max_eur', value: Math.round(m * 1_000_000) });
+  };
   pushVal('min_per_own_club', fields.minPerOwnClub);
   pushVal('age_min', fields.ageMin);
   pushVal('age_max', fields.ageMax);
@@ -48,6 +60,7 @@ function rulesFromForm(fields: {
   pushPos('DEF', fields.minPosDef);
   pushPos('MID', fields.minPosMid);
   pushPos('ATT', fields.minPosAtt);
+  pushMvMax(fields.mvMaxMillions);
   return rules.length > 0 ? rules : null;
 }
 
@@ -85,6 +98,7 @@ function populateFromEvent(event: DbEvent): EventFormState {
     minPosDef: posRuleValueFromRules(event.lineup_rules, 'DEF'),
     minPosMid: posRuleValueFromRules(event.lineup_rules, 'MID'),
     minPosAtt: posRuleValueFromRules(event.lineup_rules, 'ATT'),
+    mvMaxMillions: mvMaxMillionsFromRules(event.lineup_rules),
     requiresFollow: event.requires_follow ?? false,
     minFanRankTier: event.min_fan_rank_tier ?? '',
     minScPerSlot: String(event.min_sc_per_slot ?? 1),

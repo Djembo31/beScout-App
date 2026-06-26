@@ -58,6 +58,9 @@ export interface EventFormLabels {
   minPosDef?: string;
   minPosMid?: string;
   minPosAtt?: string;
+  mvMax?: string;              // Slice 389 (E-3): max. Marktwert pro Karte (Mio. €)
+  mvMaxPlaceholder?: string;
+  mvMaxHint?: string;
   // Slice 384 (E-3 Türsteher) — nur bei Vereins-Events wirksam
   requiresFollow?: string;     // Follower-Pflicht-Toggle
   minFanRank?: string;         // Mindest-Fan-Rang-Select
@@ -447,6 +450,31 @@ export function EventFormModal({
             </div>
             {L.minPerPositionHint && (
               <p className="mt-1 text-[10px] text-white/40">{L.minPerPositionHint}</p>
+            )}
+          </div>
+        )}
+
+        {/* Marktwert-Deckel pro Karte (Slice 389 — E-3 Underdog, Eingabe Mio. €, Starter + Bank) */}
+        {L.mvMax && (
+          <div>
+            <label htmlFor="formMvMax" className="block text-sm font-bold text-white/70 mb-1">
+              {L.mvMax}
+            </label>
+            <input
+              id="formMvMax"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="0.1"
+              value={form.mvMaxMillions}
+              onChange={(e) => setField('mvMaxMillions', e.target.value)}
+              placeholder={L.mvMaxPlaceholder}
+              disabled={isFieldDisabled('lineup_rules')}
+              aria-label={L.mvMax}
+              className={cn(INPUT_CLS, 'min-h-[44px]', disabledCls)}
+            />
+            {L.mvMaxHint && (
+              <p className="mt-1 text-[10px] text-white/40">{L.mvMaxHint}</p>
             )}
           </div>
         )}

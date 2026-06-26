@@ -22,6 +22,7 @@ export type EventFormState = {
   minPosDef: string;                       // Slice 388 (E-3): min. Starter mit Position DEF. '' = keine Regel.
   minPosMid: string;                       // Slice 388 (E-3): min. Starter mit Position MID. '' = keine Regel.
   minPosAtt: string;                       // Slice 388 (E-3): min. Starter mit Position ATT. '' = keine Regel.
+  mvMaxMillions: string;                   // Slice 389 (E-3): max. Marktwert pro Karte in Mio. €. '' = keine Regel. DB speichert EUR.
   requiresFollow: boolean;                 // Slice 384 (E-3): nur Follower des Vereins dürfen eintreten.
   minFanRankTier: string;                  // Slice 384 (E-3): Mindest-Fan-Rang für Eintritt. '' = offen.
   minScPerSlot: string;                    // Platform only
@@ -73,6 +74,7 @@ export const INITIAL_FORM_STATE: EventFormState = {
   minPosDef: '',
   minPosMid: '',
   minPosAtt: '',
+  mvMaxMillions: '',
   requiresFollow: false,
   minFanRankTier: '',
   minScPerSlot: '1',
