@@ -1,16 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 22:18)
+# Session Handoff — Auto (2026-06-26 22:28)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 1 Files
 ```
  M memory/session-handoff.md
-?? worklog/notes/mock2pro-audit.md
-?? worklog/notes/mock2pro-plan.md
 ```
 
-## Session Commits: 4
+## Session Commits: 5
+- 36d82f68 docs(decision): D111 — Beta abgebrochen → Mock→Pro-Programm (7-Domänen-Audit + 7-Wellen-Plan + Stale-Glättung)
 - cc64463f docs(distill): D110 e2e-Audit-Methode + Wissen verdrahtet + Handoff frische Session
 - b4a10eb1 docs(decision): D109 — Monats-Liga-Reward-Smells geprüft + CEO bewusst akzeptiert
 - ba53bb46 feat(treasury): Slice 402 — Treasury-RAUS e2e REAL bewiesen (echte Monats-Liga-Auszahlung)
@@ -29,7 +28,7 @@
 
 **3 Grund-Ursachen (alle 11 Beta-Schmerzen führen darauf):** (1) Teil-Konsolidierung „von allem zwei" · (2) Datenmodelle ohne erzwungene Integrität (Aufstellung 16 Spalten / Scores an GW-Nummer statt Fixture) · (3) Client-only-Architektur (Cold-Start). **Fundament ist solide — KEIN Neubau**, nur Durchsetzung „eine Quelle" + 2 Datenmodell-Fixes + 1 Architektur-Hebel.
 
-**➡️ NÄCHSTER SCHRITT (Anil-Entscheid offen):** **Welle 1 Trading** [Money/CEO] starten — beginnt mit **CEO-Architektur-Frage „Orderbuch: P2P-offers + Buy-orders = EIN Buch?"** — ODER **S7-Aufräumblock als Welle 0** vorziehen (toter Code: Wildcard-Earn / Creator-Fund+Ad-Revenue / Club-Missionen-Dim / Voting-Konsolidierung). **3 CEO-Gabelungen** je vor ihrer Welle klären (Orderbuch · Lineup-Datenmodell-Umfang · Entry/Lineup-Entkopplung). Money-Wellen 1/2/3 = selbst (§3) + Live-`pg_get_functiondef` VOR Spec (D87) + Zero-Sum-Beweis.
+**➡️ WELLE 1 TRADING LÄUFT (Mock→Pro).** ✅ **1.2 DONE (Slice 403, `feat(trading)`):** `buy_from_ipo` Idempotency-Key (Doppelkauf-Schutz Erstverkauf) — RPC+Service+beide IPO-Buy-Hooks (Verkabelungs-Loch mitgeschlossen: liefen auf nicht-idempotentem `useSafeMutation`), Reviewer PASS, force-rollback Zero-Sum=0/Replay bewiesen. **NÄCHSTER = 1.1** (Kauf-UI-Konsolidierung „was du siehst = was du zahlst": `BuyConfirmModal`+`BuyModal` → eine order-gebundene Pipeline, CRITICAL/UI) **ODER 1.3** (Club-Geld-Doppelschreibung — 403-Smoke klärte: `clubs.treasury_balance_cents` bekommt nur den direkten +club_share, 2. Write läuft auf separates Ledger → erst verifizieren ob echte Doppelzählung vs. Legacy-Drift). **1.4 Orderbuch (`orders` vs `offers` = EIN Buch?) = CEO-Architektur-Gabelung, VOR 1.4 klären.** Weitere CEO-Gabelungen: Lineup-Datenmodell (Welle 3) · Entry/Lineup-Entkopplung (Welle 3). Money-Wellen = selbst (§3) + Live-`pg_get_functiondef` VOR Spec (D87) + Zero-Sum-Beweis.
 
 **Reihenfolge-Vorschlag:** Trading → Spieltag/Scoring → Events → Follow → Geld/State → Performance → Design (zuletzt). Alte TODOs vollständig als Carry-over (A–G) im Plan erfasst — nichts verloren.
 

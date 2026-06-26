@@ -2,15 +2,19 @@
 
 ```
 status: idle
-slice: 402
-title: Treasury-RAUS e2e real bewiesen — echte Monats-Liga-Auszahlung (Mai 2026) — DONE
-size: S (Money/CEO — Live-RPC-Vollzug, kein Code-Change; CEO-approved Anil 2026-06-26)
+slice: 403
+title: Welle 1.2 — buy_from_ipo Idempotency-Key (Doppelkauf-Schutz Erstverkauf) [Money/CEO] — DONE
+size: S (Money — Migration + Service + 2 Hooks; Blueprint S178a-f, byte-identische Money-Math)
 stage: LOG (DONE)
-spec: inline (Vollzugs-Plan, s. notes/401-e2e-enforcement-audit.md Punkt B + Treasury-Epic RAUS-Block)
-impact: Live-DB State-Change (echte Wallets + Topf-Debit + Snapshots/Winners), permanent, idempotent-gesperrt
-proof: worklog/proofs/402-raus-liga-payout.txt (Vorher/Nachher Zero-Sum-Reconcile)
-review: self-review (Money — Zero-Sum-Reconcile IST der Review; RPC byte-identisch zur 376-Baseline, kein Code-Change)
+spec: worklog/specs/403-welle1-ipo-idempotency.md
+impact: skipped (Consumer = ipo.ts-Service + 2 Buy-Hooks + 3 Test-Files, in Spec §3 vollständig gegreppt; kein Cross-Domain)
+proof: worklog/proofs/403-money-smoke.txt
+proof2: worklog/proofs/403-vitest.txt (97/97, tsc 0) — Money-Smoke: Zero-Sum=0, Replay=selbe trade, AC-01..06 PASS
+review: worklog/reviews/403-review.md — PASS (2 NIT, kein Handlungsbedarf)
 ```
+
+## Inline-Notiz (Welle 1 Start)
+**Welle 1 — Trading & Kaufprozess** (Mock→Pro, D111). Slice 403 = Plan-Punkt 1.2. Kern-Smell der Welle = „von allem zwei"; 1.2 schließt das Idempotenz-Loch im Erstverkauf (einziger der 3 Kauf-RPCs ohne `idempotency_key`) end-to-end. CEO-Architektur-Gabelung 1.4 (Orderbuch `orders` vs `offers` = ein Buch?) wird VOR Slice 1.4 separat geklärt.
 
 ## Inline-Spec (Money/CEO, CEO-approved)
 **Ziel:** Der einzige substantielle e2e-Gap aus Audit 401 — Treasury-RAUS (376/377/378) bewiesen-korrekt aber nie real gelaufen (0 Ledger-Rows). 1× echte `close_monthly_liga('2026-05-01')` auf Live → erste echte `monthly_liga`-Debit-Row + winners + Zero-Sum.

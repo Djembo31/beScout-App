@@ -114,14 +114,16 @@ export function useBuyFromMarket() {
 export function useBuyFromIpo() {
   const qc = useQueryClient();
 
-  return useSafeMutation<
+  return useSafeIdempotentMutation<
     Awaited<ReturnType<typeof buyFromIpo>>,
     Error,
     { userId: string; ipoId: string; playerId: string; quantity: number },
     IpoBuyContext
   >({
-    mutationFn: async ({ userId, ipoId, playerId, quantity }) => {
-      const result = await buyFromIpo(userId, ipoId, quantity, playerId);
+    // Slice 403: Erstverkauf jetzt idempotenz-geschuetzt wie der Order-Kauf (Schwester useBuyFromMarket)
+    idempotencyNamespace: 'market.ipoBuy',
+    mutationFn: async ({ userId, ipoId, playerId, quantity }, idempotencyKey) => {
+      const result = await buyFromIpo(userId, ipoId, quantity, playerId, idempotencyKey);
       if (!result.success) throw new Error(result.error || 'generic');
       return result;
     },

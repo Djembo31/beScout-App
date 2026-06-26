@@ -1,0 +1,19 @@
+Slice 403 — Welle 1.2: vitest + tsc PROVE
+Datum: 2026-06-26
+
+$ npx tsc --noEmit
+=== TSC EXIT: 0 ===   (clean)
+
+$ CI=true npx vitest run \
+    src/lib/services/__tests__/ipo.test.ts \
+    src/features/market/mutations/__tests__/trading.test.ts \
+    src/components/player/detail/hooks/__tests__/usePlayerTrading.test.ts
+
+ Test Files  3 passed (3)
+      Tests  97 passed (97)
+   Duration  6.68s
+
+Updated assertions:
+- ipo.test.ts: buy_from_ipo RPC-Call asserted mit p_idempotency_key: null (Service ohne Key)
+- trading.test.ts / usePlayerTrading.test.ts: buyFromIpoMock(...'p1', expect.any(String))
+  → idempotente Mutation reicht generierten Key als 5. Arg durch (vorher: kein Key)

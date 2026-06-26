@@ -16,7 +16,7 @@
 ## Welle 1 — Trading & Kaufprozess  [Money/CEO]
 **Pro-Ziel:** EINE order-gebundene Kauf-Pipeline, „was du siehst = was abgebucht wird", ein Bid-System, eine Club-Geld-Wahrheit.
 - **1.1 [CRITICAL]** Markt-Tab + Player-Detail auf EINEN Kauf-Pfad konsolidieren; angezeigter Preis hart an die getroffene Order (`buy_from_order` mit Order-ID), Menge einheitlich order-gebunden. *(Audit D1 CRIT ×2 + HIGH)*
-- **1.2 [CRITICAL, Money]** `buy_from_ipo` `idempotency_key` ergänzen (Doppelkauf-Schutz, Spiegel buy_player_sc/buy_from_order).
+- **1.2 [CRITICAL, Money] ✅ DONE (Slice 403, 2026-06-26):** `buy_from_ipo` `idempotency_key` ergänzt (Doppelkauf-Schutz, Spiegel buy_player_sc/buy_from_order) — RPC + Service + beide IPO-Buy-Hooks (Verkabelungs-Loch mitgeschlossen: liefen auf `useSafeMutation`). Reviewer PASS, force-rollback Zero-Sum=0/Replay bewiesen. Nebenbefund für 1.3: `clubs.treasury_balance_cents` bekommt nur den direkten +club_share (kein 2. Write via Trades-Trigger auf DIESE Spalte).
 - **1.3 [HIGH, Money]** Club-Geld-Doppelschreibung auflösen: RPC-Direkt-`UPDATE clubs.treasury_balance_cents` vs Trigger-`book_club_treasury`; IPO-85%-Share läuft fälschlich durch „trade_fee"-Trigger. Erst verifizieren: reine Legacy-Drift vs echte Doppel-Zählung.
 - **1.4 [HIGH, CEO-Architektur]** Bid-System klären: Limit-Buy-`orders` vs P2P-`offers` = EIN Orderbuch ODER mind. dieselbe Bid-Quelle für Player-Detail + Markt; „Best Bid" nach Preis sortiert (nicht created_at/limit 50).
 - **1.5 [MEDIUM-Cluster]** Konsistenz: Rate-Limit vereinheitlichen (tier-basiert überall), „BSD"→„Credits" in Fehlertexten, fee_config-Lookup angleichen, Menge-zu-viel-Verhalten (still kappen vs ablehnen), `price_change_24h` in allen Kaufwegen, `idempotency_pending` in KNOWN_KEYS.

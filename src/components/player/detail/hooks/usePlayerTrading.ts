@@ -264,16 +264,18 @@ export function usePlayerTrading({
   // ═══════════════════════════════════════════════
   // MUTATION 2: IPO-Buy
   // ═══════════════════════════════════════════════
-  const ipoBuyMut = useSafeMutation<
+  const ipoBuyMut = useSafeIdempotentMutation<
     Awaited<ReturnType<typeof buyFromIpo>>,
     Error,
     { quantity: number },
     IpoBuyContext
   >({
-    mutationFn: async ({ quantity }) => {
+    // Slice 403: Erstverkauf jetzt idempotenz-geschuetzt wie order-buy/sell daneben
+    idempotencyNamespace: 'player.ipoBuy',
+    mutationFn: async ({ quantity }, idempotencyKey) => {
       if (!userId) throw new Error('no_user');
       if (!activeIpo) throw new Error('generic');
-      const result = await buyFromIpo(userId, activeIpo.id, quantity, playerId);
+      const result = await buyFromIpo(userId, activeIpo.id, quantity, playerId, idempotencyKey);
       if (!result.success) throw new Error(result.error || 'generic');
       return result;
     },

@@ -229,7 +229,8 @@ describe('useBuyFromIpo (Ferrari-Refactor)', () => {
     await act(async () => { result.current.mutate(vars); });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(buyFromIpoMock).toHaveBeenCalledWith('u1', 'ipo-1', 2, 'p1');
+    // Slice 403: idempotente Mutation reicht generierten Key als 5. Arg durch
+    expect(buyFromIpoMock).toHaveBeenCalledWith('u1', 'ipo-1', 2, 'p1', expect.any(String));
   });
 
   it('optimistically increments holding-qty AND ipo purchased-count', async () => {

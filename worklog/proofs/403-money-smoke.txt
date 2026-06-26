@@ -1,0 +1,56 @@
+Slice 403 — Welle 1.2: buy_from_ipo Idempotency-Key — PROVE (force-rollback Money-Smoke)
+Datum: 2026-06-26 · Project skzjfhvgccaeplydsunz · gegen Live-DB, BEGIN…DO…RAISE = kein Commit
+
+================================================================
+A) DDL-Verifikation (nach apply_migration)
+================================================================
+SELECT count(*) sig_count, sigs, proacl, has_dedup, has_pending, fee_club_ok, fee_plat_ok, topf_ok …
+RESULT:
+  sig_count   = 1   (NUR 4-Arg — keine 3-Arg-Überladung)            -> AC-03 ✅
+  sigs        = "p_user_id uuid, p_ipo_id uuid, p_quantity integer, p_idempotency_key text"
+  proacl      = {postgres=X, authenticated=X, service_role=X}        -> AC-05 ✅ (kein anon, kein PUBLIC)
+  has_dedup   = true  (check_or_reserve_dedup_key verdrahtet)
+  has_pending = true  (idempotency_pending-Pfad vorhanden)
+  fee_club_ok = true  (ipo_club_bps, 8500   unverändert)             -> AC-04 ✅
+  fee_plat_ok = true  (ipo_platform_bps, 1000 unverändert)
+  topf_ok     = true  (book_platform_treasury('credit','ipo',…) unverändert)
+
+================================================================
+B) Force-Rollback Money-Smoke (3 Calls: Kauf / Replay / frischer Kauf ohne Key)
+================================================================
+Actor: jarvis-qa 535bbcaf-… (impersoniert via request.jwt.claim.sub)
+IPO:   0155c3c3-… (player e4784b96-…, club Hatayspor 4ed03e4b-…, price 5000 cents)
+Calls: r1 = buy_from_ipo(uid, ipo, 1, 'k403smoke')
+       r2 = buy_from_ipo(uid, ipo, 1, 'k403smoke')   -- Replay, gleicher Key
+       r3 = buy_from_ipo(uid, ipo, 1, NULL)           -- frischer Kauf, kein Key
+
+REPORT >>> {
+  "r1_success" : "true", "r1_total_cost" : "5000",
+  "r2_replay_same_trade" : true, "r2_success" : "true",      <- Replay gibt IDENTISCHE trade_id zurück
+  "r3_success" : "true", "r3_distinct_trade" : true,
+  "trades_delta" : 2,    <- nur 2 Trades (Replay erzeugte KEINEN 2. Kauf)   AC-02 ✅
+  "tx_delta" : 2,
+  "sold_delta" : 2,      <- ipos.sold +2 (nicht +3)
+  "hold_delta" : 2,
+  "wallet_delta" : -10000,   <- 2 × 5000
+  "club_delta" : 8500,       <- 2 × 4250 (85% Club-Share, exakt — kein Doppel-Write auf treasury_balance_cents)
+  "pbt_delta" : 500,         <- 2 × 250  (5% PBT)
+  "topf_delta" : 1000,       <- 2 × 500  (10% Platform → BeScout-Topf)
+  "ZEROSUM" : 0              <- wallet(-10000) + club(8500) + pbt(500) + topf(1000) = 0   AC-06 ✅
+}
+(RAISE EXCEPTION = Transaktion rolled back; Live-State unverändert, keine geseedeten Artefakte.)
+
+================================================================
+C) AC-Mapping
+================================================================
+AC-01 HAPPY            : r1_success true, total_cost 5000                       ✅
+AC-02 CONCURRENT/REPLAY: r2 = identische trade_id, trades_delta=2 (nicht 3)     ✅
+AC-03 NULL             : r3 ohne Key = frischer Kauf; sig_count=1, keine Overload ✅
+AC-04 REGRESSION/MONEY : Fee-Konstanten 8500/1000 + Topf-Buchung byte-identisch  ✅
+AC-05 SECURITY         : proacl ohne anon/PUBLIC                                 ✅
+AC-06 ZERO-SUM         : ZEROSUM = 0                                            ✅
+AC-07 I18N/UI          : tsc 0, vitest 97/97 (s. 403-vitest.txt); idempotency_pending-Mapping = Scope-Out 1.5 (pre-existing)
+
+Nebenbefund (1.3, pre-existing, NICHT dieser Slice): clubs.treasury_balance_cents bekommt nur den
+direkten +club_share (kein 2. Write via Trades-Trigger auf DIESE Spalte) — die im Audit genannte
+Doppelschreibung läuft auf ein separates Club-Ledger. Money dieser RPC byte-identisch zur Baseline.

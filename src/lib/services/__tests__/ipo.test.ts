@@ -184,6 +184,7 @@ describe('buyFromIpo', () => {
         p_user_id: USER_ID,
         p_ipo_id: IPO_ID,
         p_quantity: 10,
+        p_idempotency_key: null,
       });
     });
   });

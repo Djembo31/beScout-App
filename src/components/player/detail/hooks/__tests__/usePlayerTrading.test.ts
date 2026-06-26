@@ -296,7 +296,8 @@ describe('usePlayerTrading — IPO-Buy', () => {
     act(() => { result.current.handleIpoBuy(2); });
     await waitFor(() => expect(result.current.ipoBuying).toBe(false));
 
-    expect(buyFromIpoMock).toHaveBeenCalledWith('u1', 'ipo-1', 2, 'p1');
+    // Slice 403: idempotente Mutation reicht generierten Key als 5. Arg durch
+    expect(buyFromIpoMock).toHaveBeenCalledWith('u1', 'ipo-1', 2, 'p1', expect.any(String));
   });
 
   it('optimistically increments BOTH holdings-qty AND ipo purchased', async () => {

@@ -103,7 +103,8 @@ export async function buyFromIpo(
   userId: string,
   ipoId: string,
   quantity: number,
-  playerId?: string
+  playerId?: string,
+  idempotencyKey?: string
 ): Promise<IpoBuyResult> {
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('invalidQuantity');
   if (quantity > 300) throw new Error('maxQuantityExceeded');
@@ -118,10 +119,12 @@ export async function buyFromIpo(
     if (restricted) throw new Error('clubAdminRestricted');
   }
 
+  // Slice 403: idempotency_key gegen Doppelkauf (Blueprint S178a-f, Spiegel buy_from_order/buy_player_sc)
   const { data, error } = await supabase.rpc('buy_from_ipo', {
     p_user_id: userId,
     p_ipo_id: ipoId,
     p_quantity: quantity,
+    p_idempotency_key: idempotencyKey ?? null,
   });
 
   if (error) throw new Error(mapRpcError(error.message));
