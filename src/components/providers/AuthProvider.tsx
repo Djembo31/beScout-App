@@ -12,6 +12,7 @@ import { setUser as sentrySetUser, addBreadcrumb as sentryAddBreadcrumb } from '
 import { withTimeout } from '@/lib/utils';
 import { queryClient } from '@/lib/queryClient';
 import { logSilentRejects } from '@/lib/observability/silentRejects';
+import { captureMessage } from '@/lib/observability/captureError';
 import { clearCachedAllSlots } from '@/lib/utils/cachedQuery';
 import type { Profile, ClubAdminRole } from '@/types';
 
@@ -241,8 +242,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // All attempts exhausted
+    // All attempts exhausted. Console-only war ein Observability-Blindspot (Slice 394):
+    // bekannte JWT-Hydration-Race (Cookie-Resume, s. Kommentar oben) heilt meist via
+    // Retry/LS-Cache, aber wir konnten die echte Nutzer-Häufigkeit nicht messen.
+    // captureMessage = no-op in dev (Sentry production-only), kein Verhalten geändert.
     console.error('[AuthProvider] Profile load failed after retry');
+    captureMessage('auth.profileLoadFailedAfterRetry', 'error', {
+      feature: 'auth',
+      slice: '394',
+      userId,
+      extra: { isRefresh: _isRefresh, hadCachedProfile: lsGet(LS_PROFILE) !== null },
+    });
     if (!_isRefresh) setProfileLoading(false);
   }, []);
 

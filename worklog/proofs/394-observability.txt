@@ -1,0 +1,22 @@
+# Slice 394 — Proof: AuthProvider Failure-Observability
+Datum: 2026-06-26
+
+## Diagnose (faktenbasiert, VOR Fix)
+- ali-Profil-Row valide+vollständig (DB-SELECT).
+- get_auth_state('ali') EXPLAIN ANALYZE = 62ms (JWT-Impersonation), gesund.
+- Sentry-Suche 'Profile load failed' + 'auth_uid_mismatch' = 0 Issues → Failure war console-only (Blindspot).
+- Ursache = bekannte JWT-Hydration-Race (Cookie-Resume, Code Z.176-182), graceful via Retry+LS-Cache. KEIN Daten-Defekt, nicht ali-spezifisch.
+
+## AC1+AC2 — captureMessage + console.error beide am Failure-Pfad
+15:import { captureMessage } from '@/lib/observability/captureError';
+248:    // captureMessage = no-op in dev (Sentry production-only), kein Verhalten geändert.
+249:    console.error('[AuthProvider] Profile load failed after retry');
+250:    captureMessage('auth.profileLoadFailedAfterRetry', 'error', {
+
+## AC3 — nur additive Observability, keine Auth/Race/RLS-Logik-Änderung
+ src/components/providers/AuthProvider.tsx | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+## AC4 — tsc --noEmit: clean (exit 0)
+
+## Scope-Out (Folge-Slice NACH Sentry-Daten): get_auth_state null-uid soft-handling / JWT-unabhängiger Fallback.

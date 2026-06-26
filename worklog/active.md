@@ -2,23 +2,24 @@
 
 ```
 status: in-progress
-slice: 393
-title: E-3 Regel-Rejects regel-spezifisch (9 Validator-Codes → eigene DE/TR-Toast-Meldung)
-size: S
+slice: 394
+title: AuthProvider Profile-Load-Failure observability — Sentry-Capture statt console-only
+size: XS
 stage: BUILD
-spec: worklog/specs/393-lineup-rule-reject-messages.md
-impact: inline (additive — 9 Codes in KNOWN_KEYS-Allowlist + 9 DE/TR Strings im errors-Namespace; kein Money, kein RPC-Change)
-proof: worklog/proofs/393-reject-messages.txt
-review: worklog/reviews/393-review.md
-prev: 392 DONE (E-3-Regelsatz komplett). Fund aus gebündeltem Playwright: Reject-Toasts fielen auf 'generic'.
-ac-ui: statischer Node-Check (9 Codes resolven DE+TR, nicht mehr generic) + tsc + errorMessages-Test
+spec: worklog/specs/394-authprovider-observability.md
+impact: inline (additive — 1 captureMessage am finalen Failure-Pfad; KEINE Auth/RLS-Logik-Änderung)
+proof: worklog/proofs/394-observability.txt
+review: worklog/reviews/394-review.md
+prev: 393 DONE. Fund 2 aus E-3-Bündel-Playwright: 7× "[AuthProvider] Profile load failed after retry" — console-only, Sentry blind.
+diagnose: get_auth_state(ali)=62ms gesund, ali-Profil valide → bekannte JWT-Hydration-Race (Cookie-Resume, Code-dokumentiert), graceful Fallback via LS-Cache. KEIN Daten-Defekt, NICHT ali-spezifisch. Auth-Logik bewusst NICHT angefasst (money-nah, caution over speed) — erst messbar machen.
+ac: tsc clean + captureMessage am Failure-Pfad + Reviewer
 ```
 
 ## Zuletzt
 
-- **Slice 393** (2026-06-26) — Reject-Hinweise der 5 E-3-Regeln regel-spezifisch (vorher generic). Fund aus E-3-Bündel-Playwright. IN ARBEIT.
-- **Slice 392** (2026-06-26) — E-3 nation_in + max_per_nation. DONE. **Gebündelter Playwright erledigt** (`worklog/proofs/e3-bundle-playwright-verify.md`): Builder beide PASS Mobile 393px; 2 Funde → 393 (Reject-Texte) + AuthProvider-Check offen.
-- **Slice 391** (2026-06-26) — nationality_iso generierte Spalte. DONE.
+- **Slice 394** (2026-06-26) — AuthProvider Failure-Pfad nach Sentry instrumentiert (war console-only → Observability-Lücke). Fund 2 aus E-3-Bündel. IN ARBEIT.
+- **Slice 393** (2026-06-26) — E-3 Regel-Rejects regel-spezifisch (9 Codes DE/TR). DONE (`2fbc4ab6`), Reviewer PASS.
+- **Slice 392** (2026-06-26) — E-3 nation_in + max_per_nation. DONE. Gebündelter Playwright erledigt.
 
-Nächstes: Fund 2 (AuthProvider Profile-Load untersuchen), dann Session-Close.
+Nächstes: Session-Close (beide Funde erledigt).
 ```
