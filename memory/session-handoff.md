@@ -1,11 +1,13 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 17:18)
+# Session Handoff — Auto (2026-06-26 17:47)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- b26b18c7 docs(400): Tracker-Reconcile — E-7 creator-Cleanup DONE in MASTERPLAN/TODO
+- 3899c289 refactor(events): E-7 creator-Drift restlos entfernt — 11 Flächen + chk_event_type verengt [Slice 400]
 - af52c56b docs(handoff): auto-block sync (Session-Close 2026-06-26, Slice 399)
 - 37dbdf12 docs(distill): Slice 399 Tracker-Reconcile (E-4 KOMPLETT) + Wissen verdrahtet
 - 98ef9503 docs(handoff): Slice 399 DONE — Resume-Anker auf Backlog (E-5/E-6/E-7/S7)
@@ -14,8 +16,6 @@
 - d4bacb31 docs(distill): D108-Addendum E-4b-Realisierung + Wissen verdrahtet + Tracker reconciled (397/398)
 - bf0948ed docs(398): Live-Verify PASS — bench-i18n behoben (95->0 Console-Errors), Tracker reconciled
 - fbf1e094 fix(i18n): fehlende fantasy.bench*-Keys ergaenzt — Roh-Key-Leak im Lineup-Builder [Slice 398]
-- 10d7cda3 docs(397): Live-Verify post-Deploy PASS (Money Zero-Sum + S371) + 3 pre-existing Funde dokumentiert
-- 21523534 feat(events): User-Events Builder-UI verkabelt (E-4b Teil 1) [Slice 397]
 
 <!-- auto:handoff-end -->
 
@@ -23,9 +23,17 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle — Slice 399 (E-4b Teil 2: User-Events FERTIG) DONE + committet (`ea27cfe3`/`20fce03e`) + LIVE-verifiziert (AC1-AC6 PASS).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
+**Status: idle — Slice 400 (E-7 creator-Drift-Cleanup) DONE + gepusht (`3899c289`/`b26b18c7`, main==origin/main).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
 
-## ✅ Slice 399 E-4b Teil 2 DONE (2026-06-26, Money-nah) — User-Events end-to-end nutzbar, LIVE bewiesen
+## ✅ Slice 400 E-7 creator-Drift-Cleanup DONE (2026-06-26, Migration/S) — Drift restlos entfernt
+- **Smell-Audit-getrieben** (Anil: „Design-Smells melden"): deprecated Event-Typ `creator` (D108) über **11 tote Flächen** entfernt. `DbEvent.type` war schon creator-frei → alles latent, kein User-Bug. CEO-approved „voller Schnitt + Bonus".
+- **Geschnitten:** beide Type-Unions (`features/fantasy/types.ts` + `types/index.ts`) · `getTypeStyle`-case · `EventScopeBadge.TYPE_CONFIG` · `EventCategoryCards`/`EventBrowser` counts · `eventMapper` No-op-Ternary (`type: db.type`) · i18n `eventCategories.creator` DE+TR · Test (creator→user) · Bonus: tote `FantasyEvent.creatorId/creatorName`.
+- **DB (Migration `20260626180000`):** DELETE `event_fee_config('creator')`-Waisenzeile + **`chk_event_type` verengt** (= `events_type_check`, die von der Impact-Analyse übersehene „letzte Re-Insert-Tür", vgl. S396). Money byte-identisch (nur `rpc_lock_event_entry` liest die Tabelle, nie creator).
+- **Beweis:** tsc 0 · vitest 8/8 · DB 5 Zeilen · grep clean · JSON ok · Reviewer **PASS** (1 NIT über NIT hinaus geheilt = die CHECK-Verengung). Proof `400-cleanup.txt`. Knowledge verdrahtet: `fantasy.md` (events.type + E-7) + **errors-db.md S400** (Enum-Wert-ENTFERNEN = Spiegel von S379, permissiver CHECK erroret nicht beim Entfernen).
+- **Fehlalarm aussortiert:** „Predictions" ist KEIN Smell (`ChallengeType.'prediction'` = lebende Daily-Challenge-Frageart) — nicht anfassen.
+- **Keine geseedeten Live-Artefakte** (reiner toter-Pfad-Schnitt).
+
+## (vorige) ✅ Slice 399 E-4b Teil 2 DONE (2026-06-26, Money-nah) — User-Events end-to-end nutzbar, LIVE bewiesen
 - **Schließt das User-Events-Feature ab** (nach 396 Geldkern / 397 Builder / 398 bench-i18n). 6 Bausteine, Money-Logik unverändert (396-RPCs eingefroren, nur Aufrufe):
   1. **Discovery** `creator`→`user` in `EventCategoryCards` + `EventBrowser` (**Design-Smell-Fix**, CEO-bestätigt: tote deprecated `creator`-Karte ersetzt, 0 Prod-Events, D108).
   2. **F2/F3 currency-fix** 🎟-Chip in `EventCardView` + `EventDetailHeader` nur bei `currency==='tickets'` (Scout-Eintritt via `formatEventCost`→CR, kein „1000 Tickets"-cents-Leak).
@@ -40,7 +48,7 @@
 ## ➡️ NÄCHSTER: Backlog (Anil-Wahl)
 - **E-5 Ticket-Events** voll verdrahten (M): Tickets-Eintritt → Equipment/Credits/Tickets-Gewinn.
 - **E-6 Creator-/Sponsor-Flow** vereinheitlichen (L, Money/CEO).
-- **E-7 Altlasten-Cleanup** (XS-S): orphan `event_fee_config('creator')`-DB-Zeile + `getTypeStyle('creator')`-case + Predictions/Type-Drift.
+- **E-7-Rest** (XS-S): Freiform-Reward-Editor (E-4b-Rest). _(creator-Drift ✅ in Slice 400 erledigt; Predictions = KEIN Smell.)_
 - **S7-Aufräumen** (`worklog/s7-phase3-remaining.md`).
 - Anker: `worklog/notes/event-creator-liga-epic.md` (E-5/E-6/E-7) + `decisions.md` D104-D108.
 
