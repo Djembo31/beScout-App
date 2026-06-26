@@ -1,14 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 13:49)
+# Session Handoff — Auto (2026-06-26 14:45)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
-```
- M memory/session-handoff.md
- M worklog/active.md
- M worklog/specs/396-user-events-money-core.md
-```
+## Working Tree: Clean
+
+## Session Commits: 1
+- 0cd799b5 feat(events): User-Events Geld-Kern (E-4a) — Eintritts-Pot, Erstell-Gebühr→Topf, kein Seed [Slice 396]
 
 <!-- auto:handoff-end -->
 
