@@ -1,17 +1,19 @@
 # Active Slice
 
 ```
-status: idle
-slice: 403
-title: Welle 1.2 — buy_from_ipo Idempotency-Key (Doppelkauf-Schutz Erstverkauf) [Money/CEO] — DONE
-size: S (Money — Migration + Service + 2 Hooks; Blueprint S178a-f, byte-identische Money-Math)
-stage: LOG (DONE)
-spec: worklog/specs/403-welle1-ipo-idempotency.md
-impact: skipped (Consumer = ipo.ts-Service + 2 Buy-Hooks + 3 Test-Files, in Spec §3 vollständig gegreppt; kein Cross-Domain)
-proof: worklog/proofs/403-money-smoke.txt
-proof2: worklog/proofs/403-vitest.txt (97/97, tsc 0) — Money-Smoke: Zero-Sum=0, Replay=selbe trade, AC-01..06 PASS
-review: worklog/reviews/403-review.md — PASS (2 NIT, kein Handlungsbedarf)
+status: active
+slice: 404
+title: Welle 1.1 — Markt-Tab Kauf order-gebunden („was du siehst = was du zahlst") [Money-Trust UI]
+size: L (UI cross-component — Markt-Buy auf order-gebundene Pipeline, geteilte Order-Quelle useSellOrders)
+stage: PROVE (vitest 298 ✅ + tsc 0; UI-Playwright post-Deploy OFFEN)
+spec: worklog/specs/404-welle1-market-buy-order-bound.md
+impact: skipped (Consumer in Spec §3 gegreppt; kein RPC/Migration, kein Cross-Domain — reine UI/Routing-Konsolidierung)
+proof: worklog/proofs/404-vitest.txt
+review: worklog/reviews/404-review.md — PASS (1 NIT konsistenz-bewusst belassen, 1 INFO=pre-existing Player-Detail-Shape-Bug→405)
 ```
+
+## Inline-Notiz (Welle 1.1)
+Markt-Tab zeigte `floor`, kaufte cheapest-foreign via `buy_player_sc` (Anzeige≠Abbuchung), qty hart 1. Fix = order-gebundene Pipeline wie Player-Detail: günstigste Fremd-Order via `useSellOrders` (geteilte Quelle), Preis+Menge daran gebunden, Kauf via `buy_from_order`. Listenpreis exkludiert eigene Orders → Liste==Modal==Kauf. KEINE RPC/Money-Math-Änderung. Scope-Out: BuyConfirmation.tsx est-total (→405), 1.3/1.4/1.5.
 
 ## Inline-Notiz (Welle 1 Start)
 **Welle 1 — Trading & Kaufprozess** (Mock→Pro, D111). Slice 403 = Plan-Punkt 1.2. Kern-Smell der Welle = „von allem zwei"; 1.2 schließt das Idempotenz-Loch im Erstverkauf (einziger der 3 Kauf-RPCs ohne `idempotency_key`) end-to-end. CEO-Architektur-Gabelung 1.4 (Orderbuch `orders` vs `offers` = ein Buch?) wird VOR Slice 1.4 separat geklärt.

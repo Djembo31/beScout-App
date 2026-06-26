@@ -1,0 +1,24 @@
+Slice 404 — Welle 1.1: Markt-Tab order-gebundener Kauf — vitest + tsc PROVE
+Datum: 2026-06-26
+
+$ npx tsc --noEmit
+=== TSC EXIT: 0 ===
+
+$ CI=true npx vitest run src/features/market src/components/player/detail
+ Test Files  24 passed (24)
+      Tests  298 passed (298)
+
+Neue Tests (src/features/market/mutations/__tests__/trading.test.ts):
+- useBuyFromMarket: orderId gesetzt → buyFromOrder('u1','o-1',3,'p1',key) aufgerufen,
+  buyFromMarket NICHT (AC-04 order-bound)
+- Shape-Norm: buyer_new_balance(99000) → setWalletBalance(qc,'u1',99000) (AC-02 Balance)
+- orderId=null → buyFromMarket-Fallback, buyFromOrder NICHT
+
+Logik-Verifikation (Container MarketBuyConfirmContainer):
+- priceCents = günstigste FREMD-Order (filter !is_own & remaining>0, sort price ASC [0])
+- maxQty = min(orderRemaining, floor(balance/price)) — order-gebunden, nicht Orderbuch-Summe
+- 0 Fremd-Orders → priceCents=0/maxQty=0 → BuyConfirmModal Empty-State
+- isLoading (per-Spieler Orderbuch kalt) → loading-Spinner statt Empty-Flash
+- IPO-Branch unverändert (ipo.price, kein orderId)
+
+UI-Wahrheit (AC-01/02/03/06/08) = post-Deploy Playwright (separater Proof 404-wysiwyp).

@@ -21,6 +21,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // Service Mocks (hoisted)
 // ============================================
 const buyFromMarketMock = vi.fn();
+const buyFromOrderMock = vi.fn();
 const buyFromIpoMock = vi.fn();
 const placeBuyOrderMock = vi.fn();
 const cancelBuyOrderMock = vi.fn();
@@ -32,6 +33,7 @@ const logSilentCatchMock = vi.fn();
 
 vi.mock('@/lib/services/trading', () => ({
   buyFromMarket: (...a: unknown[]) => buyFromMarketMock(...a),
+  buyFromOrder: (...a: unknown[]) => buyFromOrderMock(...a),
   placeBuyOrder: (...a: unknown[]) => placeBuyOrderMock(...a),
   cancelBuyOrder: (...a: unknown[]) => cancelBuyOrderMock(...a),
 }));
@@ -112,6 +114,34 @@ describe('useBuyFromMarket (Ferrari-Refactor)', () => {
     expect(buyFromMarketMock).toHaveBeenCalledWith('u1', 'p1', 3, expect.stringMatching(/^market\.buy:/));
     expect(setWalletBalanceMock).toHaveBeenCalledWith(qc, 'u1', 420000);
     expect(invalidateTradeQueriesMock).toHaveBeenCalledWith('p1', 'u1');
+  });
+
+  // Slice 404: order-gebundene Pipeline.
+  it('routes to buyFromOrder when an orderId is given (order-bound buy)', async () => {
+    buyFromOrderMock.mockResolvedValue({ success: true, buyer_new_balance: 99000, price: 11000 });
+    const qc = makeClient();
+    const { result } = renderHook(() => useBuyFromMarket(), { wrapper: wrapperFor(qc) });
+
+    await act(async () => { result.current.mutate({ ...vars, orderId: 'o-1' }); });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    // buy_from_order(buyerId, orderId, qty, playerId, key) — order-bound, deterministic price
+    expect(buyFromOrderMock).toHaveBeenCalledWith('u1', 'o-1', 3, 'p1', expect.stringMatching(/^market\.buy:/));
+    expect(buyFromMarketMock).not.toHaveBeenCalled();
+    // Shape-Norm: buyer_new_balance wird wie new_balance behandelt
+    expect(setWalletBalanceMock).toHaveBeenCalledWith(qc, 'u1', 99000);
+  });
+
+  it('falls back to buyFromMarket when orderId is null', async () => {
+    buyFromMarketMock.mockResolvedValue({ success: true, new_balance: 1, price_per_dpc: 1 });
+    const qc = makeClient();
+    const { result } = renderHook(() => useBuyFromMarket(), { wrapper: wrapperFor(qc) });
+
+    await act(async () => { result.current.mutate({ ...vars, orderId: null }); });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(buyFromMarketMock).toHaveBeenCalledWith('u1', 'p1', 3, expect.stringMatching(/^market\.buy:/));
+    expect(buyFromOrderMock).not.toHaveBeenCalled();
   });
 
   it('optimistically increments holdings-qty in onMutate', async () => {

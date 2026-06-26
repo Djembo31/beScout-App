@@ -1,19 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 22:28)
+# Session Handoff — Auto (2026-06-26 22:55)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
-## Session Commits: 5
+## Session Commits: 4
+- 4e84215a feat(trading): Slice 403 — Welle 1.2 buy_from_ipo Idempotency-Key (Doppelkauf-Schutz Erstverkauf) [Money/CEO]
 - 36d82f68 docs(decision): D111 — Beta abgebrochen → Mock→Pro-Programm (7-Domänen-Audit + 7-Wellen-Plan + Stale-Glättung)
 - cc64463f docs(distill): D110 e2e-Audit-Methode + Wissen verdrahtet + Handoff frische Session
 - b4a10eb1 docs(decision): D109 — Monats-Liga-Reward-Smells geprüft + CEO bewusst akzeptiert
-- ba53bb46 feat(treasury): Slice 402 — Treasury-RAUS e2e REAL bewiesen (echte Monats-Liga-Auszahlung)
-- 213f626c docs(audit): Slice 401 — e2e-Durchsetzungs-Audit (329–400) gesichert + 400-Rest + Tracker-Stale-Heal
 
 <!-- auto:handoff-end -->
 
@@ -31,6 +27,8 @@
 **➡️ WELLE 1 TRADING LÄUFT (Mock→Pro).** ✅ **1.2 DONE (Slice 403, `feat(trading)`):** `buy_from_ipo` Idempotency-Key (Doppelkauf-Schutz Erstverkauf) — RPC+Service+beide IPO-Buy-Hooks (Verkabelungs-Loch mitgeschlossen: liefen auf nicht-idempotentem `useSafeMutation`), Reviewer PASS, force-rollback Zero-Sum=0/Replay bewiesen. **NÄCHSTER = 1.1** (Kauf-UI-Konsolidierung „was du siehst = was du zahlst": `BuyConfirmModal`+`BuyModal` → eine order-gebundene Pipeline, CRITICAL/UI) **ODER 1.3** (Club-Geld-Doppelschreibung — 403-Smoke klärte: `clubs.treasury_balance_cents` bekommt nur den direkten +club_share, 2. Write läuft auf separates Ledger → erst verifizieren ob echte Doppelzählung vs. Legacy-Drift). **1.4 Orderbuch (`orders` vs `offers` = EIN Buch?) = CEO-Architektur-Gabelung, VOR 1.4 klären.** Weitere CEO-Gabelungen: Lineup-Datenmodell (Welle 3) · Entry/Lineup-Entkopplung (Welle 3). Money-Wellen = selbst (§3) + Live-`pg_get_functiondef` VOR Spec (D87) + Zero-Sum-Beweis.
 
 **Reihenfolge-Vorschlag:** Trading → Spieltag/Scoring → Events → Follow → Geld/State → Performance → Design (zuletzt). Alte TODOs vollständig als Carry-over (A–G) im Plan erfasst — nichts verloren.
+
+**✅ WELLE-1-FORTSCHRITT (diese Session):** **1.2 DONE (403)** buy_from_ipo Idempotency · **1.1 DONE (404)** Markt-Tab order-gebunden „was du siehst = was du zahlst" (Reviewer PASS, vitest 298) — **OFFEN: UI-Playwright post-Deploy** (Modalpreis==Listenpreis==Wallet-Delta + qty-Selektor + DE/TR). **NÄCHSTER = (a) 404-Playwright verifizieren** sobald Vercel deployed, **dann (b) Slice 405** (Reviewer-Fund: `usePlayerTrading.onSuccess` Shape-Norm `new_balance ?? buyer_new_balance` + BuyConfirmation.tsx est-total — gleicher Shape-Bug wie 404 löste, im Player-Detail-Order-Kauf) **ODER 1.3** (Club-Geld-Doppelschreibung, Money) **ODER 1.4** (Orderbuch `orders` vs `offers` = CEO-Gabelung). Welle-1-Rest: 1.5 (BSD→Credits, Rate-Limit, fee_config-Lookup) · 1.6 (Orderbuch Empty-State).
 
 **Status: idle, main==origin/main.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen. **Teaching-Mode durchgehend (1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
 

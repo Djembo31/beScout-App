@@ -61,6 +61,10 @@ export default function TransferListSection({
     for (const order of sellOrders) {
       if (order.status !== 'open' && order.status !== 'partial') continue;
       if (order.side !== 'sell') continue;
+      // Slice 404: eigene Orders zählen NICHT — der Kauf (buy_player_sc/buy_from_order)
+      // trifft nur Fremd-Orders. „Listed from"-Preis muss = günstigste FREMD-Order sein,
+      // sonst zeigt die Liste einen Preis, der nicht kaufbar ist (Anzeige≠Abbuchung).
+      if (order.is_own) continue;
       const available = order.quantity - order.filled_qty;
       if (available <= 0) continue;
 

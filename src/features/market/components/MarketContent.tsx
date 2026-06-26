@@ -27,12 +27,13 @@ import MarketHeader from './MarketHeader';
 import PortfolioTab from './portfolio/PortfolioTab';
 import MarktplatzTab from './marktplatz/MarktplatzTab';
 import StalePipelineBanner from '@/components/system/StalePipelineBanner';
-import { resolveBuyPriceCents } from './marketContent.priceCents';
 
 // Slice 116 CLS-Fix: Modals haben position:fixed → keine Layout-Shift. MissionHintList ist
 // inline und braucht Skeleton mit fixed-height um CLS zu verhindern.
 const TradeSuccessCard = dynamic(() => import('./shared/TradeSuccessCard'), { ssr: false, loading: () => null });
-const BuyConfirmModal = dynamic(() => import('./shared/BuyConfirmModal'), { ssr: false, loading: () => null });
+// Slice 404: Container resolved die günstigste Fremd-Order (useSellOrders) und rendert
+// BuyConfirmModal — order-gebundener Markt-Kauf statt Floor-Anzeige + buy_player_sc.
+const MarketBuyConfirmContainer = dynamic(() => import('./shared/MarketBuyConfirmContainer'), { ssr: false, loading: () => null });
 // BuyOrderModal aus Beta entfernt (AR-11) — lazy-Import bleibt gestrichen.
 // Wenn Matching-Engine live ist: `FEATURE_BUY_ORDERS = true` + hier re-adden.
 const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), {
@@ -269,34 +270,22 @@ export default function MarketContent() {
         </>
       )}
 
-      {/* Buy Confirmation Modal */}
+      {/* Buy Confirmation Modal — Slice 404: Container resolved die günstigste Fremd-Order */}
       {trade.pendingBuy && (() => {
         const player = data.playerMap.get(trade.pendingBuy.playerId);
         if (!player) return null;
         const isIpo = trade.pendingBuy.source === 'ipo';
-        const ipo = isIpo ? data.ipoList.find(i => i.player_id === trade.pendingBuy!.playerId) : null;
-        const floorCents = resolveBuyPriceCents({
-          isIpo,
-          ipoPriceCents: ipo?.price,
-          floorBsd: player.prices.floor,
-        });
-        const ipoRemaining = ipo ? ipo.total_offered - ipo.sold : 0;
-        const ipoProgress = ipo ? (ipo.sold / ipo.total_offered) * 100 : 0;
-        const maxQty = isIpo && ipo ? Math.min(ipo.max_per_user, ipoRemaining) : 1;
+        const ipo = (isIpo ? data.ipoList.find(i => i.player_id === trade.pendingBuy!.playerId) : null) ?? null;
 
         return (
-          <BuyConfirmModal
-            open
-            onClose={() => trade.setPendingBuy(null)}
+          <MarketBuyConfirmContainer
             player={player}
             source={trade.pendingBuy.source}
-            priceCents={floorCents}
-            maxQty={maxQty}
+            ipo={ipo}
             balanceCents={balanceCents}
             isPending={trade.buyPending || trade.ipoBuyPending}
             onConfirm={trade.executeBuy}
-            ipoProgress={isIpo ? ipoProgress : undefined}
-            ipoRemaining={isIpo ? ipoRemaining : undefined}
+            onClose={() => trade.setPendingBuy(null)}
           />
         );
       })()}

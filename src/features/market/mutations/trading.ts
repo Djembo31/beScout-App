@@ -1,7 +1,7 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { buyFromMarket, placeBuyOrder, cancelBuyOrder } from '@/lib/services/trading';
+import { buyFromMarket, buyFromOrder, placeBuyOrder, cancelBuyOrder } from '@/lib/services/trading';
 import { buyFromIpo } from '@/lib/services/ipo';
 import { setWalletBalance, invalidateWallet } from '@/lib/hooks/useWallet';
 import { useSafeMutation } from '@/lib/hooks/useSafeMutation';
@@ -57,12 +57,17 @@ export function useBuyFromMarket() {
   return useSafeIdempotentMutation<
     Awaited<ReturnType<typeof buyFromMarket>>,
     Error,
-    { userId: string; playerId: string; quantity: number },
+    { userId: string; playerId: string; quantity: number; orderId?: string | null },
     BuyContext
   >({
     idempotencyNamespace: 'market.buy',
-    mutationFn: async ({ userId, playerId, quantity }, idempotencyKey) => {
-      const result = await buyFromMarket(userId, playerId, quantity, idempotencyKey);
+    // Slice 404 (Welle 1.1): order-gebundene Kauf-Pipeline. Mit orderId → buy_from_order
+    // (deterministisch „was du siehst = was du zahlst", Spiegel Player-Detail buyMut);
+    // ohne → buy_player_sc (günstigste Fremd-Order zur Execution, Fallback).
+    mutationFn: async ({ userId, playerId, quantity, orderId }, idempotencyKey) => {
+      const result = orderId
+        ? await buyFromOrder(userId, orderId, quantity, playerId, idempotencyKey)
+        : await buyFromMarket(userId, playerId, quantity, idempotencyKey);
       if (!result.success) throw new Error(result.error || 'generic');
       return result;
     },
@@ -91,7 +96,9 @@ export function useBuyFromMarket() {
     },
     onSuccess: (result, { playerId, userId }) => {
       // Deterministic server write — pgBouncer Read-After-Write (useWallet.ts:200).
-      if (result.new_balance != null) setWalletBalance(qc, userId, result.new_balance);
+      // Slice 404: Shape-Norm — buy_player_sc→new_balance, buy_from_order→buyer_new_balance.
+      const newBalance = result.new_balance ?? result.buyer_new_balance;
+      if (newBalance != null) setWalletBalance(qc, userId, newBalance);
       invalidateTradeQueries(playerId, userId);
       // Force full-list refetch even when no observer is mounted on /market.
       // Otherwise navigating to /manager?tab=kader shows N-1 players until

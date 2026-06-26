@@ -86,14 +86,16 @@ export function useTradeActions(userId: string | undefined, ipoList: DbIpo[]) {
     setPendingBuy({ playerId, source: 'ipo' });
   }, [userId]);
 
-  const executeBuy = useCallback((qty: number) => {
+  const executeBuy = useCallback((qty: number, orderId?: string | null) => {
     if (!userId || !pendingBuy) return;
     // Parallel-Mutation-Guard: prevent double-submit if a buy is already in flight
     if (buyPending || ipoBuyPending) return;
     balanceBeforeBuyRef.current = balanceCents ?? 0;
     setPendingBuy(null);
     if (pendingBuy.source === 'market') {
-      doBuy({ userId, playerId: pendingBuy.playerId, quantity: qty });
+      // Slice 404: orderId bindet den Kauf an die angezeigte günstigste Fremd-Order
+      // (buy_from_order) → „was du siehst = was du zahlst". Ohne → buy_player_sc-Fallback.
+      doBuy({ userId, playerId: pendingBuy.playerId, quantity: qty, orderId });
     } else {
       const ipoId = ipoIdMap.get(pendingBuy.playerId);
       if (!ipoId) return;

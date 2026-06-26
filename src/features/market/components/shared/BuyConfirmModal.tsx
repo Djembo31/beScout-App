@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
-import { Zap, ShoppingCart, Info, AlertCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Zap, ShoppingCart, Info, AlertCircle, TrendingUp, TrendingDown, Minus, Loader2 } from 'lucide-react';
 import { Dialog, Button, InfoTooltip } from '@/components/ui';
 import { PlayerIdentity } from '@/components/player';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
@@ -40,7 +40,11 @@ interface BuyConfirmModalProps {
   maxQty: number;
   balanceCents: number;
   isPending: boolean;
-  onConfirm: (qty: number) => void;
+  /** Slice 404: bei 'market' = id der günstigsten Fremd-Order → order-gebundener Kauf. */
+  orderId?: string | null;
+  /** Slice 404: Order-Quelle lädt noch (per-Spieler Orderbuch kalt) → Spinner statt Empty-Flash. */
+  loading?: boolean;
+  onConfirm: (qty: number, orderId?: string | null) => void;
   ipoProgress?: number;
   ipoRemaining?: number;
 }
@@ -52,7 +56,7 @@ const QTY_BTN = 'size-9 min-w-[44px] min-h-[44px] rounded-lg bg-surface-base bor
 
 export default function BuyConfirmModal({
   open, onClose, player, source, priceCents, maxQty,
-  balanceCents, isPending, onConfirm, ipoProgress, ipoRemaining,
+  balanceCents, isPending, orderId, loading, onConfirm, ipoProgress, ipoRemaining,
 }: BuyConfirmModalProps) {
   const t = useTranslations('market');
   const tp = useTranslations('playerDetail');
@@ -66,7 +70,8 @@ export default function BuyConfirmModal({
 
   const priceBsd = centsToBsd(priceCents);
   const isMarket = source === 'market';
-  const effectiveQty = isMarket ? 1 : Math.min(qty, maxQty);
+  // Slice 404: Markt-Menge nicht mehr hart auf 1 — an die Order-Restmenge (maxQty) gebunden.
+  const effectiveQty = Math.min(qty, maxQty);
   const totalCents = priceCents * effectiveQty;
   const totalBsd = priceBsd * effectiveQty;
   const canAfford = balanceCents >= totalCents && totalCents > 0;
@@ -74,8 +79,19 @@ export default function BuyConfirmModal({
 
   const handleConfirm = () => {
     if (isPending || !canAfford) return;
-    onConfirm(effectiveQty);
+    onConfirm(effectiveQty, orderId);
   };
+
+  // Loading state: per-player orderbook still resolving (Slice 404) — spinner, kein Empty-Flash
+  if (loading) {
+    return (
+      <Dialog open={open} onClose={onClose} title={t('confirmBuyTitle')} subtitle={`${player.first} ${player.last}`} size="sm" preventClose={isPending}>
+        <div className="py-10 flex items-center justify-center" role="status" aria-live="polite">
+          <Loader2 className="size-6 animate-spin motion-reduce:animate-none text-white/40" aria-hidden="true" />
+        </div>
+      </Dialog>
+    );
+  }
 
   // Empty state: nothing available to buy
   if (priceCents <= 0 || maxQty <= 0) {
@@ -168,8 +184,9 @@ export default function BuyConfirmModal({
             <span className="font-mono font-black text-gold tabular-nums">{fmtScout(priceBsd)} CR</span>
           </div>
 
-          {/* Quantity selector — only for IPO (market RPC is hardcoded to qty=1) */}
-          {!isMarket && maxQty > 1 ? (
+          {/* Quantity selector — Slice 404: für Markt UND IPO, an die verfügbare Menge
+              (Order-Restmenge bzw. IPO-Limit) gebunden. maxQty<=1 → statisch. */}
+          {maxQty > 1 ? (
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/50">{tp('qtyLabel', { defaultMessage: 'Anzahl' })}</span>
               <div className="flex items-center gap-1.5">
@@ -198,12 +215,12 @@ export default function BuyConfirmModal({
                 >+</button>
               </div>
             </div>
-          ) : isMarket ? (
+          ) : (
             <div className="flex items-center justify-between text-sm">
               <span className="text-white/50">{tp('qtyLabel', { defaultMessage: 'Anzahl' })}</span>
-              <span className="font-mono font-bold tabular-nums">1 SC</span>
+              <span className="font-mono font-bold tabular-nums">{effectiveQty} SC</span>
             </div>
-          ) : null}
+          )}
 
           {/* IPO progress */}
           {!isMarket && ipoProgress !== undefined && ipoRemaining !== undefined && (
