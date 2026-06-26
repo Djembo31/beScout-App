@@ -4142,3 +4142,29 @@ Der E-4a-Geldkern war gebaut, aber **0 UI-Konsumenten** (`CreateEventModal` blie
 **Builder-Detail (CTO):** Reward = **Presets** (winner/top3/top5, Summe immer 100 → `reward_structure_not_100` unerreichbar, kein Freiform-Editor); Format **fix `6er`** (RPC nimmt keinen format-Param → DB-Default; 11er = späterer RPC-Param); locks_at = `datetime-local` Default now+48h.
 
 **3 PRE-EXISTING Funde vom Live-Test (NICHT 397-Regression, von der erstmaligen Sichtbarkeit aufgedeckt):** **F1** `BenchRow.tsx` (Feat 195d) nutzte 9 nie-definierte `fantasy.bench*`-Keys → 95 MISSING_MESSAGE + **Roh-Key-Leak in der UI**, global (jedes Event mit Lineup-Bench) → **Slice 398 behoben** (9 Keys ×DE+TR, live 95→0 Errors). **F2/F3** EventCard/Detail-Kosten-Meta zeigt `{ticket_cost} Tickets` währungsunabhängig (scout→falsch) → **399**. **Lehre (errors-frontend):** ein dormanter Pfad sichtbar machen feuert latente Gaps in den neu-gerenderten geteilten Downstream-Komponenten — first-visible-render = Live-Audit-Pflicht (Frontend-Spiegel von S396 „latenter CHECK feuert erst beim ersten echten Pfad").
+
+## D109 — PRODUCT: Monats-Liga-Reward-Modell — Rang-basierte Auszahlung + overall-Mehrkampf bewusst beibehalten (Smell-Review nach erstem echten Lauf)
+
+**Datum:** 2026-06-26 · **Status:** 🟢 Aktiv · **Category:** PRODUCT (Money/Reward) · **Kontext:** Slice 402 führte den ersten **echten** `close_monthly_liga`-Abschluss aus (RAUS-e2e-Beweis). Der Live-Lauf legte 2 Reward-Verteilungs-Eigenschaften offen, die ich als Design-Smells meldete (Anil-Auftrag „schlecht gelöste Patterns melden"). Nach Evidenz-Vorlage CEO-Entscheid (AskUserQuestion).
+
+### Befund (Live-Lauf 2026-05-01, NICHT neu erheben)
+- **(a) Auszahlung ohne Mindest-Leistung:** Top-3 je Dimension werden **fix nach Rang** bezahlt (500k/250k/100k cents global), unabhängig vom Saison-Delta. `analyst`-Dim zahlte an Spieler mit **−20 Delta** (alle 128 negativ).
+- **(b) overall-Doppelzählung:** `overall` (= Summe−max−min der 3 Einzel-Dims) überschneidet strukturell mit trader/manager/analyst → Top-Allrounder kassieren mehrfach (bot027 3×, bot039 2×).
+
+### Entscheidung (Anil 2026-06-26)
+1. **(a) Kein Mindest-Delta-Gate** — Top-3 nach Rang bleiben rang-bezahlt, auch bei 0/negativem Delta. **Status quo.**
+2. **(b) `overall` bleibt 4. Geld-Preis (Mehrkampf-Modell)** — Einzeldisziplin-Sieger UND Gesamtsieger werden belohnt (wie Zehnkampf). Doppelzählung bewusst akzeptiert. **Status quo.**
+3. **Kein Code-Change an `close_monthly_liga`** — das RPC-Modell ist korrekt wie gebaut (376/383-Baseline).
+
+### Wichtige Trennung (CTO-Befund, faktenbasiert)
+Der hässliche analyst-Negativ-Payout ist **kein Reward-Modell-Defekt, sondern ein Mock-Daten-Artefakt:** `season_start_analyst` ist für **alle 128 User uniform = 500** geseedet, die echten `analyst_score` liegen bei 450–480 → jeder „verliert" gegen seine künstliche Baseline. → Gehört in den **S7/Launch-Reset-Strang** (`s7-phase3-remaining.md`), nicht zum Reward-Code. Mit dem echten Daten-Reset zum Launch (echte Saisonstart-Scores) verschwindet das Symptom.
+
+### Alternativen erwogen
+- **(a) Gate `delta > 0`:** verworfen (Anil) — würde bei aktuellen Mock-Daten ganze Dims leer auszahlen lassen; das echte Problem sind die Mock-season_start-Werte, nicht das Modell.
+- **(a) Gate `delta >= 0`:** verworfen — Halbmaßnahme.
+- **(b) overall entfernen / 1×-pro-User-Cap:** verworfen (Anil) — Mehrkampf-Belohnung ist gewollt.
+
+### Auswirkung
+Kein Code. Festhalten als geprüfte + bewusst akzeptierte CEO-Entscheidung (damit der Smell nicht später als „übersehen" gilt). Daten-Befund (uniform season_start_analyst=500) → S7-Tracker + TODO P2.
+
+**Re-Visit-Trigger:** (1) Nach echtem Daten-Reset zum Launch — prüfen ob Deltas dann sinnvoll verteilt sind (analyst-Negativ weg). (2) Falls echte User später systematisch für Nicht-Leistung Reward kassieren → Mindest-Delta-Gate nachrüsten. (3) Phase 2/3 (echtes Geld) → Reward-Verteilung neu unter Lizenz-Linse.

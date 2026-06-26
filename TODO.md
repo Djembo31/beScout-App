@@ -44,7 +44,7 @@
 - **E0 Welle 4** — Historie abspecken (`git filter-repo`, mit Backup, eigener bewusster Schritt). LOW.
 
 ## 🟢 P2 — Backlog
-- **Monats-Liga-Reward-Smells (aus Slice 402 Live-Lauf, Launch-relevant):** (a) globale Dims (trader/manager/analyst/overall) zahlen Top-3 **fix nach Rang ohne Mindest-Saison-Delta>0** → bei vielen inaktiven/Bot-Usern gewinnen evtl. Leute mit 0/negativem Delta; (b) `overall` + 3 Einzel-Dims **überschneiden** → ein Top-User kann 4× kassieren. Beide = Produkt-Entscheid (Gate einbauen? Dims entkoppeln?) vor echtem Launch. `close_monthly_liga`.
+- **Monats-Liga-Reward-Smells (Slice 402 Live-Lauf) — GEPRÜFT + CEO bewusst akzeptiert (D109):** (a) kein Mindest-Delta-Gate + (b) `overall`-Mehrkampf bleiben Status quo (Anil). **Kein Code-Fix.** Re-Visit-Trigger: nach echtem Daten-Reset prüfen ob Deltas sinnvoll verteilt. — **Separater Daten-Befund (→ S7/Launch-Reset, KEIN Reward-Bug):** `scout_scores.season_start_analyst` ist mock-geseedet (uniform 500 für alle 128 User; echte analyst_scores 450–480 → alle Deltas negativ). Beim echten Saison-Reset zum Launch mit echten Start-Scores neu setzen.
 - Polls P4 (User-Auszahl-Idee an Teilnehmer) — **VERWORFEN** (Anil 2026-06-18: Glücksspiel-Risiko). Nicht ohne neue Ansage.
 - FRE-4 Airdrop (Club belohnt Top-Treue mit $SCOUT) — **erst in der echten-Coin-Phase** (Phase 3 nach CASP, ADR-026 post-Pilot). Nicht in der jetzigen Phase bauen.
 - Andere Event-Quellen (bescout/sponsor/user) — Plattform-Topf/Sponsor-Deposit/User-Wallet.

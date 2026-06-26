@@ -1,11 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 18:37)
+# Session Handoff — Auto (2026-06-26 18:52)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- ba53bb46 feat(treasury): Slice 402 — Treasury-RAUS e2e REAL bewiesen (echte Monats-Liga-Auszahlung)
 - 213f626c docs(audit): Slice 401 — e2e-Durchsetzungs-Audit (329–400) gesichert + 400-Rest + Tracker-Stale-Heal
 - da24ea14 docs(distill): Slice 400 — Knowledge S400 (Enum-Wert-Entfernen) + Handoff-Anker frische Session
 - b26b18c7 docs(400): Tracker-Reconcile — E-7 creator-Cleanup DONE in MASTERPLAN/TODO
@@ -15,7 +16,6 @@
 - 98ef9503 docs(handoff): Slice 399 DONE — Resume-Anker auf Backlog (E-5/E-6/E-7/S7)
 - 20fce03e docs(399): Live-Verify post-Deploy PASS (AC1-AC6) + LOG — User-Events end-to-end nutzbar
 - ea27cfe3 feat(events): User-Events fertig — Discovery + F2/F3 + Cancel + Admin-Gebühr [Slice 399]
-- d4bacb31 docs(distill): D108-Addendum E-4b-Realisierung + Wissen verdrahtet + Tracker reconciled (397/398)
 
 <!-- auto:handoff-end -->
 
