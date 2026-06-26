@@ -9,7 +9,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **Geldneutral bewiesen:** jede RPC INSERTet weiter trades-Row mit club_fee (buy_from_ipo: club_fee=club_share 85%) → Trigger bucht Ledger unverändert. **3× force-rollback Zero-Sum diff=0** (`proofs/406-money-smoke.txt`): Trading (club_fee=15 → Ledger trade_fee +1), IPO (club_share=4250 → Ledger +1), TOTAL=Σwallets+platform_net+club_ledger_net+Σpbt konstant. Spalte weg (info_schema=0), `non_comment_refs=0`, Guards 4/4, ACL `{authenticated,service_role}` (kein anon), Idempotency erhalten.
 - **Wissens-Kopplung (D88, aktiv gegreppt):** `docs/knowledge/` nennt den Counter nicht → kein Doc-Drift. Pattern in `errors-db.md` Money-Drift-Klasse **S406** verankert (Write-only Orphan-Counter neben Ledger; Detektion + Audit-False-Positive via Removal-Kommentar).
 - **Scope-Out (eigener Mini-Slice):** IPO-Club-Share wird im Ledger als type `'trade_fee'` (statt `'ipo_fee'`) gebucht — Geld korrekt (`get_club_balance` summiert beide Buckets), nur Label semantisch. · 1.4 Orderbuch `orders`/`offers` (CEO-Gabelung) · 1.5/1.6.
-- Commit: <hash>
+- Commit: 2aa766eb
 
 ## 405 | 2026-06-27 | feat(trading): Welle 1.1 — Player-Detail Order-Kauf Shape-Norm + BuyConfirmation est-total [Money-Trust UI]
 - Stage-Chain: SPEC (`specs/405-…`, S UI Money-angrenzend) → IMPACT skipped (kein RPC/Migration/Cross-Domain, Consumer §3/§4 gegreppt) → BUILD (3 Edit + 2 Tests) → REVIEW reviewer-Agent **PASS** (`reviews/405-review.md`, 1 NIT status-quo + 1 INFO) → PROVE (vitest 47 + tsc 0 **+ post-Deploy Playwright AC1-6 LIVE PASS**) → LOG.
