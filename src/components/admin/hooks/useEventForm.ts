@@ -12,13 +12,19 @@ import { INITIAL_FORM_STATE } from './types';
 // (kein gegenseitiger Verlust). Multi-Regel-Builder mit Treffer-Anzeige = E-4.
 // =============================================================================
 
-/** Liest den Wert einer (positions-losen) Regel-Art aus der Liste ('' = keine). */
+/** Liest den Wert einer (positions-losen) Zahl-Regel aus der Liste ('' = keine). */
 function ruleValueFromRules(
   rules: LineupRule[] | null | undefined,
-  type: 'min_per_own_club' | 'age_min' | 'age_max',
+  type: 'min_per_own_club' | 'age_min' | 'age_max' | 'max_per_nation',
 ): string {
   const rule = (rules ?? []).find(r => r.type === type);
-  return rule ? String(rule.value) : '';
+  return rule && 'value' in rule ? String(rule.value) : '';
+}
+
+/** Liest die nation_in-Whitelist (ISO-Codes) aus der Liste ([] = keine). Slice 392. */
+function nationInFromRules(rules: LineupRule[] | null | undefined): string[] {
+  const rule = (rules ?? []).find(r => r.type === 'nation_in');
+  return rule && 'values' in rule ? rule.values : [];
 }
 
 /** Liest den Wert einer positions-geschlüsselten Regel (min/max_per_position) für eine Position ('' = keine). */
@@ -27,14 +33,14 @@ function posRuleValueFromRules(
   type: 'min_per_position' | 'max_per_position',
   position: PlayerPositionCode,
 ): string {
-  const rule = (rules ?? []).find(r => r.type === type && r.position === position);
-  return rule ? String(rule.value) : '';
+  const rule = (rules ?? []).find(r => r.type === type && 'position' in r && r.position === position);
+  return rule && 'value' in rule ? String(rule.value) : '';
 }
 
 /** Liest einen mv-Deckel/Floor (mv_max_eur/mv_min_eur) als Millionen-String ('' = keine). DB-Wert ist EUR (Slice 389/390). */
 function mvMillionsFromRules(rules: LineupRule[] | null | undefined, type: 'mv_max_eur' | 'mv_min_eur'): string {
   const rule = (rules ?? []).find(r => r.type === type);
-  return rule ? String(rule.value / 1_000_000) : '';
+  return rule && 'value' in rule ? String(rule.value / 1_000_000) : '';
 }
 
 /** Serialisiert die flachen Form-Felder in die lineup_rules-Liste (null = keine Regel). */
@@ -43,9 +49,10 @@ function rulesFromForm(fields: {
   minPosGk: string; minPosDef: string; minPosMid: string; minPosAtt: string;
   maxPosGk: string; maxPosDef: string; maxPosMid: string; maxPosAtt: string;
   mvMaxMillions: string; mvMinMillions: string;
+  nationIn: string[]; maxPerNation: string;
 }): LineupRule[] | null {
   const rules: LineupRule[] = [];
-  const pushVal = (type: 'min_per_own_club' | 'age_min' | 'age_max', raw: string) => {
+  const pushVal = (type: 'min_per_own_club' | 'age_min' | 'age_max' | 'max_per_nation', raw: string) => {
     const n = parseInt(raw, 10);
     if (raw && !Number.isNaN(n) && n >= 1) rules.push({ type, value: n });
   };
@@ -71,6 +78,9 @@ function rulesFromForm(fields: {
   pushPos('max_per_position', 'ATT', fields.maxPosAtt);
   pushMv('mv_max_eur', fields.mvMaxMillions);
   pushMv('mv_min_eur', fields.mvMinMillions);
+  pushVal('max_per_nation', fields.maxPerNation);
+  // nation_in: Array-Wert (Slice 392). Nur serialisieren wenn min. eine Nation gewählt.
+  if (fields.nationIn.length > 0) rules.push({ type: 'nation_in', values: fields.nationIn });
   return rules.length > 0 ? rules : null;
 }
 
@@ -114,6 +124,8 @@ function populateFromEvent(event: DbEvent): EventFormState {
     maxPosAtt: posRuleValueFromRules(event.lineup_rules, 'max_per_position', 'ATT'),
     mvMaxMillions: mvMillionsFromRules(event.lineup_rules, 'mv_max_eur'),
     mvMinMillions: mvMillionsFromRules(event.lineup_rules, 'mv_min_eur'),
+    nationIn: nationInFromRules(event.lineup_rules),
+    maxPerNation: ruleValueFromRules(event.lineup_rules, 'max_per_nation'),
     requiresFollow: event.requires_follow ?? false,
     minFanRankTier: event.min_fan_rank_tier ?? '',
     minScPerSlot: String(event.min_sc_per_slot ?? 1),

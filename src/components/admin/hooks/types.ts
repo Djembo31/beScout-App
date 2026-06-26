@@ -28,6 +28,8 @@ export type EventFormState = {
   maxPosAtt: string;                       // Slice 390 (E-3): max. Starter mit Position ATT. '' = keine Regel.
   mvMaxMillions: string;                   // Slice 389 (E-3): max. Marktwert pro Karte in Mio. €. '' = keine Regel. DB speichert EUR.
   mvMinMillions: string;                   // Slice 390 (E-3): min. Marktwert pro Karte in Mio. € (Star-Event). '' = keine Regel. DB speichert EUR.
+  nationIn: string[];                      // Slice 392 (E-3): erlaubte Nationen (nationality_iso-Whitelist). [] = keine Regel.
+  maxPerNation: string;                    // Slice 392 (E-3): max. Starter gleicher Nation. '' = keine Regel.
   requiresFollow: boolean;                 // Slice 384 (E-3): nur Follower des Vereins dürfen eintreten.
   minFanRankTier: string;                  // Slice 384 (E-3): Mindest-Fan-Rang für Eintritt. '' = offen.
   minScPerSlot: string;                    // Platform only
@@ -85,6 +87,8 @@ export const INITIAL_FORM_STATE: EventFormState = {
   maxPosAtt: '',
   mvMaxMillions: '',
   mvMinMillions: '',
+  nationIn: [],
+  maxPerNation: '',
   requiresFollow: false,
   minFanRankTier: '',
   minScPerSlot: '1',

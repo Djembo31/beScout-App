@@ -12,6 +12,7 @@ import {
   initLeagueCache,
 } from '@/lib/leagues';
 import RewardStructureEditor from './RewardStructureEditor';
+import NationMultiSelect from './NationMultiSelect';
 import { INPUT_CLS, SELECT_CLS } from './hooks/types';
 import type { EventFormState } from './hooks/types';
 import type { DbClub, EventCurrency } from '@/types';
@@ -66,6 +67,12 @@ export interface EventFormLabels {
   mvMin?: string;              // Slice 390 (E-3): min. Marktwert pro Karte (Mio. €, Star-Event)
   mvMinPlaceholder?: string;
   mvMinHint?: string;
+  nationIn?: string;           // Slice 392 (E-3): erlaubte Nationen (Multi-Select-Picker)
+  nationInPlaceholder?: string;
+  nationInHint?: string;
+  maxPerNation?: string;       // Slice 392 (E-3): max. Starter gleicher Nation
+  maxPerNationPlaceholder?: string;
+  maxPerNationHint?: string;
   // Slice 384 (E-3 Türsteher) — nur bei Vereins-Events wirksam
   requiresFollow?: string;     // Follower-Pflicht-Toggle
   minFanRank?: string;         // Mindest-Fan-Rang-Select
@@ -541,6 +548,43 @@ export function EventFormModal({
             />
             {L.mvMinHint && (
               <p className="mt-1 text-[10px] text-white/40">{L.mvMinHint}</p>
+            )}
+          </div>
+        )}
+
+        {/* Erlaubte Nationen (Slice 392 — E-3 nation_in, durchsuchbarer Multi-Select, Starter + Bank) */}
+        {L.nationIn && (
+          <NationMultiSelect
+            selected={form.nationIn}
+            onChange={(codes) => setField('nationIn', codes)}
+            label={L.nationIn}
+            hint={L.nationInHint}
+            placeholder={L.nationInPlaceholder ?? ''}
+            disabled={isFieldDisabled('lineup_rules')}
+          />
+        )}
+
+        {/* Max-pro-Nation (Slice 392 — E-3, Spiegel max-pro-Verein, Starter-only) */}
+        {L.maxPerNation && (
+          <div>
+            <label htmlFor="formMaxPerNation" className="block text-sm font-bold text-white/70 mb-1">
+              {L.maxPerNation}
+            </label>
+            <input
+              id="formMaxPerNation"
+              type="number"
+              inputMode="numeric"
+              min="1"
+              max="11"
+              value={form.maxPerNation}
+              onChange={(e) => setField('maxPerNation', e.target.value)}
+              placeholder={L.maxPerNationPlaceholder}
+              disabled={isFieldDisabled('lineup_rules')}
+              aria-label={L.maxPerNation}
+              className={cn(INPUT_CLS, 'min-h-[44px]', disabledCls)}
+            />
+            {L.maxPerNationHint && (
+              <p className="mt-1 text-[10px] text-white/40">{L.maxPerNationHint}</p>
             )}
           </div>
         )}

@@ -60,6 +60,13 @@ const FORM_LABELS: EventFormLabels = {
   mvMin: 'Min. Marktwert (Mio. €)',
   mvMinPlaceholder: 'Keine Regel',
   mvMinHint: 'Jede aufgestellte Karte (Starter + Bank) muss mindestens diesen Marktwert haben (z. B. 50 = 50 Mio. €, Star-Event). Spieler ohne Marktwert sind ausgeschlossen. Leer = keine Regel.',
+  // Slice 392 (E-3) — Nationen-Whitelist (Multi-Select) + Max-pro-Nation
+  nationIn: 'Erlaubte Nationen',
+  nationInPlaceholder: 'Keine Einschränkung',
+  nationInHint: 'Nur Karten dieser Nationen dürfen aufgestellt werden (Starter + Bank). Spieler ohne erkannte Nation sind ausgeschlossen. Leer = keine Regel.',
+  maxPerNation: 'Höchstens pro Nation',
+  maxPerNationPlaceholder: 'Keine Regel',
+  maxPerNationHint: 'Maximalanzahl Startelf-Spieler gleicher Nation (z. B. max. 3 = Diversitäts-Event). Leer = keine Regel.',
   // Slice 384 (E-3 Türsteher) — nur bei Vereins-Events wirksam
   requiresFollow: 'Nur Follower des Vereins',
   minFanRank: 'Mindest-Fan-Rang',

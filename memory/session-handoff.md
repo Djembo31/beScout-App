@@ -1,11 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 04:41)
+# Session Handoff — Auto (2026-06-26 04:47)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- 2a0ee5c3 docs(handoff): Session-Close 2026-06-26 — 389/390/391 DONE, 392 (nation-Regeln, voller Multi-Select) verankert
 - 229a0b95 docs(handoff): Slice 391 DONE — Resume-Anker auf nationality_iso → Slice 392 (nation-Regeln)
 - 32383e2c feat(db): nationality-Normalisierung — generierte Spalte players.nationality_iso (Slice 391)
 - daaa74e7 docs(handoff): Slice 390 DONE — Resume-Anker auf nationality-Normalisieren (391) → nation-Regeln (392)
@@ -15,7 +16,6 @@
 - 640f3e41 docs(handoff): sync auto-block post Session 2026-06-26
 - 9bcfe781 docs(handoff): Session 2026-06-26 — 386/387/388 DONE + AC-13 UI-live PASS, next = nation/mv/E-4
 - 6b7330da docs(proof): AC-13 UI-live post-Deploy PASS für 386+388 — beide Builder, kein MISSING_MESSAGE
-- 7cabc155 feat(events): E-3 Min-pro-Position — min_per_position Aufstellungs-Regel (Slice 388)
 
 <!-- auto:handoff-end -->
 
@@ -23,7 +23,12 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle. Letzter Slice = 391 (nationality-Normalisierung) DONE.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **391: generierte Spalte `players.nationality_iso` (ISO via `normalize_nationality()` IMMUTABLE, GENERATED ALWAYS STORED, zero-drift, Port von countryNameToIso.ts). Coverage 100% (unmapped=0), Türkei-Bucket 762 vereint. Reviewer PASS (3 NIT). Migration `20260626150000`. Räumt S390-Blocker.** (390 davor: mv_min_eur + max_per_position, 14/14.) Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
+**Status: idle. Letzter Slice = 392 (E-3 nation_in + max_per_nation) DONE — E-3-Regelsatz KOMPLETT.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **392: `nation_in` (Länder-Whitelist, Array-Wert, Starter+Bank, fail-closed `''`, eigener Validator-Zweig mit `CONTINUE` VOR numerischem Guard) + `max_per_nation` (Zahl, Spiegel max_per_club, Starter-only, leere ISO ungezählt). UI = durchsuchbarer Multi-Select `NationMultiSelect` (Full-Screen-Picker, Flag-Chips, Intl.DisplayNames), Optionen = feste kuratierte `FOOTBALL_NATIONS` (CEO-Entscheid Anil: kuratiert statt DB-distinct, 61 Codes). force-rollback 17/17, Reviewer PASS (2 NIT). Migration `20260626160000`.** (391 davor: nationality_iso generierte Spalte.) Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
+
+## ➡️ NÄCHSTE SESSION (Anil-Plan): EIN gebündelter Playwright-Durchlauf über ALLE E-3-Regeln (386 age / 388 min_pos / 389 mv_max / 390 max_pos+mv_min / 392 nation), DANN E-4
+- **Bündel-Playwright (jetzt fällig, da E-3-Regelsatz komplett):** beide Builder (Club `/club/sakaryaspor/admin`→Events→Neu + Platform `/bescout-admin`), je Regel-Input rendern, kein MISSING_MESSAGE, Mobile 393px, je 1 Reject-Toast user-facing. **392-spezifisch:** Nation-Picker öffnet (Full-Screen), Suche filtert (z.B. „türk"→Türkei), Auswahl als Flag-Chips, `nationSelectedCount`-Label; max_per_nation-Zahl-Input. Login `jarvis-qa@bescout.net`/`JarvisQA2026!` bzw. ali (Club+Platform-Admin, PW 123456). Headless-Klick-Quirk → DOM-Evaluate als Backup (S385).
+- **Alternativ-Track:** E-4 User-Events (L, Money/CEO — User zahlt Pot aus Wallet, eigene Alignment-Session). Money-nah → Live-functiondef VOR Spec (D87).
+- **Backlog (kein Blocker):** Nation-Liste-Erweiterung/Pflege-UI (392-NIT#1: kuratierte 61 vs. 121 distinct live — bewusster Scope) · „Bedingung hinzufügen ▾"-Builder + Echtzeit-Treffer (Design-Smell #1, E-4/E-6).
 
 ## 🎯 HIER ANKNÜPFEN (Session 2026-06-26) — Plan: ALLE E-3-Regeln rein, DANN ein Playwright-Durchlauf (Anil)
 

@@ -740,12 +740,15 @@ export type EventCurrency = 'tickets' | 'scout';
  * - mv_max_eur: jede aufgestellte Karte (Starter + Bank) market_value_eur <= N EUR; MV=0/NULL fail-closed (Underdog, Slice 389).
  * - max_per_position: höchstens N Starter mit players.position = <position> (Spiegel min_per_position, Slice 390).
  * - mv_min_eur: jede aufgestellte Karte (Starter + Bank) market_value_eur >= N EUR; MV=0/NULL fail-closed (Star-Event, Slice 390).
+ * - nation_in: jede aufgestellte Karte (Starter + Bank) players.nationality_iso muss in `values` (ISO-Whitelist) sein; '' fail-closed (Slice 392).
+ * - max_per_nation: höchstens N Starter mit gleichem players.nationality_iso (Spiegel max_per_club, leere ISO ungezählt, Slice 392).
  */
-export type LineupRuleType = 'min_per_own_club' | 'age_min' | 'age_max' | 'min_per_position' | 'max_per_position' | 'mv_max_eur' | 'mv_min_eur';
+export type LineupRuleType = 'min_per_own_club' | 'age_min' | 'age_max' | 'min_per_position' | 'max_per_position' | 'mv_max_eur' | 'mv_min_eur' | 'nation_in' | 'max_per_nation';
 export type PlayerPositionCode = 'GK' | 'DEF' | 'MID' | 'ATT';
 export type LineupRule =
-  | { type: 'min_per_own_club' | 'age_min' | 'age_max' | 'mv_max_eur' | 'mv_min_eur'; value: number }
-  | { type: 'min_per_position' | 'max_per_position'; position: PlayerPositionCode; value: number };
+  | { type: 'min_per_own_club' | 'age_min' | 'age_max' | 'mv_max_eur' | 'mv_min_eur' | 'max_per_nation'; value: number }
+  | { type: 'min_per_position' | 'max_per_position'; position: PlayerPositionCode; value: number }
+  | { type: 'nation_in'; values: string[] };
 
 export type DbEvent = {
   id: string;

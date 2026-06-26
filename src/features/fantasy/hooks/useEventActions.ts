@@ -21,6 +21,13 @@ import { qk } from '@/lib/queries/keys';
 import { fmtScout } from '@/lib/utils';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
 import type { FantasyEvent, LineupPlayer } from '../types';
+import type { LineupRule, LineupRuleType } from '@/types';
+
+/** Numerischen Wert einer Zahl-Lineup-Regel lesen (0 wenn fehlt; nation_in hat keinen `value`). */
+function numRuleValue(rules: LineupRule[] | null | undefined, type: LineupRuleType): number {
+  const r = (rules ?? []).find(rr => rr.type === type);
+  return r && 'value' in r ? r.value : 0;
+}
 
 /**
  * Slice 156 — Ferrari-Refactor (analog trading.ts 153a).
@@ -412,7 +419,7 @@ export function useEventActions(clubId: string) {
         // Slice 385 (E-3a) — Aufstellungs-Regel min_per_own_club
         case 'min_per_own_club_not_met':
           addToast(t('minPerOwnClubNotMet', {
-            min: event.lineupRules?.find(r => r.type === 'min_per_own_club')?.value ?? 0,
+            min: numRuleValue(event.lineupRules, 'min_per_own_club'),
           }), 'error');
           break;
         case 'unknown_lineup_rule':
@@ -422,12 +429,12 @@ export function useEventActions(clubId: string) {
         // Slice 386 (E-3) — Alters-Fenster-Regel
         case 'age_max_exceeded':
           addToast(t('ageMaxExceeded', {
-            limit: event.lineupRules?.find(r => r.type === 'age_max')?.value ?? 0,
+            limit: numRuleValue(event.lineupRules, 'age_max'),
           }), 'error');
           break;
         case 'age_min_not_met':
           addToast(t('ageMinNotMet', {
-            limit: event.lineupRules?.find(r => r.type === 'age_min')?.value ?? 0,
+            limit: numRuleValue(event.lineupRules, 'age_min'),
           }), 'error');
           break;
         // Slice 388 (E-3) — Min-pro-Position
@@ -435,21 +442,24 @@ export function useEventActions(clubId: string) {
           addToast(t('minPerPositionNotMet'), 'error');
           break;
         // Slice 389 (E-3) — Marktwert-Deckel (Limit in Mio. €, DB-Wert ist EUR)
-        case 'mv_max_exceeded': {
-          const mvRule = event.lineupRules?.find(r => r.type === 'mv_max_eur');
-          addToast(t('mvMaxExceeded', { limit: mvRule ? mvRule.value / 1_000_000 : 0 }), 'error');
+        case 'mv_max_exceeded':
+          addToast(t('mvMaxExceeded', { limit: numRuleValue(event.lineupRules, 'mv_max_eur') / 1_000_000 }), 'error');
           break;
-        }
         // Slice 390 (E-3) — Max-pro-Position
         case 'max_per_position_exceeded':
           addToast(t('maxPerPositionExceeded'), 'error');
           break;
         // Slice 390 (E-3) — Marktwert-Mindestwert (Star-Event, Limit in Mio. €)
-        case 'mv_min_not_met': {
-          const mvMinRule = event.lineupRules?.find(r => r.type === 'mv_min_eur');
-          addToast(t('mvMinNotMet', { limit: mvMinRule ? mvMinRule.value / 1_000_000 : 0 }), 'error');
+        case 'mv_min_not_met':
+          addToast(t('mvMinNotMet', { limit: numRuleValue(event.lineupRules, 'mv_min_eur') / 1_000_000 }), 'error');
           break;
-        }
+        // Slice 392 (E-3) — Nationen-Regeln
+        case 'nation_not_allowed':
+          addToast(t('nationNotAllowed'), 'error');
+          break;
+        case 'max_per_nation_exceeded':
+          addToast(t('maxPerNationExceeded', { max: numRuleValue(event.lineupRules, 'max_per_nation') }), 'error');
+          break;
         case 'holding_lock_failed':
           addToast(t('holdingLockFailed'), 'error');
           break;

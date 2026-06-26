@@ -59,6 +59,9 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     // Slice 390 (E-3): Max-pro-Position + Marktwert-Mindestwert (Star-Event)
     maxPerPositionGroup: t('maxPerPositionGroupLabel'), maxPerPositionHint: t('maxPerPositionHint'),
     mvMin: t('mvMinLabel'), mvMinPlaceholder: t('mvMinPlaceholder'), mvMinHint: t('mvMinHint'),
+    // Slice 392 (E-3): Nationen-Whitelist (Multi-Select) + Max-pro-Nation
+    nationIn: t('nationInLabel'), nationInPlaceholder: t('nationInPlaceholder'), nationInHint: t('nationInHint'),
+    maxPerNation: t('maxPerNationLabel'), maxPerNationPlaceholder: t('maxPerNationPlaceholder'), maxPerNationHint: t('maxPerNationHint'),
     // Slice 382 (E-1b): Club-Admin-Liga-Picker (Anil: alle Ligen + Offen, Symmetrie zum Platform-Admin)
     league: t('leagueBindingLabel'), leagueOpen: t('leagueBindingOpen'),
     // Slice 384 (E-3 Türsteher): Follower-Pflicht + Fan-Rang-Gate

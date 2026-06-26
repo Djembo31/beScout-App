@@ -1,0 +1,66 @@
+Slice 392 — E-3 nation_in (Länder-Whitelist) + max_per_nation — PROOF
+Datum: 2026-06-26
+RPC: rpc_save_lineup (CREATE OR REPLACE, Migration 20260626160000_e3_nation_rules)
+Methode: force-rollback DO-Block (RAISE EXCEPTION 'REPORT >>>' → P0001 = 0 Persistenz),
+         JWT-Impersonation jarvis-qa, temp Event 1-2-2-2, club_id/league_id NULL, reale Spieler
+         mit gezielten nationality_iso (TR/DE + leer). Starter-Slots NICHT positions-validiert
+         (nur Bench) → Nation/Anzahl unabhängig vom Slot prüfbar.
+
+=== Money-Smoke (force-rollback) — 17/17 PASS ===
+AC-2  nation_in[TR] 6TR+1DE      : ok=false err=nation_not_allowed nation=DE    => PASS
+AC-9  holding_locks nach reject  : 0                                            => PASS  (kein Ressourcen-Move)
+AC-3  nation_in[TR] 6TR+1EMPTY   : err=nation_not_allowed nation=""             => PASS  (FAIL-CLOSED bei nationality_iso='')
+AC-5a nation_in values=[]        : invalid_lineup_rule_value                    => PASS
+AC-5b nation_in OHNE values-Key  : invalid_lineup_rule_value (KEIN BIGINT-Crash) => PASS  ← KERN: numeric-guard-bypass
+AC-5c element "X" (1 Zeichen)    : invalid_lineup_rule_value                    => PASS  (Element-Sanity 2..6)
+AC-5d element "TOOLONG" (7 Zchn) : invalid_lineup_rule_value                    => PASS  (Element-Sanity 2..6)
+AC-6  max_per_nation=2 (3 TR)    : max_per_nation_exceeded used=3               => PASS
+AC-8a max_per_nation value 0     : invalid_lineup_rule_value                    => PASS  (Bound 1..11)
+AC-8b max_per_nation value 12    : invalid_lineup_rule_value                    => PASS  (Bound 1..11)
+AC-1  nation_in[TR] 7 TR         : ok=true                                      => PASS
+AC-4  nation_in[TR,DE] Mix       : ok=true                                      => PASS  (ANY-of-Whitelist)
+AC-7  max_per_nation=3 (3 TR)    : ok=true                                      => PASS  (Boundary: 3 nicht > 3)
+AC-9b max_per_nation=2 (2TR/2DE/3leer): ok=true                                 => PASS  (leere ISO NICHT gezählt)
+AC-10 MULTI [nation_in TR,DE + max_per_nation 6]: ok=true                       => PASS
+AC-12 regression min_per_position GK1 (388-Branch): ok=true                     => PASS
+AC-11 lineup_rules NULL no-op    : ok=true                                      => PASS
+
+Rollback bestätigt: RAISE EXCEPTION P0001 'REPORT >>>' → Transaktion abgebrochen, KEINE Persistenz
+(Event/Entry/Holdings/Lineup/Locks alle zurückgerollt).
+
+KERN-BEWEIS:
+(1) nation_in ist der erste Nicht-Zahl-Regeltyp. Eigener Zweig mit CONTINUE VOR dem numerischen
+    '^[0-9]+$'/::BIGINT-Guard → AC-5b (kein 'values'-Key) liefert sauberen invalid_lineup_rule_value
+    statt eines ::BIGINT-Casts auf ein Array (= kein Crash). Bestätigt Pre-Mortem #1.
+(2) Fail-closed: nationality_iso='' wird abgelehnt (AC-3), nie als Whitelist-Treffer behandelt.
+(3) max_per_nation = Spiegel max_per_club, Starter-only, GROUP BY nationality_iso WHERE <> ''
+    → leere ISO erzeugt KEINE Diversitäts-Gruppe (AC-9b ok trotz 3 leerer Spieler).
+
+=== PATCH-AUDIT (pg_get_functiondef Live, Post-Apply) ===
+has_nation_in=true  has_max_per_nation=true  has_nation_reject=true  has_continue=true  uses_iso=true
+keeps_385=true  keeps_386=true  keeps_388=true  keeps_389=true  keeps_390=true
+keeps_maxpos=true  keeps_maxclub=true  keeps_salary=true  keeps_e1=true  keeps_wildcard=true
+grants = {postgres, authenticated, service_role}  (KEIN anon — AR-44 erhalten; Body-Rewrite bestehender RPC behält ACL, S368c)
+→ Validator additiv: Whitelist += nation_in,max_per_nation · nation_in-Zweig (vor numeric guard, CONTINUE)
+  · max_per_nation-ELSIF (numerischer Pfad). Alle Nicht-Validator-Blöcke unverändert.
+
+=== Daten-Basis (live, 2026-06-26) ===
+players: 4556 total · 4349 mit nationality_iso (95,4%) · 121 distinct Codes · 207 leer (fail-closed-Fälle).
+FOOTBALL_NATIONS (Picker-Liste): Kern n>=10 (53) + ergänzt (MX/AU/EG/EC/CL/DZ/AO/GB-NIR) = 61 Codes.
+
+=== AC-14 WRITE-PFAD (Logik, useEventForm.ts) ===
+rulesFromForm: nationIn.length>0 → push {type:'nation_in',values:nationIn}; pushVal('max_per_nation',raw).
+Round-Trip via nationInFromRules() + ruleValueFromRules('max_per_nation'). Type-narrow via 'value' in rule
+(nation_in-Variante hat kein value → tsc-erzwungene Guards in useEventActions numRuleValue()).
+
+=== tsc / vitest ===
+pnpm exec tsc --noEmit: exit 0 (grün).
+CI=true pnpm exec vitest run (events-v2 + admin): 219 passed (10 Files), exit 0.
+
+=== AC-16 NATION-LIST ===
+src/lib/constants/footballNations.ts — FOOTBALL_NATIONS (61, kein Dup) + NATION_NAME_OVERRIDES
+(GB-ENG/SCT/WLS/NIR + XK, DE+TR) + nationDisplayName(code,locale) via Intl.DisplayNames.
+
+=== OFFEN: AC-17 UI-live ===
+GEBÜNDELTER Playwright-Durchlauf am Ende der E-3-Reihe (386/388/389/390/392): Picker öffnet/sucht/Chips,
+max_per_nation-Input, beide Builder, kein MISSING_MESSAGE, Mobile 393px, je 1 Reject-Toast.
