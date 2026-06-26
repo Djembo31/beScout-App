@@ -4168,3 +4168,23 @@ Der hässliche analyst-Negativ-Payout ist **kein Reward-Modell-Defekt, sondern e
 Kein Code. Festhalten als geprüfte + bewusst akzeptierte CEO-Entscheidung (damit der Smell nicht später als „übersehen" gilt). Daten-Befund (uniform season_start_analyst=500) → S7-Tracker + TODO P2.
 
 **Re-Visit-Trigger:** (1) Nach echtem Daten-Reset zum Launch — prüfen ob Deltas dann sinnvoll verteilt sind (analyst-Negativ weg). (2) Falls echte User später systematisch für Nicht-Leistung Reward kassieren → Mindest-Delta-Gate nachrüsten. (3) Phase 2/3 (echtes Geld) → Reward-Verteilung neu unter Lizenz-Linse.
+
+## D110 — PROCESS: e2e-Durchsetzungs-Audit — periodischer Live-DB-Verifikations-Sweep gegen Tracker-Drift
+
+**Datum:** 2026-06-26 · **Status:** 🟢 Aktiv (Methode) · **Category:** PROCESS · **Kontext:** Anil-Frage „alles seit Mock→Pro wirklich e2e durchgesetzt?" → erstmaliger systematischer Sweep (Slice 401) über alle Slices 329–400.
+
+### Entscheidung / Methode
+Bei der Frage „ist das Gebaute wirklich end-to-end?" **nicht** den Trackern glauben (deren „offen"/„dormant"-Vermerke driften), sondern **4 parallele Verifikations-Agents** je Cluster gegen **Live-DB + echten Code + i18n** laufen lassen — **jede** Status-Behauptung mit konkreter Evidenz (file:line / grep / `pg_get_functiondef` / SELECT). Klassen: ERLEDIGT-stale · OFFEN-CODE (Build-without-Wire) · OFFEN-LIVE (nur Proof fehlt) · TOTER-CODE · MOCK. Befund-SSOT als eigenes `worklog/notes/<slice>-e2e-enforcement-audit.md`.
+
+### Befund-Wert (warum die Methode nötig ist)
+Der erste Sweep fand **echte stale Tracker-Fakten** (`referral_reward` als „ohne RPC" gelistet — feuert real; Research als „dormant" — lebt mit 3 Rows) + **1 tsc-unsichtbaren Code-Drift** (Slice-400-„restlos" war 1 `Record<string,…>`-Fläche zu kurz) + **den substantiellen Gap** „RAUS bewiesen-korrekt aber nie real gelaufen" (→ Slice 402). Reine Vermerks-Lektüre hätte alle drei verfehlt.
+
+### Alternativen erwogen
+- **Trackern/Handoff glauben:** verworfen — genau deren Drift war der Anlass ([[feedback_verify_before_claiming_open]]).
+- **Solo sequenziell durchgehen:** verworfen — 70 Slices, zu langsam; parallele Agents je Cluster = Wall-Clock-Gewinn.
+- **Workflow-Tool:** nicht nötig — normaler Agent-Dispatch (kein explizites Multi-Agent-Opt-in vom User).
+
+### Auswirkung
+Wiederholbar **vor jedem großen Strang-Wechsel oder vor Launch**. Macht „e2e durchgesetzt?" beweisbar statt behauptet (Anti-„Build-without-Wire" D53). Kostet ~4 Agent-Läufe.
+
+**Re-Visit-Trigger:** Vor Beta-Launch-Sign-Off + bei jedem „sind wir wirklich fertig?"-Moment erneut fahren.

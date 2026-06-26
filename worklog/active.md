@@ -19,6 +19,8 @@ review: self-review (Money — Zero-Sum-Reconcile IST der Review; RPC byte-ident
 **Smells (Backlog, Launch-relevant):** (a) globale Dims zahlen fix nach Rang ohne Mindest-Delta>0; (b) overall+3 Einzel-Dims überschneiden (User kann 4× kassieren).
 
 ## Zuletzt
-- **Slice 402** (2026-06-26) — Treasury-RAUS e2e real, IN ARBEIT.
+- **Slice 402** (2026-06-26) — Treasury-RAUS e2e REAL bewiesen (Zero-Sum), DONE (`ba53bb46`).
+- **D109/D110** (2026-06-26) — Reward-Smells CEO-akzeptiert + e2e-Audit-Methode (`b4a10eb1`).
 - **Slice 401** (2026-06-26) — e2e-Audit + 400-Rest + Tracker-Heal, DONE (`213f626c`).
-- **Slice 400** (2026-06-26) — E-7 creator-Drift-Cleanup, DONE.
+
+Nächstes (frische Session): **(C) S7 Mock→Pro** (3 TOTER-CODE aktivieren/löschen) ODER Event-Backlog (E-5/E-6). Kanon: `memory/session-handoff.md` zuerst lesen.

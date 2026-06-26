@@ -1,11 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 18:52)
+# Session Handoff — Auto (2026-06-26 19:08)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- b4a10eb1 docs(decision): D109 — Monats-Liga-Reward-Smells geprüft + CEO bewusst akzeptiert
 - ba53bb46 feat(treasury): Slice 402 — Treasury-RAUS e2e REAL bewiesen (echte Monats-Liga-Auszahlung)
 - 213f626c docs(audit): Slice 401 — e2e-Durchsetzungs-Audit (329–400) gesichert + 400-Rest + Tracker-Stale-Heal
 - da24ea14 docs(distill): Slice 400 — Knowledge S400 (Enum-Wert-Entfernen) + Handoff-Anker frische Session
@@ -15,7 +16,6 @@
 - 37dbdf12 docs(distill): Slice 399 Tracker-Reconcile (E-4 KOMPLETT) + Wissen verdrahtet
 - 98ef9503 docs(handoff): Slice 399 DONE — Resume-Anker auf Backlog (E-5/E-6/E-7/S7)
 - 20fce03e docs(399): Live-Verify post-Deploy PASS (AC1-AC6) + LOG — User-Events end-to-end nutzbar
-- ea27cfe3 feat(events): User-Events fertig — Discovery + F2/F3 + Cancel + Admin-Gebühr [Slice 399]
 
 <!-- auto:handoff-end -->
 
@@ -23,34 +23,35 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle — Slice 400 (E-7 creator-Drift-Cleanup) DONE + gepusht (`3899c289`/`b26b18c7`, main==origin/main).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
+**Status: idle — Session 2026-06-26 (Abend): e2e-Durchsetzungs-Audit + Slice 401 + 402 + D109 + D110, alle gepusht (zuletzt `b4a10eb1` + dieser Handoff-Commit, main==origin/main).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
 
-## ✅ Slice 400 E-7 creator-Drift-Cleanup DONE (2026-06-26, Migration/S) — Drift restlos entfernt
-- **Smell-Audit-getrieben** (Anil: „Design-Smells melden"): deprecated Event-Typ `creator` (D108) über **11 tote Flächen** entfernt. `DbEvent.type` war schon creator-frei → alles latent, kein User-Bug. CEO-approved „voller Schnitt + Bonus".
-- **Geschnitten:** beide Type-Unions (`features/fantasy/types.ts` + `types/index.ts`) · `getTypeStyle`-case · `EventScopeBadge.TYPE_CONFIG` · `EventCategoryCards`/`EventBrowser` counts · `eventMapper` No-op-Ternary (`type: db.type`) · i18n `eventCategories.creator` DE+TR · Test (creator→user) · Bonus: tote `FantasyEvent.creatorId/creatorName`.
-- **DB (Migration `20260626180000`):** DELETE `event_fee_config('creator')`-Waisenzeile + **`chk_event_type` verengt** (= `events_type_check`, die von der Impact-Analyse übersehene „letzte Re-Insert-Tür", vgl. S396). Money byte-identisch (nur `rpc_lock_event_entry` liest die Tabelle, nie creator).
-- **Beweis:** tsc 0 · vitest 8/8 · DB 5 Zeilen · grep clean · JSON ok · Reviewer **PASS** (1 NIT über NIT hinaus geheilt = die CHECK-Verengung). Proof `400-cleanup.txt`. Knowledge verdrahtet: `fantasy.md` (events.type + E-7) + **errors-db.md S400** (Enum-Wert-ENTFERNEN = Spiegel von S379, permissiver CHECK erroret nicht beim Entfernen).
-- **Fehlalarm aussortiert:** „Predictions" ist KEIN Smell (`ChallengeType.'prediction'` = lebende Daily-Challenge-Frageart) — nicht anfassen.
-- **Keine geseedeten Live-Artefakte** (reiner toter-Pfad-Schnitt).
+## 🎯 SESSION 2026-06-26 (Abend) — e2e-Durchsetzungs-Audit + RAUS real bewiesen
+**Anil-Frage „alles seit Mock→Pro wirklich e2e durchgesetzt?" → systematisch beantwortet.**
 
-## (vorige) ✅ Slice 399 E-4b Teil 2 DONE (2026-06-26, Money-nah) — User-Events end-to-end nutzbar, LIVE bewiesen
-- **Schließt das User-Events-Feature ab** (nach 396 Geldkern / 397 Builder / 398 bench-i18n). 6 Bausteine, Money-Logik unverändert (396-RPCs eingefroren, nur Aufrufe):
-  1. **Discovery** `creator`→`user` in `EventCategoryCards` + `EventBrowser` (**Design-Smell-Fix**, CEO-bestätigt: tote deprecated `creator`-Karte ersetzt, 0 Prod-Events, D108).
-  2. **F2/F3 currency-fix** 🎟-Chip in `EventCardView` + `EventDetailHeader` nur bei `currency==='tickets'` (Scout-Eintritt via `formatEventCost`→CR, kein „1000 Tickets"-cents-Leak).
-  3. **Cancel-UI** `cancelUserEvent`+`useCancelUserEvent` (S371) + Button im `EventDetailModal` nur `type==='user' && createdBy===userId && status∈{registering,late-reg}` + AlertDialog (RPC fail-closed 2. Netz).
-  4. **Admin-Gebühr** `setUserEventCreateFee`/`getUserEventCreateFee` + Number-Input in `AdminEventFeesSection`.
-  5. **min_entries** `DbEvent`+`FantasyEvent`+Mapper + 3 Select-Listen (S200) + Card-Chip `minEntriesChip`.
-  6. **Reject-Codes** (`not_user_event`/`event_not_open`/`invalid_amount`) in errorMessages + DE/TR (S393).
-- **Live-Verify (bescout.net, ali):** AC1 Discovery (USER, kein Creator) · AC2 F2/F3 („10/5 CR") · AC3 Cancel-Happy (registering→`cancelled` via UI) · AC4 Cancel-Guard (running→kein Button + event_not_open) · AC5 Admin-Fee (50→75→50 DB-reconciled) · AC6 min_entries-Chip. 0 Console-Errors. Reviewer PASS (3 NIT). Proof `399-service-test.txt` + `399-live-verify.txt`.
-- **Umgebungs-Note:** GW-Live-Status-Sync flippt GW-Events rasch auf `running` → Cancel-Happy braucht registering-Event in nicht-live-GW (kein Code-Bug; RPC weist running fail-closed ab).
-- **Geseedete Live-Artefakte:** „E2E User-Event 397" `7052f7d7` (running GW34, permanent) + „E2E Cancel-Test 399b" `fe8d43b2` (cancelled GW35). Topf +100 cents (2× event_create_fee). ali-Saldo 10.850.
+### ✅ e2e-Durchsetzungs-Audit (Slice 401, Methode = D110)
+- 4 parallele Verifikations-Agents prüften ALLE Slices 329–400 gegen Live-DB + Code + i18n (jede Behauptung mit Evidenz). **Kernbefund: neue Geld-/Feature-Maschine ist e2e VERKABELT — keine Build-without-Wire-Löcher.** Befund-SSOT: `worklog/notes/401-e2e-enforcement-audit.md`.
+- **3 echte Funde behandelt:** (1) Code-Drift — Slice-400-„restlos" war 1 tsc-unsichtbare Fläche zu kurz (`AdminEventFeesSection.tsx:20` toter `creator`-Key) → entfernt. (2) Stale-Tracker-Fakten — `referral_reward` „ohne RPC" (FALSCH, feuert real) + Research „dormant" (lebt) → s7-Tracker korrigiert, reconciled 354→401. (3) alle offenen Punkte in 6 Tracker verankert.
 
-## ➡️ NÄCHSTER: Backlog (Anil-Wahl)
-- **E-5 Ticket-Events** voll verdrahten (M): Tickets-Eintritt → Equipment/Credits/Tickets-Gewinn.
-- **E-6 Creator-/Sponsor-Flow** vereinheitlichen (L, Money/CEO).
-- **E-7-Rest** (XS-S): Freiform-Reward-Editor (E-4b-Rest). _(creator-Drift ✅ in Slice 400 erledigt; Predictions = KEIN Smell.)_
-- **S7-Aufräumen** (`worklog/s7-phase3-remaining.md`).
-- Anker: `worklog/notes/event-creator-liga-epic.md` (E-5/E-6/E-7) + `decisions.md` D104-D108.
+### ✅ Treasury-RAUS e2e REAL bewiesen (Slice 402, Money/CEO)
+- Der EINZIGE substantielle Gap aus dem Audit: RAUS-Kanäle (376/377/378) waren bewiesen-korrekt aber NIE real gelaufen (0 Ledger-Rows). **`close_monthly_liga('2026-05-01')` live ausgeführt** (CEO-approved): `total_paid 3.575.000 cents`, **Zero-Sum** (Topf 50.018.397→46.443.397 = Σ 15 liga_reward-Tx = 1 echte `monthly_liga`-Debit-Row), 15 winners + 515 snapshots. **Mai 2026 idempotent-gesperrt (permanent — NICHT aufräumen).** Proof `402-raus-liga-payout.txt`. RPC byte-identisch zur 376-Baseline (kein Code-Change).
+- **⏳ analog real noch offen (niedrig):** 1× echter `bescout`/`special`-Event-Settle (377/378) — braucht ein prized Event das live durchläuft.
+
+### ✅ Reward-Smells geprüft → D109 (CEO bewusst akzeptiert, KEIN Code-Fix)
+- Live-Lauf zeigte 2 Reward-Smells: (a) Top-3 fix nach Rang ohne Mindest-Delta>0; (b) `overall`-Dim dupliziert Einzel-Dims (Mehrfach-Kassieren). **Anil-Entscheid: beide Status quo** (Rang-Reward + overall-Mehrkampf bleiben).
+- **CTO-Befund (faktenbasiert):** der hässliche analyst-Negativ-Payout (alle 128 negativ, Geld für −20) ist **KEIN Reward-Bug, sondern Mock-Daten-Artefakt** — `scout_scores.season_start_analyst` uniform 500 geseedet, echte Scores 450–480. → **S7/Launch-Reset-Daten-Punkt**, verschwindet beim echten Saison-Reset.
+
+## ➡️ NÄCHSTER: (C) S7 Mock→Pro (Anils Eröffnungsanliegen) ODER Event-Backlog
+**Geld-Maschine-Stand:** E3 Plattform-Treasury KOMPLETT (REIN 5/5 + RAUS 3/3, Monats-Liga jetzt **real durchflossen**). E5 Event-Modell KOMPLETT bis 400.
+- **(C) S7 Mock→Pro** — jetzt mit scharfer Audit-Evidenz (`s7-phase3-remaining.md` Block-2/3 präzisiert): **3 TOTER-CODE-Kandidaten** (aktivieren/löschen, CEO pro Stück): Creator-Fund+Ad-Revenue-Share (`creatorFund.ts`/`adRevenueShare.ts`, Calc ohne Distribution/Cron) · Wildcard-Earn-Economy (`earn_/spend_wildcards`, 0 Consumer) · Club-Missionen (`mission_definitions` 0 Rows). **2 Konsolidierungen:** scout_scores↔user_stats · club_votes↔community_polls. **+ Daten-Punkt** `season_start_analyst`-Reset. Vorschlag-Start: Creator-Fund+Ad-Revenue (größter Brocken) kartieren → CEO-Entscheid.
+- **Event-Backlog:** E-5 Ticket-Events (M, Equipment-Gewinn — Anil muss „Equipment" definieren) · E-6 Creator/Sponsor-Flow (L, Money/CEO) · E-7-Rest Freiform-Reward-Editor (XS-S).
+- **Treasury-Rest (niedrig):** bescout/special-Event-Settle real beweisen (s.o.).
+- Anker: `worklog/notes/401-e2e-enforcement-audit.md` · `s7-phase3-remaining.md` · `event-creator-liga-epic.md` · `decisions.md` D104-D110.
+
+---
+
+## 📦 (vorige) Slices 399/400 — Referenz
+- **Slice 400** (`3899c289`): E-7 creator-Drift restlos über 11 Flächen entfernt + DB-DELETE `event_fee_config('creator')` + `chk_event_type` verengt (401 schloss die 12. tsc-unsichtbare Fläche). Predictions = KEIN Smell.
+- **Slice 399** (`ea27cfe3`): E-4b Teil 2 — User-Events end-to-end nutzbar (Discovery + F2/F3 + Cancel-UI + Admin-Gebühr + min_entries), Live AC1-AC6 PASS. Geseedet (permanent): User-Event `7052f7d7` (GW34) + Cancel-Test `fe8d43b2` (GW35).
 
 ---
 
