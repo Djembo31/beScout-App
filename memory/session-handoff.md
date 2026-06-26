@@ -1,11 +1,13 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 06:28)
+# Session Handoff — Auto (2026-06-26 06:53)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- 52924411 docs(handoff): Wissen verdrahtet + SOFT-Findings als Heuristik-Artefakt verankert (kein echter Drift)
+- 37bcf87f docs(learning): Wissen verdrahten 393/394 — Reject-Mapping + Observability-Tier-4
 - 54399703 docs(tracker): Playwright-Bündel DONE + 393/394 reconciled — Next-Pointer auf E-4/Backlog
 - 5a5e28dd docs(handoff): Session-Close 2026-06-26 — 393/394 DONE + E-3-Bündel-Playwright DONE, Resume-Anker auf E-4/Backlog
 - cd300cc8 fix(auth): AuthProvider Profile-Load-Failure nach Sentry instrumentieren — war console-only (Slice 394)
@@ -14,8 +16,6 @@
 - ed8e8019 docs(tracker): Slice 392 DONE — E-3-Regelsatz komplett, Stand auf MASTERPLAN+TODO reconciled
 - 6252cbb9 feat(events): E-3 nation_in (Länder-Whitelist) + max_per_nation — letzte E-3-Aufstellungs-Regeln (Slice 392)
 - 2a0ee5c3 docs(handoff): Session-Close 2026-06-26 — 389/390/391 DONE, 392 (nation-Regeln, voller Multi-Select) verankert
-- 229a0b95 docs(handoff): Slice 391 DONE — Resume-Anker auf nationality_iso → Slice 392 (nation-Regeln)
-- 32383e2c feat(db): nationality-Normalisierung — generierte Spalte players.nationality_iso (Slice 391)
 
 <!-- auto:handoff-end -->
 

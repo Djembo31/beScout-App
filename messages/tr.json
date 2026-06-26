@@ -3684,7 +3684,21 @@
     "mv_max_exceeded": "Kadrodaki bir oyuncu izin verilen piyasa değerini aşıyor.",
     "mv_min_not_met": "Kadrodaki bir oyuncu gereken piyasa değerinin altında.",
     "nation_not_allowed": "Kadrodaki bir oyuncu izin verilen uluslardan birine ait değil.",
-    "max_per_nation_exceeded": "Kadroda aynı ulustan çok fazla oyuncu var."
+    "max_per_nation_exceeded": "Kadroda aynı ulustan çok fazla oyuncu var.",
+    "event_locked": "Bu etkinliğin kadrosu kilitli — son tarih geçti.",
+    "must_enter_first": "Kadro kaydetmeden önce etkinliğe katıl.",
+    "invalid_event_no_league": "Bu etkinlik doğru ayarlanmamış (lig atanmamış).",
+    "gk_required": "Bir kaleci kadroya konmalı.",
+    "captain_slot_empty": "Kaptan olarak seçilen slot boş.",
+    "wildcards_not_allowed": "Bu etkinlikte joker oyuncu kullanılamaz.",
+    "too_many_wildcards": "Kadroda çok fazla joker oyuncu var.",
+    "salary_cap_exceeded": "Kadro maaş üst sınırını aşıyor.",
+    "max_per_club_exceeded": "Kadroda aynı kulüpten çok fazla oyuncu var.",
+    "bench_player_not_found": "Bir yedek oyuncu bulunamadı.",
+    "bench_outfield_position_mismatch": "Bir yedek oyuncu, yedek yerine uymuyor.",
+    "lineupFormationInvalid": "Kadro seçilen dizilişe uymuyor.",
+    "wildcardSlotInvalid": "Seçilen bir joker slotu geçersiz veya boş.",
+    "lineupRuleInvalid": "Bu etkinliğin bir kadro kuralı hatalı yapılandırılmış."
   },
   "legal": {
     "cookieText": "Bu site işlevsellik ve analiz için çerezler kullanmaktadır. Daha fazla bilgi için <privacyLink>Gizlilik Politikası</privacyLink>.",

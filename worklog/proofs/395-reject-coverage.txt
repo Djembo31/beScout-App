@@ -1,0 +1,47 @@
+Slice 395 — Lineup-Reject-Coverage komplett — PROOF
+Generated: 2026-06-26 | rpc_save_lineup error-code coverage in errorMessages.ts
+================================================================
+=== Slice 395 — AC1/AC2: 22 rpc_save_lineup-Codes != generic + DE/TR-Praesenz ===
+OK   auth_mismatch                      -> permissionDenied         de:y tr:y
+OK   event_locked                       -> event_locked             de:y tr:y
+OK   must_enter_first                   -> must_enter_first         de:y tr:y
+OK   invalid_event_no_league            -> invalid_event_no_league  de:y tr:y
+OK   invalid_formation                  -> lineupFormationInvalid   de:y tr:y
+OK   extra_slot_for_formation           -> lineupFormationInvalid   de:y tr:y
+OK   invalid_slot_count_def             -> lineupFormationInvalid   de:y tr:y
+OK   invalid_slot_count_mid             -> lineupFormationInvalid   de:y tr:y
+OK   invalid_slot_count_att             -> lineupFormationInvalid   de:y tr:y
+OK   gk_required                        -> gk_required              de:y tr:y
+OK   captain_slot_empty                 -> captain_slot_empty       de:y tr:y
+OK   wildcard_slot_invalid              -> wildcardSlotInvalid      de:y tr:y
+OK   wildcard_slot_empty                -> wildcardSlotInvalid      de:y tr:y
+OK   wildcards_not_allowed              -> wildcards_not_allowed    de:y tr:y
+OK   too_many_wildcards                 -> too_many_wildcards       de:y tr:y
+OK   salary_cap_exceeded                -> salary_cap_exceeded      de:y tr:y
+OK   max_per_club_exceeded              -> max_per_club_exceeded    de:y tr:y
+OK   bench_player_not_found             -> bench_player_not_found   de:y tr:y
+OK   bench_outfield_position_mismatch   -> bench_outfield_position_mismatch de:y tr:y
+OK   insufficient_sc                    -> notEnoughDpc             de:y tr:y
+OK   unknown_lineup_rule                -> lineupRuleInvalid        de:y tr:y
+OK   invalid_lineup_rule_value          -> lineupRuleInvalid        de:y tr:y
+=== AC3 Gruppierung / AC4 Reuse / AC5 Regression ===
+OK   invalid_slot_count_mid         -> lineupFormationInvalid (exp lineupFormationInvalid)
+OK   extra_slot_for_formation       -> lineupFormationInvalid (exp lineupFormationInvalid)
+OK   wildcard_slot_empty            -> wildcardSlotInvalid (exp wildcardSlotInvalid)
+OK   unknown_lineup_rule            -> lineupRuleInvalid (exp lineupRuleInvalid)
+OK   auth_mismatch                  -> permissionDenied (exp permissionDenied)
+OK   insufficient_sc                -> notEnoughDpc (exp notEnoughDpc)
+OK   duplicate_player               -> duplicatePlayer (exp duplicatePlayer)
+OK   event_ended                    -> eventEnded (exp eventEnded)
+OK   nation_not_allowed             -> nation_not_allowed (exp nation_not_allowed)
+OK   bench_duplicate                -> bench_duplicate (exp bench_duplicate)
+OK   player_not_in_event_league     -> playerNotInEventLeague (exp playerNotInEventLeague)
+
+ALL PASS (0 failures) — 22/22 Codes gemappt, alle Ziel-Keys DE+TR vorhanden
+
+=== AC6: npx tsc --noEmit (ohne scratch-File) ===
+tsc OK (clean)
+
+=== AC7: INV-25 error-keys-coverage.test.ts ===
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m

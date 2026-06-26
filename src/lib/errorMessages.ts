@@ -47,6 +47,13 @@ const KNOWN_KEYS = new Set([
   'min_per_position_not_met', 'max_per_position_exceeded',
   'mv_max_exceeded', 'mv_min_not_met',
   'nation_not_allowed', 'max_per_nation_exceeded',
+  // Slice 395 — restliche rpc_save_lineup-Rejects (Entry-State/Formation/Wildcard/Salary/Bench),
+  // snake_case passthrough. Strukturell gleiche Codes sind gruppiert via ERROR_MAP (s.u.).
+  'event_locked', 'must_enter_first', 'invalid_event_no_league',
+  'gk_required', 'captain_slot_empty',
+  'wildcards_not_allowed', 'too_many_wildcards', 'salary_cap_exceeded',
+  'max_per_club_exceeded',
+  'bench_player_not_found', 'bench_outfield_position_mismatch',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [
@@ -93,6 +100,15 @@ const ERROR_MAP: [RegExp, string][] = [
   [/lineup.*size.*mismatch/i, 'lineupSizeMismatch'],
   [/player.*not.*in.*club/i, 'playerNotInClub'],
   [/player.not.in.event.league/i, 'playerNotInEventLeague'],
+
+  // Slice 395 — rpc_save_lineup-Rejects: strukturell gleiche Codes → ein Key.
+  // Anker auf exakte snake_case-Codes (kein .*-Wildcard) → kein Fremd-Match.
+  [/invalid_formation|extra_slot_for_formation|invalid_slot_count_(def|mid|att)/i, 'lineupFormationInvalid'],
+  [/wildcard_slot_invalid|wildcard_slot_empty/i, 'wildcardSlotInvalid'],
+  [/unknown_lineup_rule|invalid_lineup_rule_value/i, 'lineupRuleInvalid'],
+  // Reuse bestehender Keys (kein neuer String nötig):
+  [/auth_mismatch/i, 'permissionDenied'],
+  [/insufficient_sc/i, 'notEnoughDpc'],
 
   // Offers
   [/offer.*expired/i, 'offerExpired'],

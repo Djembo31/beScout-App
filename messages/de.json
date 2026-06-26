@@ -3684,7 +3684,21 @@
     "mv_max_exceeded": "Ein aufgestellter Spieler überschreitet den erlaubten Marktwert.",
     "mv_min_not_met": "Ein aufgestellter Spieler unterschreitet den geforderten Marktwert.",
     "nation_not_allowed": "Ein aufgestellter Spieler gehört keiner erlaubten Nation an.",
-    "max_per_nation_exceeded": "Zu viele Spieler derselben Nation in der Aufstellung."
+    "max_per_nation_exceeded": "Zu viele Spieler derselben Nation in der Aufstellung.",
+    "event_locked": "Die Aufstellung für dieses Event ist gesperrt — die Deadline ist vorbei.",
+    "must_enter_first": "Tritt zuerst dem Event bei, bevor du eine Aufstellung speicherst.",
+    "invalid_event_no_league": "Dieses Event ist nicht korrekt eingerichtet (keine Liga zugeordnet).",
+    "gk_required": "Es muss ein Torwart aufgestellt werden.",
+    "captain_slot_empty": "Der als Kapitän gewählte Slot ist leer.",
+    "wildcards_not_allowed": "Wildcards sind in diesem Event nicht erlaubt.",
+    "too_many_wildcards": "Zu viele Wildcards in der Aufstellung.",
+    "salary_cap_exceeded": "Die Aufstellung überschreitet die Gehaltsobergrenze.",
+    "max_per_club_exceeded": "Zu viele Spieler aus demselben Verein in der Aufstellung.",
+    "bench_player_not_found": "Ein Bank-Spieler konnte nicht gefunden werden.",
+    "bench_outfield_position_mismatch": "Ein Bank-Spieler passt nicht auf seinen Bank-Platz.",
+    "lineupFormationInvalid": "Die Aufstellung passt nicht zur gewählten Formation.",
+    "wildcardSlotInvalid": "Ein gewählter Wildcard-Slot ist ungültig oder leer.",
+    "lineupRuleInvalid": "Eine Aufstellungsregel dieses Events ist ungültig konfiguriert."
   },
   "legal": {
     "cookieText": "Diese Seite nutzt Cookies für Funktionalität und Analyse. Mehr in unserer <privacyLink>Datenschutzerklärung</privacyLink>.",

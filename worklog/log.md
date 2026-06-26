@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 395 | 2026-06-26 | feat(fantasy): Lineup-Reject-Coverage komplett — restliche rpc_save_lineup-Codes regel-spezifisch (DE/TR)
+- Stage-Chain: SPEC (`395-lineup-reject-coverage-complete.md`, S, i18n) → IMPACT inline (zentrale Mapping-Datei, 0 Consumer-Drift) → BUILD (3 Code-Files + 1 Knowledge) → REVIEW (`395-review.md` reviewer PASS, 2 NIT bewusst akzeptiert) → PROVE (`395-reject-coverage.txt` 22/22 + tsc0 + INV-25 2/2) → LOG.
+- **Schließt 393-Backlog:** Live-`pg_get_functiondef('rpc_save_lineup')` (D87) → alle `'error'`-Literale enumeriert, gegen `KNOWN_KEYS ∪ ERROR_MAP` diff'd → **22 Codes** (Entry-State/Formation/Salary/Wildcard/Bench/Holdings/Regel-Engine) fielen noch auf `errors.generic`.
+- **Fix (zentral in `errorMessages.ts`):** 11 snake_case-Passthrough in `KNOWN_KEYS` (`event_locked`, `must_enter_first`, `invalid_event_no_league`, `gk_required`, `captain_slot_empty`, `wildcards_not_allowed`, `too_many_wildcards`, `salary_cap_exceeded`, `max_per_club_exceeded`, `bench_player_not_found`, `bench_outfield_position_mismatch`) + 3 gruppierte `ERROR_MAP`-Regex (`lineupFormationInvalid` ← 5 Formation-Codes; `wildcardSlotInvalid` ← 2; `lineupRuleInvalid` ← 2 Engine-Defensive) + 2 Reuse (`auth_mismatch`→`permissionDenied`, `insufficient_sc`→`notEnoughDpc`). 14 neue Keys × DE+TR = 28 Strings. Kein RPC/Service/Money-Change.
+- **Muster-Schutz:** Regex bewusst auf exakte snake_case-Literale verankert (kein `.*`-Wildcard) → kein Über-Match auf schon-abgedeckte Codes; `KNOWN_KEYS`-vor-`ERROR_MAP` macht Passthrough-Codes strukturell immun gegen Regex-Order. INV-25 unberührt (sieht `result.error ?? …`-Ausdruck nicht).
+- **Wissen verdrahtet (D88):** `docs/knowledge/domain/fantasy.md` Reject-Anzeige-Note → „rpc_save_lineup-Coverage komplett (S395)".
+- **Scope-Out (Folge-Slice):** dynamischer Kontext im Toast (max/cap/slot aus Validator-Return) = Throw-Refactor `lineups.mutations.ts:62`. 2 Reviewer-NITs (Namens-Dopplung `lineupRuleInvalid` über `fantasy`/`errors`-NS — kein Bug) akzeptiert.
+- Files: `src/lib/errorMessages.ts` + `messages/de.json` + `messages/tr.json` + `docs/knowledge/domain/fantasy.md`. Commit: <pending>.
+
 ## 394 | 2026-06-26 | fix(auth): AuthProvider Profile-Load-Failure nach Sentry instrumentieren (Fund 2 aus E-3-Bündel-Playwright)
 - Stage-Chain: SPEC (`394-authprovider-observability.md`, XS) → IMPACT inline → BUILD (1 File additiv) → REVIEW (`394-review.md` reviewer PASS, 2 NIT, slice-Tag-NIT angewendet) → PROVE (`394-observability.txt`) → LOG.
 - **Fund 2** aus gebündeltem E-3-Playwright: 7× `[AuthProvider] Profile load failed after retry` im kumulativen Console-Scan (Einzelseiten zeigten trügerisch „0 errors").
