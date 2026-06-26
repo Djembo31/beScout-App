@@ -9,7 +9,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **Muster-Schutz:** Regex bewusst auf exakte snake_case-Literale verankert (kein `.*`-Wildcard) → kein Über-Match auf schon-abgedeckte Codes; `KNOWN_KEYS`-vor-`ERROR_MAP` macht Passthrough-Codes strukturell immun gegen Regex-Order. INV-25 unberührt (sieht `result.error ?? …`-Ausdruck nicht).
 - **Wissen verdrahtet (D88):** `docs/knowledge/domain/fantasy.md` Reject-Anzeige-Note → „rpc_save_lineup-Coverage komplett (S395)".
 - **Scope-Out (Folge-Slice):** dynamischer Kontext im Toast (max/cap/slot aus Validator-Return) = Throw-Refactor `lineups.mutations.ts:62`. 2 Reviewer-NITs (Namens-Dopplung `lineupRuleInvalid` über `fantasy`/`errors`-NS — kein Bug) akzeptiert.
-- Files: `src/lib/errorMessages.ts` + `messages/de.json` + `messages/tr.json` + `docs/knowledge/domain/fantasy.md`. Commit: <pending>.
+- Files: `src/lib/errorMessages.ts` + `messages/de.json` + `messages/tr.json` + `docs/knowledge/domain/fantasy.md`. Commit: cf973238.
 
 ## 394 | 2026-06-26 | fix(auth): AuthProvider Profile-Load-Failure nach Sentry instrumentieren (Fund 2 aus E-3-Bündel-Playwright)
 - Stage-Chain: SPEC (`394-authprovider-observability.md`, XS) → IMPACT inline → BUILD (1 File additiv) → REVIEW (`394-review.md` reviewer PASS, 2 NIT, slice-Tag-NIT angewendet) → PROVE (`394-observability.txt`) → LOG.
