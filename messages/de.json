@@ -3675,7 +3675,16 @@
     "noEquipmentOnSlot": "Kein Equipment auf diesem Slot.",
     "equipmentSaveFailed": "{count, plural, =1 {1 Equipment konnte nicht gespeichert werden.} other {# Equipment-Slots konnten nicht gespeichert werden.}} Bitte Aufstellung erneut speichern.",
     "ghost_holding_row": "Ein Spieler-Datensatz konnte nicht geladen werden. Lade die Seite neu.",
-    "holdings_ghost_all": "Spieler-Daten werden nachgeladen — bitte einen Moment Geduld."
+    "holdings_ghost_all": "Spieler-Daten werden nachgeladen — bitte einen Moment Geduld.",
+    "min_per_own_club_not_met": "Zu wenige Spieler aus dem eigenen Verein in der Aufstellung.",
+    "age_max_exceeded": "Ein aufgestellter Spieler überschreitet das erlaubte Höchstalter.",
+    "age_min_not_met": "Ein aufgestellter Spieler unterschreitet das geforderte Mindestalter.",
+    "min_per_position_not_met": "Zu wenige Spieler auf einer geforderten Position.",
+    "max_per_position_exceeded": "Zu viele Spieler auf einer Position.",
+    "mv_max_exceeded": "Ein aufgestellter Spieler überschreitet den erlaubten Marktwert.",
+    "mv_min_not_met": "Ein aufgestellter Spieler unterschreitet den geforderten Marktwert.",
+    "nation_not_allowed": "Ein aufgestellter Spieler gehört keiner erlaubten Nation an.",
+    "max_per_nation_exceeded": "Zu viele Spieler derselben Nation in der Aufstellung."
   },
   "legal": {
     "cookieText": "Diese Seite nutzt Cookies für Funktionalität und Analyse. Mehr in unserer <privacyLink>Datenschutzerklärung</privacyLink>.",

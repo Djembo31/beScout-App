@@ -1,0 +1,32 @@
+# Slice 393 — Proof: E-3 Regel-Rejects regel-spezifisch
+Datum: 2026-06-26
+
+## AC1+AC2 — alle 9 Codes resolven (nicht mehr generic), DE+TR vollständig
+PASS  min_per_own_club_not_met
+PASS  age_max_exceeded
+PASS  age_min_not_met
+PASS  min_per_position_not_met
+PASS  max_per_position_exceeded
+PASS  mv_max_exceeded
+PASS  mv_min_not_met
+PASS  nation_not_allowed
+PASS  max_per_nation_exceeded
+
+DE min_per_own_club_not_met: Zu wenige Spieler aus dem eigenen Verein in der Aufstellung.
+DE age_max_exceeded: Ein aufgestellter Spieler überschreitet das erlaubte Höchstalter.
+DE age_min_not_met: Ein aufgestellter Spieler unterschreitet das geforderte Mindestalter.
+DE min_per_position_not_met: Zu wenige Spieler auf einer geforderten Position.
+DE max_per_position_exceeded: Zu viele Spieler auf einer Position.
+DE mv_max_exceeded: Ein aufgestellter Spieler überschreitet den erlaubten Marktwert.
+DE mv_min_not_met: Ein aufgestellter Spieler unterschreitet den geforderten Marktwert.
+DE nation_not_allowed: Ein aufgestellter Spieler gehört keiner erlaubten Nation an.
+DE max_per_nation_exceeded: Zu viele Spieler derselben Nation in der Aufstellung.
+
+## AC3 — tsc --noEmit: clean (exit 0)
+## AC4 — kein dedizierter errorMessages-Test (snake-passthrough analog bench_*/ghost_holding_row)
+
+## Kette (verifiziert via Code-Reading)
+rpc_save_lineup → {ok:false, error:<code>}  →  lineups.mutations.ts:62 throw new Error(code)
+  →  useLineupSave.ts:135 te(mapErrorToKey(code))  →  KNOWN_KEYS passthrough  →  errors.<code> (DE/TR)
+
+## Scope-Out (Folge-Slice): dynamischer Kontext (limit/age/MV) im Text — braucht Throw-Refactor in lineups.mutations.ts

@@ -1,11 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 05:35)
+# Session Handoff — Auto (2026-06-26 05:59)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 2 Files
+```
+ M memory/session-handoff.md
+?? worklog/proofs/e3-bundle-playwright-verify.md
+```
 
 ## Session Commits: 10
+- c7e2cada docs(handoff): Session-Close 2026-06-26 — Slice 392 DONE, E-3-Regelsatz komplett, Resume-Anker auf Playwright-Bündel/E-4
 - ed8e8019 docs(tracker): Slice 392 DONE — E-3-Regelsatz komplett, Stand auf MASTERPLAN+TODO reconciled
 - 6252cbb9 feat(events): E-3 nation_in (Länder-Whitelist) + max_per_nation — letzte E-3-Aufstellungs-Regeln (Slice 392)
 - 2a0ee5c3 docs(handoff): Session-Close 2026-06-26 — 389/390/391 DONE, 392 (nation-Regeln, voller Multi-Select) verankert
@@ -15,7 +20,6 @@
 - 1acdb784 feat(events): E-3 mv_min_eur (Star-Event) + max_per_position — zwei Spiegel-Regeln (Slice 390)
 - c743e004 docs(handoff): Slice 389 DONE — Tracker-Reconcile + Resume-Anker auf mv_max_eur
 - 29854ac5 feat(events): E-3 Marktwert-Deckel pro Karte — mv_max_eur (Underdog-Events, Slice 389)
-- 640f3e41 docs(handoff): sync auto-block post Session 2026-06-26
 
 <!-- auto:handoff-end -->
 

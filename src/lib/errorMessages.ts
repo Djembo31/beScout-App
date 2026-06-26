@@ -42,6 +42,11 @@ const KNOWN_KEYS = new Set([
   'fanRankTooLow', 'pollAlreadyVoted', 'pollCannotVoteOwn', 'pollClosed',
   // Slice 380 (E-1) — Liga-gebundenes Event: Spieler nicht aus der Event-Liga
   'playerNotInEventLeague',
+  // Slice 393 (E-3) — Aufstellungs-Regel-Rejects (rpc_save_lineup, snake_case passthrough)
+  'min_per_own_club_not_met', 'age_max_exceeded', 'age_min_not_met',
+  'min_per_position_not_met', 'max_per_position_exceeded',
+  'mv_max_exceeded', 'mv_min_not_met',
+  'nation_not_allowed', 'max_per_nation_exceeded',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [

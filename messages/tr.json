@@ -3675,7 +3675,16 @@
     "noEquipmentOnSlot": "Bu slotta donanım yok.",
     "equipmentSaveFailed": "{count, plural, =1 {1 donanım kaydedilemedi.} other {# donanım slotu kaydedilemedi.}} Lütfen kadronu tekrar kaydet.",
     "ghost_holding_row": "Bir oyuncu kaydı yüklenemedi. Sayfayı yeniden yükle.",
-    "holdings_ghost_all": "Oyuncu verileri yükleniyor — bir an bekle."
+    "holdings_ghost_all": "Oyuncu verileri yükleniyor — bir an bekle.",
+    "min_per_own_club_not_met": "Kadroda kendi kulübünden yeterli oyuncu yok.",
+    "age_max_exceeded": "Kadrodaki bir oyuncu izin verilen en yüksek yaşı aşıyor.",
+    "age_min_not_met": "Kadrodaki bir oyuncu gereken en düşük yaşın altında.",
+    "min_per_position_not_met": "Gerekli bir mevkide yeterli oyuncu yok.",
+    "max_per_position_exceeded": "Bir mevkide çok fazla oyuncu var.",
+    "mv_max_exceeded": "Kadrodaki bir oyuncu izin verilen piyasa değerini aşıyor.",
+    "mv_min_not_met": "Kadrodaki bir oyuncu gereken piyasa değerinin altında.",
+    "nation_not_allowed": "Kadrodaki bir oyuncu izin verilen uluslardan birine ait değil.",
+    "max_per_nation_exceeded": "Kadroda aynı ulustan çok fazla oyuncu var."
   },
   "legal": {
     "cookieText": "Bu site işlevsellik ve analiz için çerezler kullanmaktadır. Daha fazla bilgi için <privacyLink>Gizlilik Politikası</privacyLink>.",
