@@ -27,3 +27,10 @@ gleichzeitig min DEF 2 verletzt (used=1, reject). Slot-unabhängig.
 keeps_maxclub=true  keeps_salary=true  keeps_e1=true  keeps_wc=true
 keeps_385=true  keeps_386=true  has_388=true  has_pos_count(players.position)=true
 → Validator additiv erweitert; alle Nicht-Validator-Blöcke unverändert.
+
+=== AC-13 UI-Live post-Deploy (2026-06-26, bescout.net, Login ali) ===
+Club-Admin-Builder (i18n t()):  Gruppe "Mindestens pro Position" + 4 Inputs
+  (form-minPos{Gk,Def,Mid,Att}) min=1 max=11 inputMode=numeric, Placeholder TW/ABW/MF/ANG.
+  KEIN MISSING_MESSAGE, kein Raw-Key-Leak.
+Platform-Admin-Builder (DE-hardcoded): "Mindestens pro Position" + Inputs TW/ANG min1/max11.
+0 Console-Errors beide. → AC-13 PASS. Slice 388 voll-DONE.

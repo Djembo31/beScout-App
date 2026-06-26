@@ -45,3 +45,9 @@ has_count_bound(1..11)= true   (Bound PRO TYP — Zähl-Regel, 385 byte-äquival
 
 === Daten-Check (Voraussetzung) ===
 players.age 99,4% befüllt (4529/4556 aktiv, 14..50). nationality 95,5%, market_value_eur 86,4%, position 100%.
+
+=== AC-13 UI-Live post-Deploy (2026-06-26, bescout.net, Login ali) ===
+Club-Admin-Builder (i18n t()):  "Max. Alter (optional)" + "Min. Alter (optional)",
+  Inputs min=14 max=50 inputMode=numeric. KEIN MISSING_MESSAGE, kein Raw-Key-Leak.
+Platform-Admin-Builder (DE-hardcoded): "Max. Alter" + "Min. Alter", min=14 max=50.
+0 Console-Errors beide. → AC-13 PASS. Slice 386 voll-DONE.
