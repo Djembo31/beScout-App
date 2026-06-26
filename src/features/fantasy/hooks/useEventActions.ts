@@ -440,6 +440,16 @@ export function useEventActions(clubId: string) {
           addToast(t('mvMaxExceeded', { limit: mvRule ? mvRule.value / 1_000_000 : 0 }), 'error');
           break;
         }
+        // Slice 390 (E-3) — Max-pro-Position
+        case 'max_per_position_exceeded':
+          addToast(t('maxPerPositionExceeded'), 'error');
+          break;
+        // Slice 390 (E-3) — Marktwert-Mindestwert (Star-Event, Limit in Mio. €)
+        case 'mv_min_not_met': {
+          const mvMinRule = event.lineupRules?.find(r => r.type === 'mv_min_eur');
+          addToast(t('mvMinNotMet', { limit: mvMinRule ? mvMinRule.value / 1_000_000 : 0 }), 'error');
+          break;
+        }
         case 'holding_lock_failed':
           addToast(t('holdingLockFailed'), 'error');
           break;

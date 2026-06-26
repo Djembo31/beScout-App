@@ -738,12 +738,14 @@ export type EventCurrency = 'tickets' | 'scout';
  * - age_max / age_min: jeder aufgestellte Spieler (Starter + Bank) muss age <= / >= N sein (Slice 386).
  * - min_per_position: mind. N Starter mit players.position = <position> (Formations-Steuerung, Slice 388).
  * - mv_max_eur: jede aufgestellte Karte (Starter + Bank) market_value_eur <= N EUR; MV=0/NULL fail-closed (Underdog, Slice 389).
+ * - max_per_position: höchstens N Starter mit players.position = <position> (Spiegel min_per_position, Slice 390).
+ * - mv_min_eur: jede aufgestellte Karte (Starter + Bank) market_value_eur >= N EUR; MV=0/NULL fail-closed (Star-Event, Slice 390).
  */
-export type LineupRuleType = 'min_per_own_club' | 'age_min' | 'age_max' | 'min_per_position' | 'mv_max_eur';
+export type LineupRuleType = 'min_per_own_club' | 'age_min' | 'age_max' | 'min_per_position' | 'max_per_position' | 'mv_max_eur' | 'mv_min_eur';
 export type PlayerPositionCode = 'GK' | 'DEF' | 'MID' | 'ATT';
 export type LineupRule =
-  | { type: 'min_per_own_club' | 'age_min' | 'age_max' | 'mv_max_eur'; value: number }
-  | { type: 'min_per_position'; position: PlayerPositionCode; value: number };
+  | { type: 'min_per_own_club' | 'age_min' | 'age_max' | 'mv_max_eur' | 'mv_min_eur'; value: number }
+  | { type: 'min_per_position' | 'max_per_position'; position: PlayerPositionCode; value: number };
 
 export type DbEvent = {
   id: string;

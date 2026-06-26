@@ -21,15 +21,19 @@ function ruleValueFromRules(
   return rule ? String(rule.value) : '';
 }
 
-/** Liest den Wert einer min_per_position-Regel für eine Position ('' = keine). */
-function posRuleValueFromRules(rules: LineupRule[] | null | undefined, position: PlayerPositionCode): string {
-  const rule = (rules ?? []).find(r => r.type === 'min_per_position' && r.position === position);
+/** Liest den Wert einer positions-geschlüsselten Regel (min/max_per_position) für eine Position ('' = keine). */
+function posRuleValueFromRules(
+  rules: LineupRule[] | null | undefined,
+  type: 'min_per_position' | 'max_per_position',
+  position: PlayerPositionCode,
+): string {
+  const rule = (rules ?? []).find(r => r.type === type && r.position === position);
   return rule ? String(rule.value) : '';
 }
 
-/** Liest den mv_max_eur-Deckel als Millionen-String ('' = keine). DB-Wert ist EUR, UI zeigt Mio. (Slice 389). */
-function mvMaxMillionsFromRules(rules: LineupRule[] | null | undefined): string {
-  const rule = (rules ?? []).find(r => r.type === 'mv_max_eur');
+/** Liest einen mv-Deckel/Floor (mv_max_eur/mv_min_eur) als Millionen-String ('' = keine). DB-Wert ist EUR (Slice 389/390). */
+function mvMillionsFromRules(rules: LineupRule[] | null | undefined, type: 'mv_max_eur' | 'mv_min_eur'): string {
+  const rule = (rules ?? []).find(r => r.type === type);
   return rule ? String(rule.value / 1_000_000) : '';
 }
 
@@ -37,30 +41,36 @@ function mvMaxMillionsFromRules(rules: LineupRule[] | null | undefined): string 
 function rulesFromForm(fields: {
   minPerOwnClub: string; ageMin: string; ageMax: string;
   minPosGk: string; minPosDef: string; minPosMid: string; minPosAtt: string;
-  mvMaxMillions: string;
+  maxPosGk: string; maxPosDef: string; maxPosMid: string; maxPosAtt: string;
+  mvMaxMillions: string; mvMinMillions: string;
 }): LineupRule[] | null {
   const rules: LineupRule[] = [];
   const pushVal = (type: 'min_per_own_club' | 'age_min' | 'age_max', raw: string) => {
     const n = parseInt(raw, 10);
     if (raw && !Number.isNaN(n) && n >= 1) rules.push({ type, value: n });
   };
-  const pushPos = (position: PlayerPositionCode, raw: string) => {
+  const pushPos = (type: 'min_per_position' | 'max_per_position', position: PlayerPositionCode, raw: string) => {
     const n = parseInt(raw, 10);
-    if (raw && !Number.isNaN(n) && n >= 1) rules.push({ type: 'min_per_position', position, value: n });
+    if (raw && !Number.isNaN(n) && n >= 1) rules.push({ type, position, value: n });
   };
-  // Slice 389: Admin gibt Millionen ein, DB speichert EUR-Ganzzahl. parseFloat (0,5 Mio möglich), Math.round gegen Float-Staub.
-  const pushMvMax = (raw: string) => {
+  // Slice 389/390: Admin gibt Millionen ein, DB speichert EUR-Ganzzahl. parseFloat (0,5 Mio möglich), Math.round gegen Float-Staub.
+  const pushMv = (type: 'mv_max_eur' | 'mv_min_eur', raw: string) => {
     const m = parseFloat(raw);
-    if (raw && !Number.isNaN(m) && m > 0) rules.push({ type: 'mv_max_eur', value: Math.round(m * 1_000_000) });
+    if (raw && !Number.isNaN(m) && m > 0) rules.push({ type, value: Math.round(m * 1_000_000) });
   };
   pushVal('min_per_own_club', fields.minPerOwnClub);
   pushVal('age_min', fields.ageMin);
   pushVal('age_max', fields.ageMax);
-  pushPos('GK', fields.minPosGk);
-  pushPos('DEF', fields.minPosDef);
-  pushPos('MID', fields.minPosMid);
-  pushPos('ATT', fields.minPosAtt);
-  pushMvMax(fields.mvMaxMillions);
+  pushPos('min_per_position', 'GK', fields.minPosGk);
+  pushPos('min_per_position', 'DEF', fields.minPosDef);
+  pushPos('min_per_position', 'MID', fields.minPosMid);
+  pushPos('min_per_position', 'ATT', fields.minPosAtt);
+  pushPos('max_per_position', 'GK', fields.maxPosGk);
+  pushPos('max_per_position', 'DEF', fields.maxPosDef);
+  pushPos('max_per_position', 'MID', fields.maxPosMid);
+  pushPos('max_per_position', 'ATT', fields.maxPosAtt);
+  pushMv('mv_max_eur', fields.mvMaxMillions);
+  pushMv('mv_min_eur', fields.mvMinMillions);
   return rules.length > 0 ? rules : null;
 }
 
@@ -94,11 +104,16 @@ function populateFromEvent(event: DbEvent): EventFormState {
     minPerOwnClub: ruleValueFromRules(event.lineup_rules, 'min_per_own_club'),
     ageMin: ruleValueFromRules(event.lineup_rules, 'age_min'),
     ageMax: ruleValueFromRules(event.lineup_rules, 'age_max'),
-    minPosGk: posRuleValueFromRules(event.lineup_rules, 'GK'),
-    minPosDef: posRuleValueFromRules(event.lineup_rules, 'DEF'),
-    minPosMid: posRuleValueFromRules(event.lineup_rules, 'MID'),
-    minPosAtt: posRuleValueFromRules(event.lineup_rules, 'ATT'),
-    mvMaxMillions: mvMaxMillionsFromRules(event.lineup_rules),
+    minPosGk: posRuleValueFromRules(event.lineup_rules, 'min_per_position', 'GK'),
+    minPosDef: posRuleValueFromRules(event.lineup_rules, 'min_per_position', 'DEF'),
+    minPosMid: posRuleValueFromRules(event.lineup_rules, 'min_per_position', 'MID'),
+    minPosAtt: posRuleValueFromRules(event.lineup_rules, 'min_per_position', 'ATT'),
+    maxPosGk: posRuleValueFromRules(event.lineup_rules, 'max_per_position', 'GK'),
+    maxPosDef: posRuleValueFromRules(event.lineup_rules, 'max_per_position', 'DEF'),
+    maxPosMid: posRuleValueFromRules(event.lineup_rules, 'max_per_position', 'MID'),
+    maxPosAtt: posRuleValueFromRules(event.lineup_rules, 'max_per_position', 'ATT'),
+    mvMaxMillions: mvMillionsFromRules(event.lineup_rules, 'mv_max_eur'),
+    mvMinMillions: mvMillionsFromRules(event.lineup_rules, 'mv_min_eur'),
     requiresFollow: event.requires_follow ?? false,
     minFanRankTier: event.min_fan_rank_tier ?? '',
     minScPerSlot: String(event.min_sc_per_slot ?? 1),

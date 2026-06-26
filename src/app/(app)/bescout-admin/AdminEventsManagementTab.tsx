@@ -54,6 +54,12 @@ const FORM_LABELS: EventFormLabels = {
   mvMax: 'Max. Marktwert (Mio. €)',
   mvMaxPlaceholder: 'Keine Regel',
   mvMaxHint: 'Jede aufgestellte Karte (Starter + Bank) darf höchstens diesen Marktwert haben (z. B. 1 = 1 Mio. €). Spieler ohne Marktwert sind ausgeschlossen. Leer = keine Regel.',
+  // Slice 390 (E-3) — Max-pro-Position (Startelf-Komposition) + Marktwert-Mindestwert (Star-Event)
+  maxPerPositionGroup: 'Höchstens pro Position',
+  maxPerPositionHint: 'Maximalanzahl Startelf-Spieler je Position (z. B. max. 2 ANG = defensives Event). Leer = keine Regel. Zählt nach echter Spieler-Position.',
+  mvMin: 'Min. Marktwert (Mio. €)',
+  mvMinPlaceholder: 'Keine Regel',
+  mvMinHint: 'Jede aufgestellte Karte (Starter + Bank) muss mindestens diesen Marktwert haben (z. B. 50 = 50 Mio. €, Star-Event). Spieler ohne Marktwert sind ausgeschlossen. Leer = keine Regel.',
   // Slice 384 (E-3 Türsteher) — nur bei Vereins-Events wirksam
   requiresFollow: 'Nur Follower des Vereins',
   minFanRank: 'Mindest-Fan-Rang',

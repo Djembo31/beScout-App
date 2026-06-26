@@ -56,6 +56,9 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     minPosGk: t('minPosGkLabel'), minPosDef: t('minPosDefLabel'), minPosMid: t('minPosMidLabel'), minPosAtt: t('minPosAttLabel'),
     // Slice 389 (E-3): Marktwert-Deckel pro Karte (Underdog, Eingabe Mio. €)
     mvMax: t('mvMaxLabel'), mvMaxPlaceholder: t('mvMaxPlaceholder'), mvMaxHint: t('mvMaxHint'),
+    // Slice 390 (E-3): Max-pro-Position + Marktwert-Mindestwert (Star-Event)
+    maxPerPositionGroup: t('maxPerPositionGroupLabel'), maxPerPositionHint: t('maxPerPositionHint'),
+    mvMin: t('mvMinLabel'), mvMinPlaceholder: t('mvMinPlaceholder'), mvMinHint: t('mvMinHint'),
     // Slice 382 (E-1b): Club-Admin-Liga-Picker (Anil: alle Ligen + Offen, Symmetrie zum Platform-Admin)
     league: t('leagueBindingLabel'), leagueOpen: t('leagueBindingOpen'),
     // Slice 384 (E-3 Türsteher): Follower-Pflicht + Fan-Rang-Gate

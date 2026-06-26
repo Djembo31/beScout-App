@@ -58,9 +58,14 @@ export interface EventFormLabels {
   minPosDef?: string;
   minPosMid?: string;
   minPosAtt?: string;
+  maxPerPositionGroup?: string; // Slice 390 (E-3): Gruppen-Überschrift Max-pro-Position
+  maxPerPositionHint?: string;
   mvMax?: string;              // Slice 389 (E-3): max. Marktwert pro Karte (Mio. €)
   mvMaxPlaceholder?: string;
   mvMaxHint?: string;
+  mvMin?: string;              // Slice 390 (E-3): min. Marktwert pro Karte (Mio. €, Star-Event)
+  mvMinPlaceholder?: string;
+  mvMinHint?: string;
   // Slice 384 (E-3 Türsteher) — nur bei Vereins-Events wirksam
   requiresFollow?: string;     // Follower-Pflicht-Toggle
   minFanRank?: string;         // Mindest-Fan-Rang-Select
@@ -454,6 +459,42 @@ export function EventFormModal({
           </div>
         )}
 
+        {/* Max-pro-Position (Slice 390 — E-3, Spiegel der Min-Gruppe; reuse Positions-Kürzel) */}
+        {L.maxPerPositionGroup && (
+          <div>
+            <label className="block text-sm font-bold text-white/70 mb-1">
+              {L.maxPerPositionGroup}
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {([
+                ['maxPosGk', L.minPosGk, 'GK'],
+                ['maxPosDef', L.minPosDef, 'DEF'],
+                ['maxPosMid', L.minPosMid, 'MID'],
+                ['maxPosAtt', L.minPosAtt, 'ATT'],
+              ] as const).map(([field, label, code]) => (
+                <div key={code}>
+                  <input
+                    id={`form-${field}`}
+                    type="number"
+                    inputMode="numeric"
+                    min="1"
+                    max="11"
+                    value={form[field]}
+                    onChange={(e) => setField(field, e.target.value)}
+                    placeholder={label ?? code}
+                    disabled={isFieldDisabled('lineup_rules')}
+                    aria-label={`${L.maxPerPositionGroup} ${label ?? code}`}
+                    className={cn(INPUT_CLS, 'min-h-[44px]', disabledCls)}
+                  />
+                </div>
+              ))}
+            </div>
+            {L.maxPerPositionHint && (
+              <p className="mt-1 text-[10px] text-white/40">{L.maxPerPositionHint}</p>
+            )}
+          </div>
+        )}
+
         {/* Marktwert-Deckel pro Karte (Slice 389 — E-3 Underdog, Eingabe Mio. €, Starter + Bank) */}
         {L.mvMax && (
           <div>
@@ -475,6 +516,31 @@ export function EventFormModal({
             />
             {L.mvMaxHint && (
               <p className="mt-1 text-[10px] text-white/40">{L.mvMaxHint}</p>
+            )}
+          </div>
+        )}
+
+        {/* Marktwert-Mindestwert pro Karte (Slice 390 — E-3 Star-Event, Eingabe Mio. €, Starter + Bank) */}
+        {L.mvMin && (
+          <div>
+            <label htmlFor="formMvMin" className="block text-sm font-bold text-white/70 mb-1">
+              {L.mvMin}
+            </label>
+            <input
+              id="formMvMin"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              step="0.1"
+              value={form.mvMinMillions}
+              onChange={(e) => setField('mvMinMillions', e.target.value)}
+              placeholder={L.mvMinPlaceholder}
+              disabled={isFieldDisabled('lineup_rules')}
+              aria-label={L.mvMin}
+              className={cn(INPUT_CLS, 'min-h-[44px]', disabledCls)}
+            />
+            {L.mvMinHint && (
+              <p className="mt-1 text-[10px] text-white/40">{L.mvMinHint}</p>
             )}
           </div>
         )}

@@ -2,6 +2,18 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 390 | 2026-06-26 | feat(events): E-3 mv_min_eur (Star-Event) + max_per_position — zwei Spiegel-Regeln
+- Stage-Chain: SPEC (`390-lineup-rule-mvmin-maxpos.md`, M, Money-nah) → IMPACT inline → BUILD (1 Migration via apply_migration + Type/Form/UI/i18n, KEIN Worktree §3) → REVIEW (`390-review.md` reviewer PASS, 2 NIT) → PROVE (`390-mvmin-maxpos-smoke.txt` force-rollback 14/14 + PATCH-AUDIT + tsc 0 + vitest 3268/3269) → LOG.
+- **Vierte+fünfte E-3-Regel (kombinierter Slice — ein Migration sicherer als zwei Full-Function-Rewrites).** CEO (Anil 2026-06-26): „alle E-3-Regeln rein, dann ein Playwright-Durchlauf". Zwei nationality-unabhängige Spiegel:
+  - **`max_per_position`** = Spiegel von 388 (Komposition, **Starter-only**, zählt `players.position`, reject bei `> value`, Bound 1..11). „max. 2 ATT" = defensives Event.
+  - **`mv_min_eur`** = Spiegel von 389 (Star-Event, **Starter+Bank**, fail-closed bei MV=0/NULL, Bound 1..1e9, Eingabe Mio→EUR `Math.round(×1e6)`).
+- **`rpc_save_lineup` CREATE OR REPLACE** (Live-Baseline Post-389, D87, PATCH-AUDIT: keeps 385/386/388/389/maxclub/salary/e1/wildcard + has_maxpos + has_mvmin + bigint_ok, grants ohne anon). Additiv: Whitelist + `mv_min_eur`-Branch + **gemeinsamer Positions-Zweig** `IN ('min_per_position','max_per_position')` (geteilte Whitelist/Bound/Count, zwei getrennte `<`/`>`-Vergleiche — kein Branch-Klon, AC-10a beweist 388-Regression-frei).
+- **CTO-Modell:** LineupRuleType + Union += beide. Helper generalisiert (type-Param): `posRuleValueFromRules(rules,type,position)` + `mvMillionsFromRules(rules,type)` + `rulesFromForm` `pushPos(type,...)`/`pushMv(type,...)`. Form: 4 maxPos-Felder + mvMinMillions. UI: max-Pos-Gruppe (reuse Positions-Kürzel) + mv-min-Input. Beide Builder. 2 Toasts. i18n DE+TR (fantasy + admin ns). **Kein Schema-Change.**
+- **🔴 BLOCKER-Fund (Nationen-Regeln gestoppt):** `players.nationality` ist nicht regel-tauglich — Türkei = `Türkiye`/`Turkey`/`TR` (728 Spieler, 3 Schreibweisen), 207 leer, 168 Werte. `nation_in`/`max_per_nation` würden still falsch ausschließen/zählen (Silent-Data-Liar, Prio-Markt TR). **CEO-Entscheid (Anil): Normalisieren-Slice 391 ZUERST** (ISO-kanonisch + Backfill + Re-Drift-Guard, kein API-Key), dann 392.
+- **Proof:** Force-rollback (jarvis, 1-2-2-2, club_id NULL): AC-1/2 max_per_position (have2 ok / have3 reject via players.position) · AC-3 invalid/bound · AC-4/5 mv_min happy/reject · AC-6 fail-closed MV=0 · AC-7 BIGINT 2e9 · AC-8 multi · AC-9 no-resource-move · AC-10 385-389-Regression · AC-11 null — 14/14 PASS. Migration `20260626140000`.
+- Files: 1 Migration + 9 src/i18n + worklog. Commit: <hash>. Knowledge-Kopplung (D88, aktiv via grep): `fantasy.md` (Regeln 5+6 + nationality-Untauglichkeit) + `errors-db.md` (S390 geteilter min/max-Branch + Daten-Tauglichkeit-VOR-Attribut-Regel).
+- **Offen:** AC-15 gebündelter Playwright-Durchlauf (386/388/389/390) post-Deploy.
+
 ## 389 | 2026-06-26 | feat(events): E-3 Marktwert-Deckel pro Karte — mv_max_eur (Underdog-Events)
 - Stage-Chain: SPEC (`389-lineup-rule-mv-max.md`, S, Money-nah) → IMPACT inline → BUILD (1 Migration via apply_migration + Type/Form/UI/i18n, KEIN Worktree §3) → REVIEW (`389-review.md` reviewer PASS, 2 NITPICK) → PROVE (`389-mv-max-smoke.txt` force-rollback 13/13 + PATCH-AUDIT + tsc 0 + vitest 3268/3269) → LOG.
 - **Dritte E-3-Regel-Erweiterung (Folge zu 386/388, kein Schema-Change).** CEO (AskUserQuestion, Anil 2026-06-26): (1) nächster Slice = `mv_max_eur` (Underdog); (2) **MV=0 → fail-closed** (Integrität vor Inklusion — Trade-off bewusst: 491 echte Jugendspieler ausgeschlossen, Backlog Re-Scrape); (3) Eingabe in **Millionen €**.

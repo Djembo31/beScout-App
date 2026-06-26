@@ -1,0 +1,44 @@
+Slice 390 — E-3 mv_min_eur (Star-Event) + max_per_position — PROOF
+Datum: 2026-06-26
+RPC: rpc_save_lineup (CREATE OR REPLACE, Migration 20260626140000_e3_mvmin_maxpos)
+Methode: force-rollback DO-Block (RAISE EXCEPTION='REPORT >>>' → 0 Persistenz),
+         JWT-Impersonation jarvis-qa, temp Event 1-2-2-2, club_id NULL, reale Spieler.
+
+=== Money-Smoke (force-rollback) — 14/14 PASS ===
+AC-2 max_per_position ATT2 (have3): err=max_per_position_exceeded max=2 used=3 => PASS
+AC-9 holding_locks nach reject = 0 => PASS                 (kein Ressourcen-Move bei Reject)
+AC-1 max_per_position ATT2 (have2): ok=true => PASS
+AC-3a position XYZ: PASS                                    (invalid_lineup_rule_value)
+AC-3b value 0: PASS                                        (invalid_lineup_rule_value)
+AC-4 mv_min 10k happy: ok=true => PASS
+AC-5 mv_min 50M reject: err=mv_min_not_met limit=50000000 => PASS
+AC-6 mv_min fail-closed MV=0: err=mv_min_not_met mv=0 => PASS
+AC-7a mv_min value0: PASS
+AC-7b mv_min 2e9 (BIGINT, kein ::INT-Crash): PASS
+AC-8 multi happy [max_per_position DEF2 + mv_min 10k]: ok=true => PASS
+AC-10a regression min_per_position (388): PASS
+AC-10b regression mv_max happy (389): PASS
+AC-11 lineup_rules NULL no-op: PASS
+
+KERN-BEWEIS:
+(1) max_per_position zählt nach players.position, NICHT Slot — AC-2: z_att (ATT) im mid2-Slot ergibt 3 ATT → reject (used 3). Spiegel von 388, reject bei > value.
+(2) mv_min_eur (Star-Event) Spiegel von 389: Starter + Bank, fail-closed bei MV=0/NULL (AC-6), BIGINT-Bound (AC-7b 2e9 → sauberer Reject).
+
+=== PATCH-AUDIT (pg_get_functiondef Live) ===
+has_maxpos=true  has_mvmin=true  bigint_ok=true
+keeps_385=true  keeps_386=true  keeps_388=true  keeps_389=true  keeps_maxclub=true  keeps_salary=true  keeps_e1=true  keeps_wildcard=true
+grants = {postgres, authenticated, service_role}  (KEIN anon — AR-44 erhalten)
+→ Validator additiv: Whitelist + 2 Branches (max_per_position via gemeinsamer Positions-Zweig mit min_per_position; mv_min_eur eigener Zweig). Alle Nicht-Validator-Blöcke unverändert.
+
+=== AC-13 WRITE-PFAD (Logik, useEventForm.ts) ===
+pushPos('max_per_position', ...) + pushMv('mv_min_eur', Math.round(Mio*1e6)). Round-Trip via posRuleValueFromRules(type, pos) + mvMillionsFromRules(type).
+
+=== tsc / vitest ===
+pnpm exec tsc --noEmit: exit 0 (grün).
+CI=true pnpm exec vitest run: 3268 passed, 1 skipped, 230 Files (exit 0).
+
+=== REVIEW ===
+reviewer-Agent: PASS (2 NIT, non-blocking) — worklog/reviews/390-review.md
+
+=== OFFEN: AC-15 UI-live ===
+GEBÜNDELTER Playwright-Durchlauf am Ende der E-3-Reihe (386/388/389/390): Inputs beide Builder, kein MISSING_MESSAGE, Mobile 393px.
