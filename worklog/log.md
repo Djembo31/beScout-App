@@ -2,6 +2,21 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 394 | 2026-06-26 | fix(auth): AuthProvider Profile-Load-Failure nach Sentry instrumentieren (Fund 2 aus E-3-Bündel-Playwright)
+- Stage-Chain: SPEC (`394-authprovider-observability.md`, XS) → IMPACT inline → BUILD (1 File additiv) → REVIEW (`394-review.md` reviewer PASS, 2 NIT, slice-Tag-NIT angewendet) → PROVE (`394-observability.txt`) → LOG.
+- **Fund 2** aus gebündeltem E-3-Playwright: 7× `[AuthProvider] Profile load failed after retry` im kumulativen Console-Scan (Einzelseiten zeigten trügerisch „0 errors").
+- **Diagnose faktenbasiert:** ali-Profil-Row valide+vollständig (DB-SELECT); `get_auth_state('ali')` EXPLAIN ANALYZE = **62ms gesund** (JWT-Impersonation); Sentry-Suche `Profile load failed`/`auth_uid_mismatch` = 0 Issues. Ursache = bekannte **JWT-Hydration-Race** (Cookie-Resume, Code Z.176-182), graceful via 2s-Retry + LS-Cache. **KEIN Daten-Defekt, nicht ali-spezifisch.**
+- **Eigentlicher Mangel:** finaler Failure-Pfad war **console-only** → Sentry blind für echte Nutzer-Häufigkeit. Fix = additive `captureMessage('auth.profileLoadFailedAfterRetry','error',{feature,slice,userId,extra:{isRefresh,hadCachedProfile}})`. **Auth/Race/RLS-Logik bewusst NICHT angefasst** (money-nah, §1 caution over speed) — tieferer Fix (get_auth_state null-uid-soft / JWT-unabhängiger Fallback) erst NACH Sentry-Daten.
+- Files: `src/components/providers/AuthProvider.tsx` (+10/-1, rein additiv). tsc clean. Commit: cd300cc8.
+
+## 393 | 2026-06-26 | feat(events): E-3 Regel-Rejects regel-spezifisch — 9 Validator-Codes → eigene DE/TR-Toast-Meldung (Fund 1 aus E-3-Bündel-Playwright)
+- Stage-Chain: SPEC (`393-lineup-rule-reject-messages.md`, S, i18n) → IMPACT inline → BUILD (3 Files) → REVIEW (`393-review.md` reviewer PASS, 2 INFO/NIT) → PROVE (`393-reject-messages.txt` 9/9 + tsc0) → LOG.
+- **Fund 1** aus gebündeltem E-3-Playwright: `rpc_save_lineup` gibt 9 regel-spezifische Reject-Codes zurück, die im FE (`useLineupSave.ts:135` → `mapErrorToKey`) ALLE auf `'generic'` fielen → Manager erfuhr nie, WELCHE Regel er brach (untergräbt Zweck granularer E-3-Regeln).
+- **Fix:** 9 Codes (`min_per_own_club_not_met`, `age_max/min`, `min/max_per_position`, `mv_max/min`, `nation_not_allowed`, `max_per_nation_exceeded`) als snake_case-Passthrough in `KNOWN_KEYS` (analog `bench_*`) + 9 DE/TR-Strings im `errors`-Namespace. Kein Money/RPC-Change.
+- **Reviewer-Backlog-Fund (eigener Folge-Slice):** ~20 WEITERE `rpc_save_lineup`-Codes (Formation/Salary/Wildcard/Bench: `salary_cap_exceeded`, `max_per_club_exceeded`, `too_many_wildcards`, `invalid_formation`, …) fallen ebenfalls auf `'generic'` → „Lineup-Reject-Coverage komplett"-Slice.
+- **Scope-Out:** dynamischer Kontext (limit/age/MV im Text) = Folge-Slice (braucht Throw-Refactor in `lineups.mutations.ts`). Files: errorMessages.ts + de.json + tr.json. Commit: 2fbc4ab6.
+- **Vorlauf — Gebündelter E-3-Playwright (`worklog/proofs/e3-bundle-playwright-verify.md`):** beide Builder (Club + Platform) live gegen bescout.net, Mobile 393px: 14/14 Regel-Inputs, 9/9 Labels, **0 Leaks/MISSING_MESSAGE**, alle 44px, NationMultiSelect voll funktional (Suche „türk"→Türkei→„1 gewählt"). Statisch vorab: 29 Club-Keys DE+TR vollständig. **Builder-Render = PASS.**
+
 ## 392 | 2026-06-26 | feat(events): E-3 nation_in (Länder-Whitelist, Multi-Select) + max_per_nation — letzte E-3-Aufstellungs-Regeln
 - Stage-Chain: SPEC (`392-lineup-rule-nation.md`, M, Money-nah) → IMPACT inline → BUILD (1 Migration + 9 src-Files via apply_migration) → REVIEW (`392-review.md` reviewer PASS, 2 NIT) → PROVE (`392-nation-smoke.txt` force-rollback 17/17 + PATCH-AUDIT + tsc0 + vitest 219) → LOG.
 - **Zwei Regeln auf `nationality_iso` (Slice 391):** `nation_in` = Länder-Whitelist (Array-Wert `{type,values:[ISO,…]}`, **Starter + Bank**, fail-closed bei `nationality_iso=''` → `nation_not_allowed`); `max_per_nation` = max N gleicher Nation (Zahl, Spiegel max_per_club, **Starter-only**, `GROUP BY nationality_iso WHERE <>''` → leere ISO ungezählt, Bound 1..11).

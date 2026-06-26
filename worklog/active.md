@@ -1,25 +1,23 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 394
-title: AuthProvider Profile-Load-Failure observability — Sentry-Capture statt console-only
+title: AuthProvider Profile-Load-Failure observability — DONE
 size: XS
-stage: BUILD
+stage: LOG
 spec: worklog/specs/394-authprovider-observability.md
-impact: inline (additive — 1 captureMessage am finalen Failure-Pfad; KEINE Auth/RLS-Logik-Änderung)
 proof: worklog/proofs/394-observability.txt
 review: worklog/reviews/394-review.md
-prev: 393 DONE. Fund 2 aus E-3-Bündel-Playwright: 7× "[AuthProvider] Profile load failed after retry" — console-only, Sentry blind.
-diagnose: get_auth_state(ali)=62ms gesund, ali-Profil valide → bekannte JWT-Hydration-Race (Cookie-Resume, Code-dokumentiert), graceful Fallback via LS-Cache. KEIN Daten-Defekt, NICHT ali-spezifisch. Auth-Logik bewusst NICHT angefasst (money-nah, caution over speed) — erst messbar machen.
-ac: tsc clean + captureMessage am Failure-Pfad + Reviewer
+prev: 393 DONE (Regel-Rejects regel-spezifisch). E-3-Bündel-Playwright DONE.
 ```
 
 ## Zuletzt
 
-- **Slice 394** (2026-06-26) — AuthProvider Failure-Pfad nach Sentry instrumentiert (war console-only → Observability-Lücke). Fund 2 aus E-3-Bündel. IN ARBEIT.
-- **Slice 393** (2026-06-26) — E-3 Regel-Rejects regel-spezifisch (9 Codes DE/TR). DONE (`2fbc4ab6`), Reviewer PASS.
-- **Slice 392** (2026-06-26) — E-3 nation_in + max_per_nation. DONE. Gebündelter Playwright erledigt.
+- **Slice 394** (2026-06-26) — AuthProvider Failure-Pfad nach Sentry instrumentiert (Fund 2). DONE (`cd300cc8`), Reviewer PASS.
+- **Slice 393** (2026-06-26) — E-3 Regel-Rejects regel-spezifisch, 9 Codes DE/TR (Fund 1). DONE (`2fbc4ab6`), Reviewer PASS.
+- **E-3-Bündel-Playwright** (2026-06-26) — beide Builder PASS Mobile 393px, NationMultiSelect funktional. Proof `e3-bundle-playwright-verify.md`.
+- **Slice 392** (2026-06-26) — E-3 nation_in + max_per_nation. DONE. **E-3-Regelsatz komplett.**
 
-Nächstes: Session-Close (beide Funde erledigt).
+Nächstes: **E-4 User-Events** (L, Money/CEO — eigene Alignment-Session) ODER Backlog „Lineup-Reject-Coverage komplett" (~20 weitere generic-Codes, XS-S).
 ```
