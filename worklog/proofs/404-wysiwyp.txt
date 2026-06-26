@@ -1,0 +1,52 @@
+Slice 404 — Welle 1.1: Markt-Tab order-gebunden — POST-DEPLOY UI-PLAYWRIGHT (bescout.net)
+Datum: 2026-06-26 · Commit 287dc980 deployed · Browser-User: ali_admin (aaaaaaaa-0005-…-005, persistierte Session)
+
+================================================================
+SETUP (Cold-Start: Transferliste war leer → echte Fremd-Order geseedet)
+================================================================
+Seed (place_sell_order via JWT-Impersonation, S369-Rezept, PERMANENT):
+  Seller bot ded75479-… · Player Muhammed Tiren (05f7a1a2-…, Bandırmaspor/TFF1)
+  Order bc63d013-0a57-4bd6-b3ca-c3fab093d919 · 5 SC @ 1500 cents (15 CR)
+  Bewusst 15 CR (≠ floor/last 10 CR) für scharfe „was du siehst = was du zahlst"-Prüfung.
+
+================================================================
+AC-Beweise (DE)
+================================================================
+AC-06 LISTE: Transferliste „Von Usern" zeigt Tiren „Gelistet ab? 15" (getrennt „Letzter Deal: 10")
+   → Listenpreis = günstigste FREMD-Order (15), NICHT Floor/Last (10). is_own-Exklusion wirkt. ✅
+AC-01 MODAL: „Preis/SC 15 CR" = Order-Preis (nicht alter Floor). ✅
+AC-03 QTY:   qty-Selektor „Menge − +" vorhanden, input max=5 (= Order-Restmenge, NICHT hart 1,
+             NICHT Orderbuch-Summe). Beweist zugleich Deploy live + qty-Lock-Removal. ✅
+AC-01 TOTAL: „Gesamt 15 CR" → „Danach 10.835 CR" (10.850 − 15). ✅
+AC-02 WYSIWYP (echter Kauf qty=1, „Kaufen bestätigen"):
+   Header SOFORT 10.850 → 10.835 CR (optimistisch, Shape-Norm buyer_new_balance gelesen) + Erfolgs-Toast.
+   DB-Reconcile (buyer ali_admin):
+     trade.price        = 1500   (= angezeigte 15 CR, EXAKT — Abbuchung == Anzeige)
+     wallet.balance     = 1.083.500 cents = 10.835,00 CR  (war 1.085.000; −1500 exakt)
+     holdings.tiren     = 1
+     order bc63d013     = partial, filled 1, rem 4
+   → order-gebundener Kauf via buy_from_order an der konkreten Order, Preis byte-exakt. ✅
+
+================================================================
+AC-08 i18n (DE + TR)
+================================================================
+DE: Modal alle Strings aufgelöst (Preis/SC, Menge, Gesamt, Danach, Handelsgebühr-Breakdown,
+    TradingDisclaimer) — kein Roh-Key / MISSING_MESSAGE. ✅
+TR (bescout-locale=tr): Liste „Başlangıç fiyatı? 15 · 1 Teklif · Al" + Modal „Fiyat/SC 15 CR ·
+    Miktar −+ · Toplam 15 CR · Sonra 10.820 CR · %6 işlem ücreti …" — alle TR-Strings aufgelöst,
+    kein Roh-Key. (Keine NEUEN i18n-Keys eingeführt — qtyLabel/increaseQty reused.) ✅
+    TR-Kauf NICHT bestätigt (nur Modal-Scan, dann İptal).
+
+================================================================
+Sonstiges
+================================================================
+- Console: 1 Error = `[AuthProvider] Profile load failed after retry` → PRE-EXISTING (Slice 394),
+  markt-unabhängig, KEIN 404-Regress. 0 markt-/i18n-Errors.
+- Liga-Scope-Hinweis (kein Bug): Transferliste ist league-scope-gefiltert (useLeagueScope); Tiren
+  (TFF1) erscheint unter Filter „Türkei"/„Türkiye". Pre-existing Verhalten, nicht von 404 berührt.
+
+GESEEDETE LIVE-ARTEFAKTE (PERMANENT, NICHT aufräumen — E2E-Beweis):
+  Sell-Order bc63d013-… (Tiren, bot ded75479, jetzt partial rem 4) · ali_admin hält 1 Tiren,
+  Wallet 10.835 CR · 1 echter Trade @1500 (source order). ali-Locale zurück auf DE gesetzt.
+
+ALLE ACs (01-08) LIVE PASS. „Was du siehst = was du zahlst" e2e bewiesen.

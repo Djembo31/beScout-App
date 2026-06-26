@@ -1,15 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 22:55)
+# Session Handoff — Auto (2026-06-26 23:27)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 4
+- 287dc980 feat(trading): Slice 404 — Welle 1.1 Markt-Tab Kauf order-gebunden ("was du siehst = was du zahlst") [Money-Trust UI]
 - 4e84215a feat(trading): Slice 403 — Welle 1.2 buy_from_ipo Idempotency-Key (Doppelkauf-Schutz Erstverkauf) [Money/CEO]
 - 36d82f68 docs(decision): D111 — Beta abgebrochen → Mock→Pro-Programm (7-Domänen-Audit + 7-Wellen-Plan + Stale-Glättung)
 - cc64463f docs(distill): D110 e2e-Audit-Methode + Wissen verdrahtet + Handoff frische Session
-- b4a10eb1 docs(decision): D109 — Monats-Liga-Reward-Smells geprüft + CEO bewusst akzeptiert
 
 <!-- auto:handoff-end -->
 
@@ -28,7 +28,7 @@
 
 **Reihenfolge-Vorschlag:** Trading → Spieltag/Scoring → Events → Follow → Geld/State → Performance → Design (zuletzt). Alte TODOs vollständig als Carry-over (A–G) im Plan erfasst — nichts verloren.
 
-**✅ WELLE-1-FORTSCHRITT (diese Session):** **1.2 DONE (403)** buy_from_ipo Idempotency · **1.1 DONE (404)** Markt-Tab order-gebunden „was du siehst = was du zahlst" (Reviewer PASS, vitest 298) — **OFFEN: UI-Playwright post-Deploy** (Modalpreis==Listenpreis==Wallet-Delta + qty-Selektor + DE/TR). **NÄCHSTER = (a) 404-Playwright verifizieren** sobald Vercel deployed, **dann (b) Slice 405** (Reviewer-Fund: `usePlayerTrading.onSuccess` Shape-Norm `new_balance ?? buyer_new_balance` + BuyConfirmation.tsx est-total — gleicher Shape-Bug wie 404 löste, im Player-Detail-Order-Kauf) **ODER 1.3** (Club-Geld-Doppelschreibung, Money) **ODER 1.4** (Orderbuch `orders` vs `offers` = CEO-Gabelung). Welle-1-Rest: 1.5 (BSD→Credits, Rate-Limit, fee_config-Lookup) · 1.6 (Orderbuch Empty-State).
+**✅ WELLE-1-FORTSCHRITT (diese Session):** **1.2 DONE (403)** buy_from_ipo Idempotency (live bewiesen) · **1.1 DONE (404)** Markt-Tab order-gebunden „was du siehst = was du zahlst" — Reviewer PASS, vitest 298, **post-Deploy Playwright voll bewiesen** (AC01-08: Liste==Modal==Charge alle 15 CR ≠ Floor 10, echter Kauf −15 exakt DB-reconciled, qty-Selektor max=5, DE+TR kein Roh-Key; `proofs/404-wysiwyp.txt`). **Geseedet PERMANENT (NICHT aufräumen):** Sell-Order `bc63d013` (Tiren, bot ded75479, partial rem 4) + ali_admin hält 1 Tiren (Browser-Session war **ali_admin**, nicht jarvis). **NÄCHSTER = Slice 405** (Reviewer-Fund: `usePlayerTrading.onSuccess` Shape-Norm `new_balance ?? buyer_new_balance` + `price_per_dpc ?? price` + BuyConfirmation.tsx est-total — gleicher Shape-Bug den 404 im Markt-Pfad löste, im Player-Detail-Order-Kauf: kein optimist. Balance + „?"-Preis-Toast) **ODER 1.3** (Club-Geld-Doppelschreibung, Money — 404-Smoke klärte: `clubs.treasury_balance_cents` nur +club_share direkt, 2. Write auf separates Ledger) **ODER 1.4** (Orderbuch `orders` vs `offers` = CEO-Gabelung). Welle-1-Rest: 1.5 (BSD→Credits, Rate-Limit) · 1.6 (Orderbuch Empty-State). **Bekannt pre-existing (kein Regress): `[AuthProvider] Profile load failed after retry`-Console-Error (S394).**
 
 **Status: idle, main==origin/main.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen. **Teaching-Mode durchgehend (1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
 

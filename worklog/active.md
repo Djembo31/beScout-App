@@ -1,19 +1,23 @@
 # Active Slice
 
 ```
-status: active
+status: idle
 slice: 404
-title: Welle 1.1 — Markt-Tab Kauf order-gebunden („was du siehst = was du zahlst") [Money-Trust UI]
+title: Welle 1.1 — Markt-Tab Kauf order-gebunden („was du siehst = was du zahlst") [Money-Trust UI] — DONE
 size: L (UI cross-component — Markt-Buy auf order-gebundene Pipeline, geteilte Order-Quelle useSellOrders)
-stage: PROVE (vitest 298 ✅ + tsc 0; UI-Playwright post-Deploy OFFEN)
+stage: LOG (DONE)
 spec: worklog/specs/404-welle1-market-buy-order-bound.md
 impact: skipped (Consumer in Spec §3 gegreppt; kein RPC/Migration, kein Cross-Domain — reine UI/Routing-Konsolidierung)
 proof: worklog/proofs/404-vitest.txt
+proof2: worklog/proofs/404-wysiwyp.txt — LIVE bescout.net: Modal/Liste/Charge alle = 15 CR (Order-Preis≠Floor), qty-Selektor max=5, echter Kauf −15 exakt (DB reconciled), DE+TR kein Roh-Key. ALLE AC01-08 PASS.
 review: worklog/reviews/404-review.md — PASS (1 NIT konsistenz-bewusst belassen, 1 INFO=pre-existing Player-Detail-Shape-Bug→405)
 ```
 
-## Inline-Notiz (Welle 1.1)
-Markt-Tab zeigte `floor`, kaufte cheapest-foreign via `buy_player_sc` (Anzeige≠Abbuchung), qty hart 1. Fix = order-gebundene Pipeline wie Player-Detail: günstigste Fremd-Order via `useSellOrders` (geteilte Quelle), Preis+Menge daran gebunden, Kauf via `buy_from_order`. Listenpreis exkludiert eigene Orders → Liste==Modal==Kauf. KEINE RPC/Money-Math-Änderung. Scope-Out: BuyConfirmation.tsx est-total (→405), 1.3/1.4/1.5.
+## Zuletzt
+- **Slice 404** (2026-06-26) — Markt-Tab order-gebunden, **post-Deploy Playwright voll bewiesen** (AC01-08), DONE.
+- **Slice 403** (2026-06-26) — buy_from_ipo Idempotency, DONE.
+
+Nächstes: **405** (Reviewer-Fund: `usePlayerTrading.onSuccess` Shape-Norm `new_balance ?? buyer_new_balance` + BuyConfirmation.tsx est-total) ODER **1.3** (Club-Geld-Doppelschreibung, Money) ODER **1.4** (Orderbuch-Gabelung, CEO). Kanon: `memory/session-handoff.md`.
 
 ## Inline-Notiz (Welle 1 Start)
 **Welle 1 — Trading & Kaufprozess** (Mock→Pro, D111). Slice 403 = Plan-Punkt 1.2. Kern-Smell der Welle = „von allem zwei"; 1.2 schließt das Idempotenz-Loch im Erstverkauf (einziger der 3 Kauf-RPCs ohne `idempotency_key`) end-to-end. CEO-Architektur-Gabelung 1.4 (Orderbuch `orders` vs `offers` = ein Buch?) wird VOR Slice 1.4 separat geklärt.
