@@ -1,21 +1,19 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 22:29)
+# Session Handoff — Auto (2026-06-26 02:46)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
-## Session Commits: 10
-- 375885c4 docs(handoff): cleanup für frische Session — HEAD 7c6ac014, stale 385-Anker entfernt
-- 7c6ac014 docs(proof): Slice 385 AC-12 UI post-Deploy live PASS — AC-1..AC-12 alle PASS
-- 0bc296e8 docs(handoff): Slice 385 DONE — E-3 Regel-Fundament, next = E-3-Erweiterungen/E-4
-- 107282d1 feat(events): E-3 Aufstellungs-Regel-Fundament — lineup_rules JSONB + Validator (Slice 385)
-- 8a243601 docs(handoff): sync auto-block post Slice 384 + knowledge-coupling
-- 3f47f5eb docs(knowledge): fantasy.md verified-against Format-Fix (SOFT-Finding)
-- 7a91ff06 docs(knowledge): fantasy.md + reward-ranking.md — Event-Eintritts-Türsteher (S384) verdrahtet
-- 847ee35e docs(handoff): Session-Close 2026-06-25 — D107 + E-3 Türsteher (384) DONE
-- f56019c2 docs(log): Slice 384 DONE — E-3 Türsteher AC1-AC12 PASS, Epic E-3 reconciled
-- 7bf23383 feat(events): E-3 Türsteher — Follower-Pflicht + Fan-Rang-Gate auf Event-Eintritt (Slice 384)
+## Session Commits: 5
+- 9bcfe781 docs(handoff): Session 2026-06-26 — 386/387/388 DONE + AC-13 UI-live PASS, next = nation/mv/E-4
+- 6b7330da docs(proof): AC-13 UI-live post-Deploy PASS für 386+388 — beide Builder, kein MISSING_MESSAGE
+- 7cabc155 feat(events): E-3 Min-pro-Position — min_per_position Aufstellungs-Regel (Slice 388)
+- 1b894543 fix(i18n): Compliance — Glücksspiel-Verb kazanılır → elde edilir (Slice 387)
+- aa8f695a feat(events): E-3 Alters-Fenster — age_min/age_max Aufstellungs-Regel (Slice 386)
 
 <!-- auto:handoff-end -->
 
