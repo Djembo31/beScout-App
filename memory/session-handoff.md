@@ -1,11 +1,14 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 16:05)
+# Session Handoff — Auto (2026-06-26 17:07)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
-## Session Commits: 7
+## Session Commits: 10
+- 98ef9503 docs(handoff): Slice 399 DONE — Resume-Anker auf Backlog (E-5/E-6/E-7/S7)
+- 20fce03e docs(399): Live-Verify post-Deploy PASS (AC1-AC6) + LOG — User-Events end-to-end nutzbar
+- ea27cfe3 feat(events): User-Events fertig — Discovery + F2/F3 + Cancel + Admin-Gebühr [Slice 399]
 - d4bacb31 docs(distill): D108-Addendum E-4b-Realisierung + Wissen verdrahtet + Tracker reconciled (397/398)
 - bf0948ed docs(398): Live-Verify PASS — bench-i18n behoben (95->0 Console-Errors), Tracker reconciled
 - fbf1e094 fix(i18n): fehlende fantasy.bench*-Keys ergaenzt — Roh-Key-Leak im Lineup-Builder [Slice 398]
