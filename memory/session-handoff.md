@@ -1,11 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 14:45)
+# Session Handoff — Auto (2026-06-26 14:52)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
-## Session Commits: 1
+## Session Commits: 2
+- dc582eaf docs(handoff): Session-Close 2026-06-26 — Slice 396 E-4a DONE, Resume-Anker auf E-4b/Backlog
 - 0cd799b5 feat(events): User-Events Geld-Kern (E-4a) — Eintritts-Pot, Erstell-Gebühr→Topf, kein Seed [Slice 396]
 
 <!-- auto:handoff-end -->
@@ -14,9 +15,21 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle — Slice 396 (E-4a User-Events Geld-Kern) DONE + committet.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
+**Status: idle — Slice 397 (E-4b Teil 1: User-Events Builder-UI verkabelt) DONE + committet (`21523534`) + LIVE-verifiziert.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
 
-## ✅ Slice 396 E-4a DONE (2026-06-26, Money/CEO) — Modell V3 (Anil-Korrektur beim BUILD)
+## ✅ Slice 397 E-4b Teil 1 DONE (2026-06-26, Money-nah) — LIVE bewiesen
+- **Verkabelt den toten E-4a-Geldkern:** echter Builder (`CreateEventModal`) → `create_user_event` via Service `createUserEvent` + Hook `useCreateUserEvent` (S371). 3 CEO-Entscheide: Credit-Eintritt entkoppelt+sichtbar (`type==='user'`), jeder User darf erstellen, Split 397/398. Typ-Union `'user'` (5 Lookups), errorMessages 11 Codes, i18n DE/TR.
+- **Live-Verify (bescout.net, ali):** Event erstellt, ali −5000 / Topf +5000 (Zero-Sum, `event_create_fee`), Header 11.000→10.950 sofort (S371), entry_fee=1000 cents (kein ×100-Bug), Badge „Community". Reviewer PASS. Proof `397-service-test.txt`.
+- **🚩 3 PRE-EXISTING Funde (NICHT 397, eigene Slices):** **F1 [MEDIUM, GLOBAL] BenchRow.tsx 9 fehlende `fantasy.bench*`-Keys** (de+tr) → 95 MISSING_MESSAGE + **Roh-Key-Leak in der UI**, trifft JEDES Event mit Lineup-Bench (seit Feat 195d) → schneller Fix-Slice 18 Strings. **F2/F3 [LOW]** EventCard/Detail-Kosten-Meta zeigt `{ticket_cost} Tickets` währungsunabhängig (scout→falsch „1000 Tickets") → 398.
+
+## ➡️ NÄCHSTER: F1-Quickfix (bench-i18n, MEDIUM global) ODER E-4b Teil 2 (398) ODER Backlog (Anil-Wahl)
+- **F1-Quickfix (XS, empfohlen vorab):** 9 `fantasy.bench*`-Keys × DE+TR in messages — behebt globalen Roh-Key-Leak im Lineup-Builder (nicht nur User-Events).
+- **398 (E-4b Teil 2):** öffentliche Discovery + User-Filter-Pille + `EventCategoryCards.CATEGORIES`-Karte · Live-Pot-Vorschau · Cancel-UI (`cancel_user_event`) · Admin-Gebühr-Slider (`set_user_event_create_fee`) · `min_entries`-Anzeige + Select-Listen (`events.queries.ts:25/38/126`) · F2/F3 currency-aware Kosten-Anzeige · Custom-Reward-Editor · `creator`-fee_config-Cleanup (E-7).
+- Geseedetes Live-Artefakt (permanent, NICHT aufräumen): User-Event `7052f7d7-9baf-4714-8665-ffc31ef88f34` (ali, GW34, registering) + Topf-Eintrag `event_create_fee:5000`.
+
+---
+
+## (vorige) ✅ Slice 396 E-4a DONE (2026-06-26, Money/CEO) — Modell V3 (Anil-Korrektur beim BUILD)
 - **Modell V3 (D108 korrigiert):** Anil verwarf beim BUILD den Seed/Start-Pot („Schrott"). Gebaut: **kein Seed** · Ersteller zahlt NUR die Erstell-Gebühr (50 Cr, admin via `set_user_event_create_fee`) → Topf · **Pot = Σ Teilnehmer-Eintritte** (`event_fee_config('user')=0/0`, kein Schnitt) · BeScout verdient nur über die Gebühr · Ersteller spielt mit = zahlt Eintritt.
 - **Gebaut (4 Migrationen):** `create_user_event` + `cancel_user_event` + `set_user_event_create_fee` + `score_event` user-Zweig (Pot=Σ Eintritte, charge, FLOOR-Rest→Topf) + `rpc_save_lineup` Wildcard-COALESCE-Fix (380-Vormerkung erledigt) + Schema (events.type+'user', min_entries, `platform_event_config`, scout_events_enabled=true). **3 latente Pre-existing-Bugs mitgefixt:** `event_entry_lock`+`fantasy_reward` fehlten im tx-CHECK, `chk_event_type` brauchte 'user' (nie in Prod gefeuert).
 - **Beweis:** force-rollback AC1-AC11 + Rest→Topf + Idempotenz, **Zero-Sum diff=0** in 3 Configs; PATCH-AUDIT (3 Trigger md5 unverändert, non-user byte-identisch); AR-44 ACL sauber; tsc+vitest 1662 grün. Reviewer **PASS** (`worklog/reviews/396-review.md`). Proof `worklog/proofs/396-money-smoke.txt`.

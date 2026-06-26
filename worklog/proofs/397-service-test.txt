@@ -7,3 +7,39 @@
 [2m   Start at [22m 15:27:32
 [2m   Duration [22m 2.90s[2m (transform 366ms, setup 296ms, import 415ms, tests 11ms, environment 1.88s)[22m
 
+
+============================================================
+LIVE-PLAYWRIGHT POST-DEPLOY (bescout.net, 2026-06-26, User=ali aaaaaaaa-0005)
+============================================================
+Deploy live bestätigt: neuer Builder rendert (Eintritt/Spieltag/Anmeldeschluss/
+Belohnungsverteilung/Min-Max), 0 Console-Errors auf Builder + Fantasy-Page.
+
+DB-RECONCILE (Event 7052f7d7-9baf-4714-8665-ffc31ef88f34):
+  ali Wallet:   1.100.000 -> 1.095.000 cents  (Delta -5000)            [AC-3]
+  Plattform-Topf: 50.003.397 -> 50.008.397    (Delta +5000, source event_create_fee) [AC-3 Zero-Sum]
+  Header live:  11.000 -> 10.950 SOFORT ohne Reload                    [S371]
+  Event:        type=user, status=registering, currency=scout,
+                entry_fee=1000 (=10 CR x100, KEIN x100-Bug),           [AC-2]
+                ticket_cost=1000, prize_pool=0, prize_escrowed=false,
+                club_id=null, gameweek=34, format=6er (DB-Default),
+                reward_structure=[{50,1},{30,2},{20,3}], min/max=null, league_id=null
+  Gebuehr-Tx:   event_create_fee:5000                                  [AC-3]
+  Event in Liste sichtbar, Badge "Community" (type=user)              [AC-4, AC-6]
+  Create-Button disabled bei leerem Namen                             [AC-9]
+
+AC-2/AC-3/AC-4/AC-6/AC-9 + S371 = LIVE PASS.
+AC-5 (JoinConfirmDialog Credit-Eintritt): Card + Join-CTA zeigen "10 CR"
+  korrekt (formatEventCost scout-Pfad, nicht "Gratis"); standalone
+  JoinConfirmDialog nicht direkt erreicht (dieses Event oeffnet in den
+  Lineup-Builder "Beitreten & Aufstellung speichern"). Decoupling code+reviewer-verifiziert.
+
+--- 3 PRE-EXISTING FUNDE (NICHT 397-Regression, von User-Event-Sichtbarkeit aufgedeckt) ---
+F1 [MEDIUM, global]: BenchRow.tsx nutzt 9 fantasy.bench*-Keys (benchTitle/benchSubTitle/
+   benchGkLabel/benchOutfieldLabel/benchEmptySlot/benchRemoveSlot/benchSubOrderLabel/
+   benchMoveDown/benchMoveUp) -> KEINER in de.json/tr.json -> 95 MISSING_MESSAGE +
+   ROH-KEY-LEAK in sichtbarer UI (Button-Text "fantasy.benchGkLabel"). Pre-existing seit
+   195d, trifft JEDES Event mit Lineup-Builder-Bench. -> eigener Fix-Slice (18 Strings DE+TR).
+F2 [LOW]: EventCard/EventDetail Kosten-Meta-Zeile zeigt "{ticket_cost} Tickets Eintritt"
+   waehrungsunabhaengig -> bei currency=scout falsch "1000 Tickets" (neben korrektem "10 CR").
+   -> currency-aware machen (398-Polish).
+F3 [LOW]: Detail-Modal-Overview-Kosten zeigt ebenfalls "Tickets" (gleiche Wurzel wie F2).

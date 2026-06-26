@@ -1,11 +1,11 @@
 # Active Slice
 
 ```
-status: active
+status: idle
 slice: 397
-title: E-4b User-Events Builder-UI verkabeln (Teil 1: Erstellen + Credit-Eintritt sichtbar)
+title: E-4b User-Events Builder-UI verkabeln (Teil 1) — DONE + Live-verifiziert
 size: M
-stage: LOG
+stage: LOG (DONE)
 spec: worklog/specs/397-user-events-builder-ui.md
 impact: reuse worklog/impact/396-user-events-money-core.md §B/§F/§H + Explore-Map 2026-06-26 (E-4b-Fläche kartiert, kein neues impact-File)
 build: DONE — 14 Files. Typ-Union 'user' (5 Lookups) + Service createUserEvent + Hook useCreateUserEvent (S371) + CreateEventModal-Rewrite + FantasyHeader-Gate-Öffnung + FantasyContent-Wiring + JoinConfirmDialog-Entkopplung (type==='user') + errorMessages 11 Codes + i18n DE/TR + NIT#1-Heal (ganze Credits). tsc grün, 6/6 Service-Test + 285 Fantasy-Tests grün, i18n-Parität OK.
