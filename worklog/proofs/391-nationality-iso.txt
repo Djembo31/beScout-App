@@ -1,0 +1,33 @@
+Slice 391 — nationality-Normalisierung: generierte Spalte players.nationality_iso — PROOF
+Datum: 2026-06-26
+Migration: 20260626150000_nationality_iso (apply_migration → {"success":true})
+Ansatz: normalize_nationality() IMMUTABLE (Port countryNameToIso.ts) + nationality_iso GENERATED ALWAYS STORED.
+CEO-Entscheid Anil: generierte Spalte (nicht-destruktiv, zero-drift, zero-trigger, zero-backfill).
+
+=== AC-3/AC-4 Coverage + Bucket-Vereinigung (Live) ===
+total=4556  mapped(<>'')=4349  unmapped_nonempty=0   ← 100% Coverage, kein nicht-leerer Wert fällt durch
+tr_bucket=762   (Türkiye 528 + Turkey 108 + TR 92 + Türkei 34 = 762 — VEREINT)
+de_bucket=678   (Germany 656 + Deutschland 21 + DE 1)
+eng_bucket=271  (England → GB-ENG)
+us_bucket=40    (USA 36 + United States 3 + Vereinigte Staaten 1)
+→ 207 leer/NULL → nationality_iso='' (korrekt unbekannt).
+
+=== AC-1/AC-2 Mapping-Spots (Live) ===
+Türkiye=TR  Turkey=TR  Türkei=TR  TR=TR  Germany=DE  Deutschland=DE  England=GB-ENG  USA=US
+Côte d'Ivoire=CI  Curaçao=CW   ''=''  NULL=''  Atlantis=''   ← Diakritika gemappt, unbekannt fail-closed
+
+=== AC-5/AC-6/AC-8 Schema (Live) ===
+generated_expr = normalize_nationality(nationality)   (GENERATED ALWAYS STORED, IMMUTABLE-fn)
+index = idx_players_nationality_iso (partial WHERE nationality_iso <> '')
+grants = {postgres, authenticated, service_role}   (KEIN anon — AR-44)
+
+=== AC-7 Display-Safe ===
+Kein src-Change. nationality (Roh) unverändert → mapNationalityToIso(nationality) weiter korrekt.
+nationality_iso ist additiv, wird erst in Slice 392 (nation_in/max_per_nation) konsumiert.
+
+=== AC-9 tsc/vitest ===
+Kein src-Change → tsc trivially clean (pre-commit verifiziert). vitest unberührt (countryNameToIso.test.ts unverändert).
+
+=== Bedeutung ===
+Fundament für Slice 392 (Nationen-Regeln) gelegt: nation_in (Whitelist ISO) + max_per_nation
+(GROUP BY nationality_iso) zählen/matchen jetzt korrekt — Türkei nicht mehr 4-fach gespalten.

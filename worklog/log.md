@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 391 | 2026-06-26 | feat(db): nationality-Normalisierung — generierte Spalte players.nationality_iso (Blocker für Nationen-Regeln)
+- Stage-Chain: SPEC (`391-nationality-iso-normalization.md`, M, Schema/Daten-Qualität) → IMPACT inline → BUILD (1 Migration via apply_migration, KEIN src-Change) → REVIEW (`391-review.md` reviewer PASS, 3 NIT) → PROVE (`391-nationality-iso.txt` Coverage 100% + Bucket + Spots + Index/Grants) → LOG.
+- **Räumt den S390-Blocker:** `players.nationality` war nicht regel-tauglich (Türkei = Türkiye/Turkey/TR/Türkei = 4 Schreibweisen → 762 Spieler gespalten, 207 leer, 168 distinct). CEO-Entscheid (AskUserQuestion, Anil): **generierte Spalte** statt in-place-Backfill — nicht-destruktiv, zero-drift.
+- **Fund:** Mapping-Logik existiert bereits in `src/lib/utils/countryNameToIso.ts` (~250 Einträge, Display nutzt sie). Coverage-Check: alle 166 nicht-leeren Distinct-Werte abgedeckt → 100 %.
+- **`normalize_nationality(text)` LANGUAGE sql IMMUTABLE** (SQL-Port von mapNationalityToIso: NULL/blank→'', ISO-2-Pass-through 13 Codes, GB-(ENG/SCT/WLS/NIR)-Pass-through, sonst VALUES-Lookup auf normalisiertem Key [lower+Whitespace-raus, Diakritika+Interpunktion bleiben], unbekannt→'') + `players.nationality_iso GENERATED ALWAYS AS (...) STORED` + Partial-Index `WHERE <> ''` + AR-44 REVOKE/GRANT.
+- **Zero-drift/zero-trigger/zero-backfill:** DB rechnet ISO automatisch aus `nationality` (Scraper schreibt weiter Rohnamen). Erbt Tabellen-RLS. `nationality` (Roh) + Display (`mapNationalityToIso`) unberührt.
+- **Proof (Live):** mapped 4349, **unmapped_nonempty=0**, TR-Bucket **762** (4 Schreibweisen vereint), DE 678, GB-ENG 271, US 40. Spots: Türkiye/Turkey/Türkei/TR→TR, England→GB-ENG, Côte d'Ivoire→CI, Curaçao→CW, ''/NULL/Atlantis→''. Migration `20260626150000`.
+- Files: 1 Migration + worklog. Commit: <hash>. Knowledge-Kopplung (D88): `errors-db.md` (GENERATED-Spalte zero-drift-Pattern + TS↔SQL-Mapping-Duplikat-Divergenz-Vektor) + `fantasy.md` (nationality jetzt regel-tauglich via nationality_iso). **NÄCHSTER = Slice 392** nation_in + max_per_nation auf `nationality_iso`.
+
 ## 390 | 2026-06-26 | feat(events): E-3 mv_min_eur (Star-Event) + max_per_position — zwei Spiegel-Regeln
 - Stage-Chain: SPEC (`390-lineup-rule-mvmin-maxpos.md`, M, Money-nah) → IMPACT inline → BUILD (1 Migration via apply_migration + Type/Form/UI/i18n, KEIN Worktree §3) → REVIEW (`390-review.md` reviewer PASS, 2 NIT) → PROVE (`390-mvmin-maxpos-smoke.txt` force-rollback 14/14 + PATCH-AUDIT + tsc 0 + vitest 3268/3269) → LOG.
 - **Vierte+fünfte E-3-Regel (kombinierter Slice — ein Migration sicherer als zwei Full-Function-Rewrites).** CEO (Anil 2026-06-26): „alle E-3-Regeln rein, dann ein Playwright-Durchlauf". Zwei nationality-unabhängige Spiegel:
