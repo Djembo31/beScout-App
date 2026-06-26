@@ -1,11 +1,11 @@
 # Active Slice
 
 ```
-status: active
+status: idle
 slice: 398
-title: F1-Quickfix — fehlende fantasy.bench*-i18n-Keys (Roh-Key-Leak im Lineup-Builder)
+title: F1-Quickfix — fehlende fantasy.bench*-i18n-Keys — DONE + live-verifiziert (0 von 95 Errors)
 size: XS
-stage: PROVE
+stage: LOG (DONE)
 spec: inline (XS, S198-Muster — 9 fehlende Keys × DE+TR)
 impact: skipped (reine i18n-Addition, 0 Logik, 0 Consumer-Drift)
 proof: worklog/proofs/398-bench-i18n.txt

@@ -15,16 +15,18 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle — Slice 397 (E-4b Teil 1: User-Events Builder-UI verkabelt) DONE + committet (`21523534`) + LIVE-verifiziert.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
+**Status: idle — Slice 397 (E-4b Teil 1 User-Events Builder) + Slice 398 (F1 bench-i18n-Fix) DONE + committet (`21523534`/`fbf1e094`) + LIVE-verifiziert.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
 
 ## ✅ Slice 397 E-4b Teil 1 DONE (2026-06-26, Money-nah) — LIVE bewiesen
 - **Verkabelt den toten E-4a-Geldkern:** echter Builder (`CreateEventModal`) → `create_user_event` via Service `createUserEvent` + Hook `useCreateUserEvent` (S371). 3 CEO-Entscheide: Credit-Eintritt entkoppelt+sichtbar (`type==='user'`), jeder User darf erstellen, Split 397/398. Typ-Union `'user'` (5 Lookups), errorMessages 11 Codes, i18n DE/TR.
 - **Live-Verify (bescout.net, ali):** Event erstellt, ali −5000 / Topf +5000 (Zero-Sum, `event_create_fee`), Header 11.000→10.950 sofort (S371), entry_fee=1000 cents (kein ×100-Bug), Badge „Community". Reviewer PASS. Proof `397-service-test.txt`.
 - **🚩 3 PRE-EXISTING Funde (NICHT 397, eigene Slices):** **F1 [MEDIUM, GLOBAL] BenchRow.tsx 9 fehlende `fantasy.bench*`-Keys** (de+tr) → 95 MISSING_MESSAGE + **Roh-Key-Leak in der UI**, trifft JEDES Event mit Lineup-Bench (seit Feat 195d) → schneller Fix-Slice 18 Strings. **F2/F3 [LOW]** EventCard/Detail-Kosten-Meta zeigt `{ticket_cost} Tickets` währungsunabhängig (scout→falsch „1000 Tickets") → 398.
 
-## ➡️ NÄCHSTER: F1-Quickfix (bench-i18n, MEDIUM global) ODER E-4b Teil 2 (398) ODER Backlog (Anil-Wahl)
-- **F1-Quickfix (XS, empfohlen vorab):** 9 `fantasy.bench*`-Keys × DE+TR in messages — behebt globalen Roh-Key-Leak im Lineup-Builder (nicht nur User-Events).
-- **398 (E-4b Teil 2):** öffentliche Discovery + User-Filter-Pille + `EventCategoryCards.CATEGORIES`-Karte · Live-Pot-Vorschau · Cancel-UI (`cancel_user_event`) · Admin-Gebühr-Slider (`set_user_event_create_fee`) · `min_entries`-Anzeige + Select-Listen (`events.queries.ts:25/38/126`) · F2/F3 currency-aware Kosten-Anzeige · Custom-Reward-Editor · `creator`-fee_config-Cleanup (E-7).
+## ✅ Slice 398 F1-Quickfix DONE (2026-06-26, `fbf1e094`) — bench-i18n
+- 9 fehlende `fantasy.bench*`-Keys × DE+TR ergänzt → globaler Roh-Key-Leak im Lineup-Builder behoben. **Live-verifiziert:** EventDetail-Bench rendert „TW"/„Ersatz 1-3", Console-Errors **95 → 0**. XS, self-review.
+
+## ➡️ NÄCHSTER: E-4b Teil 2 (Slice 399) ODER Backlog (Anil-Wahl)
+- **E-4b Teil 2 (M):** öffentliche Discovery + User-Filter-Pille + `EventCategoryCards.CATEGORIES`-Karte · Live-Pot-Vorschau · Cancel-UI (`cancel_user_event`) · Admin-Gebühr-Slider (`set_user_event_create_fee`) · `min_entries`-Anzeige + Select-Listen (`events.queries.ts:25/38/126`) · **F2/F3 currency-aware Kosten-Anzeige** (EventCard/Detail zeigt `{ticket_cost} Tickets` statt Credits bei scout) · Custom-Reward-Editor · `creator`-fee_config-Cleanup (E-7).
 - Geseedetes Live-Artefakt (permanent, NICHT aufräumen): User-Event `7052f7d7-9baf-4714-8665-ffc31ef88f34` (ali, GW34, registering) + Topf-Eintrag `event_create_fee:5000`.
 
 ---

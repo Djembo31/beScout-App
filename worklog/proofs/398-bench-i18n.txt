@@ -9,3 +9,8 @@ Build-Validierung (node, 2026-06-26):
 
 Live-Re-Verify (post-Deploy gegen bescout.net): pending — EventDetail
   von E2E-Event 7052f7d7 oeffnen, Console auf bench-MISSING_MESSAGE pruefen (erwartet 0).
+
+Live-Re-Verify (post-Deploy bescout.net, 2026-06-26, Event 7052f7d7 EventDetail):
+  VORHER (alter Deploy): 95 MISSING_MESSAGE + Roh-Keys "fantasy.benchGkLabel" im UI.
+  NACHHER (Deploy fbf1e094): Bench-Labels rendern "TW" / "Ersatz 1/2/3",
+  rawKeyLeak=false, Console-Errors = 0 (von 95). PASS.
