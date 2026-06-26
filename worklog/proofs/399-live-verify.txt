@@ -1,0 +1,44 @@
+=== Slice 399 PROVE — Live-Playwright gegen bescout.net (post-Deploy ea27cfe3) ===
+Date: 2026-06-26 · Account: ali@test.bescout.de (Plattform-Admin + Ersteller) · Project skzjfhvgccaeplydsunz
+
+AC-1 [DISCOVERY] PASS
+  /fantasy → Events: Discovery-Karten = BeScout · Club Events · Sponsoren · USER · Spezial.
+  KEIN "Creator" (grep body = false). getTypeStyle('user') orange UserPlus rendert.
+  eventCategories.user DE+TR aufgelöst, kein MISSING_MESSAGE.
+
+AC-2 [F2/F3 currency-fix] PASS (zwei Scout-Events)
+  Seed-Event "E2E User-Event 397" (currency=scout, ticket_cost=1000): Card zeigt "10 CR",
+  KEIN "1000 Tickets", kein 🎟. body-grep "1000 Tickets" = false.
+  Test-Event "E2E Cancel-Test 399b" (ticket_cost=500): Card zeigt "5 CR", kein Tickets/🎟.
+
+AC-6 [min_entries-Anzeige] PASS
+  Card-Snippet "...min. 3 Teiln. 5 CR..." → minEntriesChip rendert nur bei gesetztem min_entries.
+  min_entries kommt durch /api/events (select '*') UND die 3 expliziten Select-Listen (S200).
+
+AC-5 [ADMIN-FEE write] PASS
+  /bescout-admin → Events → "User-Event-Erstellgebuehr"-Input rendert (Wert 50 Cr).
+  Geändert 50→75 → Speichern → DB platform_event_config.user_event_create_fee_cents=7500,
+  updated_by=ali (aaaaaaaa-0005). Revert 75→50 → zurück (set_user_event_create_fee live).
+
+AC-4 [Cancel-GUARD] PASS
+  Running User-Event (status='running', GW34 live-gesynct): EventDetailModal zeigt KEINEN
+  "Event absagen"-Button (cancelButtonVisible=false). RPC cancel_user_event weist running ab
+  (event_not_open, fail-closed) — kein Geld/Status-Change. 0 Console-Errors.
+
+AC-3 [Cancel-HAPPY, MONEY] PASS
+  Registering User-Event (fe8d43b2, GW35, Ersteller ali): "Event absagen"-Button sichtbar →
+  ConfirmDialog mit korrekter i18n-Message ("...wirklich absagen? Alle Teilnehmer erhalten
+  ihren Eintritt zurück...", {name} interpoliert) → Bestätigen → cancel_user_event →
+  DB status='cancelled', current_entries=0. Modal geschlossen (onSuccess-Pfad). 0 Console-Errors.
+  ali-Saldo 10.850 konsistent (2× Erstell-Gebühr 50→Topf; Refund=0, da keine Teilnehmer).
+
+UMGEBUNGS-NOTE (kein Code-Bug): GW34/GW35-User-Events werden von einem Live-GW-Status-Sync
+  rasch auf 'running' geflippt → erste Cancel-Versuche wurden korrekt mit event_not_open
+  abgewiesen (fail-closed). Cancel-Completion durch knappen registering→cancel-Lauf bewiesen.
+
+CONSOLE: 0 errors über alle Schritte (nur 2 unrelated Warnings).
+
+Geseedete Live-Artefakte:
+  - "E2E User-Event 397" 7052f7d7 (running, GW34) = permanenter 397-Beweis (NICHT aufräumen).
+  - "E2E Cancel-Test 399b" fe8d43b2 (cancelled, GW35) = terminaler 399-Cancel-Beweis.
+  - Topf +100 cents (2× event_create_fee 50, source 'event_create_fee').
