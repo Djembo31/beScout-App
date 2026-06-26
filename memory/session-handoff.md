@@ -1,11 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 23:46)
+# Session Handoff — Auto (2026-06-26 23:57)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
-## Session Commits: 5
+## Session Commits: 6
+- c2f341c2 docs(tracker): Welle-1-Stand glätten — 403+404 DONE, aktive Pointer + Handoff reconciled
 - ad44fc4e docs(proof): Slice 404 — post-Deploy Playwright voll bewiesen (AC01-08 LIVE PASS)
 - 287dc980 feat(trading): Slice 404 — Welle 1.1 Markt-Tab Kauf order-gebunden ("was du siehst = was du zahlst") [Money-Trust UI]
 - 4e84215a feat(trading): Slice 403 — Welle 1.2 buy_from_ipo Idempotency-Key (Doppelkauf-Schutz Erstverkauf) [Money/CEO]
@@ -29,7 +30,7 @@
 
 **Reihenfolge-Vorschlag:** Trading → Spieltag/Scoring → Events → Follow → Geld/State → Performance → Design (zuletzt). Alte TODOs vollständig als Carry-over (A–G) im Plan erfasst — nichts verloren.
 
-**✅ WELLE-1-FORTSCHRITT (diese Session):** **1.2 DONE (403)** buy_from_ipo Idempotency (live bewiesen) · **1.1 DONE (404)** Markt-Tab order-gebunden „was du siehst = was du zahlst" — Reviewer PASS, vitest 298, **post-Deploy Playwright voll bewiesen** (AC01-08: Liste==Modal==Charge alle 15 CR ≠ Floor 10, echter Kauf −15 exakt DB-reconciled, qty-Selektor max=5, DE+TR kein Roh-Key; `proofs/404-wysiwyp.txt`). **Geseedet PERMANENT (NICHT aufräumen):** Sell-Order `bc63d013` (Tiren, bot ded75479, partial rem 4) + ali_admin hält 1 Tiren (Browser-Session war **ali_admin**, nicht jarvis). **NÄCHSTER = Slice 405** (Reviewer-Fund: `usePlayerTrading.onSuccess` Shape-Norm `new_balance ?? buyer_new_balance` + `price_per_dpc ?? price` + BuyConfirmation.tsx est-total — gleicher Shape-Bug den 404 im Markt-Pfad löste, im Player-Detail-Order-Kauf: kein optimist. Balance + „?"-Preis-Toast) **ODER 1.3** (Club-Geld-Doppelschreibung, Money — 404-Smoke klärte: `clubs.treasury_balance_cents` nur +club_share direkt, 2. Write auf separates Ledger) **ODER 1.4** (Orderbuch `orders` vs `offers` = CEO-Gabelung). Welle-1-Rest: 1.5 (BSD→Credits, Rate-Limit) · 1.6 (Orderbuch Empty-State). **Bekannt pre-existing (kein Regress): `[AuthProvider] Profile load failed after retry`-Console-Error (S394).**
+**✅ WELLE-1-FORTSCHRITT:** **1.2 DONE (403)** buy_from_ipo Idempotency (live bewiesen) · **1.1 Markt-Tab DONE (404)** order-gebunden „was du siehst = was du zahlst" (AC01-08 LIVE PASS) · **1.1 Player-Detail DONE (405, diese Session)** — schließt den 404-Reviewer-Fund im KANONISCHEN Kaufpfad: Bug A `usePlayerTrading.onSuccess` Shape-Norm (`new_balance ?? buyer_new_balance` / `price_per_dpc ?? price`) + Bug B `BuyConfirmation` est-total aus gebundenem Order-Preis statt Floor. Reviewer PASS, vitest 47 (2 neue Guards), **post-Deploy Playwright AC1-6 LIVE PASS** (jarvis/Douglas: BuyConfirmation „1×300→300 CR" ≠ Floor 200, Order-Kauf Header 12.697→12.397 sofort −300 exakt DB-reconciled, Toast kein „?", Holding 3→4; `proofs/405-live.txt`). Money byte-identisch (kein RPC). Welle-1.1-Kaufpfad **komplett konsolidiert** (Markt + Player-Detail). **Geseedet PERMANENT (NICHT aufräumen):** [404] Tiren-Order `bc63d013` (bot ded75479, rem 4) + ali_admin hält 1 Tiren · [405] jarvis-Order Douglas @200 CR `96d3ce14` (OPEN rem 1) + bot031 @300 CR `9405452f` (filled), jarvis hält 4 Douglas (1 gelistet), Floor Douglas 200 CR. **NÄCHSTER (Anil-Wahl) = 1.3** (Club-Geld-Doppelschreibung, Money — erst verifizieren echte Doppelzählung vs Legacy-Drift: `clubs.treasury_balance_cents` nur +club_share direkt, 2. Write auf separates Ledger) **ODER 1.4** (Orderbuch `orders` vs `offers` = CEO-Architektur-Gabelung, VOR Bau klären) **ODER 1.5/1.6** (BSD→Credits, Rate-Limit, Orderbuch Empty-State). **Bekannt pre-existing (kein Regress): `[AuthProvider] Profile load failed after retry`-Console-Error (S394).**
 
 **Status: idle, main==origin/main.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen. **Teaching-Mode durchgehend (1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
 

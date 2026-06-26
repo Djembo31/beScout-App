@@ -1,0 +1,45 @@
+Slice 405 — post-Deploy Live-Playwright (bescout.net, Deploy 0083bd9b success)
+Datum: 2026-06-27 · User: jarvisqa (535bbcaf…) · Player: Douglas Willian (1cc3f504…)
+Geräte-Viewport: Mobile (bottom-nav lg:hidden sichtbar)
+
+═══ SEED (permanent, NICHT aufräumen — E2E-Liquidität) ═══
+Via JWT-Impersonation place_sell_order (testing.md-Rezept), Douglas band 166,66–1500 CR:
+  • jarvis EIGENE Sell-Order @200 CR (20000 cents, id 96d3ce14…, OPEN, rem 1) → cheapest → Floor=200
+  • bot031 FREMDE Sell-Order @300 CR (30000 cents, id 9405452f…) → höher = was der Kauf trifft
+Floor recalc 500→200 CR (jarvis-Order ist günstigste, schließt eigene ein = trading.md S7-303 F-1).
+
+═══ BASELINE (DB) ═══
+jarvis balance 1.269.727 cents (12.697,27 CR) · hält 3 Douglas · Floor 200 CR
+
+═══ AC-3 + AC-4 (Bug B — BuyConfirmation est-total = Order-Preis, nicht Floor) ═══
+jarvis öffnet Kauf → Markt zeigt NUR bot031 @300 (eigene @200 herausgefiltert) →
+wählt bot031-Order → "Kaufen" → BuyConfirmation („Du hast 1 Scout Card gelistet…
+Eigene Angebote werden übersprungen"):
+  >>> "ca. Kosten (1 × 300) → 300 CR" · "Guthaben danach 12.397 CR"
+  ALT-CODE hätte Floor gezeigt: "1 × 200 → 200 CR" (jarvis' eigene billigere Order).
+  NEU = 300 CR = die fremde Order, gegen die real gebucht wird. ✓ Bug B GELÖST.
+  Screenshot: 405-buyconfirmation-order-price.png (+ 405-buymodal-order-bound.png)
+
+═══ AC-1 + AC-5 (Bug A — Order-Kauf onSuccess Shape-Norm) ═══
+Bestätigt → buy_from_order @30000:
+  • Header SOFORT 12.697 → 12.397 (optimist. Update aus buyer_new_balance via
+    new_balance ?? buyer_new_balance — ALT: new_balance undefined → kein Update). ✓
+  • Toast: KEIN "?" (Preis aus price_per_dpc ?? price = price). hasQuestionMark=false. ✓
+  • Success-Card „In deinem Kader". Screenshot: 405-buy-success.png
+  • (Achievement „Dauergast" triggerte nebenbei = Gamification, unabhängig.)
+
+═══ DB-RECONCILE (post-Buy) ═══
+  jarvis balance 1.239.727 cents (12.397,27 CR) ← EXAKT = Header 12.397; Diff −30.000 = 300 CR
+  jarvis Douglas-Holding 3 → 4 ✓
+  bot031-Order 9405452f = "filled rem=0" ✓
+  Buy-Tx amount = −30.000 cents (300 CR) = Order-Preis = Confirmation-Anzeige = Header-Drop
+  → "Was du siehst (300) = was du zahlst (300)" byte-exakt.
+
+═══ AC-6 (Money byte-identisch) ═══ kein RPC/Migration/Service-Body geändert (git diff nur 5 UI/Hook/Test-Files).
+═══ i18n ═══ Prop-Rename only, KEINE neuen i18n-Keys (estCost/balanceAfter/ownOrdersListed bestehen) → TR strukturell risikofrei (kein MISSING_MESSAGE möglich). DE live kein Roh-Key.
+
+ALLE AC-1..AC-6 PASS (AC-2 Markt-Regression via vitest 405-vitest.txt).
+
+═══ RESIDUAL SEED-STATE (permanent) ═══
+jarvis hält jetzt 4 Douglas, davon 1 gelistet (Order 96d3ce14 @200 CR, OPEN).
+bot031-Order gefüllt (rem 0). Floor Douglas = 200 CR.
