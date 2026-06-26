@@ -1,0 +1,29 @@
+Slice 388 — E-3 Min-pro-Position (min_per_position) — PROOF
+Datum: 2026-06-26
+RPC: rpc_save_lineup (CREATE OR REPLACE, Migration 20260626120000)
+Methode: force-rollback DO-Block (RAISE EXCEPTION='REPORT'→0 Persistenz),
+         JWT-Impersonation jarvis-qa, Club 05cb07aa, Formation 1-2-2-2.
+
+=== Money-Smoke (force-rollback) — 13/13 PASS ===
+AC-2 reject minATT3 (have2): min_per_position_not_met pos=ATT min=3 used=2 => PASS
+AC-7 no-resource-move (locks=0): PASS
+AC-1 happy minATT2 (have2): ok=true => PASS
+AC-5 ATT-in-DEF-slot counts as ATT (minATT3): ok=true => PASS
+AC-5b minDEF2 with ATT-in-DEF-slot (have1 DEF): used=1 => PASS
+AC-3 invalid position XYZ: invalid_lineup_rule_value => PASS
+AC-4a value=0: invalid_lineup_rule_value => PASS
+AC-4b value=99: invalid_lineup_rule_value => PASS
+AC-6a multi [age_max30, minMID2] ok: ok=true => PASS
+AC-6b multi reject minMID3: min_per_position_not_met => PASS
+AC-8a Regression 385 min_per_own_club=99: invalid_lineup_rule_value => PASS
+AC-8b Regression 386 age_max=13: invalid_lineup_rule_value => PASS
+AC-9 lineup_rules NULL no-op: ok=true => PASS
+
+KERN-BEWEIS (AC-5): Zählung nach players.position, NICHT nach Slot.
+Ein ATT-Spieler im DEF-Slot platziert → min ATT 3 erfüllt (used=3, ok),
+gleichzeitig min DEF 2 verletzt (used=1, reject). Slot-unabhängig.
+
+=== PATCH-AUDIT (pg_get_functiondef Live) ===
+keeps_maxclub=true  keeps_salary=true  keeps_e1=true  keeps_wc=true
+keeps_385=true  keeps_386=true  has_388=true  has_pos_count(players.position)=true
+→ Validator additiv erweitert; alle Nicht-Validator-Blöcke unverändert.

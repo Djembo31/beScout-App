@@ -430,6 +430,10 @@ export function useEventActions(clubId: string) {
             limit: event.lineupRules?.find(r => r.type === 'age_min')?.value ?? 0,
           }), 'error');
           break;
+        // Slice 388 (E-3) — Min-pro-Position
+        case 'min_per_position_not_met':
+          addToast(t('minPerPositionNotMet'), 'error');
+          break;
         case 'holding_lock_failed':
           addToast(t('holdingLockFailed'), 'error');
           break;

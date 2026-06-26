@@ -2,22 +2,22 @@
 
 ```
 status: idle
-slice: 387
-title: Compliance-Fix — verbotenes Glücksspiel-Verb kazanılır → elde edilir (tr.json, MASAK) (DONE)
-size: XS
-slice-type: i18n (Compliance)
-scope: Compliance / §3 (business.md Glücksspiel-Vokabel) — Inline-Spec
-spec: inline (Problem: business.md verbietet kazan*-Verben user-facing [MASAK §4]. Slice 374 schleuste "Aktiviteyle kazanılır" in tr.json ein → COMPL-tr-kazan-Test rot seit 374. Plan: kazanılır→elde edilir [business.md-vorgeschrieben]. Einzige kazan-Stelle in tr.json.)
+slice: 388
+title: E-3 Min-pro-Position (Formations-Steuerung) — min_per_position (DONE)
+size: S
 stage: LOG
-impact: skipped (1 String, kein Code/Consumer)
-proof: worklog/proofs/387-compliance-kazan.txt
-review: self-review (XS, business.md-vorgeschriebener 1-String-Ersatz, kein Money/Logik)
+spec: worklog/specs/388-lineup-rule-position-quota.md
+proof: worklog/proofs/388-position-quota-smoke.txt
+proof-note: 13/13 force-rollback PASS (inkl. AC-5 players.position) + PATCH-AUDIT + tsc 0 + vitest 303/303
+review: worklog/reviews/388-review.md
+review-note: reviewer PASS, 2 NIT
 ```
 
 ## Zuletzt
 
-- **Slice 386** (2026-06-25) — E-3 Alters-Fenster age_min/age_max (S, reviewer PASS, gepusht aa8f695a).
-- **Slice 385** (2026-06-25) — E-3 Aufstellungs-Regel-Fundament (M, reviewer PASS).
-- **Slice 384** (2026-06-25) — E-3 Türsteher (M, reviewer PASS).
+- **Slice 388** (2026-06-26) — E-3 Min-pro-Position min_per_position (S, reviewer PASS, 13/13). UI-Playwright post-Deploy offen (gebündelt mit 386).
+- **Slice 387** (2026-06-26) — Compliance-Fix kazanılır→elde edilir (XS, CI grün).
+- **Slice 386** (2026-06-25) — E-3 Alters-Fenster age_min/age_max (S, reviewer PASS).
 
-Nächstes: 387 PROVE (vitest COMPL-tr-kazan grün) → commit. Dann E-3 Positions-Quote (Anil-Wahl). 386 AC-13 UI-Verify nach Deploy.
+Nächstes: AC-13 UI-Playwright post-Deploy (386 Age + 388 Position, beide Builder). Dann E-3-Erweiterung nation/mv_max ODER E-4 User-Events.
+```

@@ -18,6 +18,10 @@ export type EventFormState = {
   minPerOwnClub: string;                   // Slice 385 (E-3a): min. Spieler aus dem Event-Verein. '' = keine Regel.
   ageMin: string;                          // Slice 386 (E-3): min. Alter jedes aufgestellten Spielers. '' = keine Regel.
   ageMax: string;                          // Slice 386 (E-3): max. Alter jedes aufgestellten Spielers. '' = keine Regel.
+  minPosGk: string;                        // Slice 388 (E-3): min. Starter mit Position GK. '' = keine Regel.
+  minPosDef: string;                       // Slice 388 (E-3): min. Starter mit Position DEF. '' = keine Regel.
+  minPosMid: string;                       // Slice 388 (E-3): min. Starter mit Position MID. '' = keine Regel.
+  minPosAtt: string;                       // Slice 388 (E-3): min. Starter mit Position ATT. '' = keine Regel.
   requiresFollow: boolean;                 // Slice 384 (E-3): nur Follower des Vereins dürfen eintreten.
   minFanRankTier: string;                  // Slice 384 (E-3): Mindest-Fan-Rang für Eintritt. '' = offen.
   minScPerSlot: string;                    // Platform only
@@ -65,6 +69,10 @@ export const INITIAL_FORM_STATE: EventFormState = {
   minPerOwnClub: '',
   ageMin: '',
   ageMax: '',
+  minPosGk: '',
+  minPosDef: '',
+  minPosMid: '',
+  minPosAtt: '',
   requiresFollow: false,
   minFanRankTier: '',
   minScPerSlot: '1',

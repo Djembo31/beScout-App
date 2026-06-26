@@ -51,6 +51,9 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
     // Slice 386 (E-3): Alters-Fenster (Aufstellungs-Regel, Starter + Bank)
     ageMax: t('ageMaxLabel'), ageMaxPlaceholder: t('ageMaxPlaceholder'), ageMaxHint: t('ageMaxHint'),
     ageMin: t('ageMinLabel'), ageMinPlaceholder: t('ageMinPlaceholder'), ageMinHint: t('ageMinHint'),
+    // Slice 388 (E-3): Min-pro-Position (Formations-Steuerung)
+    minPerPositionGroup: t('minPerPositionGroupLabel'), minPerPositionHint: t('minPerPositionHint'),
+    minPosGk: t('minPosGkLabel'), minPosDef: t('minPosDefLabel'), minPosMid: t('minPosMidLabel'), minPosAtt: t('minPosAttLabel'),
     // Slice 382 (E-1b): Club-Admin-Liga-Picker (Anil: alle Ligen + Offen, Symmetrie zum Platform-Admin)
     league: t('leagueBindingLabel'), leagueOpen: t('leagueBindingOpen'),
     // Slice 384 (E-3 Türsteher): Follower-Pflicht + Fan-Rang-Gate

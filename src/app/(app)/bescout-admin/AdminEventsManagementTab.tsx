@@ -43,6 +43,13 @@ const FORM_LABELS: EventFormLabels = {
   ageMin: 'Min. Alter',
   ageMinPlaceholder: 'Keine Regel',
   ageMinHint: 'Jeder aufgestellte Spieler (Starter + Bank) muss mindestens dieses Alter haben (z. B. 30). Leer = keine Regel.',
+  // Slice 388 (E-3) — Min-pro-Position (Formations-Steuerung, zählt Startelf nach Spieler-Position)
+  minPerPositionGroup: 'Mindestens pro Position',
+  minPerPositionHint: 'Mindestanzahl Startelf-Spieler je Position (z. B. min. 3 ATT = Angriffs-Event). Leer = keine Regel. Zählt nach echter Spieler-Position.',
+  minPosGk: 'TW',
+  minPosDef: 'ABW',
+  minPosMid: 'MF',
+  minPosAtt: 'ANG',
   // Slice 384 (E-3 Türsteher) — nur bei Vereins-Events wirksam
   requiresFollow: 'Nur Follower des Vereins',
   minFanRank: 'Mindest-Fan-Rang',

@@ -1,7 +1,7 @@
 ---
 title: Fantasy Feature Spec
 created: 2026-03-14
-updated: 2026-06-25
+updated: 2026-06-26
 status: active
 tags: [fantasy, lineup, scoring, gameweek]
 consult_when: Spieltag, Lineup, Captain, Auto-Sub, Gameweek-Cycle, Scoring, Fantasy-Flows, Event-Eintritts-Gates (Abo/Stufe/Follower/Fan-Rang), Aufstellungs-Regeln (lineup_rules/min_per_own_club)
@@ -257,11 +257,11 @@ Event Status = running → Fixtures starten zu verschiedenen Zeiten
 | Follower-Pflicht | requires_follow | lock_event_entry prueft (club_followers EXISTS, nur club_id) | Builder-Toggle „Nur Follower" | **NEU S384** |
 | Min Fan-Rang | min_fan_rank_tier | lock_event_entry prueft (fan_rank_tier_rank, nur club_id, fail-closed) | Builder-Select „Mindest-Fan-Rang" | **NEU S384** |
 | Liga-Bindung (Aufstellung) | league_id | save_lineup prueft (Starter+Bank-Club in Liga, fail-closed bei club NULL) | Picker-Vorfilter „Nur {Liga}-Spieler" | **NEU S380/382** |
-| Aufstellungs-Regeln | lineup_rules (JSONB) | save_lineup generischer Validator (Weg B/D107: fail-closed bei unbekanntem type, Wert-Bound PRO TYP, VOR INSERT+Wildcard-Move) | Builder-Feld je Regel | **S385/S386** |
+| Aufstellungs-Regeln | lineup_rules (JSONB) | save_lineup generischer Validator (Weg B/D107: fail-closed bei unbekanntem type, Wert-Bound PRO TYP, VOR INSERT+Wildcard-Move) | Builder-Feld je Regel | **S385/S386/S388** |
 | Wildcards Allowed | wildcards_allowed | save_lineup prueft | UI toggle | OK |
 | Max Wildcards | max_wildcards_per_lineup | save_lineup prueft | UI counter | OK |
 
-**Zwei-Töpfe-Architektur (D107):** *Eintritts-Türsteher* (wer darf rein: Abo/Stufe/Follower/Fan-Rang) = feste Spalten in `lock_event_entry`. *Aufstellungs-Regeln* (welche Karten ins Lineup) = JSONB-Regel-Liste `events.lineup_rules` + EIN generischer Validator in `rpc_save_lineup` (Weg B). Neue Regel-Art = nur neuer CASE-Zweig im Validator + eine Builder-Zeile, **kein Schema-Change**. Regeln: (1) `min_per_own_club` S385 (feste Zahl, zählt Starter aus `events.club_id`, fail-closed bei club NULL, Bound 1..11); (2) `age_max`/`age_min` S386 (jeder aufgestellte Spieler **Starter + Bank** muss `players.age <= / >= N`, fail-closed bei age NULL, Bound 14..50). **Wert-Bound liegt PRO REGELTYP** (S386: globaler 1..11 war Fundament-Bug, blockte jede nicht-Zähl-Regel). Geplante Erweiterungen (je Folge-Slice): `nation_in`, `mv_max_eur`, `position_quota`.
+**Zwei-Töpfe-Architektur (D107):** *Eintritts-Türsteher* (wer darf rein: Abo/Stufe/Follower/Fan-Rang) = feste Spalten in `lock_event_entry`. *Aufstellungs-Regeln* (welche Karten ins Lineup) = JSONB-Regel-Liste `events.lineup_rules` + EIN generischer Validator in `rpc_save_lineup` (Weg B). Neue Regel-Art = nur neuer CASE-Zweig im Validator + eine Builder-Zeile, **kein Schema-Change**. Regeln: (1) `min_per_own_club` S385 (feste Zahl, zählt **Starter** aus `events.club_id`, fail-closed bei club NULL, Bound 1..11); (2) `age_max`/`age_min` S386 (jeder aufgestellte Spieler **Starter + Bank** muss `players.age <= / >= N`, fail-closed bei age NULL, Bound 14..50); (3) `min_per_position` S388 (`{type,position,value}`: mind. N **Starter** mit `players.position = GK/DEF/MID/ATT`, Bound 1..11 — Formations-Steuerung, z. B. „min. 3 ATT" = Angriffs-Event). **Wert-Bound liegt PRO REGELTYP** (S386: globaler 1..11 war Fundament-Bug, blockte jede nicht-Zähl-Regel). **Scope-Divergenz beachten:** min_per_own_club + min_per_position = **Starter-only** (Soll-Komposition); age = **Starter + Bank** (Per-Spieler-Eignung, Auto-Sub-Schutz). **min_per_position zählt nach `players.position`, NICHT nach Slot** (Startelf-Slots sind server-seitig nicht positions-validiert → ein ATT-Spieler im DEF-Slot zählt als ATT). Geplante Erweiterungen (je Folge-Slice): `nation_in`, `mv_max_eur`, `max_per_position`.
 
 ---
 

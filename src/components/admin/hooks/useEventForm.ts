@@ -1,7 +1,7 @@
 import { useReducer, useCallback } from 'react';
 import { centsToBsd, bsdToCents } from '@/lib/services/players';
 import { EDITABLE_FIELDS } from '@/lib/services/events';
-import type { DbEvent, LineupRule, LineupRuleType } from '@/types';
+import type { DbEvent, LineupRule, PlayerPositionCode } from '@/types';
 import type { EventFormState, EventFormAction, AdminEvent } from './types';
 import { INITIAL_FORM_STATE } from './types';
 
@@ -12,22 +12,42 @@ import { INITIAL_FORM_STATE } from './types';
 // (kein gegenseitiger Verlust). Multi-Regel-Builder mit Treffer-Anzeige = E-4.
 // =============================================================================
 
-/** Liest den Wert einer Regel-Art aus der Liste in den Form-String ('' = keine). */
-function ruleValueFromRules(rules: LineupRule[] | null | undefined, type: LineupRuleType): string {
+/** Liest den Wert einer (positions-losen) Regel-Art aus der Liste ('' = keine). */
+function ruleValueFromRules(
+  rules: LineupRule[] | null | undefined,
+  type: 'min_per_own_club' | 'age_min' | 'age_max',
+): string {
   const rule = (rules ?? []).find(r => r.type === type);
   return rule ? String(rule.value) : '';
 }
 
+/** Liest den Wert einer min_per_position-Regel für eine Position ('' = keine). */
+function posRuleValueFromRules(rules: LineupRule[] | null | undefined, position: PlayerPositionCode): string {
+  const rule = (rules ?? []).find(r => r.type === 'min_per_position' && r.position === position);
+  return rule ? String(rule.value) : '';
+}
+
 /** Serialisiert die flachen Form-Felder in die lineup_rules-Liste (null = keine Regel). */
-function rulesFromForm(fields: { minPerOwnClub: string; ageMin: string; ageMax: string }): LineupRule[] | null {
+function rulesFromForm(fields: {
+  minPerOwnClub: string; ageMin: string; ageMax: string;
+  minPosGk: string; minPosDef: string; minPosMid: string; minPosAtt: string;
+}): LineupRule[] | null {
   const rules: LineupRule[] = [];
-  const push = (type: LineupRuleType, raw: string) => {
+  const pushVal = (type: 'min_per_own_club' | 'age_min' | 'age_max', raw: string) => {
     const n = parseInt(raw, 10);
     if (raw && !Number.isNaN(n) && n >= 1) rules.push({ type, value: n });
   };
-  push('min_per_own_club', fields.minPerOwnClub);
-  push('age_min', fields.ageMin);
-  push('age_max', fields.ageMax);
+  const pushPos = (position: PlayerPositionCode, raw: string) => {
+    const n = parseInt(raw, 10);
+    if (raw && !Number.isNaN(n) && n >= 1) rules.push({ type: 'min_per_position', position, value: n });
+  };
+  pushVal('min_per_own_club', fields.minPerOwnClub);
+  pushVal('age_min', fields.ageMin);
+  pushVal('age_max', fields.ageMax);
+  pushPos('GK', fields.minPosGk);
+  pushPos('DEF', fields.minPosDef);
+  pushPos('MID', fields.minPosMid);
+  pushPos('ATT', fields.minPosAtt);
   return rules.length > 0 ? rules : null;
 }
 
@@ -61,6 +81,10 @@ function populateFromEvent(event: DbEvent): EventFormState {
     minPerOwnClub: ruleValueFromRules(event.lineup_rules, 'min_per_own_club'),
     ageMin: ruleValueFromRules(event.lineup_rules, 'age_min'),
     ageMax: ruleValueFromRules(event.lineup_rules, 'age_max'),
+    minPosGk: posRuleValueFromRules(event.lineup_rules, 'GK'),
+    minPosDef: posRuleValueFromRules(event.lineup_rules, 'DEF'),
+    minPosMid: posRuleValueFromRules(event.lineup_rules, 'MID'),
+    minPosAtt: posRuleValueFromRules(event.lineup_rules, 'ATT'),
     requiresFollow: event.requires_follow ?? false,
     minFanRankTier: event.min_fan_rank_tier ?? '',
     minScPerSlot: String(event.min_sc_per_slot ?? 1),

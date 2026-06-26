@@ -52,6 +52,12 @@ export interface EventFormLabels {
   ageMax?: string;             // Slice 386 (E-3): max. Alter jedes aufgestellten Spielers
   ageMaxPlaceholder?: string;
   ageMaxHint?: string;
+  minPerPositionGroup?: string; // Slice 388 (E-3): Gruppen-Überschrift Min-pro-Position
+  minPerPositionHint?: string;
+  minPosGk?: string;           // Slice 388 (E-3): min. Starter pro Position (GK/DEF/MID/ATT)
+  minPosDef?: string;
+  minPosMid?: string;
+  minPosAtt?: string;
   // Slice 384 (E-3 Türsteher) — nur bei Vereins-Events wirksam
   requiresFollow?: string;     // Follower-Pflicht-Toggle
   minFanRank?: string;         // Mindest-Fan-Rang-Select
@@ -405,6 +411,42 @@ export function EventFormModal({
             />
             {L.ageMinHint && (
               <p className="mt-1 text-[10px] text-white/40">{L.ageMinHint}</p>
+            )}
+          </div>
+        )}
+
+        {/* Min-pro-Position (Slice 388 — E-3 Formations-Steuerung, zählt Starter nach players.position) */}
+        {L.minPerPositionGroup && (
+          <div>
+            <label className="block text-sm font-bold text-white/70 mb-1">
+              {L.minPerPositionGroup}
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {([
+                ['minPosGk', L.minPosGk, 'GK'],
+                ['minPosDef', L.minPosDef, 'DEF'],
+                ['minPosMid', L.minPosMid, 'MID'],
+                ['minPosAtt', L.minPosAtt, 'ATT'],
+              ] as const).map(([field, label, code]) => (
+                <div key={code}>
+                  <input
+                    id={`form-${field}`}
+                    type="number"
+                    inputMode="numeric"
+                    min="1"
+                    max="11"
+                    value={form[field]}
+                    onChange={(e) => setField(field, e.target.value)}
+                    placeholder={label ?? code}
+                    disabled={isFieldDisabled('lineup_rules')}
+                    aria-label={label ?? code}
+                    className={cn(INPUT_CLS, 'min-h-[44px]', disabledCls)}
+                  />
+                </div>
+              ))}
+            </div>
+            {L.minPerPositionHint && (
+              <p className="mt-1 text-[10px] text-white/40">{L.minPerPositionHint}</p>
             )}
           </div>
         )}
