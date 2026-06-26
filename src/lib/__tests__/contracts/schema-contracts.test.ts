@@ -263,7 +263,8 @@ describe('Schema Contract Tests', () => {
     if (!cols) return;
     expectColumns(cols, [
       'id', 'slug', 'name', 'logo_url', 'league_id', 'active_gameweek',
-      'treasury_balance_cents',
+      // [Slice 406] treasury_balance_cents entfernt — write-only Orphan, Club-Treasury
+      // ist kanonisch der club_treasury_ledger (SUM-on-read, D97).
     ], 'clubs');
   });
 

@@ -1,0 +1,58 @@
+Slice 406 — Club-Treasury Single-Source-of-Truth — PROOF
+Datum: 2026-06-27 · Projekt skzjfhvgccaeplydsunz (bescout.net) · Migration 20260627100000 applied
+
+ZIEL: redundante clubs.treasury_balance_cents-Writes aus 4 Kauf-RPCs entfernen + Spalte droppen.
+Ledger (club_treasury_ledger via Trigger trg_trades_book_club_treasury) = einzige Quelle.
+Geldneutral beweisen (Zero-Sum), Club-Anteil landet weiter im Ledger, Spalte weg, Guards erhalten.
+
+Zero-Sum-Invariante (TOTAL, muss vor==nach konstant sein):
+  SUM(wallets.balance)
+  + platform_treasury_ledger NET (credit-debit)
+  + club_treasury_ledger NET (credit-debit)
+  + SUM(pbt_treasury.balance)
+
+──────────────────────────────────────────────────────────────────────
+AC-1 + AC-2 — buy_from_order (Trading), force-rollback (RAISE → ROLLBACK)
+  Käufer jarvis (535bbcaf…), Order bc63d013 (Muhammed Tiren @1500, Bot-Seller, Club Bandırmaspor)
+  RESULT:
+    success=true | club_fee=15
+    ZEROSUM_before=928616919  after=928616919  diff=0          ✅ geldneutral
+    club_treasury_ledger rows 43->44 (+1)                       ✅ Club-Anteil im Ledger
+    newest_ledger: type=trade_fee  amount=15  (== club_fee)     ✅ exakt der Club-Anteil
+  → KEIN Counter-Write nötig; Ledger erhält den Club-Fee weiterhin via Trigger. Rollback (null Persistenz).
+
+AC-3 — buy_from_ipo (IPO 85% Club-Share), force-rollback
+  Käufer jarvis, IPO 0155c3c3 (Rakhim Chaadaev @5000, Club Esenler)
+  RESULT:
+    success=true | club_share=4250 (= 85% von 5000)
+    ZEROSUM_before=928616919  after=928616919  diff=0          ✅ geldneutral
+    club_treasury_ledger +1 | newest type=trade_fee amount=4250 ✅ 85%-Share im Ledger
+  → IPO erzeugt trades-Row (club_fee=club_share) → Trigger bucht Ledger; Counter-Write war redundant. Rollback.
+  Nebenbefund (Scope-Out, eigener Mini-Slice): IPO-Share wird als Ledger-type 'trade_fee' gebucht
+    (statt 'ipo_fee') — Geld korrekt (get_club_balance bucket-summiert beide), nur Label semantisch.
+
+──────────────────────────────────────────────────────────────────────
+AC-4 — Spalte gedroppt
+  SELECT COUNT(*) information_schema.columns WHERE table='clubs' col='treasury_balance_cents' = 0   ✅
+
+AC-5 — kein echter Reader/Writer mehr
+  non_comment_refs (Funktionen die die Spalte AUSSERHALB des Slice-406-Doku-Kommentars nennen) = 0  ✅
+  (Roh-Count prosrc ILIKE '%treasury_balance_cents%' = 4 sind ausschließlich die 4 Slice-406-Kommentare
+   "-- [Slice 406] Counter-Write … entfernt"; kein Code-Zugriff. Mit gedroppter Spalte würde jeder
+   echte Write zur Laufzeit hart erroren — die 3 Smokes oben durchlaufen alle Write-Pfade fehlerfrei.)
+
+AC-6 — Guards erhalten (PATCH-AUDIT S156)
+  RPCs mit auth_uid_mismatch UND book_platform_treasury = 4/4 (buy_player_sc, buy_from_order, accept_offer, buy_from_ipo) ✅
+
+AC-8 — ACL + Idempotency erhalten
+  proacl aller 4 = {postgres, authenticated, service_role}  → KEIN anon  ✅
+  check_or_reserve_dedup_key: buy_player_sc/buy_from_order/buy_from_ipo = true; accept_offer = false (hatte nie Idempotency-Param, korrekt) ✅
+
+AC-7 — Build
+  pnpm exec tsc --noEmit → Exit 0 (clean)
+  schema-contracts.test.ts (Live-DB-Contract, vitest-excluded) — treasury_balance_cents aus clubs-Spaltenliste entfernt (konsistent mit DROP)
+
+──────────────────────────────────────────────────────────────────────
+FAZIT: Counter clubs.treasury_balance_cents war ein write-only Orphan (4 Writer, 0 Reader),
+gedriftet bis 5.715 Credits. Entfernt + gedroppt. Club-Treasury jetzt eine Quelle: club_treasury_ledger.
+Money byte-identisch für den Auszahlungs-/Ledger-Pfad (3× Zero-Sum diff=0). Alle AC PASS.
