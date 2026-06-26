@@ -172,10 +172,8 @@ export default function FantasyContent() {
     })();
   }, [addToast, refetchEvents, leagueScopeId, gw, t]);
 
-  const handleCreateEvent = useCallback((eventData: Partial<FantasyEvent>) => {
-    addToast(t('eventCreated', { name: eventData.name || t('newEventDefault') }), 'success');
-  }, [addToast, t]);
-
+  // Slice 397 (E-4b): Event-Erstellung läuft jetzt echt im CreateEventModal
+  // (useCreateUserEvent → create_user_event). Hier nur noch refetch nach Erfolg.
   const handleResetEvent = useCallback(async () => {
     await refetchEvents();
   }, [refetchEvents]);
@@ -198,7 +196,6 @@ export default function FantasyContent() {
       {/* HEADER */}
       <FantasyHeader
         activeCount={activeEvents.length}
-        isAdmin={isAdmin}
         onCreateClick={store.openCreateModal}
       />
 
@@ -323,7 +320,8 @@ export default function FantasyContent() {
         <CreateEventModal
           isOpen={store.showCreateModal}
           onClose={store.closeCreateModal}
-          onCreate={handleCreateEvent}
+          defaultGameweek={gw.activeGw ?? store.currentGw ?? 1}
+          onCreated={handleResetEvent}
         />
       </ErrorBoundary>
 

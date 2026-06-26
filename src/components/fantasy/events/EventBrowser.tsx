@@ -69,6 +69,8 @@ export function EventBrowser({ events, onEventClick, categoryFilter }: Props) {
       all: events.length,
       eligible: events.filter(e => !hasRequirements(e)).length,
       bescout: 0, sponsor: 0, club: 0, creator: 0, special: 0,
+      // Slice 397 (E-4b): User-Events zählen mit; eigene Filter-Pille = 398.
+      user: 0,
     };
     for (const e of events) {
       if (e.type in map) map[e.type as EventType]++;

@@ -22,8 +22,10 @@ export function JoinConfirmDialog({ event, joining, onConfirm, onCancel, holding
   const t = useTranslations('fantasy');
   const ticketCost = event.ticketCost ?? 0;
   // AR-31 (J4): scout-currency-branch nur in Phase 4 (PAID_FANTASY_ENABLED=true).
-  // In Beta wird `event.currency === 'scout'` als "free" gerendert — Paid-Fantasy-Preview weg.
-  const isScoutCurrency = PAID_FANTASY_ENABLED && event.currency === 'scout' && ticketCost > 0;
+  // Slice 397 (E-4b): User-Events (type='user') zeigen ihren Credit-Eintritt IMMER —
+  // Phase-1-Spielgeld (D99), bewusst entkoppelt vom Phase-3-Paid-Fantasy-Flag. Club/
+  // Sponsor-Scout-Events bleiben weiter hinter PAID_FANTASY_ENABLED versteckt.
+  const isScoutCurrency = (event.type === 'user' || PAID_FANTASY_ENABLED) && event.currency === 'scout' && ticketCost > 0;
   const isTicketCurrency = event.currency === 'tickets' && ticketCost > 0;
   const hasCost = isScoutCurrency || isTicketCurrency;
 

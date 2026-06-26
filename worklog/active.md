@@ -1,27 +1,23 @@
 # Active Slice
 
 ```
-status: idle
-slice: 396
-title: User-Events Geld-Kern (E-4a) — Eintritts-Pot, Erstell-Gebühr→Topf, kein Seed (V3) — DONE
-size: L
-stage: LOG (DONE)
-spec: worklog/specs/396-user-events-money-core.md (V3 CEO-approved 2026-06-26)
-impact: worklog/impact/396-user-events-money-core.md (DONE — UI-Type-Kaskade → E-4b, money-TS-Sync jetzt)
-build: DONE (W1-W4 + tx/treasury-Sync + AR-44 ACL). Migrationen 170000/170100/170200/revoke_public_ar44 applied.
-proof: worklog/proofs/396-money-smoke.txt (AC1-AC11 + Rest→Topf + Idempotenz + PATCH-AUDIT + tsc/vitest 1662 grün)
-review: worklog/reviews/396-review.md (reviewer PASS, 3 LOW/INFO — D108→V3 + Wissen im LOG erledigt; 1 LOW deferred)
-proof: pending
-review: pending
-ceo: Spec V3 fertig (Modell geklärt: kein Seed, Ersteller zahlt nur Erstell-Gebühr→Topf, Pot=Eintritte, kein Pot-Schnitt, Trigger unangetastet). WARTET AUF FINALE BUILD-FREIGABE (Money/CEO, §3 — kein BUILD vor „go").
-prev: 395 DONE (Reject-Coverage). E-4-Alignment komplett (Modell B, D108).
+status: active
+slice: 397
+title: E-4b User-Events Builder-UI verkabeln (Teil 1: Erstellen + Credit-Eintritt sichtbar)
+size: M
+stage: LOG
+spec: worklog/specs/397-user-events-builder-ui.md
+impact: reuse worklog/impact/396-user-events-money-core.md §B/§F/§H + Explore-Map 2026-06-26 (E-4b-Fläche kartiert, kein neues impact-File)
+build: DONE — 14 Files. Typ-Union 'user' (5 Lookups) + Service createUserEvent + Hook useCreateUserEvent (S371) + CreateEventModal-Rewrite + FantasyHeader-Gate-Öffnung + FantasyContent-Wiring + JoinConfirmDialog-Entkopplung (type==='user') + errorMessages 11 Codes + i18n DE/TR + NIT#1-Heal (ganze Credits). tsc grün, 6/6 Service-Test + 285 Fantasy-Tests grün, i18n-Parität OK.
+proof: worklog/proofs/397-service-test.txt
+proof-note: Service 6/6 + tsc0 grün. Live-Playwright AC-2/3/5 DB-Reconcile = post-Deploy (Vercel baut von main), NACH Push gegen bescout.net.
+review: worklog/reviews/397-review.md (PASS, 3 NIT — NIT#1 geheilt, NIT#2/#3 bewusst belassen)
+ceo: 3 Forks entschieden (2026-06-26): (1) Credit-Eintritt von PAID_FANTASY_ENABLED entkoppeln + sichtbar · (2) jeder eingeloggte User darf erstellen · (3) Split 397 (Erstellen+Eintritt) / 398 (Discovery+Pot-Preview+Cancel+Admin-Fee).
 ```
 
 ## Zuletzt
 
-- **Slice 396 Cold-Review (2026-06-26)** — Spec gegen Live-RPCs geprüft (score_event, beide Escrow/Settle-Trigger, resync, lock/unlock/cancel-entry, book_platform_treasury, alle CHECKs, scout_events_enabled). **3 Blocker gefunden:** B1 `scout_events_enabled=false`, B2 `event_entry_lock` fehlt im tx-CHECK (latent), B3 Drei-Besitzer-Doppelbuchung. + 5 weitere Funde (fee_split-Reuse, Rundungs-Rest→Topf, Cancel-Auth+Seed, status-Spalte, resync-Trigger). **Spec → V2** (§0). CEO-Entscheide: Schalter global an · geld-loses Event ablehnen · Gebühr 50 Cr · Settle Ersteller+Admin.
-- **Slice 395** (2026-06-26) — Lineup-Reject-Coverage komplett. DONE (`cf973238`/`dddff999`), Reviewer PASS.
-- **E-4-Alignment** (2026-06-26) — Modell B gelockt (dynamischer Pot, Ersteller verdient nichts, min_entries, admin-steuerbare Erstell-Gebühr, public-only).
+- **Slice 396** (2026-06-26) — User-Events Geld-Kern (E-4a), Money/CEO, DONE. RPCs `create_user_event`/`cancel_user_event`/`set_user_event_create_fee` live, aber 0 UI-Konsumenten (toter Geldkern).
+- **Slice 395** (2026-06-26) — Lineup-Reject-Coverage komplett. DONE.
 
-Nächstes: **Anil gibt BUILD frei** → dann /impact (score_event-Consumer + entry-flow + tx/treasury-CHECK) → BUILD (4 Wellen, V2-Bausteine). Danach E-4b (Builder-UI).
-```
+Nächstes: SPEC-Approval → /impact (E-4b-Fläche bereits kartiert, ggf. dünn) → BUILD → REVIEW (Pflicht, money-nah) → PROVE (Service-vitest + Live-Playwright) → LOG. Danach 398 (Discovery/Cancel/Admin-Fee).

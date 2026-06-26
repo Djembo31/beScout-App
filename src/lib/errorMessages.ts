@@ -54,6 +54,12 @@ const KNOWN_KEYS = new Set([
   'wildcards_not_allowed', 'too_many_wildcards', 'salary_cap_exceeded',
   'max_per_club_exceeded',
   'bench_player_not_found', 'bench_outfield_position_mismatch',
+  // Slice 397 (E-4b) — create_user_event / cancel_user_event Rejects (snake_case passthrough).
+  // auth_uid_mismatch / insufficient_balance / event_not_found / not_authorized mappen
+  // bereits via ERROR_MAP → hier nur die übrigen Form-/State-Codes.
+  'name_required', 'invalid_entry_fee', 'invalid_gameweek', 'invalid_locks_at',
+  'invalid_reward_structure', 'reward_structure_not_100', 'invalid_min_entries',
+  'min_gt_max', 'wallet_not_found', 'not_user_event', 'event_not_open',
 ]);
 
 const ERROR_MAP: [RegExp, string][] = [

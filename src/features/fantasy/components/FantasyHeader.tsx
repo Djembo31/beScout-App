@@ -5,11 +5,12 @@ import { useTranslations } from 'next-intl';
 
 interface FantasyHeaderProps {
   activeCount: number;
-  isAdmin: boolean;
+  // Slice 397 (E-4b): Create-Button öffnet den User-Event-Builder → für JEDEN
+  // eingeloggten Nutzer sichtbar (Page ist auth-guarded). Kein isAdmin-Gate mehr.
   onCreateClick: () => void;
 }
 
-export function FantasyHeader({ activeCount, isAdmin, onCreateClick }: FantasyHeaderProps) {
+export function FantasyHeader({ activeCount, onCreateClick }: FantasyHeaderProps) {
   const tc = useTranslations('common');
 
   return (
@@ -26,16 +27,14 @@ export function FantasyHeader({ activeCount, isAdmin, onCreateClick }: FantasyHe
             <span className="text-white/40 text-xs">{tc('active')}</span>
           </div>
         </div>
-        {isAdmin && (
-          <button
-            onClick={onCreateClick}
-            className="flex items-center gap-1.5 px-3 py-2 bg-gold/10 border border-gold/20 rounded-xl text-sm font-semibold text-gold hover:bg-gold/20 transition-colors"
-            aria-label={tc('create')}
-          >
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">{tc('create')}</span>
-          </button>
-        )}
+        <button
+          onClick={onCreateClick}
+          className="flex items-center gap-1.5 px-3 py-2 bg-gold/10 border border-gold/20 rounded-xl text-sm font-semibold text-gold hover:bg-gold/20 transition-colors"
+          aria-label={tc('create')}
+        >
+          <Plus className="size-4" />
+          <span className="hidden sm:inline">{tc('create')}</span>
+        </button>
       </div>
     </div>
   );

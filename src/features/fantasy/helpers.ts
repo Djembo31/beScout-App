@@ -21,6 +21,7 @@ export const getTypeStyle = (type: EventType) => {
     case 'club': return { color: 'text-green-500', bg: 'bg-green-500/15', icon: Building2 };
     case 'sponsor': return { color: 'text-sky-400', bg: 'bg-sky-500/15', icon: Gift };
     case 'creator': return { color: 'text-orange-400', bg: 'bg-orange-500/15', icon: UserPlus };
+    case 'user': return { color: 'text-orange-400', bg: 'bg-orange-500/15', icon: UserPlus };
     case 'special': return { color: 'text-purple-400', bg: 'bg-purple-500/15', icon: Star };
     default: return { color: 'text-white/70', bg: 'bg-white/10', icon: Trophy };
   }

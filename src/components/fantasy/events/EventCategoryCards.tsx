@@ -96,6 +96,8 @@ export function EventCategoryCards({ events, selected, onSelect }: Props) {
       sponsor: { open: 0, live: 0 },
       creator: { open: 0, live: 0 },
       special: { open: 0, live: 0 },
+      // Slice 397 (E-4b): User-Events zählen mit (eigene Discovery-Karte = 398).
+      user: { open: 0, live: 0 },
     };
     for (const e of events) {
       if (e.type in map) {

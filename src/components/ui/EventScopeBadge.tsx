@@ -35,6 +35,8 @@ const TYPE_CONFIG: Record<EventType, {
   sponsor: { icon: Gift, color: 'text-sky-400', bg: 'bg-sky-500/10', border: 'border-sky-500/20', label: 'Sponsor' },
   special: { icon: Star, color: 'text-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20', label: 'Special' },
   creator: { icon: UserPlus, color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', label: 'Community' },
+  // Slice 397 (E-4b): von Nutzern erstellte Events.
+  user: { icon: UserPlus, color: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', label: 'Community' },
 };
 
 export function EventTypeBadge({ type, clubName, clubLogo, sponsorName, size = 'sm' }: EventTypeBadgeProps) {

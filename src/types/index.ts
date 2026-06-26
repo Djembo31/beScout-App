@@ -753,7 +753,7 @@ export type LineupRule =
 export type DbEvent = {
   id: string;
   name: string;
-  type: 'bescout' | 'club' | 'sponsor' | 'special';
+  type: 'bescout' | 'club' | 'sponsor' | 'special' | 'user';
   status: 'upcoming' | 'registering' | 'late-reg' | 'running' | 'scoring' | 'ended' | 'cancelled';
   format: string;
   gameweek: number | null;

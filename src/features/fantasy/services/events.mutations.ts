@@ -107,6 +107,55 @@ export async function createEvent(params: {
   return { success: true, eventId: data.id };
 }
 
+// ============================================
+// User-Events (Slice 397, E-4b) — verkabelt create_user_event (D108 V3).
+// Soft-Return (kein throw) wie cancelEventEntries; der Hook (useCreateUserEvent)
+// wirft bei !ok → mapErrorToKey. entry-fee wird in CENTS übergeben (Builder rechnet
+// Credits×100). Pot = Σ Eintritte (virtuell), Ersteller zahlt nur die Erstell-Gebühr→Topf.
+// ============================================
+
+export interface CreateUserEventResult {
+  ok: boolean;
+  eventId?: string;
+  /** Erstell-Gebühr in cents, die dem Ersteller belastet wurde (0 wenn Gebühr=0). */
+  feeCharged?: number;
+  error?: string;
+}
+
+export async function createUserEvent(params: {
+  userId: string;
+  name: string;
+  /** Eintritt in CENTS (Builder: Credits × 100). */
+  entryFeeCents: number;
+  gameweek: number;
+  /** ISO-Timestamp; muss in der Zukunft liegen (RPC: invalid_locks_at). */
+  locksAt: string;
+  /** Verteilungs-Array; Summe der pct MUSS 100 sein (RPC: reward_structure_not_100). */
+  rewardStructure: Array<{ rank: number; pct: number }>;
+  minEntries?: number | null;
+  maxEntries?: number | null;
+  leagueId?: string | null;
+}): Promise<CreateUserEventResult> {
+  const { data, error } = await supabase.rpc('create_user_event', {
+    p_user_id: params.userId,
+    p_name: params.name,
+    p_entry_fee: params.entryFeeCents,
+    p_gameweek: params.gameweek,
+    p_locks_at: params.locksAt,
+    p_reward_structure: params.rewardStructure,
+    p_min_entries: params.minEntries ?? null,
+    p_max_entries: params.maxEntries ?? null,
+    p_league_id: params.leagueId ?? null,
+    // p_lineup_rules: RPC-Default NULL — Aufstellungs-Regeln für User-Events = späterer Slice.
+  });
+
+  if (error) return { ok: false, error: error.message };
+
+  const result = data as { ok: boolean; event_id?: string; fee_charged?: number; error?: string };
+  if (!result.ok) return { ok: false, error: result.error ?? 'create_user_event_failed' };
+  return { ok: true, eventId: result.event_id, feeCharged: result.fee_charged };
+}
+
 /**
  * Clone events from currentGw to nextGw for a club.
  * Idempotent: skips if events for nextGw already exist. Guard: max GW 38.

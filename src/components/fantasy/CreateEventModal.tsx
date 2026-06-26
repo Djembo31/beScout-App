@@ -1,83 +1,141 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2, Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button, Dialog } from '@/components/ui';
-import { cn } from '@/lib/utils';
-import { PAID_FANTASY_ENABLED } from '@/lib/featureFlags';
-import type { FantasyEvent, EventMode, LineupFormat } from './types';
+import { useCreateUserEvent } from '@/features/fantasy/hooks/useCreateUserEvent';
 import { FantasyDisclaimer } from '@/components/legal/FantasyDisclaimer';
 
+// Slice 397 (E-4b): Belohnungs-Presets (Summe IMMER 100 → reward_structure_not_100 unerreichbar).
+type RewardPreset = 'winner' | 'top3' | 'top5';
+const REWARD_PRESETS: Record<RewardPreset, Array<{ rank: number; pct: number }>> = {
+  winner: [{ rank: 1, pct: 100 }],
+  top3: [{ rank: 1, pct: 50 }, { rank: 2, pct: 30 }, { rank: 3, pct: 20 }],
+  top5: [
+    { rank: 1, pct: 40 }, { rank: 2, pct: 25 }, { rank: 3, pct: 15 },
+    { rank: 4, pct: 12 }, { rank: 5, pct: 8 },
+  ],
+};
+
+/** Local Date → `YYYY-MM-DDTHH:mm` (datetime-local Input-Format). */
+function toLocalInput(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/**
+ * Slice 397 (E-4b): User-Event-Builder. Ersetzt den alten Phase-4-Mock.
+ * Verkabelt `create_user_event` via useCreateUserEvent. Jeder eingeloggte User
+ * darf erstellen (CEO 2026-06-26). Format ist serverseitig fix `6er` (RPC nimmt
+ * keinen format-Param) → kein Format-Wähler (wäre eine Lüge). 11er-User-Events =
+ * späterer RPC-Param.
+ */
 export const CreateEventModal = ({
   isOpen,
   onClose,
-  onCreate,
+  defaultGameweek,
+  onCreated,
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (event: Partial<FantasyEvent>) => void;
+  defaultGameweek: number;
+  onCreated?: () => void;
 }) => {
   const t = useTranslations('fantasy');
+  const { create, isPending } = useCreateUserEvent(() => {
+    onCreated?.();
+  });
+
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [mode, setMode] = useState<EventMode>('tournament');
-  const [format, setFormat] = useState<LineupFormat>('7er');
-  const [maxParticipants, setMaxParticipants] = useState(50);
-  const [isPrivate, setIsPrivate] = useState(false);
+  const [entryFeeCredits, setEntryFeeCredits] = useState(10);
+  const [gameweek, setGameweek] = useState(defaultGameweek);
+  const [locksAtLocal, setLocksAtLocal] = useState(() =>
+    toLocalInput(new Date(Date.now() + 48 * 3600 * 1000)),
+  );
+  const [rewardPreset, setRewardPreset] = useState<RewardPreset>('top3');
+  const [minEntries, setMinEntries] = useState<string>('');
+  const [maxEntries, setMaxEntries] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
-  // AR-31 (J4): PAID_FANTASY_ENABLED=false in Beta. buyIn + Fee-Preview
-  // + Creator-Fee-Berechnung sind Phase-4-Features (NICHT BAUEN).
-  // Feld + Preview-Block werden im Render-Block nur bei aktivem Flag gerendert.
-  const [buyIn] = useState(0); // hardcoded 0 — kein Setter in Beta noetig.
-
-  const canSubmit = name.trim().length >= 3;
-
-  const handleCreate = () => {
-    setError(null);
-    if (!canSubmit) {
-      setError(t('eventNameRequired'));
-      return;
-    }
-    onCreate({
-      name,
-      description,
-      mode,
-      format,
-      buyIn: PAID_FANTASY_ENABLED ? buyIn : 0,
-      maxParticipants,
-      type: 'creator',
-      status: 'registering',
-      creatorName: 'Du',
-      creatorId: 'user1',
-    });
-    onClose();
+  const reset = () => {
     setName('');
-    setDescription('');
+    setEntryFeeCredits(10);
+    setGameweek(defaultGameweek);
+    setLocksAtLocal(toLocalInput(new Date(Date.now() + 48 * 3600 * 1000)));
+    setRewardPreset('top3');
+    setMinEntries('');
+    setMaxEntries('');
     setError(null);
   };
 
-  // Creator-Fee nur in Phase 4 relevant (AR-38). In Beta bleibt Preview-Block versteckt.
-  const creatorFee = PAID_FANTASY_ENABLED ? Math.round(buyIn * maxParticipants * 0.05) : 0;
-  const prizePool = PAID_FANTASY_ENABLED ? (buyIn * maxParticipants - creatorFee) : 0;
+  const handleClose = () => {
+    if (isPending) return;
+    reset();
+    onClose();
+  };
+
+  const handleCreate = async () => {
+    setError(null);
+
+    // Client-Validierung VOR RPC (Server-Rejects als 2. Netz).
+    if (name.trim().length < 3) {
+      setError(t('eventNameRequired'));
+      return;
+    }
+    if (entryFeeCredits < 0 || !Number.isFinite(entryFeeCredits)) {
+      setError(t('userEventEntryFeeInvalid'));
+      return;
+    }
+    const locksAtDate = new Date(locksAtLocal);
+    if (Number.isNaN(locksAtDate.getTime()) || locksAtDate.getTime() <= Date.now()) {
+      setError(t('userEventLocksPast'));
+      return;
+    }
+    const minN = minEntries.trim() === '' ? null : Number(minEntries);
+    const maxN = maxEntries.trim() === '' ? null : Number(maxEntries);
+    if (minN != null && (!Number.isInteger(minN) || minN < 1)) {
+      setError(t('userEventMinInvalid'));
+      return;
+    }
+    if (minN != null && maxN != null && minN > maxN) {
+      setError(t('userEventMinGtMax'));
+      return;
+    }
+
+    const ok = await create({
+      name: name.trim(),
+      entryFeeCents: Math.round(entryFeeCredits) * 100, // ganze Credits → cents (NIT#1, S397-Review)
+      gameweek,
+      locksAt: locksAtDate.toISOString(),
+      rewardStructure: REWARD_PRESETS[rewardPreset],
+      minEntries: minN,
+      maxEntries: maxN,
+      leagueId: null, // offenes Event; Liga-Bindung = späterer Slice.
+    });
+
+    if (ok) {
+      reset();
+      onClose();
+    }
+  };
 
   return (
     <Dialog
       open={isOpen}
       title={t('createEventTitle')}
-      onClose={onClose}
-      // Slice 198b-A — onCreate ist synchroner Parent-Call, kein Pending-State.
-      // Sobald Phase-4 Paid-Fantasy live: `preventClose={creating}` nachruesten.
-      preventClose={false}
+      onClose={handleClose}
+      preventClose={isPending}
       footer={
         <div className="flex items-center gap-3">
-          <Button variant="outline" onClick={onClose} className="flex-1">
+          <Button variant="outline" onClick={handleClose} disabled={isPending} className="flex-1">
             {t('cancelBtn')}
           </Button>
-          <Button variant="gold" onClick={handleCreate} disabled={!canSubmit} className="flex-1">
-            <Plus className="size-4" aria-hidden="true" />
-            {t('createEventBtn')}
+          <Button variant="gold" onClick={handleCreate} disabled={isPending || name.trim().length < 3} className="flex-1">
+            {isPending
+              ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+              : <Plus className="size-4" aria-hidden="true" />}
+            {isPending ? t('userEventCreating') : t('createEventBtn')}
           </Button>
         </div>
       }
@@ -89,6 +147,7 @@ export const CreateEventModal = ({
           </div>
         )}
 
+        {/* Name */}
         <div>
           <label htmlFor="create-event-name" className="block text-sm font-medium mb-2">{t('eventNameLabel')} *</label>
           <input
@@ -102,120 +161,102 @@ export const CreateEventModal = ({
           />
         </div>
 
+        {/* Eintritt + Spieltag */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="create-event-entryfee" className="block text-sm font-medium mb-2">{t('userEventEntryFeeLabel')}</label>
+            <input
+              id="create-event-entryfee"
+              type="number"
+              inputMode="numeric"
+              value={entryFeeCredits}
+              onChange={(e) => setEntryFeeCredits(Number(e.target.value))}
+              min={0}
+              step={1}
+              className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 font-mono tabular-nums"
+            />
+          </div>
+          <div>
+            <label htmlFor="create-event-gameweek" className="block text-sm font-medium mb-2">{t('userEventGameweekLabel')}</label>
+            <input
+              id="create-event-gameweek"
+              type="number"
+              inputMode="numeric"
+              value={gameweek}
+              onChange={(e) => setGameweek(Number(e.target.value))}
+              min={defaultGameweek}
+              max={38}
+              className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 font-mono tabular-nums"
+            />
+          </div>
+        </div>
+        <p className="flex items-start gap-1.5 text-xs text-white/40 -mt-2">
+          <Info className="size-3.5 shrink-0 mt-0.5" aria-hidden="true" />
+          {t('userEventEntryFeeHint')}
+        </p>
+
+        {/* Anmeldeschluss */}
         <div>
-          <label htmlFor="create-event-desc" className="block text-sm font-medium mb-2">{t('descriptionLabel')}</label>
-          <textarea
-            id="create-event-desc"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder={t('descriptionPlaceholder')}
-            rows={3}
-            maxLength={500}
-            className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 resize-none"
+          <label htmlFor="create-event-locks" className="block text-sm font-medium mb-2">{t('userEventLocksAtLabel')}</label>
+          <input
+            id="create-event-locks"
+            type="datetime-local"
+            value={locksAtLocal}
+            onChange={(e) => setLocksAtLocal(e.target.value)}
+            className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="create-event-mode" className="block text-sm font-medium mb-2">{t('modeLabel')}</label>
-            <select
-              id="create-event-mode"
-              value={mode}
-              onChange={(e) => setMode(e.target.value as EventMode)}
-              className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
-            >
-              <option value="tournament">{t('modeTournament')}</option>
-              <option value="league">{t('modeLeague')}</option>
-            </select>
-          </div>
-          <div>
-            <label htmlFor="create-event-format" className="block text-sm font-medium mb-2">{t('formatLabel')}</label>
-            <select
-              id="create-event-format"
-              value={format}
-              onChange={(e) => setFormat(e.target.value as LineupFormat)}
-              className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
-            >
-              <option value="7er">{t('formatSeven')}</option>
-              <option value="11er">{t('formatEleven')}</option>
-            </select>
-          </div>
+        {/* Belohnungsverteilung */}
+        <div>
+          <label htmlFor="create-event-reward" className="block text-sm font-medium mb-2">{t('userEventRewardLabel')}</label>
+          <select
+            id="create-event-reward"
+            value={rewardPreset}
+            onChange={(e) => setRewardPreset(e.target.value as RewardPreset)}
+            className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
+          >
+            <option value="winner">{t('userEventRewardWinner')}</option>
+            <option value="top3">{t('userEventRewardTop3')}</option>
+            <option value="top5">{t('userEventRewardTop5')}</option>
+          </select>
         </div>
 
-        <div className={cn('grid gap-4', PAID_FANTASY_ENABLED ? 'grid-cols-2' : 'grid-cols-1')}>
-          {/* AR-31: buyIn-Feld nur in Phase 4 (PAID_FANTASY_ENABLED=true). */}
-          {PAID_FANTASY_ENABLED && (
-            <div>
-              <label htmlFor="create-event-buyin" className="block text-sm font-medium mb-2">{t('buyInLabel')}</label>
-              <input
-                id="create-event-buyin"
-                type="number"
-                inputMode="numeric"
-                value={buyIn}
-                readOnly
-                min={0}
-                max={0}
-                disabled
-                className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 opacity-50"
-              />
-              <div className="text-xs text-white/30 mt-1">{t('buyInPilotHint')}</div>
-            </div>
-          )}
+        {/* Min / Max Teilnehmer */}
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="create-event-max" className="block text-sm font-medium mb-2">{t('maxParticipantsLabel')}</label>
+            <label htmlFor="create-event-min" className="block text-sm font-medium mb-2">{t('userEventMinEntriesLabel')}</label>
+            <input
+              id="create-event-min"
+              type="number"
+              inputMode="numeric"
+              value={minEntries}
+              onChange={(e) => setMinEntries(e.target.value)}
+              min={1}
+              placeholder={t('userEventOptionalPlaceholder')}
+              className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 font-mono tabular-nums"
+            />
+          </div>
+          <div>
+            <label htmlFor="create-event-max" className="block text-sm font-medium mb-2">{t('userEventMaxEntriesLabel')}</label>
             <input
               id="create-event-max"
               type="number"
               inputMode="numeric"
-              value={maxParticipants}
-              onChange={(e) => setMaxParticipants(Number(e.target.value))}
-              min={2}
-              max={500}
-              className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40"
+              value={maxEntries}
+              onChange={(e) => setMaxEntries(e.target.value)}
+              min={1}
+              placeholder={t('userEventOptionalPlaceholder')}
+              className="w-full px-4 py-2.5 bg-surface-base border border-white/10 rounded-xl focus:outline-none focus:border-gold/40 font-mono tabular-nums"
             />
           </div>
         </div>
 
-        <div className="flex items-center justify-between p-4 bg-surface-minimal rounded-xl">
-          <div>
-            <div className="font-medium">{t('privateEvent')}</div>
-            <div className="text-xs text-white/50">{t('privateEventHint')}</div>
-          </div>
-          <button
-            role="switch"
-            aria-checked={isPrivate}
-            aria-label={t('privateEvent')}
-            onClick={() => setIsPrivate(!isPrivate)}
-            className={cn('w-12 h-6 rounded-full transition-colors', isPrivate ? 'bg-gold' : 'bg-white/20')}
-          >
-            <div className={cn('size-5 rounded-full bg-white shadow-md transform transition-transform', isPrivate ? 'translate-x-6' : 'translate-x-0.5')} />
-          </button>
-        </div>
+        {/* Erstell-Gebühr-Hinweis (Transparenz vor Money-Aktion) */}
+        <p className="text-xs text-white/40">{t('userEventCreateFeeHint')}</p>
 
-        {/* Compliance Disclaimer (AR-33 Journey #4) — im Modal-Footer */}
+        {/* Compliance Disclaimer (AR-33) — Money-Schritt */}
         <FantasyDisclaimer variant="inline" />
-
-        {/* AR-31+38: Preview-Section mit Entry/PrizePool/CreatorFee nur in Phase 4. */}
-        {PAID_FANTASY_ENABLED && (
-          <div className="p-4 bg-green-500/10 rounded-xl border border-green-500/20">
-            <div className="text-sm text-white/60 mb-2">{t('previewSection')}</div>
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div>
-                <div className="font-mono font-bold text-lg text-gold tabular-nums">{buyIn} CR</div>
-                <div className="text-xs text-white/40">{t('entryLabel')}</div>
-              </div>
-              <div>
-                <div className="font-mono font-bold text-lg text-purple-400 tabular-nums">{prizePool} CR</div>
-                <div className="text-xs text-white/40">{t('prizeMoney')}</div>
-              </div>
-              <div>
-                <div className="font-mono font-bold text-lg text-white/60 tabular-nums">{creatorFee} CR</div>
-                <div className="text-xs text-white/40">{t('creatorFee')}</div>
-              </div>
-            </div>
-          </div>
-        )}
-
       </div>
     </Dialog>
   );
