@@ -4188,3 +4188,35 @@ Der erste Sweep fand **echte stale Tracker-Fakten** (`referral_reward` als „oh
 Wiederholbar **vor jedem großen Strang-Wechsel oder vor Launch**. Macht „e2e durchgesetzt?" beweisbar statt behauptet (Anti-„Build-without-Wire" D53). Kostet ~4 Agent-Läufe.
 
 **Re-Visit-Trigger:** Vor Beta-Launch-Sign-Off + bei jedem „sind wir wirklich fertig?"-Moment erneut fahren.
+
+---
+
+## D111 — PRODUCT/PROCESS: Beta abgebrochen → Mock→Pro-Programm (ganze Codebase auf Profi-/Sorare-Niveau, Domäne für Domäne)
+
+**Datum:** 2026-06-26 · **Status:** 🟢 Aktiv (Nordstern) · **Category:** PRODUCT + PROCESS · **Kontext:** Anil: „Beta wurde abgebrochen, wir hatten zu viele Fehler noch, nichts hat vernünftig zusammen funktioniert."
+
+### Entscheidung
+Die **Beta ist gestoppt** (NICHT mehr live — supersedes [[project_beta_live]]). Neuer Nordstern: **„nichts ist heilig"** — Mock→Pro einschlagen und die **ganze Codebase glattziehen + optimieren, bis Architektur / System-Design / Design-Patterns auf Profi-/Sorare-Niveau** sind. **Liga pausiert**, **Feature-Bau pausiert** (Event-Backlog, neue Treasury-Quellen). **Sommerloch** = bewusstes Zeitfenster für Tiefenarbeit am Fundament ohne Launch-Druck. Aus „Mock→Pro = Reste aufräumen" wird **„Mock→Pro = ganzes System auf Reife heben"** (Programm, kein Slice).
+
+### Methode + Ergebnis
+Read-only Bestandsaufnahme **Domäne für Domäne** (7 Domänen: Trading · Spieltag/Scoring · Events/Aufstellung · Follow/Community · Geld-/State-Freshness · App-Shell/Performance · Design-System), jeder Befund mit Evidenz (file:line / Live-`pg_get_functiondef` / SELECT), **kein Fix während der Aufnahme**, dann **EIN finaler Plan**. Befund-SSOT `worklog/notes/mock2pro-audit.md`, Plan `worklog/notes/mock2pro-plan.md`, Programm-Memory [[project-mock2pro-program]].
+
+**Drei Grund-Ursachen über ALLE Domänen** (alle 11 Beta-Schmerzpunkte führen darauf zurück):
+1. **Teil-Konsolidierung** („von allem zwei"): Kern einmal sauber gemacht, zweite Oberfläche nie reingezogen → driftet. (Trading-Markt-Tab, Events-Bank, Follow-Discovery+Fan-Rang, 2/3 Design-Flächen, OffersTab, GW-Selector.) = „gebastelt/passt nicht zusammen".
+2. **Datenmodelle ohne erzwungene Integrität**: Aufstellung als 16 Spalten (keine DB-Regel gegen Doppel-Karte; Bank bindet keine Karte), Scores an Gameweek-NUMMER statt ans Fixture gebunden. = „banale übersehene Bugs / nicht sauber gebunden".
+3. **Client-only-Architektur**: 0 Server-Rendering/prefetch + Auth blockt kritischen Pfad. = langsamer Cold-Start.
+
+**Befund-Tenor:** KEIN Neubau nötig — das Fundament (Money-Maschine, Tokens, Modal-Basis, Bundle-Hygiene, Floor-Logik) ist solide. Es fehlt **Durchsetzung von „eine Quelle"** + 2 Datenmodell-Korrekturen + 1 Architektur-Hebel.
+
+### Plan (Priorisierung Anil: Domäne für Domäne komplett)
+7 Wellen, jede Domäne in einem Zug fertig: 1 Trading [Money] · 2 Spieltag/Scoring [Money] · 3 Events/Aufstellung [Money] · 4 Follow · 5 Geld/State · 6 Performance · 7 Design (zuletzt). 3 Architektur-Gabelungen = CEO-Entscheid vor der jeweiligen Welle (Orderbuch-Vereinigung · Lineup-Datenmodell-Umfang · Entry/Lineup-Entkopplung). Alte TODOs vollständig als Carry-over erfasst (A überlappt/B S7-Aufräumblock/C standalone/D verify-Schuld/E geparkt/F Launch-Phase).
+
+### Alternativen erwogen
+- **Beta weiter patchen:** verworfen — „nichts hat zusammen funktioniert", Symptom-Pflastern (10–15s Auth-Timeouts) statt Wurzel. Anil-Entscheid.
+- **Sofort drauflos refactoren:** verworfen — ohne faktenbasierte Schwächen-Landkarte optimiert man falsch ([[feedback_report_design_smells]]).
+- **Nach Schmerz/Geld-Risiko priorisieren:** angeboten, Anil wählte „Domäne für Domäne komplett" (jede einmal anfassen).
+
+### Auswirkung
+[[project_beta_live]] superseded. MASTERPLAN/TODO/Handoff auf Mock→Pro umgestellt. Re-Launch (Test-IPOs/Daten-Reset/Cold-Start-Liquidität) = Phase NACH dem Programm ([[project_launch_sequence_reset]]).
+
+**Re-Visit-Trigger:** Nach Abschluss aller 7 Wellen → Re-Launch-Prep + Beta-Sign-Off (beta-phase PASS, [[feedback_no_premature_ready]]).

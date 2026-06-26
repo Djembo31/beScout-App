@@ -1,21 +1,20 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 19:08)
+# Session Handoff — Auto (2026-06-26 22:18)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 3 Files
+```
+ M memory/session-handoff.md
+?? worklog/notes/mock2pro-audit.md
+?? worklog/notes/mock2pro-plan.md
+```
 
-## Session Commits: 10
+## Session Commits: 4
+- cc64463f docs(distill): D110 e2e-Audit-Methode + Wissen verdrahtet + Handoff frische Session
 - b4a10eb1 docs(decision): D109 — Monats-Liga-Reward-Smells geprüft + CEO bewusst akzeptiert
 - ba53bb46 feat(treasury): Slice 402 — Treasury-RAUS e2e REAL bewiesen (echte Monats-Liga-Auszahlung)
 - 213f626c docs(audit): Slice 401 — e2e-Durchsetzungs-Audit (329–400) gesichert + 400-Rest + Tracker-Stale-Heal
-- da24ea14 docs(distill): Slice 400 — Knowledge S400 (Enum-Wert-Entfernen) + Handoff-Anker frische Session
-- b26b18c7 docs(400): Tracker-Reconcile — E-7 creator-Cleanup DONE in MASTERPLAN/TODO
-- 3899c289 refactor(events): E-7 creator-Drift restlos entfernt — 11 Flächen + chk_event_type verengt [Slice 400]
-- af52c56b docs(handoff): auto-block sync (Session-Close 2026-06-26, Slice 399)
-- 37dbdf12 docs(distill): Slice 399 Tracker-Reconcile (E-4 KOMPLETT) + Wissen verdrahtet
-- 98ef9503 docs(handoff): Slice 399 DONE — Resume-Anker auf Backlog (E-5/E-6/E-7/S7)
-- 20fce03e docs(399): Live-Verify post-Deploy PASS (AC1-AC6) + LOG — User-Events end-to-end nutzbar
 
 <!-- auto:handoff-end -->
 
@@ -23,7 +22,23 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-**Status: idle — Session 2026-06-26 (Abend): e2e-Durchsetzungs-Audit + Slice 401 + 402 + D109 + D110, alle gepusht (zuletzt `b4a10eb1` + dieser Handoff-Commit, main==origin/main).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
+## 🚀 NORDSTERN: E-MOCK2PRO (Beta ABGEBROCHEN, 2026-06-26, D111)
+**Anil-Pivot: Beta gestoppt (zu viele Fehler, nichts lief vernünftig zusammen). „Nichts ist heilig" → ganze Codebase auf Profi-/Sorare-Niveau glattziehen, Domäne für Domäne. Liga + Feature-Bau pausiert. Sommerloch = Tiefenarbeit-Fenster. Re-Launch erst NACH dem Programm.**
+
+**✅ Diese Session fertig:** Bestandsaufnahme **aller 7 Domänen** (Trading · Spieltag/Scoring · Events/Aufstellung · Follow · Geld/State · Performance · Design) → `worklog/notes/mock2pro-audit.md`. **Finaler 7-Wellen-Plan** → `worklog/notes/mock2pro-plan.md` (Priorisierung Anil: **Domäne für Domäne komplett**). Programm-Memory: [[project-mock2pro-program]]. Decision: **D111**.
+
+**3 Grund-Ursachen (alle 11 Beta-Schmerzen führen darauf):** (1) Teil-Konsolidierung „von allem zwei" · (2) Datenmodelle ohne erzwungene Integrität (Aufstellung 16 Spalten / Scores an GW-Nummer statt Fixture) · (3) Client-only-Architektur (Cold-Start). **Fundament ist solide — KEIN Neubau**, nur Durchsetzung „eine Quelle" + 2 Datenmodell-Fixes + 1 Architektur-Hebel.
+
+**➡️ NÄCHSTER SCHRITT (Anil-Entscheid offen):** **Welle 1 Trading** [Money/CEO] starten — beginnt mit **CEO-Architektur-Frage „Orderbuch: P2P-offers + Buy-orders = EIN Buch?"** — ODER **S7-Aufräumblock als Welle 0** vorziehen (toter Code: Wildcard-Earn / Creator-Fund+Ad-Revenue / Club-Missionen-Dim / Voting-Konsolidierung). **3 CEO-Gabelungen** je vor ihrer Welle klären (Orderbuch · Lineup-Datenmodell-Umfang · Entry/Lineup-Entkopplung). Money-Wellen 1/2/3 = selbst (§3) + Live-`pg_get_functiondef` VOR Spec (D87) + Zero-Sum-Beweis.
+
+**Reihenfolge-Vorschlag:** Trading → Spieltag/Scoring → Events → Follow → Geld/State → Performance → Design (zuletzt). Alte TODOs vollständig als Carry-over (A–G) im Plan erfasst — nichts verloren.
+
+**Status: idle, main==origin/main.** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. Diesen Handoff IMMER zuerst lesen. **Teaching-Mode durchgehend (1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" ([[feedback_no_premature_ready]]). Schlecht gelöste Patterns proaktiv melden ([[feedback_report_design_smells]]).**
+
+---
+
+### 📦 (vorige) Session 2026-06-26 (Abend) — e2e-Audit + Slice 401/402/D109/D110 (Referenz)
+**Status war: idle — e2e-Durchsetzungs-Audit + Slice 401 + 402 + D109 + D110, alle gepusht (zuletzt `b4a10eb1`).**
 
 ## 🎯 SESSION 2026-06-26 (Abend) — e2e-Durchsetzungs-Audit + RAUS real bewiesen
 **Anil-Frage „alles seit Mock→Pro wirklich e2e durchgesetzt?" → systematisch beantwortet.**
