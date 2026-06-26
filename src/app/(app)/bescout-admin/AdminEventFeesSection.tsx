@@ -17,7 +17,7 @@ const TYPE_META: Record<string, { icon: React.ElementType; color: string; label:
   special:  { icon: Star,     color: 'text-purple-400',  label: 'Special',   beneficiaryLabel: '\u2014' },
   // Slice 399: User-Events (Pot = \u03a3 Eintritte, kein Beneficiary-Schnitt \u2014 D108).
   user:     { icon: UserPlus, color: 'text-orange-400',  label: 'User',      beneficiaryLabel: '\u2014' },
-  creator:  { icon: UserPlus, color: 'text-orange-400',  label: 'Community', beneficiaryLabel: 'Creator' },
+  // Slice 401: toter 'creator'-Key entfernt (von Slice-400-Cleanup \u00fcbersehen, da Record<string,...> tsc-unsichtbar; DB-CHECK creator-frei).
 };
 
 export function AdminEventFeesSection({ adminId }: { adminId: string }) {

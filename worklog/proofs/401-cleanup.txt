@@ -1,0 +1,35 @@
+Slice 401 — e2e-Audit-Befund + 400-Rest + Tracker-Heal — PROOF
+================================================================
+2026-06-26
+
+AC1: AdminEventFeesSection.tsx creator-frei
+-------------------------------------------
+$ grep -n "creator" "src/app/(app)/bescout-admin/AdminEventFeesSection.tsx"
+20:  // Slice 401: toter 'creator'-Key entfernt (...)
+→ einziger Treffer = Kommentar; toter TYPE_META-Key ENTFERNT. PASS.
+
+AC2: tsc clean
+--------------
+$ npx tsc --noEmit ; echo EXIT $?
+EXIT 0
+→ PASS (Record<string,...>-Map akzeptiert weniger Keys; kein Consumer brach).
+
+AC3: offene Check-Punkte in Trackern verankert
+----------------------------------------------
+- worklog/notes/401-e2e-enforcement-audit.md  (NEU — 4 Cluster-Summen + klassifizierte offene Punkte, SSOT)
+- worklog/notes/358-platform-treasury-epic.md (NEU-Block: "RAUS-Seite nie real GELAUFEN" — 376/377/378 = 0 Ledger-Rows)
+- worklog/s7-phase3-remaining.md              (Block-2 + Block-3 Befunde mit Evidenz präzisiert)
+- worklog/notes/event-creator-liga-epic.md    (E-7 401-Nachzügler)
+- MASTERPLAN.md                               (Stand-Satz auf HEAD + 2 Folge-Stränge)
+- TODO.md                                     (P0: Audit + (B)/(C) Folge-Stränge; (C) präzisiert)
+→ PASS.
+
+AC4: Stale-Fakten korrigiert (s7-phase3-remaining.md Block 3)
+------------------------------------------------------------
+- referral_reward: "ohne RPC" → LEBT (reward_referral feuert aus trading/ipo/offers via referral.ts:52)
+- Research: "Dormant" → LEBT (AnalystTab ProfileView.tsx:175, research_posts=3)
+- reconciled-through-slice: 354 → 401
+→ PASS.
+
+Stage-Chain: SPEC (inline, Ops/Doc) → IMPACT (inline) → BUILD (1 src + 6 doc) → REVIEW (self-review) → PROVE → LOG.
+Kein Money/Security/User-facing-Verhalten geändert (toter unerreichbarer Display-Key + Doku).

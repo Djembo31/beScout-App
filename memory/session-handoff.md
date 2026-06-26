@@ -1,11 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 17:47)
+# Session Handoff — Auto (2026-06-26 18:10)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
 ## Session Commits: 10
+- da24ea14 docs(distill): Slice 400 — Knowledge S400 (Enum-Wert-Entfernen) + Handoff-Anker frische Session
 - b26b18c7 docs(400): Tracker-Reconcile — E-7 creator-Cleanup DONE in MASTERPLAN/TODO
 - 3899c289 refactor(events): E-7 creator-Drift restlos entfernt — 11 Flächen + chk_event_type verengt [Slice 400]
 - af52c56b docs(handoff): auto-block sync (Session-Close 2026-06-26, Slice 399)
@@ -15,7 +19,6 @@
 - ea27cfe3 feat(events): User-Events fertig — Discovery + F2/F3 + Cancel + Admin-Gebühr [Slice 399]
 - d4bacb31 docs(distill): D108-Addendum E-4b-Realisierung + Wissen verdrahtet + Tracker reconciled (397/398)
 - bf0948ed docs(398): Live-Verify PASS — bench-i18n behoben (95->0 Console-Errors), Tracker reconciled
-- fbf1e094 fix(i18n): fehlende fantasy.bench*-Keys ergaenzt — Roh-Key-Leak im Lineup-Builder [Slice 398]
 
 <!-- auto:handoff-end -->
 

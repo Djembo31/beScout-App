@@ -161,6 +161,7 @@ BeScout-Ticket-Events: Tickets-Eintritt → Gewinn Credits/**Equipment**/Tickets
 „Creator" als sauberes Oberkonzept: Pot-Einzahlung + Einnahmen-in-Creator-Kasse + BeScout-Anteil generisch für alle vier Sorten. Sponsor-Erstell-Flow. (Teils Paid-Fantasy-Phase-4-gated — mit Credits/Tickets jetzt baubar, echtes Geld später.)
 
 **E-7 · Aufräumen sichtbarer Altlasten** *(Größe XS-S)*
+- **✅ creator-Drift-Nachzügler DONE — Slice 401:** e2e-Audit fand die 12. Fläche, die Slice 400 übersah — toter `creator`-Key in `AdminEventFeesSection.tsx:20` (`Record<string,…>`-Map = tsc-unsichtbar, DB-CHECK creator-frei → unerreichbar). Entfernt → „restlos" jetzt wirklich vollständig.
 - **✅ creator-Drift-Cleanup DONE — Slice 400:** deprecated Event-Typ `creator` (D108) restlos über 11 Flächen entfernt (beide Type-Unions, getTypeStyle/TYPE_CONFIG, EventCategoryCards/EventBrowser counts, eventMapper No-op-Ternary, i18n DE+TR, Test, tote creatorId/creatorName-Felder) + DB-DELETE `event_fee_config('creator')`-Waisenzeile + `chk_event_type` auf event_fee_config verengt (= events_type_check). tsc 0, vitest 8/8, money byte-identisch, Reviewer PASS. Migration `20260626180000`. **Offen E-7-Rest:** „Predictions" ist KEIN Smell (lebende ChallengeType-Frageart, nicht anfassen).
 „Predictions" (nur noch Daily-Challenge-Typ) + Event-Type-Drift (DB kennt 4 Typen, Feature-Layer 5 inkl. `creator`) angleichen. Was Anil noch in der UI „falsch sieht" hier sammeln.
 

@@ -4,7 +4,7 @@
 > Vollständige Domänen-Landkarte: `worklog/audits/2026-06-13/s7-source-of-truth-registry.md`. Master-Strategie: `memory/decisions.md` D80 (Sommer Tech-First).
 >
 > **Stand-Quelle (Slice 354, Anti-Stale):** Dieses File = **SSOT für die S7-Block-Struktur + aggregierten Block-Stand**. Live-Completion einzelner Slices bleibt in `worklog/log.md` + `TODO.md` autoritativ. Reconcile-Pflicht beim LOG (workflow.md) + `.husky/pre-commit`-`[TRACKER-RECONCILE]`-Reminder.
-> **reconciled-through-slice: 354** (zuletzt gegen log.md abgeglichen).
+> **reconciled-through-slice: 401** (Block 1–4 seit 354 inhaltlich unangetastet; Slice 401 hat den e2e-Durchsetzungs-Audit `worklog/notes/401-e2e-enforcement-audit.md` eingearbeitet + 2 Stale-Fakten korrigiert — s. Block 3).
 
 ## Programm-Stand
 
@@ -25,14 +25,26 @@
 - 9 Ranking-Impls kartiert: die meisten legitim verschieden (Fantasy/Predictors/Fan-Ranking/Liga-Tabelle/Spieler). **Echte Redundanz nur:** globale User-Rangliste = `scout_scores` (Elo) vs `user_stats` (parallele Kopie) → 1 Quelle.
 - 2 „tote" Boards (Monthly-Liga `getMonthlyLeaderboard`, Club-Fan `getClubFanLeaderboard`) = **angefangene Features, nicht löschen → fertig verkabeln**.
   - ✅ **Club-Fan-Board `getClubFanLeaderboard` verkabelt (Slice 349)** + Live-bestätigt (Slice 354: PostgREST-FK-Bug `fan_rankings→profiles` gefixt, Board rendert echte Treue-Fans auf Club-Page Tab „Mehr").
-  - ⬜ Monthly-Liga-Board `getMonthlyLeaderboard` noch tot.
-  - ⬜ Echte Redundanz `scout_scores` (Elo) vs `user_stats` (parallele Kopie) → noch 1 Quelle zu machen.
-- **Stand:** Club-Fan-Board ✅ live; Monthly-Liga-Board + scout_scores/user_stats-Konsolidierung offen.
+  - ⬜ **Monthly-Liga-Board `getMonthlyLeaderboard`/`useMonthlyLeaderboard` = TOTER-CODE** (e2e-Audit 401): 0 `.tsx`-Consumer; definiert `scoutScores.ts:320` + `gamification.ts:94`, niemand rendert. Aktivieren (Live-Standing-UI, vgl. Treasury-Epic Slice 5) ODER löschen. Hängt mit `close_monthly_liga`-Cron-Frage zusammen (`monthly_liga_winners`=0).
+  - ⬜ **Echte Redundanz `scout_scores` (Elo) vs `user_stats`** (e2e-Audit 401): beide live gerendert — `GlobalLeaderboard.tsx:29`→`getScoutLeaderboard`→scout_scores; parallel `useCommunityData.ts:50`→`useLeaderboard`→`getLeaderboard`(`social.ts:211`)→user_stats. Nicht konsolidiert → 1 Quelle.
+- **Stand:** Club-Fan-Board ✅ live; Monthly-Liga-Board (toter Code) + scout_scores/user_stats-Konsolidierung offen.
 
 ### 3. Dormant-Features (Müll: weder aktiv noch gelöscht)
-- **Research · 2 Voting-Systeme · Creator-Fund · Monthly-Liga · Wildcard** (+ bezahlte Mystery Box lizenz-gated, club-Missionen 0 Seeds, `referral_reward` ohne RPC).
 - Regel (D80): pro Feature **aktivieren ODER löschen** — kein Halbfertiges.
-- **Stand:** offen.
+- **Präzisierter Befund (e2e-Audit 401, mit Evidenz):**
+
+| Feature | Befund | Evidenz |
+|---|---|---|
+| **Creator-Fund + Ad-Revenue-Share** | TOTER-CODE | `creatorFund.ts`/`calculate_creator_fund_payout`/`adRevenueShare.ts` — Calc-RPC ohne Distribution/Cron. (Sponsors selbst = LEBT) |
+| **Wildcard Earn-Economy** | TOTER-CODE | `earn_wildcards`/`spend_wildcards` 0 src-Consumer; `wildcards.ts:42` Kommentar „dormant". Read-Pfad (`WildcardsSection`) lebt |
+| **Club-Missionen** | TOTER-CODE | `mission_definitions` club_id-Rows = 0 |
+| **Monthly-Liga** | OFFEN-CODE | `close_monthly_liga` nur manuell `AdminLigaTab.tsx:45`, kein Cron; `monthly_liga_winners`=0 (s. Block 2 + Treasury-Epic) |
+| **2 Voting-Systeme** | OFFEN-CODE | `club_votes` (0 Rows, `AdminVotesTab`) vs `community_polls` (4 Rows) beide gerendert, nicht konsolidiert |
+| **Mystery Box (paid)** | MOCK (legitim) | `featureFlags.ts:70` default false + Backend-throw; lizenz-gated; Free-Box lebt |
+| **Research** | ~~Dormant~~ **LEBT** (Stale korrigiert) | `AnalystTab` gerendert `ProfileView.tsx:175`, unlock/rate/expire wired, research_posts=3 Rows. Eher „low-data" als dormant |
+| **`referral_reward`** | ~~„ohne RPC"~~ **LEBT** (Stale korrigiert) | `reward_referral` existiert + feuert aus `trading.ts:122/255`, `ipo.ts:140`, `offers.ts:243` via `triggerReferralReward`→`referral.ts:52` |
+
+- **Stand:** offen. **3 echte Lösch-/Aktivier-Kandidaten:** Creator-Fund+Ad-Revenue, Wildcard-Earn, Club-Missionen (toter Code); + 2 Konsolidierungen (Monthly-Liga, Voting-Systeme).
 
 ### 4. Brücken (Bridges / Workarounds)
 - 46 Bridge-Importer (Komponenten greifen direkt auf Service-Schicht zu statt über Boundary) — `boundary-check` Baseline *gehalten* (kein Wachstum), aber nicht reduziert.

@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 401 | 2026-06-26 | docs(audit): e2e-Durchsetzungs-Audit (329–400) gesichert + 400-Rest + Tracker-Stale-Heal
+- Stage-Chain: SPEC (inline active.md, XS Ops/Doc) → IMPACT (inline, kein Consumer-Drift) → BUILD (1 src + 6 doc) → REVIEW self-review (Ops/Doc, kein Money/Security) → PROVE (`proofs/401-cleanup.txt`) → LOG.
+- **Auslöser (Anil):** „alles seit Mock→Pro — e2e durchgesetzt?" → 4 parallele Verifikations-Agents prüften ALLE Slices 329–400 gegen Live-DB (`skzjfhvgccaeplydsunz`) + echten Code + i18n (nicht Vermerke nachgeplappert; jede Behauptung mit file:line/grep/functiondef/SELECT-Evidenz).
+- **Kernbefund:** neue Geld-/Feature-Maschine (Treasury/Polls/FRE/Events E1–E5) ist **e2e VERKABELT — keine Build-without-Wire-Löcher.** Alle Migrationen live appliziert, alle RPCs von src/ aufgerufen, alle UI gemountet, i18n DE+TR komplett. Befund-SSOT: `worklog/notes/401-e2e-enforcement-audit.md`.
+- **3 echte Funde behandelt:** (1) **Code-Drift:** Slice 400 „restlos über 11 Flächen" war 1 Fläche zu kurz — toter `creator`-Key in `AdminEventFeesSection.tsx:20` (`Record<string,…>`-TYPE_META = tsc-unsichtbar, DB-CHECK creator-frei → unerreichbar) → **entfernt**. (2) **Stale-Tracker-Fakten:** `referral_reward` „ohne RPC" = FALSCH (`reward_referral` feuert aus trading/ipo/offers) + Research als „Dormant" = lebt (3 Rows) → **s7-Tracker korrigiert**, reconciled-through 354→401. (3) **offene Punkte verankert** in 5 Trackern.
+- **🔴 Substantieller offener e2e-Gap (Anil-Wahl als Nächstes):** **(B)** Treasury-RAUS 376/377/378 bewiesen-korrekt aber **nie real gelaufen** (`platform_treasury_ledger` 0 Rows monthly_liga/bescout_event/special_event; force-rollback-only, kein Cron) → 1× echte Liga-Auszahlung live. **(C)** S7 Mock→Pro: 3 TOTER-CODE (Creator-Fund+Ad-Revenue, Wildcard-Earn, Club-Missionen) + 2 Konsolidierungen (scout_scores↔user_stats, club_votes↔community_polls) + totes Monthly-Liga-Board.
+- **Beweis:** tsc EXIT 0 · grep AdminEventFeesSection creator-frei. Files: `AdminEventFeesSection.tsx` + 6 Tracker (401-audit-notiz NEU, 358-epic, s7-tracker, event-epic, MASTERPLAN, TODO). Kein Money/Security/User-facing-Verhalten geändert.
+
 ## 400 | 2026-06-26 | refactor(events): E-7 creator-Drift restlos entfernt (11 Flächen + chk_event_type verengt)
 - Stage-Chain: SPEC (`400-creator-drift-cleanup.md`, S, Migration) → IMPACT (inline §3 Consumer-Tabelle) → BUILD (10 src/i18n-Files + 1 Migration) → REVIEW (`400-review.md` reviewer **PASS**, 1 NIT → über NIT hinaus geheilt) → PROVE (`proofs/400-cleanup.txt`) → LOG.
 - **Smell-Audit-getrieben** (Anil: „Design-Smells melden"): Explore-Agent + DB-Queries kartierten den deprecated Event-Typ `creator` (D108) über **11 tote Flächen** (DbEvent.type war schon creator-frei → alle latent, kein User-Bug). CEO-approved „voller Schnitt + Bonus" (AskUserQuestion).

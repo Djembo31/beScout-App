@@ -63,6 +63,10 @@ PBT-Anteile → `pbt_treasury` ✅ · Club-Anteile → `clubs.treasury_balance_c
 - **Zero-Sum:** Escrow −P, score_event mintet +D (Wallets), Settle +(P−D) → Netto Topf −D = Wallets +D = Σ 0. 8/8 Force-Rollback-Smokes PASS (`worklog/proofs/377-money-smoke.txt`), Reviewer **PASS** (1 LOW pre-existing club_id-Hole dokumentiert). 0 prized bescout/club Events live → kein Live-Geld. Learning → errors-db.md (Multi-Treasury-Refund an OLD.tenant_id).
 - **→ special-Events vorgezogen (Slice 378, 2026-06-25):** Anil-Wahl „Reste komplett". Plattform-Zweig der 3 Trigger auf `type IN ('bescout','special')` erweitert + eigene source `'special_event'` (CHECK-Widen + Label + i18n), Refund-source nach OLD.type (Halter). 9/9 force-rollback PASS, Reviewer PASS. bescout-Regression-safe (source-CASE). **Noch minting:** `sponsor` (Deposit-Pfad fehlt), `creator` (Phase 4) — je eigener Slice.
 
+### 🔴 OFFEN — RAUS-Seite nie real GELAUFEN (e2e-Audit Slice 401, 2026-06-26)
+> Der einzige substantielle e2e-Gap der Geld-Maschine. **REIN** ist live-bewiesen (echte Ledger-Rows trading/ipo/poll/research/bounty + genesis). **RAUS** ist bewiesen-korrekt (force-rollback-Smokes 376/377/378 PASS) aber **nie real gelaufen** — `platform_treasury_ledger` hat **0 Rows** für `monthly_liga` / `bescout_event` / `special_event`. 376 ist manueller Trigger ohne Cron, nie geklickt; `monthly_liga_winners`=0.
+> **→ Eigener Money/CEO-Slice (selbst, §3):** EINE echte Monats-Liga-Auszahlung auf Live-DB ausführen → echte `monthly_liga`-Debit-Row + winners; Zero-Sum + Saldo vorher/nachher reconcilen. Beweist die RAUS-Seite end-to-end (statt nur Rollback). Analog danach 1× bescout/special-Event-Settle.
+
 ### Slice 5 — Wettkampf-Darstellung + Ranking-Konsolidierung (UI) — **→ NÄCHSTER**
 - `special`/`bescout`/`club`-Event-Geldquellen jetzt alle aus dem jeweiligen Konto (`sponsor`/`creator` bleiben minting, eigene Slices).
 - Events als „BeScout Liga" mit Monats-/Saison-Wertung sichtbar (Manager messen sich). `events.is_liga_event` existiert bereits als Anker.
