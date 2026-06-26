@@ -1,25 +1,21 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-26 05:59)
+# Session Handoff — Auto (2026-06-26 06:28)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
-```
- M memory/session-handoff.md
-?? worklog/proofs/e3-bundle-playwright-verify.md
-```
+## Working Tree: Clean
 
 ## Session Commits: 10
+- 54399703 docs(tracker): Playwright-Bündel DONE + 393/394 reconciled — Next-Pointer auf E-4/Backlog
+- 5a5e28dd docs(handoff): Session-Close 2026-06-26 — 393/394 DONE + E-3-Bündel-Playwright DONE, Resume-Anker auf E-4/Backlog
+- cd300cc8 fix(auth): AuthProvider Profile-Load-Failure nach Sentry instrumentieren — war console-only (Slice 394)
+- 2fbc4ab6 feat(events): E-3 Regel-Rejects regel-spezifisch — 9 Validator-Codes → eigene DE/TR-Toast-Meldung (Slice 393)
 - c7e2cada docs(handoff): Session-Close 2026-06-26 — Slice 392 DONE, E-3-Regelsatz komplett, Resume-Anker auf Playwright-Bündel/E-4
 - ed8e8019 docs(tracker): Slice 392 DONE — E-3-Regelsatz komplett, Stand auf MASTERPLAN+TODO reconciled
 - 6252cbb9 feat(events): E-3 nation_in (Länder-Whitelist) + max_per_nation — letzte E-3-Aufstellungs-Regeln (Slice 392)
 - 2a0ee5c3 docs(handoff): Session-Close 2026-06-26 — 389/390/391 DONE, 392 (nation-Regeln, voller Multi-Select) verankert
 - 229a0b95 docs(handoff): Slice 391 DONE — Resume-Anker auf nationality_iso → Slice 392 (nation-Regeln)
 - 32383e2c feat(db): nationality-Normalisierung — generierte Spalte players.nationality_iso (Slice 391)
-- daaa74e7 docs(handoff): Slice 390 DONE — Resume-Anker auf nationality-Normalisieren (391) → nation-Regeln (392)
-- 1acdb784 feat(events): E-3 mv_min_eur (Star-Event) + max_per_position — zwei Spiegel-Regeln (Slice 390)
-- c743e004 docs(handoff): Slice 389 DONE — Tracker-Reconcile + Resume-Anker auf mv_max_eur
-- 29854ac5 feat(events): E-3 Marktwert-Deckel pro Karte — mv_max_eur (Underdog-Events, Slice 389)
 
 <!-- auto:handoff-end -->
 
@@ -41,6 +37,8 @@
   - **Dynamischer Reject-Kontext** (393-Scope-Out): limit/age/MV im Toast-Text — braucht Throw-Refactor in `lineups.mutations.ts:62` (wirft heute nur den nackten Code, verwirft `limit`/`age`/`player`).
   - **Tieferer Auth-Fix** (394-Scope-Out): NUR wenn Sentry echte Nutzer-Frequenz von `auth.profileLoadFailedAfterRetry` zeigt → `get_auth_state` null-uid-soft / JWT-unabhängiger Fallback.
   - „Bedingung hinzufügen ▾"-Builder + Echtzeit-Treffer (Design-Smell #1, E-4/E-6) · Nation-Liste-Pflege-UI (392-NIT#1, kuratierte 61).
+- **Wissen verdrahtet (2026-06-26):** S393 → `errors-frontend.md` (Reject-Code ohne Mapping → stiller generic) · Tier-4 → `pattern_observability_stack.md` (captureMessage am erschöpften Recovery-Pfad) · D88-Kopplung → `fantasy.md` (Reject-Codes user-facing). Commit `37bcf87f`. **DISTILL: kein neuer D<n>** (alle Lehren = Code-Patterns).
+- **Bekannt SOFT (Nightly, kein Blocker, NICHT echter Drift):** `audit:knowledge:check` flaggt `missions.md`/`reward-ranking.md` verify-drift — **faktenbasiert geprüft: Artefakt der Datums-Heuristik** (die einzigen neuen Migrationen seit Verify-Datum sind E-3-Lineup/Nationality, die missions/reward-ranking/scoring NICHT berühren; `grep` bestätigt). `verified-against`-Daten bewusst NICHT blind gebumpt (=behauptet statt verifiziert, §1). Nächste Session ODER Nightly: bei echtem Touch von 383/384 auf reward-ranking-Domain kurz gegenlesen, sonst Daten auf heute ziehen.
 
 ## 🎯 SESSION-CLOSE 2026-06-26 (spät, sauber) — E-3-Regelsatz KOMPLETT
 
