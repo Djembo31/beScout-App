@@ -1,11 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-25 22:17)
+# Session Handoff — Auto (2026-06-25 22:29)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- 375885c4 docs(handoff): cleanup für frische Session — HEAD 7c6ac014, stale 385-Anker entfernt
 - 7c6ac014 docs(proof): Slice 385 AC-12 UI post-Deploy live PASS — AC-1..AC-12 alle PASS
 - 0bc296e8 docs(handoff): Slice 385 DONE — E-3 Regel-Fundament, next = E-3-Erweiterungen/E-4
 - 107282d1 feat(events): E-3 Aufstellungs-Regel-Fundament — lineup_rules JSONB + Validator (Slice 385)
@@ -15,7 +16,6 @@
 - 847ee35e docs(handoff): Session-Close 2026-06-25 — D107 + E-3 Türsteher (384) DONE
 - f56019c2 docs(log): Slice 384 DONE — E-3 Türsteher AC1-AC12 PASS, Epic E-3 reconciled
 - 7bf23383 feat(events): E-3 Türsteher — Follower-Pflicht + Fan-Rang-Gate auf Event-Eintritt (Slice 384)
-- 6549a445 docs(decision): D107 — Event-Bedingungen Zwei-Töpfe + Regel-Liste (JSONB lineup_rules)
 
 <!-- auto:handoff-end -->
 
@@ -25,7 +25,19 @@
 
 **Status: idle. HEAD = `7c6ac014` (== origin/main, alles gepusht).** Vor Start: `git status --short --branch && git log --oneline -8`. Audit-Churn gitignored. **Letzter Slice = 385 (E-3 Aufstellungs-Regel-Fundament: JSONB `events.lineup_rules` + generischer Validator in `rpc_save_lineup` + Pilot-Regel `min_per_own_club` feste Zahl) DONE. tsc clean, 142 vitest grün, force-rollback AC1-7 PASS (AC-6 = 0 Ressourcen-Move bei Reject), Reviewer PASS (3 NIT). main == origin/main.** Alles committet & gepusht. Diesen Handoff IMMER zuerst lesen (Anil-Regel). **Teaching-Mode durchgehend (einfach erklären, 1-3 Sätze Klartext VOR Tools). Nie verfrüht „bereit/launch-ready" — nur mit Sign-Off + Evidenz ([[feedback_no_premature_ready]]). Launch-Sequenz: Test-IPOs (wegwerfbar) → User-Tests → großer Start MIT Reset ([[project_launch_sequence_reset]]).**
 
-## 🎯 HIER ANKNÜPFEN — E-3-Regel-Erweiterungen ODER E-4 (Anil-Wahl)
+## 🎯 HIER ANKNÜPFEN (Session 2026-06-26) — E-3-Regel-Erweiterungen weiter ODER E-4
+
+**Diese Session (2026-06-26) — 3 Slices + UI-Verify, alle gepusht, CI grün. HEAD = `6b7330da`.**
+- **✅ Slice 386 (`aa8f695a`):** E-3 **Alters-Fenster** (`age_min`/`age_max`, Starter+Bank, fail-closed bei age NULL). **Fundament-Fix:** Wert-Bound von global `1..11` (385-Bug) auf **pro Regeltyp** gezogen. 15/15 force-rollback, Reviewer PASS, **AC-13 UI-live PASS** (beide Builder).
+- **✅ Slice 387 (`1b894543`):** Compliance-Fix `kazanılır`→`elde edilir` (MASAK-Verstoß aus Slice 374, CI war seit 374 rot). wording-compliance 9/9 grün.
+- **✅ Slice 388 (`7cabc155`):** E-3 **Min-pro-Position** (`min_per_position`, Formations-Steuerung — CEO Min statt Max). Zählt **Starter nach `players.position`** (Startelf-Slots server-seitig NICHT positions-validiert → ATT-Spieler im DEF-Slot zählt als ATT). Positions-geschlüsselte Regel `{type,position,value}`, LineupRule→Union. 13/13 force-rollback, Reviewer PASS, **AC-13 UI-live PASS** (beide Builder).
+- **➡️ NÄCHSTER = E-3-Regel-Erweiterung `nation_in`/max-pro-Nation** (Daten: nationality 95,5%, 168 Länder; mehr UI = Multi-Select) **ODER `mv_max_eur`** (Underdog; MV 86,4%, **Null-Edge entscheiden** = fail-closed vs durchlassen) **ODER `max_per_position`** (trivial, Spiegel von 388) **ODER E-4 User-Events** (L, Money/CEO). Muster = 386/388 (Validator-Branch + JSONB-Serialisierung, kein Schema-Change). Money-nah → Live-functiondef VOR Spec (D87), force-rollback-Smoke, Reviewer-Pflicht.
+- **Daten-Check (verifiziert 2026-06-26):** players.age 99,4% · nationality 95,5% · market_value_eur 86,4% · position 100% — alle Folge-Regeln baubar.
+- **Scope-Divergenz merken (fantasy.md/errors-db S388):** min_per_own_club + min_per_position = **Starter-only** (Komposition); age = **Starter+Bank** (Eignung).
+
+---
+
+## (vorige) HIER ANKNÜPFEN — E-3-Regel-Erweiterungen ODER E-4 (Anil-Wahl)
 - **✅ Slice 385 DONE (`107282d1`):** D107 Topf 2. `events.lineup_rules` (jsonb) + generischer Validator in `rpc_save_lineup` (Weg B: fail-closed bei unbekanntem type, Wert-Bounds 1..11 mit Regex-Guard VOR `::INT`-Cast, läuft VOR INSERT+Wildcard-Move) + Pilot-Regel `min_per_own_club` (feste Zahl, CEO-Entscheid Anil — deckt sich mit `max_per_club`). Read (3 Selects+`*`+DbEvent+FantasyEvent+Mapper+`LineupRule`-Type), Write (createEvent+EDITABLE_FIELDS 26→27/25→26+Klon+minPerOwnClub-Serialisierung), Builder-Input beide Admins, Toast+i18n DE/TR. Migration `20260625220000`. Knowledge fantasy.md (Bedingungs-Tabelle + Zwei-Töpfe-Note). Reviewer 3 NIT (kosmetisch/Scope-Out, `385-review.md`).
 - **✅ AC-12 UI post-Deploy ERLEDIGT (2026-06-25):** Club-Admin-Builder (`/club/sakaryaspor/admin`→Events→Neues Event) live verifiziert via browser_evaluate — Label „Min. Spieler vom eigenen Verein" rendert (i18n `t()` aufgelöst), **kein MISSING_MESSAGE / Raw-Key-Leak** (S333), Input `type=number min1 max11 inputMode=numeric placeholder="Keine Regel"`, 0 Console-Errors. Platform-Builder = identische Komponente, Label DE-hardcoded (MISSING_MESSAGE strukturell unmöglich). → **Slice 385 AC-1..AC-12 ALLE PASS, voll-DONE.** (Headless: Klick-Overlay + Screenshot-Quirk → DOM-Evaluate als konklusiver Beweis; PNGs gitignored.)
 - **➡️ NÄCHSTER SLICE = E-3-Regel-Erweiterungen** (je winziger Folge-Slice, KEIN Schema-Change dank JSONB — nur neuer CASE-Zweig im Validator + Builder-Feld + Toast-i18n): `age_max`/`age_min`/Alters-Fenster · `nation_in`/max-pro-Nation · `mv_max_eur` (Underdog) · `position_quota`. **VOR Bau: Daten-Check** — Alter/Geburtsdatum + Nationalität müssen auf `players` verfügbar sein (`market_value_eur` existiert); sonst Scraper/Spalte-Slice zuerst. ODER **E-4 User-Events** (L, Money/CEO). Money-nah → Live-functiondef VOR Spec (D87), force-rollback-Smoke, Reviewer-Pflicht. Pattern-Vorbild = Slice 385 (Validator-Block-Mechanik + JSONB-Serialisierung im Form).
