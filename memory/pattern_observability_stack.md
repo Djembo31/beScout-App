@@ -114,6 +114,10 @@ Query scheitert → soll Operation scheitern?
       └── .catch(() => ...)   → logSilentCatch (Tier 3)
 ```
 
+## Tier 4: `captureMessage` am erschöpften Recovery-Pfad (Slice 394)
+
+Ein **graceful-degrade-Fallback** (Retry + Cache), dessen finaler „alle Versuche gescheitert"-Zweig nur `console.error` ist, ist ein **Observability-Blindspot**: Sentry sieht 0 Instanzen, die echte Nutzer-Frequenz ist unmessbar — man kann nicht entscheiden, ob ein tieferer Fix nötig ist. Regel: den **erschöpften** Recovery-Pfad (nach Retry, nicht jeden Zwischen-Fehler) mit `captureMessage(name, 'error', { feature, slice, userId, extra })` (`@/lib/observability/captureError`) instrumentieren. `console.error` bleibt für Dev. No-op in dev (Sentry production-only). Bei money-/auth-nahem Pfad: **erst messbar machen, NICHT die Race/RLS-Logik anfassen** (§1 caution over speed) — tieferer Fix erst nach Daten. Kontext-Booleans (`hadCachedProfile`, `isRefresh`) statt PII. Live: `AuthProvider.tsx` `auth.profileLoadFailedAfterRetry` (JWT-Hydration-Race, Cookie-Resume).
+
 ## Integration-Sites (nach 093)
 
 **Promise.all (Tier 1) — 1 Stelle** (zusätzlich Slice 087)
