@@ -1,0 +1,35 @@
+Slice 413 — Welle 1.5(a/c/d/e) Markt-Kauf-RPCs vereinheitlichen — PROOF
+Datum: 2026-06-27 · Money/CEO · Project skzjfhvgccaeplydsunz
+
+================================================================
+PATCH-AUDIT (functiondef ILIKE, live nach Apply)
+================================================================
+buy_player_sc : has_price_change=true (NEU, e) · has_tier_ratelimit=true · has_treasury=true · has_idempotency=true · fee created_at DESC
+buy_from_order: has_tier_ratelimit=true (NEU, a) · created_at DESC (NEU, c) · has_price_change=true · has_treasury=true · has_idempotency=true
+ACL beide unverändert: {postgres=X,authenticated=X,service_role=X}  (kein anon)  ✓
+HINWEIS: ILIKE-Flags `still_has_silent_cap`/`still_has_nulls_last` = FALSE-POSITIVE aus den
+  Erklär-Kommentaren (nennen 'p_quantity := v_remaining' bzw. 'club_id NULLS LAST' wörtlich) —
+  exakt die S406-Audit-Falle. Verhaltens-Smoke ist der autoritative Beweis (unten).
+
+================================================================
+AC1-AC2-AC5 — buy_player_sc force-rollback (nailoku kauft Douglas, cheapest Order @20000, rem 1, last_price 30000)
+================================================================
+REPORT >>> AC1_reject=[Nur 1 SCs verfuegbar] | AC2_ok=true | price_change_after=-33.3333 | AC5_zerosum_delta=0
+
+  AC1 qty 10 > rem 1 → REJECT „Nur 1 SCs verfuegbar"  ✓ (vorher: still gekappt auf 1)
+  AC2 qty 1 → success, players.price_change_24h = -33.3333 = (20000-30000)/30000*100  ✓ (vorher: nicht gesetzt)
+  AC5 Zero-Sum Σ(wallet.balance+locked)+platform_ledger_net+club_ledger_net+Σpbt delta = 0  ✓ (geldneutral)
+
+================================================================
+AC3-AC4 — buy_from_order force-rollback Regression (nailoku kauft Tiren-Order @1500, 2 von 4)
+================================================================
+REPORT >>> ok=true | effective_fee_bps=600 | total_cost=3000 | zerosum_delta=0
+
+  AC4 fee_config-Lookup created_at DESC → effective_fee_bps=600 (global config, kein Abo)  ✓ geldneutral
+  total_cost 2×1500=3000, Zero-Sum delta=0  ✓ (Bestands-Pfad nach (a)+(c) regression-safe)
+  AC3 tier-Rate-Limit: tier-CASE-Subquery byte-identisch zu live-bewährter buy_player_sc-Version
+      (functiondef has_tier_ratelimit=true); kein behavioral Test (bräuchte 20+ Trades + gold-Abo).
+
+================================================================
+Beide Smokes BEGIN…RAISE → vollständiger Rollback, 0 Persistenz (Topf/Wallets live unverändert).
+fee_config live = 1 Row (global) → 1.5c geldneutral (created_at DESC == NULLS LAST bei 1 Row).

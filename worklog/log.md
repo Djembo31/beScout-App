@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 413 | 2026-06-27 | fix(trading): Welle 1.5a/c/d/e — Markt-Kauf-RPCs vereinheitlichen (buy_player_sc ↔ buy_from_order) [Money/CEO]
+- Stage-Chain: SPEC (`specs/413-…`, M Money) → IMPACT inline → BUILD (1 Migration, 2 RPCs CREATE OR REPLACE) → REVIEW reviewer-Agent **PASS** (`reviews/413-review.md`, 2 INFO out-of-scope) → PROVE (force-rollback beide RPCs) → LOG.
+- **Mock→Pro Welle 1.5-Abschluss-Cluster.** Live-Befund (D87): die zwei Markt-Kauf-RPCs (`buy_player_sc` = Markt/auto-cheapest, `buy_from_order` = gewählte Order) waren über **4 Dimensionen** auseinandergedriftet („von allem zwei"-Root-Cause): (d) Menge-zu-viel — buy_player_sc kappte still / buy_from_order lehnte ab · (a) Rate-Limit/24h — buy_player_sc tier-basiert / buy_from_order hart 20 · (c) fee_config-Lookup — created_at DESC / club_id NULLS LAST · (e) price_change_24h — buy_player_sc setzte es nicht / buy_from_order schon.
+- **Fix (Anil-Entscheid 1.5d = ABLEHNEN; a/c/e = CTO-Konsistenz auf kanonischen Pfad):** buy_player_sc → (d) Reject statt still-Kappen + (e) price_change_24h gesetzt (v_player-SELECT um `last_price` erweitert). buy_from_order → (a) tier-Subquery (`p_buyer_id`) + (c) created_at DESC. Beide Bodies sonst byte-treu (PATCH-AUDIT S156: alle Guards/Fee 600/150/100/Escrow/Idempotenz/book_platform_treasury/Return-Shape erhalten).
+- **Beweis (`proofs/413-…txt`):** buy_player_sc force-rollback — AC1 `Nur 1 SCs verfuegbar` (reject) · AC2 price_change=-33.3333 · AC5 Zero-Sum delta=0. buy_from_order Regression — ok/effective_fee_bps=600/Zero-Sum delta=0. ACL beide unverändert (kein anon). fee_config live=1 Row → 1.5c geldneutral. S406-ILIKE-FP (Kommentar-Artefakt) im Proof entschärft.
+- **Wissens-Kopplung (D88):** kein neuer Bug-Typ (S156/S406/created_at-Kanon angewandt) → keine errors-*.md-Ergänzung. `docs/knowledge/treasury.md` Fee-Split unberührt → kein Doc-Drift.
+- **Offene INFO (eigene Slices):** `'Max 20 Trades/24h'`-String jetzt inhaltlich falsch für gold/silber/bronze (Limit 200/50/30) → i18n-Polish · `'Nicht genug BSD'`-Prosa = 1.5b-Hygiene.
+- Commit: <pending>
+
 ## 412 | 2026-06-27 | fix(trading): Welle 1.5b+1.5f — Trading-Error-Display-Konsistenz (Offers-Tab Roh-Leaks + idempotency_pending) [UI/i18n]
 - Stage-Chain: SPEC inline (active.md, S) → IMPACT skipped (Display-only) → BUILD (3 Files + 2 i18n) → REVIEW self-review PASS (geldneutral) → PROVE (tsc+JSON+grep) → LOG.
 - **Welle 1.5 Teil-Schließung (Anil: 1.5+1.6 schließen → dann Live-Walk).** Root-Cause: `addToast` rendert `message` ROH (ToastProvider:81, übersetzt nicht). Im selten genutzten P2P-Offers-Tab leakten: `useOffersState` 5× `addToast('<bloßer Key>')` (Roh-Key-Leak bei jedem erfolgreichen Offer) + `OffersTab:249/252` rohes `result.error`/`e.message` (BSD-Wort + Deutsch-im-TR, §4).

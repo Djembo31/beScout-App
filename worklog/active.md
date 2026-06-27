@@ -2,16 +2,20 @@
 
 ```
 status: idle
-slice: 412
-title: Welle 1.5(b)+1.5(f) — Trading-Error-Display-Konsistenz (P2P-Offers Roh-Key/Roh-Error-Leaks + idempotency_pending mappen) — DONE
-size: S (Frontend/i18n — kein Money-RPC/Logic-Change; Error-Display-Schicht)
+slice: 413
+title: Welle 1.5(a/c/d/e) — Markt-Kauf-RPCs vereinheitlichen (buy_player_sc ↔ buy_from_order, 4 Dim Drift) — DONE
+size: M (Money/CEO — 2 SECURITY DEFINER Kauf-RPCs; PATCH-AUDIT + force-rollback Zero-Sum)
 stage: LOG (DONE)
-spec: inline (unten)
-impact: skipped (Display-only: welcher String gezeigt wird; kein Money-Flow/Shape-Change)
-proof: worklog/proofs/412-error-display.txt
-proof-note: tsc 0 + JSON-Gate de/tr + 0 Leak-greps; idempotency_pending→idempotencyPending
-review: worklog/reviews/412-review.md — self-review PASS (Display-only, geldneutral)
+spec: worklog/specs/413-market-buy-rpc-consistency.md
+impact: inline (Spec §3 — kein Service/Type/UI-Change; Return-Shape unverändert, Error-String gemappt)
+proof: worklog/proofs/413-market-buy-consistency.txt
+proof-note: AC1 reject + AC2 price_change=-33.33 + AC5 Zero-Sum=0 (buy_player_sc) + buy_from_order fee_bps=600/Zero-Sum=0; ACL erhalten
+review: worklog/reviews/413-review.md — Reviewer PASS (2 INFO Legacy-String-Hygiene, out-of-scope)
 ```
+**Welle 1.5 KOMPLETT (b/f=412, a/c/d/e=413). Offen Welle 1.6: OrderDepthView Best-Ask/Spread eigene Orders excludieren. Dann Live-e2e-Walk.**
+**Anil-Entscheid 2026-06-27:** 1.5d = ABLEHNEN (beide). 1.5a=tier-basiert · 1.5c=created_at DESC · 1.5e=beide setzen price_change_24h. fee_config-Count=1 (global) → 1.5c geldneutral.
+
+## 412 (vorige) — DONE
 
 ## INLINE-SPEC Slice 412 (Welle 1.5b + 1.5f)
 **Problem (live-verifiziert, kein Raten):**
