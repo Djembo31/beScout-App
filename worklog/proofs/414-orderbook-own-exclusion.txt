@@ -1,0 +1,24 @@
+Slice 414 — Welle 1.6 OrderDepthView eigene Orders excludieren — PROOF
+Datum: 2026-06-27 · Frontend (kein Money/RPC)
+
+================================================================
+Änderung
+================================================================
+OrderDepthView.tsx askLevels + bidLevels useMemos: `if (o.is_own) continue;` am
+Schleifen-Anfang. Eigene Orders fließen nicht mehr in die Aggregation → Best-Ask,
+Spread (Z.180-189) und hervorgehobene günstigste Zeile (i===0) folgen automatisch.
+PublicOrder.is_own ist server-seitig projiziert (get_public_orderbook, auth.uid()) →
+kein userId-Prop/Service-Change nötig.
+
+Konsistenz: Spiegel buy_player_sc/buy_from_order (`user_id != p_user_id`) + trading.md
+S7-303 F-1 (Display soll zeigen, was man tatsächlich kaufen kann).
+
+================================================================
+AC-Verifikation
+================================================================
+AC1 eigene Orders nicht in askLevels/bidLevels — Code: `if (o.is_own) continue;` beide Schleifen.
+AC2 tsc --noEmit → exit 0 ✓ (PublicOrder.is_own existiert, von usePlayerTrading bereits genutzt).
+AC3 Live (nach Deploy, im e2e-Walk): jarvis bei Douglas (eigene @200-Order) → eigene Order
+    NICHT als Best-Ask im Orderbuch. → s. e2e-Walk-Proof (414 + Lebenszyklus gebündelt).
+
+[Live-Walk-Ergebnis wird nach Deploy unten ergänzt.]

@@ -1,18 +1,23 @@
 # Active Slice
 
 ```
-status: idle
-slice: 413
-title: Welle 1.5(a/c/d/e) — Markt-Kauf-RPCs vereinheitlichen (buy_player_sc ↔ buy_from_order, 4 Dim Drift) — DONE
-size: M (Money/CEO — 2 SECURITY DEFINER Kauf-RPCs; PATCH-AUDIT + force-rollback Zero-Sum)
-stage: LOG (DONE)
-spec: worklog/specs/413-market-buy-rpc-consistency.md
-impact: inline (Spec §3 — kein Service/Type/UI-Change; Return-Shape unverändert, Error-String gemappt)
-proof: worklog/proofs/413-market-buy-consistency.txt
-proof-note: AC1 reject + AC2 price_change=-33.33 + AC5 Zero-Sum=0 (buy_player_sc) + buy_from_order fee_bps=600/Zero-Sum=0; ACL erhalten
-review: worklog/reviews/413-review.md — Reviewer PASS (2 INFO Legacy-String-Hygiene, out-of-scope)
+status: in-progress
+slice: 414
+title: Welle 1.6 — OrderDepthView eigene Orders aus Best-Ask/Spread/Depth excludieren
+size: S (Frontend — kein Money/RPC; is_own-Filter, schließt Welle 1.5/1.6)
+stage: BUILD
+spec: inline (unten)
+impact: skipped (Display-only; nutzt vorhandenes PublicOrder.is_own, kein Service/Type-Change)
+proof: Live-Walk-Verify (jarvis hält eigene Douglas-Order @200) + tsc
+review: self-review (Frontend, kein Money)
 ```
-**Welle 1.5 KOMPLETT (b/f=412, a/c/d/e=413). Offen Welle 1.6: OrderDepthView Best-Ask/Spread eigene Orders excludieren. Dann Live-e2e-Walk.**
+
+## INLINE-SPEC Slice 414 (Welle 1.6, letzter 1.5/1.6-Punkt)
+**Problem:** `OrderDepthView` aggregiert ALLE Sell/Buy-Orders inkl. der **eigenen** des Betrachters → Best-Ask/Spread (Z.180-189) + hervorgehobene günstigste Zeile zeigen evtl. die eigene Order, die man gar nicht kaufen kann. Inkonsistent mit `buy_player_sc`/`buy_from_order` (matchen nur `user_id != p_user_id`) + trading.md S7-303 F-1.
+**Lösung:** in `askLevels`+`bidLevels`-useMemos `if (o.is_own) continue;` — `PublicOrder.is_own` ist server-seitig projiziert (get_public_orderbook, kein userId/Service-Change). Best-Ask/Spread/Highlight folgen automatisch. Eigene Orders bleiben im „Meine Orders"-Bereich sichtbar (anderswo).
+**AC:** (1) eigene Orders nicht in askLevels/bidLevels. (2) tsc 0. (3) Live: jarvis sieht bei Douglas (eigene @200-Order) NICHT seine Order als Best-Ask. **PROVE = im Live-Walk mitverifiziert.**
+
+## 413 (vorige) — DONE (Welle 1.5 komplett)
 **Anil-Entscheid 2026-06-27:** 1.5d = ABLEHNEN (beide). 1.5a=tier-basiert · 1.5c=created_at DESC · 1.5e=beide setzen price_change_24h. fee_config-Count=1 (global) → 1.5c geldneutral.
 
 ## 412 (vorige) — DONE

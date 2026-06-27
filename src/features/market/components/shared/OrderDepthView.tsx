@@ -322,6 +322,10 @@ export default function OrderDepthView({ playerId }: OrderDepthViewProps) {
     if (!sellOrders || sellOrders.length === 0) return [];
     const grouped = new Map<number, { qty: number; count: number }>();
     for (const o of sellOrders) {
+      // Slice 414: eigene Orders raus — man kauft nur Fremd-Orders (Spiegel
+      // buy_player_sc/buy_from_order `user_id != p_user_id`); sonst zeigt Best-Ask/
+      // Spread die eigene Order, die man gar nicht kaufen kann (trading.md S7-303 F-1).
+      if (o.is_own) continue;
       const available = o.quantity - o.filled_qty;
       if (available <= 0) continue;
       const existing = grouped.get(o.price);
@@ -354,6 +358,8 @@ export default function OrderDepthView({ playerId }: OrderDepthViewProps) {
     if (!buyOrders || buyOrders.length === 0) return [];
     const grouped = new Map<number, { qty: number; count: number }>();
     for (const o of buyOrders) {
+      // Slice 414: eigene Bids raus — analog ask-Seite (eigenes Gebot ist kein Markt-Spread).
+      if (o.is_own) continue;
       const available = o.quantity - o.filled_qty;
       if (available <= 0) continue;
       const existing = grouped.get(o.price);
