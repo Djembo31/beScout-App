@@ -1,0 +1,40 @@
+SLICE 426 — Orphan-Cleanup: alte Lineup-Builder-UI löschen (S280) — PROOF
+=========================================================================
+Datum: 2026-06-27 | Dead-Code-Removal, kein Behavior/Money/User-facing-Change
+
+— CASCADE-CLOSURE (vor Löschung verifiziert) —
+6 Komponenten mit 0 Live-Consumer (nur untereinander + via totes LineupBuilder):
+  LineupBuilder, ScoreBreakdown, SynergyPreview, PitchView, PlayerPicker, FormationSelector
+Externe Imports der 6 (FantasyPlayerRow, PickerSortFilter, FDRBadge, constants, queries,
+  helpers, clubs, types) haben ALLE Live-Consumer außerhalb (LineupPanel, useLineupPanelState,
+  lineupStore, ClubFixturesStrip) → KEINE transitive Orphan-Kaskade.
+Barrel lineup/index.ts = 0 Importer (alle Consumer nutzen Subpath) → mitgelöscht.
+BenchRow.tsx = Live via Subpath (LineupPanel) → BLEIBT.
+Tests: EventDetailModal.test.tsx:108 mockt calculateSynergyPreview (Funktion @/types),
+  NICHT die Komponenten; synergy-preview.test.ts importiert die Funktion → kein Test-Cleanup.
+
+— GELÖSCHT (git rm) —
+  src/features/fantasy/components/lineup/LineupBuilder.tsx
+  src/features/fantasy/components/lineup/ScoreBreakdown.tsx
+  src/features/fantasy/components/lineup/SynergyPreview.tsx
+  src/features/fantasy/components/lineup/PitchView.tsx
+  src/features/fantasy/components/lineup/PlayerPicker.tsx
+  src/features/fantasy/components/lineup/FormationSelector.tsx
+  src/features/fantasy/components/lineup/index.ts  (Barrel, 0 Importer)
+Übrig in lineup/: BenchRow.tsx
+
+— GATES —
+$ npx tsc --noEmit
+TSC EXIT: 0   (kein gebrochener Import → AC2)
+
+$ pnpm audit:orphan
+  Components scanned: 158 | Orphans found: 3 | Real drift: 0 | ✅ No orphan components.
+  (die 6 sind weg; verbleibende 3 known-allowlisted + 3 test-only = Real drift 0 → AC3)
+
+$ CI=true npx vitest run src/features/fantasy src/features/manager src/components/fantasy
+  Test Files  28 passed (28)
+       Tests  317 passed (317)   (kein Test referenzierte die 6 → AC4)
+  (volle Suite läuft im pre-push/CI test-job)
+
+— AC5: git diff = nur Deletions (kein Live-Edit) —
+  7 Files deleted, 0 Files modified. Verhalten unverändert.

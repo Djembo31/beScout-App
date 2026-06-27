@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 426 | 2026-06-27 | refactor(fantasy): Orphan-Cleanup — alte Lineup-Builder-UI löschen (S280) [Dead-Code]
+- Stage-Chain: SPEC (`specs/426-…`, S) → IMPACT (skipped: Dead-Code-Removal, 0 Consumer) → BUILD (git rm) → REVIEW **self-review** (`reviews/426-review.md`, Ops-Lane — objektiver Beweis statt Cold-Context) → PROVE (`proofs/426-orphan-cleanup.txt`) → LOG. Commit `<hash>`. **Anil-Wahl: „Orphan-Löschung jetzt".**
+- **Folge aus Slice 425-Befund:** die komplette **alte** Lineup-Builder-UI existierte doppelt (D111-Wurzel #1 „von allem zwei") — `LineupPanel`+`useLineupPanelState` (live) ersetzen sie, Alt-Versionen nie gelöscht. Genau das ließ den 424-Review die falsche (tote) Surface nennen.
+- **Gelöscht (6 Komponenten, 0 Live-Consumer + Barrel, 0 Importer):** `LineupBuilder` · `ScoreBreakdown` · `SynergyPreview` · `PitchView` · `PlayerPicker` · `FormationSelector` + `lineup/index.ts`. **`BenchRow.tsx` bleibt** (live via Subpath in LineupPanel).
+- **Cascade-Closure (S280) verifiziert vor Löschung:** alle externen Imports der 6 (FantasyPlayerRow/PickerSortFilter/FDRBadge/constants/queries/helpers/clubs/types) haben Live-Consumer außerhalb → keine transitive Kaskade. Tests: `EventDetailModal.test.tsx:108` mockt nur `calculateSynergyPreview` (Funktion @/types), nicht die Komponenten → kein Test-Cleanup.
+- **Proof:** **7 Files / 1541 Zeilen gelöscht, 0 Live-Edit** · tsc 0 (kein gebrochener Import) · `pnpm audit:orphan` **Real drift 0** („No orphan components") · vitest fantasy/manager/components **317/317** (volle Suite in CI).
+- **Files:** 6 Komponenten + Barrel (DELETE).
+
 ## 425 | 2026-06-27 | fix(fantasy/manager): Welle-2 Display-Truth Cleanup A/B/C [Display-only, money-neutral]
 - Stage-Chain: SPEC (`specs/425-…`, M) → IMPACT (skipped: display-only, kein Service-Contract/RPC/Schema) → BUILD (selbst) → REVIEW reviewer-Agent **PASS** (`reviews/425-review.md`, 2 NIT pre-existing) → PROVE (`proofs/425-display-truth.txt`) → LOG. Commit `<hash>`. **CEO-Wahl Anil: „Welle-2-Cleanup abschließen".**
 - **3 verifizierte 424-Review-Display-Smells geheilt (alle binden Anzeige an kanonische Quelle):** (A) scored Synergie-Banner liest jetzt die **gesettelte** `lineups.synergy_bonus_pct` + `synergy_details` (inkl. **Surge ungecappt**, >15 möglich) statt der Client-Approximation; Hook `useLineupBuilder` exposed `settledSynergy`. (B) scored-Breakdown-Club-Name `getClub(player.clubId)?.name ?? player.club` (stale `players.club`-Freitext, 6,6 % falsch). (C) `KaderTab`/`KaderToolbar`-Club-Filter String→**clubId-Key** (`availableClubs {id,name}[]`, `filter player.clubId===clubFilter`, `clubGroups.clubName` via getClub — einheitlicher `clubId ?? club`-Key wie S423).

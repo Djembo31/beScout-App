@@ -2,29 +2,28 @@
 
 ```
 status: idle
-slice: 425
-title: Welle-2 Display-Truth Cleanup (A scored-Synergie==Server · B Club-UUID-Label · C Kader-Filter-clubId) — DONE
-size: M
+slice: 426
+title: Orphan-Cleanup — alte Lineup-Builder-UI löschen (6 Komponenten + Barrel, S280) — DONE
+size: S
 stage: LOG (DONE)
-spec: worklog/specs/425-welle2-display-truth-cleanup.md
-impact: skipped (display-only, kein Service-Contract/RPC/Schema-Change)
-proof: worklog/proofs/425-display-truth.txt
-review: worklog/reviews/425-review.md (PASS, 2 NIT pre-existing)
-proof-summary: tsc 0 + 323 Tests grün + DB-shape (synergy_details.source=Name, synergy_bonus_pct=NUMERIC-String) + grep-Verify (LineupPanel = einzige live scored-Surface). Reviewer PASS.
+spec: worklog/specs/426-orphan-lineup-builder-cleanup.md
+impact: skipped (Dead-Code-Removal, 0 Live-Consumer)
+proof: worklog/proofs/426-orphan-cleanup.txt
+review: worklog/reviews/426-review.md (self-review Ops-Lane, PASS)
+proof-summary: 7 Files / 1541 Zeilen gelöscht, 0 Live-Edit. tsc 0 + audit:orphan Real-drift-0 + vitest 317/317. BenchRow bleibt.
 ```
 
 ## Zuletzt
 
-- **Slice 425** (2026-06-27) — Welle-2 Display-Truth A/B/C, Fix auf LIVE-Surface LineupPanel umgelenkt (ScoreBreakdown=tot) (M, PASS).
+- **Slice 425** (2026-06-27) — Welle-2 Display-Truth A/B/C auf Live-Surface LineupPanel (M, PASS).
 - **Slice 424** (2026-06-27) — Synergie-Vorschau == Server (M, PASS).
 - **Slice 423** (2026-06-27) — Picker-Club-Identität auf UUID (S, PASS).
 
-## Plan (425) — DONE
+## Plan (426) — Dead-Code-Removal
 
-A scored Synergie-Banner an gesettelte `lineups.synergy_bonus_pct`+`synergy_details` (inkl. Surge ungecappt; Coerce NUMERIC-String "10.00"→10 im Hook) · B scored-Breakdown Club-Name via `getClub(player.clubId)` · C KaderTab/Toolbar Club-Filter String→clubId-Key. Hook `useLineupBuilder` exposed `settledSynergy` (required-Prop durch EventDetailModal+AufstellenTab). **Surface-Korrektur:** ScoreBreakdown.tsx ist toter Code → Live-Surface = LineupPanel.tsx. Money-neutral, kein Migration. tsc 0 + 323 Tests + Reviewer PASS.
+Löschen: `LineupBuilder` · `ScoreBreakdown` · `SynergyPreview` · `PitchView` · `PlayerPicker` · `FormationSelector` (6 Komponenten, 0 Live-Consumer) + Barrel `lineup/index.ts` (0 Importer). `BenchRow.tsx` BLEIBT (Live via Subpath in LineupPanel). Closure verifiziert: alle externen Imports der 6 haben Live-Consumer → keine transitive Kaskade; kein Test referenziert die 6. Proof = tsc 0 + audit:orphan + volle vitest + git diff (nur Deletions).
 
-## 🚩 Eskalation / gemeldete Smells (offen)
-- **ORPHAN-CLUSTER (CTO-autonom, eigener S280-Slice):** `LineupBuilder`/`ScoreBreakdown`/`SynergyPreview`/`PitchView`/`PlayerPicker`/`FormationSelector` = 6 Komponenten in `features/fantasy/components/lineup/` mit **0 Live-Consumer** (nur `BenchRow` live). Komplette alte Builder-UI dupliziert (D111-Wurzel #1). Löschen mit Cascade-Closure + Barrel + EventDetailModal.test-Mocks.
-- **CEO-Forks (NICHT autonom):** Admin-Gameweek-Engine („GW-Lifecycle per-Liga?", Money-Path) · Ranking-Konsolidierung scout_scores↔user_stats · Welle 3 (Lineup-Datenmodell-Fork).
-- **Player-Domain `getClub(player.club)`** (PlayerHero/PlayerRow/TradingCardFrame/player/index.tsx) = eigener Card-Identitäts-Smell-Cluster.
-- **NIT (eigener Slice):** Kader `clubFilter`-State-Reset bei Country/League-Switch (pre-existing).
+## 🚩 Offen (nach 426)
+- **CEO-Forks (NICHT autonom):** Admin-Gameweek-Engine („GW-Lifecycle per-Liga?") · Ranking-Konsolidierung scout_scores↔user_stats · Welle 3.
+- **Player-Domain `getClub(player.club)`** (PlayerHero/PlayerRow/TradingCardFrame) = Card-Identitäts-Smell-Cluster.
+- **NIT:** Kader `clubFilter`-State-Reset bei Country/League-Switch (pre-existing).
