@@ -1,0 +1,39 @@
+Slice 410 — Club-Treasury-Ledger korrekte Quellen-Labels — PROOF
+Datum: 2026-06-27 · Project skzjfhvgccaeplydsunz · Money/CEO (SECURITY DEFINER Trigger, geldneutral)
+
+================================================================
+AC1 — Trigger-Body enthält 3-Wege-Discriminator (ipo_fee + p2p_fee)
+================================================================
+SELECT pg_get_functiondef(...) ILIKE '%ipo_fee%' AND ILIKE '%p2p_fee%'  →  true   ✅
+
+================================================================
+AC2-AC5 — force-rollback DO-Block (3 fake-Trades, RAISE → Rollback, 0 Persistenz)
+  Spieler 90efa4cd… (club 72a81990…), club_fee=100 je Trade
+================================================================
+RAISE-Output:
+  REPORT >>> ipo_type=ipo_fee | mkt_type=trade_fee | p2p_type=p2p_fee | net_delta=300 (erwartet 300)
+
+  AC2 IPO-Trade   (ipo_id gesetzt)        → type = 'ipo_fee'    ✅
+  AC3 Markt-Trade (sell_order_id gesetzt) → type = 'trade_fee'  ✅ (Bestands-Pfad unverändert, Regression-Beweis)
+  AC4 P2P-Trade   (alle Marker NULL)      → type = 'p2p_fee'    ✅
+  AC5 Zero-Sum: club_ledger_net delta = 300 = Σ club_fee (100×3)  ✅
+      → reines Re-Labeln, Betrag landet identisch im Ledger; get_club_balance
+        bucketet trade_fee/ipo_fee/p2p_fee gemeinsam in v_trade_fees → Saldo unverändert.
+
+================================================================
+AC6 — ACL unverändert (CREATE OR REPLACE erhält ACL, S368c)
+================================================================
+vor:  {=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}
+nach: {=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}   ✅
+(anon=X = harmloser PUBLIC-Default einer Trigger-Funktion — nie direkt aufrufbar, AR-44-Ausnahme)
+
+================================================================
+Frontend/i18n — kein Change nötig (vorab verkabelt)
+================================================================
+- AdminWithdrawalTab.tsx:12-13 KNOWN_LEDGER_TYPES enthält 'ipo_fee'+'p2p_fee' bereits.
+- messages/de.json: ledgerType.ipo_fee="Erstverkauf-Gebühr", ledgerType.p2p_fee="P2P-Gebühr"
+- messages/tr.json: ledgerType.ipo_fee="Kulüp Satışı ücreti", ledgerType.p2p_fee="P2P ücreti"
+→ Neue Labels rendern sofort ohne MISSING_MESSAGE/Roh-Key-Leak (S333).
+
+Historische 7 'trade_fee'-Rows (5007 cents): BEWUSST NICHT backfilled
+(append-only Ledger-Hygiene / fix-forward; konsistent mit CEO-Entscheid 249.800-cents).

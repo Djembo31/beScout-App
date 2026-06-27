@@ -2,21 +2,23 @@
 
 ```
 status: idle
-slice: 409
-title: Welle 1.4c — P2P-Offer Escrow-Robustheit: Refund-Symmetrie heilen (4 Stellen) — DONE
-size: M (Money/CEO — accept_offer 3 Branches + expire_pending_offers; Doppelbelastung + balance-Leak)
+slice: 410
+title: Club-Treasury-Ledger korrekte Quellen-Labels (ipo_fee / p2p_fee statt pauschal trade_fee) — DONE
+size: S (Money/CEO — SECURITY DEFINER Trigger trg_trades_book_club_treasury, geldneutral Re-Label)
 stage: LOG (DONE)
-spec: worklog/specs/409-offer-escrow-robustness.md
-impact: skipped (2 RPCs, kein Service/UI-Shape-Change; Consumer §3 gegreppt)
-proof: worklog/proofs/409-money-smoke.txt
-proof-note: AC1-7 PASS; 4 force-rollback Zero-Sum diff=0 (Doppelbelastung+Leak gefixt), Guards/Fee/ACL erhalten
-review: worklog/reviews/409-review.md — PASS (1 LOW Audit-Nuance §11, 1 INFO Reconciliation)
+spec: worklog/specs/410-club-ledger-source-labels.md
+impact: inline (Spec §4 — kein Service/UI/Type/i18n-Change; get_club_balance-Bucket+UI+i18n vorab vorhanden)
+proof: worklog/proofs/410-ledger-labels-smoke.txt
+proof-note: AC1-6 PASS; force-rollback ipo_fee/trade_fee/p2p_fee korrekt + Zero-Sum net_delta=300, ACL unverändert
+review: worklog/reviews/410-review.md — PASS (2 NIT: toter buy_order_id-Forward-Compat-Zweig, hardcoded DE-desc §11)
 ```
 
-## OFFENER CEO-ENTSCHEID (Slice 409 §9)
-Historische 249.800 cents (4 Wallets) aus den 6 alten abgelaufenen buy-Offers nie balance-refunded. CTO-Empfehlung: **stehen lassen** (Phase-1-Spielgeld D99 + Launch-Reset pending, 1 Wallet=jarvis-Test). RPC-Fix verhindert künftige Leaks. → Anil entscheidet refund-jetzt vs. Reset.
+## CEO-ENTSCHEID RESOLVED (2026-06-27, Anil)
+- **249.800 cents (4 Wallets) historischer buy-Offer-Refund → STEHEN LASSEN.** Phase-1-Spielgeld (D99) + Launch-Reset wischt eh; RPC-Fix (409) stoppt künftige Leaks. Kein Refund-Slice.
+- **Welle 1 sauber abschließen** gewählt → 410 (IPO/P2P-Ledger-Label) + danach 1.4d Buy-Limit-Doc.
 
 ## Zuletzt
+- **Slice 410** (2026-06-27) — Club-Ledger Quellen-Labels: IPO-Anteil→`ipo_fee`, P2P→`p2p_fee` statt pauschal `trade_fee` (Trigger-Discriminator). Reviewer PASS, geldneutral (force-rollback Zero-Sum + ACL erhalten), DONE.
 - **Slice 409** (2026-06-27) — P2P-Offer Escrow-Robustheit (Refund-Symmetrie, 4 Stellen), Reviewer PASS, 4× Zero-Sum diff=0, DONE.
 - **Slice 408** (2026-06-27) — Trading-Vokabular Markt/Kaufgebot, DE+TR Live PASS, DONE.
 - **Slice 407** (2026-06-27) — P2P-Offer-Fee auf 6% (=Markt, 3,5/1,5/1), Reviewer PASS, Zero-Sum diff=0, DONE.
