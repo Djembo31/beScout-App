@@ -9,7 +9,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **Beweis (`proofs/409-money-smoke.txt`):** AC-1 buy-Fulfillment diff=0 (Käufer −100 = Kosten, nicht −200) · AC-2 expire diff=0 · AC-3 expire qty3 voller Round-Trip · AC-4 sell-Pfad diff=0 (Regression) · AC-5 cancel diff=0 · AC-6 functiondef Guards/Fee/ACL (kein anon) · AC-7 tsc 0 + 105 Tests.
 - **Wissens-Kopplung (D88):** Escrow-Symmetrie-Regel → `trading.md` Escrow-Pattern (Lock/Unlock/Fulfillment) + `errors-db.md` **S409**. `docs/knowledge/treasury.md` beschreibt Escrow nicht im Detail → kein Doc-Drift.
 - **Historischer Live-Schaden (CEO-Entscheid offen, §9):** 6 abgelaufene buy-Offers (qty=1, 0× offer_unlock) → 249.800 cents über 4 Wallets nie balance-refunded. CTO-Empfehlung: stehen lassen (Phase-1-Spielgeld D99 + Launch-Reset pending). Fix verhindert künftige Leaks.
-- Commit: <hash>
+- Commit: a8ff84aa
 
 ## 408 | 2026-06-27 | feat(trading): Welle 1.4b — Trading-Vokabular entwirren (Markt sofort vs Kaufgebot P2P) [UI/i18n]
 - Stage-Chain: SPEC (`specs/408-…`, S UI/i18n) → IMPACT skipped (reine Label/i18n + 1 toter Block) → BUILD (TradingTab + de/tr.json + Test) → REVIEW self-review **PASS** (`reviews/408-review.md`, kein Money/Compliance-geprüft) → PROVE (JSON+Parität+Compliance+tsc+24 Tests; post-Deploy Playwright ausstehend) → LOG.
