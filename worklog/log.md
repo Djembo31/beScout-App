@@ -9,7 +9,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **Beweis:** force-rollback `accept_offer`-Smoke (Sell-Offer Douglas @20000, jarvis→nailoku): platform=700 (3,5 %), pbt=300 (1,5 %), club=200 (1 %), seller_net=18800, **Zero-Sum diff=0**. fee_config 350/150/100 + functiondef-Konstanten + Guards verifiziert. `proofs/407-money-smoke.txt`.
 - **Wissens-Kopplung (D88, aktiv gegreppt):** `docs/knowledge/` nennt P2P-Fee nicht autoritativ (treasury.md beschreibt Fee-Split generisch, nicht die offer_*-Werte) → kein Doc-Drift. Reviewer-Vorschlag (Fee-Bps-Migration = TS-Kommentar-Sync-Achse) als optionaler S356-Zusatz vermerkt, nicht-blockierend.
 - **Nächste Welle-1.4-Härtung:** 1.4b UI-Klarheit · 1.4c offers-Robustheit · 1.4d Buy-Limit-Doc · Mini-Slice IPO-Ledger-Label.
-- Commit: <hash>
+- Commit: 1de5902d
 
 ## 406 | 2026-06-27 | feat(trading): Welle 1.3 — Club-Treasury Single-Source-of-Truth (Counter-Orphan raus + DROP) [Money/CEO]
 - Stage-Chain: SPEC (`specs/406-…`, M Migration/Money) → IMPACT skipped (Consumer live §3/§4: 0 Counter-Reader, einziger src = schema-contract-Test) → BUILD (1 Migration: 4× CREATE OR REPLACE + DROP COLUMN, + 1 Test-Edit) → REVIEW reviewer-Agent **PASS** (`reviews/406-review.md`, 2 NIT kosmetisch) → PROVE (3× force-rollback Zero-Sum + Struct-Queries + tsc 0) → LOG.
