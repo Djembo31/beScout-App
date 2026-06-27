@@ -4249,3 +4249,25 @@ Read-only Bestandsaufnahme **Domäne für Domäne** (7 Domänen: Trading · Spie
 Welle 1.4 wird ein kleiner Härtungs-Strang (1.4a–d) statt eines Slices. Fee-Asymmetrie (1.4a) ist das offene Money/CEO-Item. Anker: `worklog/notes/406b-orderbook-offers-map.md`.
 
 **Re-Visit-Trigger:** Wenn P2P-Nutzung dauerhaft ~0 bleibt → Fork A (stilllegen) erneut erwägen. Wenn echtes Buy-Limit gewünscht → Fork C.
+
+---
+
+## D113 — ARCHITECTURE: Spieler-Score fixture-gebunden (Sorare-Pro) statt an GW-Nummer (Welle-2-Datenmodell-Gabelung)
+
+**Datum:** 2026-06-27 · **Status:** 🟢 Aktiv · **Category:** ARCHITECTURE · **Kontext:** Mock→Pro Welle 2 (Spieltag/Scoring), Datenmodell-Gabelung aus D111. Umgesetzt in Slice 419/419b. Live-Faktenbasis D87.
+
+### Befund (Live-DB + Code, 2026-06-27)
+`player_gameweek_scores` war `UNIQUE(player_id, gameweek)` **ohne `fixture_id`**. Die `gameweek` ist eine nackte Zahl 1..34/1..38, **über alle 7 Ligen geteilt** → „GW12" ligaübergreifend mehrdeutig. Der Writer `sync_fixture_scores` liest aus dem fixture-gebundenen `fixture_player_stats`, **kollabiert** aber per `ON CONFLICT(player_id,gameweek)` → Spiel-Granularität geht verloren. Real (nicht theoretisch): 40 (player,gw)-Kollisionen, 31 cross-league. Money-Reader `score_event` summierte Minuten ligaübergreifend (kein Liga-Filter).
+
+### Entscheidung
+**Option A (Anil-Wahl): Fixture-bound (Sorare-Pro).** Score = ein konkretes Spiel. `UNIQUE(player_id, fixture_id)` + denormalisiertes `league_id`. Writer schreibt pro (player, fixture); `score_event` löst die Event-Liga via `COALESCE(events.league_id, clubs.league_id)` auf und liest liga-gefiltert (`SUM` bei Mehrfachspiel = deterministisch). **Zweite CEO-Entscheidung:** die 1.401 herkunftslosen Orphan-Scores (GW32-35, vorgelagerte Mock-Scores ohne gespieltes Fixture) **löschen** statt nullable-Legacy-Pfad behalten → 100 % fixture-gebunden, eine Quelle.
+
+### Alternativen erwogen
+- **Option B — Liga-gebunden (`UNIQUE(player_id, gameweek, league_id)`):** löst die 31 cross-league-Kollisionen + den Geld-Pfad ohne Spiel-Granularität. Verworfen: bildet Doppelspiele nicht ab, halber Schritt — widerspricht „Sorare-Niveau".
+- **Option C — Status quo + Guards (nur Liga-Filter in `score_event`):** billigste Variante, lässt den strukturellen Smell in der Tabelle. Verworfen: gegen „nichts ist heilig / Datenmodell-Integrität".
+- **Orphan-Alternative — fixture_id nullable + partial UNIQUE:** kein Datenverlust, aber dauerhaft zweigleisiges Modell. Verworfen wegen „eine Quelle"-Ziel (Launch-Reset-pending macht Mock-Scores ohnehin disposable, D99).
+
+### Auswirkung
+Welle 2.1+2.2 in EINEM L-Slice (419) erledigt; UNIQUE-Flip zwang Writer + Money-Reader + alle Reader gleichzeitig. Money-neutral bewiesen (Score-Invarianz über 4813 Lineup-Slots, regressions=0). Neue Bug-Klasse codifiziert (errors-db **S419**): UNIQUE-/Kardinalitäts-Flip → ALLE SQL-Reader (auch live-only RPCs in migrations/) auf Row-Fanout auditieren — der Reviewer fand genau so einen (`rpc_get_recent_player_scores`, 419b). Folge-Slices Welle 2.3 (FDR Club-UUID) / 2.4 (GW-Max-Routing) / Ranking-Konsolidierung offen.
+
+**Re-Visit-Trigger:** Falls echte same-league-Doppelspiele (Nachholspiele) produktiv relevant werden → SUM-vs-MAX-Semantik in `score_event` als CEO-Folgeentscheid prüfen (heute SUM, betrifft nur Mock-Rand).
