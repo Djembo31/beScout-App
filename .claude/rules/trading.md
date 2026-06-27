@@ -61,12 +61,8 @@ paths:
 - **Floor-Anzeige user-facing = „Marktpreis" / „Piyasa Fiyatı" (S368c, vereinheitlicht)** — NICHT „Floor"/„Markt Floor".
   Sublabel quellen-ehrlich: offene Order → „Günstigstes Angebot", keine Order → „Letzter Verkauf", laufende IPO →
   Festpreis (`PlayerHero.floorSource`-Prop, abgeleitet aus `allSellOrders`-Präsenz, KEIN Client-Floor-Recompute).
-- **Display vs Charge bei eigener Order (S7-303 F-1, pre-existing):** `floor_price` schließt
-  EIGENE offene Sell-Orders mit ein; `buy_player_sc`/`buy_from_order` buchen aber die günstigste
-  Order ANDERER User (`user_id != p_user_id`). Wenn ein User selbst der günstigste Lister ist,
-  kann die angezeigte Kaufsumme minimal unter dem tatsächlich gebuchten Preis liegen. Future-Fix
-  optional: eigene Orders aus dem Display-Floor excludieren ODER Kauf blocken wenn eigene Order
-  am günstigsten. Kein Live-Blocker (selten + RPC ist autoritativ).
+- **Display vs Charge bei eigener Order (S7-303 F-1) — Eigene-Order-Exclusion ist Welle-1.6-Standard (S414/S415):** Jede Kauf-Anzeige (Best-Ask/Spread/Depth/„sofort kaufbar"-Liste) MUSS eigene Orders excludieren (`sellOrders.filter(o => !o.is_own)`), weil `buy_player_sc`/`buy_from_order` nur Fremd-Orders matchen (`user_id != p_user_id`) — sonst zeigt die UI eine Order, die der RPC beim Klick mit „Eigene Order kaufen nicht möglich" ablehnt. `PublicOrder.is_own` ist server-projiziert (`get_public_orderbook`). **Gefixt (Welle 1.6):** OrderDepthView (Markt-Tab, 414) + OrderbookSummary/OrderbookDepth (Player-Detail, 415, live verifiziert). **Noch offen (Folge-Slices):** „Marktplatz · sofort kaufbar"-Liste (Player-Detail), Bid-Seite (`OfferWithDetails` hat kein `is_own` → Type/Service-Change), `PlayerHero` bestBid. Best-Ask/Spread wird an ~5 Stellen client-seitig gerechnet (von-allem-N) → bei Änderung ALLE greppen + Live-Render (errors-frontend S414/415).
+- **Markt-Kauf bei Menge > verfügbar = ABLEHNEN, nicht still kappen (CEO-Entscheid Anil 2026-06-27, S413):** `buy_player_sc` + `buy_from_order` lehnen beide ab (`'Nur X SCs verfuegbar'` → `mapErrorToKey` → `notEnoughDpc`), kein stilles Reduzieren der Menge. Multi-Order-Sweep (gegen mehrere Orders auffüllen) = NICHT gebaut (Matching-Engine, eigener Slice).
 - Details: `docs/knowledge/domain/treasury.md` (Kanon) + `docs/CONCEPT-DPC-ECONOMY.md` + `memory/decisions.md` D83 (Pfad `memory/decision_pricing_asset_model.md` existiert NICHT — Drift)
 
 ## Fee-Split

@@ -1,27 +1,29 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 13:55)
+# Session Handoff — Auto (2026-06-27 14:28)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- 71ca15d9 docs(proof+handoff): 415 live-verified (BESTER ASK own-order weg); 1.6 Folge-Surfaces + Live-Walk offen
+- c69aa61d docs(log): Slices 414+415 — Welle 1.6 Orderbook own-order exclusion (2 Surfaces); Live-Verify nach Deploy
+- 7e9afcfc fix(trading): Slice 415 — Welle 1.6 OrderbookSummary Player-Detail eigene Sell-Orders aus Best-Ask excludieren [UI]
+- 9b7eb094 fix(trading): Slice 414 — Welle 1.6 OrderDepthView eigene Orders aus Best-Ask/Spread excludieren [UI]
 - e00dd859 docs(handoff): Welle 1.5 KOMPLETT (413 Markt-Kauf-RPCs vereinheitlicht) — offen 1.6 + Live-Walk
 - ae68fc5b docs(log): Slice 413 Commit-Hash (80720552)
 - 80720552 fix(trading): Slice 413 — Welle 1.5a/c/d/e Markt-Kauf-RPCs vereinheitlichen [Money/CEO]
 - 3b1029e9 docs(handoff): Welle 1.5/1.6 Stand — 412 (1.5b+1.5f) DONE, 1.5a/c/d/e + 1.6 own-order offen
 - 3e49c292 docs(log): Slice 412 Commit-Hash (ac51aab2)
 - ac51aab2 fix(trading): Slice 412 — Welle 1.5b+1.5f Offers-Tab Error-Display-Leaks + idempotency_pending [UI/i18n]
-- fdb4de6e docs(handoff): Resume-Anker — Welle 1.4 KOMPLETT (410 Ledger-Labels + 411 Buy-Doc), CEO-Entscheid 249.800 resolved
-- ce6ad0bd docs(log): Slice 411 Commit-Hash (277124a3)
-- 277124a3 docs(trading): Slice 411 — Welle 1.4d Buy-Limit gated + Fork-B verankert (stale Flag-Kommentar geheilt) [Doc/Ops]
-- 9098c49c docs(log): Slice 410 Commit-Hash (98d6ecb6)
 
 <!-- auto:handoff-end -->
 
 ---
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
+
+> **🧹 SESSION-CLOSE 2026-06-27 (DISTILL erledigt, fresh-session-ready):** 6 Slices geliefert+gepusht (410-415), Welle 1.4/1.5 KOMPLETT + 1.6 zu 2/5 Surfaces. Wissen verdrahtet: **S413** (Zwillings-RPC-Drift → errors-db) · **S414/415** (Client-Derived-Value an N Surfaces + Live-Render-Pflicht → errors-frontend) · trading.md (Own-Order-Exclusion + Menge-zu-viel=ABLEHNEN). Auto-`MEMORY.md` verdichtet (16.2KB). Trackers reconciled (active/MASTERPLAN/TODO/log). `main`==`origin/main` zuletzt nach diesem Commit. **Keine offenen Widersprüche/Stale.** Direkt-Start nächste Session: Teil-3-Block unten („NÄCHSTES = 3 Orderbook-Surfaces gebündelt → Live-Lifecycle-Walk").
 
 ## ⏩ STAND 2026-06-27 (Teil 2) — ZUERST LESEN
 **WELLE 1.4 KOMPLETT. 2 weitere Slices geliefert+gepusht (`main`==`origin/main`, zuletzt `ce6ad0bd`), `active.md`=idle:**
