@@ -1,16 +1,17 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 415
-title: Welle 1.6 (Teil 2) — OrderbookSummary Player-Detail: eigene Sell-Orders aus Best-Ask/Spread/Depth excludieren
+title: Welle 1.6 (Teil 2) — OrderbookSummary Player-Detail: eigene Sell-Orders aus Best-Ask/Spread/Depth excludieren — DONE (Live-Verify nach Deploy ausstehend)
 size: S (Frontend — kein Money/RPC; PublicOrder.is_own-Filter)
-stage: BUILD
+stage: LOG (DONE)
 spec: inline (unten)
 impact: skipped (Display-only)
-proof: Live-Verify Douglas (jarvis @200 own) nach Deploy + tsc
-review: self-review (Frontend, kein Money)
+proof: worklog/proofs/415-orderbook-summary-own-exclusion.txt (tsc 0; Live-Verify Douglas BESTER ASK „–" nach Deploy)
+review: worklog/reviews/415-review.md — self-review PASS
 ```
+**⏳ SOFORT-NÄCHSTES (Deploy-Lag): Live-Verify 414+415+412 auf bescout.net (Douglas BESTER ASK soll „–" statt 200; jarvis@200 einzige Order) → dann Lifecycle-Walk (IPO/Markt/Sell/P2P/accept/cancel). Bid-Seite own-exclusion + PlayerHero bestBid = Folge.**
 
 ## INLINE-SPEC Slice 415 (Welle 1.6 Teil 2 — vom Live-Walk aufgedeckt)
 **Live-Befund (bescout.net, jarvis @ Douglas):** `OrderbookSummary` (Player-Detail, `TradingTab:142`) zeigt `BESTER ASK: 200` = jarvis' EIGENE Sell-Order — die er nicht kaufen kann. `OrderbookSummary.bestAsk = Math.min(...sellOrders)` (Z.23) + eingebettetes `OrderbookDepth` (Z.111) inkludieren eigene Orders. **414 fixte `OrderDepthView` — das wird aber nur im Markt-Tab (`TransferListSection`) gerendert, NICHT Player-Detail.** Best-Ask wird an 4 Stellen gerechnet (von-allem-vier).

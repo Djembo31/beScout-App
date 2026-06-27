@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 415 | 2026-06-27 | fix(trading): Welle 1.6 — OrderbookSummary Player-Detail eigene Sell-Orders aus Best-Ask excludieren [UI]
+- Stage-Chain: SPEC inline → IMPACT skipped (Display-only) → BUILD (OrderbookSummary.tsx) → REVIEW self-review PASS → PROVE (tsc 0; Live nach Deploy) → LOG.
+- **Vom Live-Walk aufgedeckt:** OrderbookSummary (Player-Detail, `TradingTab:142`) zeigte live `BESTER ASK = 200` = jarvis' EIGENE Sell-Order. Slice 414 (OrderDepthView) fixte eine ANDERE Surface (Markt-Tab `TransferListSection`) — Best-Ask wird an 4 Stellen gerechnet (von-allem-vier-Smell). Fix: `marketSells = sellOrders.filter(!is_own)` für bestAsk/askVol/Empty-State/Expand/OrderbookDepth. Bid-Seite (OfferWithDetails ohne is_own) + PlayerHero bestBid = Folge-Notiz.
+- **Lehre:** der Live-Walk ist Pflicht — statische Verifikation meldete 414 grün, während die sichtbare Player-Detail-Seite den Bug weiter zeigte. Commit: 7e9afcfc. **⏳ Live-Verify (bestAsk „–") nach Vercel-Deploy ausstehend.**
+
+## 414 | 2026-06-27 | fix(trading): Welle 1.6 — OrderDepthView (Markt-Tab) eigene Orders aus Best-Ask/Spread excludieren [UI]
+- Stage-Chain: SPEC inline → IMPACT skipped → BUILD (OrderDepthView.tsx) → REVIEW self-review PASS → PROVE (tsc 0) → LOG.
+- OrderDepthView (Markt-Tab `TransferListSection`) askLevels+bidLevels: `if (o.is_own) continue;` → eigene Orders raus aus Best-Ask/Spread/Depth. PublicOrder.is_own server-projiziert. Konsistent mit buy_player_sc/buy_from_order + trading.md S7-303 F-1. Commit: 9b7eb094. (Player-Detail-Surface = separate OrderbookSummary → Slice 415.)
+
 ## 413 | 2026-06-27 | fix(trading): Welle 1.5a/c/d/e — Markt-Kauf-RPCs vereinheitlichen (buy_player_sc ↔ buy_from_order) [Money/CEO]
 - Stage-Chain: SPEC (`specs/413-…`, M Money) → IMPACT inline → BUILD (1 Migration, 2 RPCs CREATE OR REPLACE) → REVIEW reviewer-Agent **PASS** (`reviews/413-review.md`, 2 INFO out-of-scope) → PROVE (force-rollback beide RPCs) → LOG.
 - **Mock→Pro Welle 1.5-Abschluss-Cluster.** Live-Befund (D87): die zwei Markt-Kauf-RPCs (`buy_player_sc` = Markt/auto-cheapest, `buy_from_order` = gewählte Order) waren über **4 Dimensionen** auseinandergedriftet („von allem zwei"-Root-Cause): (d) Menge-zu-viel — buy_player_sc kappte still / buy_from_order lehnte ab · (a) Rate-Limit/24h — buy_player_sc tier-basiert / buy_from_order hart 20 · (c) fee_config-Lookup — created_at DESC / club_id NULLS LAST · (e) price_change_24h — buy_player_sc setzte es nicht / buy_from_order schon.
