@@ -1,28 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 21:42)
+# Session Handoff — Auto (2026-06-27 21:45)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 15 Files
-```
- M .claude/rules/fantasy.md
- M memory/session-handoff.md
- M src/components/fantasy/event-tabs/LineupPanel.tsx
- M src/components/fantasy/event-tabs/useLineupPanelState.ts
- M src/features/fantasy/components/lineup/LineupBuilder.tsx
- M src/features/fantasy/components/lineup/PlayerPicker.tsx
- M src/features/fantasy/components/lineup/SynergyPreview.tsx
- M src/features/fantasy/hooks/useLineupBuilder.ts
- M src/types/index.ts
- M worklog/active.md
- M worklog/log.md
-?? src/types/__tests__/
-?? worklog/proofs/424-synergy-parity.txt
-?? worklog/reviews/424-review.md
-?? worklog/specs/424-synergy-preview-server-parity.md
-```
+## Working Tree: Clean
 
 ## Session Commits: 10
+- d801c533 fix(fantasy): Slice 424 — Synergie-Vorschau == Server (flat +5%/≥2-Verein + clubId + count) [W2-Cleanup]
 - 428e70fb fix(fantasy): Slice 423 — Picker-Club-Identität durchgängig auf UUID (Filter + Synergie) [W2-Cleanup]
 - 12e3477f docs(log): Slice 422 DONE — Live-verified Bostan→Konyaspor + BAY-Kollision (proof finalize, *.png force-add)
 - 7e81487e fix(fantasy): Slice 422 — FantasyPlayerRow Club-Logo+Name aus UUID statt Freitext/Short [W2-Cleanup]
@@ -32,7 +16,6 @@
 - 25230ee4 docs(handoff): Slice 420 DONE + Welle-2.4-Recon-Anker (GameweekSelector orphan bestätigt, GW-Max-Routing kartiert)
 - 9248ef38 fix(fantasy): Slice 420 — Heim/Auswärts + FDR über Club-UUID statt Short-String/Majority-Vote [W2.3]
 - 3a5e43f7 docs(distill): D113 + Session-Close — Welle 2.1+2.2 (Slice 419) verankert, Stale/Widersprüche geglättet
-- 637c8140 feat(scoring): Slice 419 — player_gameweek_scores fixture-gebunden + score_event liga-bewusst [W2.1+2.2]
 
 <!-- auto:handoff-end -->
 

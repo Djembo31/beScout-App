@@ -4271,3 +4271,22 @@ Welle 1.4 wird ein kleiner Härtungs-Strang (1.4a–d) statt eines Slices. Fee-A
 Welle 2.1+2.2 in EINEM L-Slice (419) erledigt; UNIQUE-Flip zwang Writer + Money-Reader + alle Reader gleichzeitig. Money-neutral bewiesen (Score-Invarianz über 4813 Lineup-Slots, regressions=0). Neue Bug-Klasse codifiziert (errors-db **S419**): UNIQUE-/Kardinalitäts-Flip → ALLE SQL-Reader (auch live-only RPCs in migrations/) auf Row-Fanout auditieren — der Reviewer fand genau so einen (`rpc_get_recent_player_scores`, 419b). Folge-Slices Welle 2.3 (FDR Club-UUID) / 2.4 (GW-Max-Routing) / Ranking-Konsolidierung offen.
 
 **Re-Visit-Trigger:** Falls echte same-league-Doppelspiele (Nachholspiele) produktiv relevant werden → SUM-vs-MAX-Semantik in `score_event` als CEO-Folgeentscheid prüfen (heute SUM, betrifft nur Mock-Rand).
+
+## D114 — PRODUCT: Synergie-Mechanik (Gleicher-Verein-Bonus) BEHALTEN + Client-Vorschau exakt an Server angleichen
+
+**Datum:** 2026-06-27 · **Status:** 🟢 Aktiv · **Category:** PRODUCT (Fantasy-Scoring) · **Kontext:** Mock→Pro Welle-2-Cleanup (Slice 422-424). Beim Angleichen der Picker-Club-Identität (423) fiel die Synergie-Vorschau auf. Anil war beim Durchsprechen **unsicher** („ich glaube ich wollte die Synergie nicht mehr haben") → explizit entschieden, damit es nicht wieder neu aufkommt.
+
+### Befund (Live-functiondef D87)
+Synergie ist eine **lebende, money-wirksame** Mechanik in `score_event`: pro distinct `club_id` mit ≥2 Lineup-Spielern → **+5 % flat** (LEAST 15), `synergy_surge`-Chip ×2 (LEAST 30) → fließt in den Event-Score → beeinflusst die Reward-Verteilung. Die Client-**Vorschau** (`calculateSynergyPreview` + Row-Pills) divergierte 3-fach vom Server: stale `players.club`-String statt club_id, Formel `5×(count−1)` statt flat 5, fehlendes `count`. Kein Record einer Entfernungs-Entscheidung gefunden.
+
+### Entscheidung
+**Synergie BEHALTEN** (Engagement-Mechanik) + die Client-**Vorschau** exakt an den Server angleichen (Slice 424, rein Display, `score_event` unberührt). Die Vorschau soll nicht lügen, wenn die Mechanik bleibt.
+
+### Alternativen erwogen
+- **Synergie ganz entfernen** (Server-Bonus in `score_event` + alle Client-Flächen Banner/Filter/Pill/Breakdown/Chip): vereinfacht das Scoring-Modell (Sorare hat keinen Vereins-Synergie-Bonus), wäre aber ein **Money-Path-Slice** (Scores/Rewards ändern sich). **Verworfen** — Anil-Entscheid behalten.
+- Vorschau grob lassen: verworfen, widerspricht „Mock→Pro / Anzeige nicht lügen".
+
+### Auswirkung
+Slice 424 (Vorschau server-treu, +6 Unit-ACs). **Folge-Slice (money-neutral, notiert):** der gescorte Synergie-Banner zeigt die Client-Approximation statt des tatsächlich gesettelten Server-`synergy_bonus_pct` (inkl. Surge-×2) — alle Synergie-Banner (Bau UND Scored) hängen am Client-Rechner (`grep synergy_bonus_pct` = 0 Render-Consumer). Knowledge: `.claude/rules/fantasy.md` Synergie-Punkt.
+
+**Re-Visit-Trigger:** Falls das Scoring-Modell weiter Richtung Sorare vereinfacht wird (Welle 3) → Synergie-Entfernung erneut als Option auf den Tisch.
