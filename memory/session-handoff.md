@@ -1,11 +1,22 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 16:03)
+# Session Handoff — Auto (2026-06-27 16:43)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 8 Files
+```
+ M memory/session-handoff.md
+ M src/lib/services/__tests__/offers.test.ts
+ M src/lib/services/offers.ts
+ M worklog/active.md
+?? supabase/migrations/20260627230000_open_bids_exclude_own_dashboard.sql
+?? worklog/proofs/417-offers-tests.txt
+?? worklog/proofs/417-rpc-verify.txt
+?? worklog/specs/417-open-bids-own-exclusion.md
+```
 
 ## Session Commits: 10
+- c5cefd04 docs(distill): Session-Close 2026-06-27 — 416 + e2e-Walk verankert, errors-frontend S416
 - df6beeb2 docs(proof): Welle 1 Trading e2e-Lebenszyklus-Walk live bewiesen + 416 4-Surface live-verify
 - 6e721568 docs(proof): Slice 416 live-verified — eigene Order weg aus 'sofort kaufbar' (bescout.net jarvis@Douglas)
 - b5968c0c refactor(trading): Slice 416 — Welle 1.6 KOMPLETT, Eigene-Order/Bid-Exclusion auf SSOT-Helper vereinheitlicht [UI]
@@ -15,7 +26,6 @@
 - 7e9afcfc fix(trading): Slice 415 — Welle 1.6 OrderbookSummary Player-Detail eigene Sell-Orders aus Best-Ask excludieren [UI]
 - 9b7eb094 fix(trading): Slice 414 — Welle 1.6 OrderDepthView eigene Orders aus Best-Ask/Spread excludieren [UI]
 - e00dd859 docs(handoff): Welle 1.5 KOMPLETT (413 Markt-Kauf-RPCs vereinheitlicht) — offen 1.6 + Live-Walk
-- ae68fc5b docs(log): Slice 413 Commit-Hash (80720552)
 
 <!-- auto:handoff-end -->
 

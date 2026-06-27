@@ -1,0 +1,28 @@
+Slice 417 — Offers Eigen-Gebot-Ausschluss: RPC-Verify + PATCH-AUDIT
+====================================================================
+Datum: 2026-06-27 · Project skzjfhvgccaeplydsunz
+
+## PATCH-AUDIT get_market_user_dashboard (D87 / S368c)
+Baseline (vor Replace):
+  acl  = {postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}
+  auth_guard (auth_uid_mismatch) = true
+
+Nach Replace (Migration 20260627230000_open_bids_exclude_own_dashboard):
+  acl  = {postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}   → UNVERÄNDERT ✓
+  auth_guard = true                                                                → ERHALTEN ✓
+  has_own_exclusion (`sender_id <> p_user_id`) = true                              → NEU ✓
+(kein anon, kein Grant-Touch — CREATE OR REPLACE erhält ACL)
+
+## AC-3 — Verhaltens-Verify (force-rollback, JWT-Impersonation jarvis, S369)
+Seed (BEGIN…ROLLBACK): jarvis' EIGENES + ali's FREMDES öffentliches Kaufgebot
+auf einen Spieler, den jarvis besitzt. Dann get_market_user_dashboard(jarvis):
+
+  bid_count                        = 1        (nur das fremde Gebot)
+  contains_own_should_be_false     = false    ✓ eigenes Gebot ausgeschlossen
+  contains_foreign_should_be_true  = true     ✓ fremdes Gebot enthalten
+
+ROLLBACK → keine Persistenz (offers live unverändert).
+
+## Kein Zero-Sum
+Read-only SELECT-Filter, KEINE Geld-Bewegung (kein balance/locked/Topf-Touch).
+Zero-Sum-Smoke bewusst nicht anwendbar (dokumentiert in Spec §10).

@@ -135,6 +135,27 @@ describe('getOpenBids', () => {
     await getOpenBids();
     expect(mockSupabase.from).toHaveBeenCalledWith('offers');
   });
+
+  // [Slice 417] Eigen-Gebot-Ausschluss (server-SSOT) im "Offene Gebote"-Tab.
+  // Fallback (mockSupabaseResponse) statt mockTable → keine persistente Queue,
+  // kein Leak in Folge-Tests (Test-Isolation).
+  it('excludes own bids via .neq(sender_id) when ownedByUserId is set', async () => {
+    mockSupabaseResponse([{ player_id: 'p1' }]); // holdings non-empty → kein early-return
+    await getOpenBids({ ownedByUserId: 'user-me' });
+    const idx = mockSupabase.from.mock.calls.findIndex(c => c[0] === 'offers');
+    const builder = mockSupabase.from.mock.results[idx].value as Record<string, { mock: { calls: unknown[][] } }>;
+    expect(builder.neq).toHaveBeenCalledWith('sender_id', 'user-me');
+  });
+
+  // [Slice 417] Guard: der playerId-Pfad (Player-Detail) darf NICHT server-seitig
+  // eigen-ausschliessen — das macht dort die Welle-1.6-Client-SSOT (excludeOwnBids).
+  it('does NOT exclude own bids on the playerId-only path', async () => {
+    mockSupabaseResponse([]);
+    await getOpenBids({ playerId: 'p1' });
+    const idx = mockSupabase.from.mock.calls.findIndex(c => c[0] === 'offers');
+    const builder = mockSupabase.from.mock.results[idx].value as Record<string, { mock: { calls: unknown[][] } }>;
+    expect(builder.neq).not.toHaveBeenCalled();
+  });
 });
 
 // ============================================

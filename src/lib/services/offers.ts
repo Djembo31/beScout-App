@@ -120,6 +120,14 @@ export async function getOpenBids(opts: {
     .limit(50);
   if (playerId) query = query.eq('player_id', playerId);
   if (ownedPlayerIds) query = query.in('player_id', ownedPlayerIds);
+  // [Slice 417] Eigen-Gebot-Ausschluss (server-SSOT): im "Offene Gebote"-Tab
+  // (ownedByUserId-Pfad) dürfen die EIGENEN öffentlichen Kaufgebote nicht
+  // erscheinen — sie sind nicht annehmbar (accept_offer blockt Selbst-Annahme,
+  // S416) und nicht stornierbar (Cancel lebt im "Ausgehend"-Tab) → tote Zeile.
+  // Welle-1.6-Eigen-Ausschluss-Klasse. Der playerId-Pfad (Player-Detail) macht
+  // den Eigen-Ausschluss client-seitig via Welle-1.6-SSOT (excludeOwnBids) und
+  // bleibt hier bewusst unberührt.
+  if (ownedByUserId) query = query.neq('sender_id', ownedByUserId);
   const { data, error } = await query;
   if (error) { logSupabaseError('[Offers] getOpenBids', error); throw new Error(mapErrorToKey(error.message)); }
   return enrichOffers((data ?? []) as DbOffer[]);
