@@ -2,16 +2,24 @@
 
 ```
 status: idle
-slice: 410
-title: Club-Treasury-Ledger korrekte Quellen-Labels (ipo_fee / p2p_fee statt pauschal trade_fee) — DONE
-size: S (Money/CEO — SECURITY DEFINER Trigger trg_trades_book_club_treasury, geldneutral Re-Label)
+slice: 411
+title: Welle 1.4d — Buy-Limit-Doc: FEATURE_BUY_ORDERS gated + Fork-B + Live-Stand (stale Kommentar heilen) — DONE
+size: XS (Doc/Ops — Kommentar-Edit featureFlags.ts, kein Money/Security-Verhalten; lean ceremony Slice 352)
 stage: LOG (DONE)
-spec: worklog/specs/410-club-ledger-source-labels.md
-impact: inline (Spec §4 — kein Service/UI/Type/i18n-Change; get_club_balance-Bucket+UI+i18n vorab vorhanden)
-proof: worklog/proofs/410-ledger-labels-smoke.txt
-proof-note: AC1-6 PASS; force-rollback ipo_fee/trade_fee/p2p_fee korrekt + Zero-Sum net_delta=300, ACL unverändert
-review: worklog/reviews/410-review.md — PASS (2 NIT: toter buy_order_id-Forward-Compat-Zweig, hardcoded DE-desc §11)
+spec: inline (unten)
+impact: skipped (Comment-only, kein Behavior/Shape-Change)
+proof: worklog/proofs/411-buy-orders-live-state.txt
+proof-note: live 0 open buy-orders + SUM(locked)=0 global; stale „10 offen" geheilt, Fork-B verankert. WELLE 1.4 ABGESCHLOSSEN.
+review: self-review (Ops/Doc, kein Money/Security)
 ```
+
+## INLINE-SPEC Slice 411 (1.4d, Doc/Ops lean)
+**Problem:** `featureFlags.ts:28` behauptet „10 Buy-Orders seit 26d offen, 0 Fills" — **stale**. Live (2026-06-27): 0 offene Buy-Orders, 41 historische alle `cancelled`+refunded, `SUM(wallets.locked_balance)=0` global. Fork-B-Entscheid (D112) ist im Flag-Kommentar nicht verankert.
+**Lösung:** Kommentar zu `FEATURE_BUY_ORDERS` aktualisieren — Fork-B (orders+offers beide, Buy-SEITE des CLOB bleibt gated bis Matching-Engine) + live-verifizierter sauberer Stand. Comment-only, kein Code-Verhalten.
+**AC:** (1) stale „10 offen" raus, durch live-Stand ersetzt. (2) D112/Fork-B referenziert. (3) tsc grün (Comment-Change). **PROVE:** Live-Query-Output (0 open / locked=0) als Proof-Datei. **Schließt Welle 1.4 ab.**
+
+## 410 (vorige) — DONE
+- Club-Treasury-Ledger Quellen-Labels (ipo_fee/p2p_fee), Reviewer PASS, geldneutral, Commit `98d6ecb6`.
 
 ## CEO-ENTSCHEID RESOLVED (2026-06-27, Anil)
 - **249.800 cents (4 Wallets) historischer buy-Offer-Refund → STEHEN LASSEN.** Phase-1-Spielgeld (D99) + Launch-Reset wischt eh; RPC-Fix (409) stoppt künftige Leaks. Kein Refund-Slice.

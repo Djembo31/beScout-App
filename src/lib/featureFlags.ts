@@ -25,7 +25,15 @@
 /**
  * Sekundaer-Market Buy-Order (Limit-Buy gegen existierende Sell-Orders).
  * Aktuell `false`: `place_buy_order` RPC escrowed Geld, aber KEIN Matching-Engine
- * gegen Sell-Orders. 10 Buy-Orders seit 26d offen, 0 Fills. AR-11 (J3).
+ * gegen Sell-Orders → Buy-SEITE des Orderbuchs (CLOB) bleibt dormant. AR-11 (J3).
+ *
+ * Welle-1.4 Fork-B-Haertung (D112, 2026-06-27): `orders` (CLOB) + `offers` (P2P) bleiben
+ * BEIDE als getrennte Produkte bestehen — die Buy-Seite des CLOB bleibt bewusst gated,
+ * bis ein Matching-Engine gebaut ist (eigener Welle-1-Folge-Slice, nicht Mock→Pro-Scope).
+ * Live-verifiziert 2026-06-27 (Slice 411): 0 offene Buy-Orders (41 historische alle
+ * `cancelled` + refunded), `SUM(wallets.locked_balance)=0` global → KEINE escrowed Geld-
+ * Altlast auf der Buy-Seite (anders als die P2P-balance-Altlast aus Slice 409, separat
+ * CEO-entschieden „stehen lassen"). Aktivierung weiterhin: Matching-Engine + Compliance + CEO.
  */
 export const FEATURE_BUY_ORDERS = false;
 

@@ -1,0 +1,35 @@
+Slice 411 — Welle 1.4d Buy-Limit-Doc — PROOF (Live-Stand-Verifikation)
+Datum: 2026-06-27 · Project skzjfhvgccaeplydsunz · Doc/Ops (kein Money-Verhalten)
+
+Zweck: belegt, dass der bisherige featureFlags.ts-Kommentar „10 Buy-Orders seit 26d
+offen, 0 Fills" STALE war, und dokumentiert den aktuellen sauberen Stand.
+
+================================================================
+Live-Query 1 — Buy-Orders nach Status
+================================================================
+SELECT status, COUNT(*), SUM(price*quantity) FROM orders WHERE side='buy' GROUP BY status;
+  → cancelled : n=41 · locked_sum=20500
+  (KEIN status='open' / 'filled' / 'partial' vorhanden)
+
+================================================================
+Live-Query 2 — Buy-Seite + globale Locked-Invariante
+================================================================
+  open_buy_orders     = 0
+  open_buy_locked     = 0
+  wallets_with_locked = 0
+  total_locked (Σ wallets.locked_balance) = 0     ✅
+
+================================================================
+Befund
+================================================================
+- FEATURE_BUY_ORDERS = false (UI versteckt → keine neuen Buy-Orders platzierbar).
+- 0 offene Buy-Orders live; die 41 historischen sind alle `cancelled` (Escrow refunded).
+- SUM(wallets.locked_balance) = 0 GLOBAL → keine escrowed Geld-Altlast auf der Buy-Seite.
+  (Konsistent mit Slice 409: dortige 249.800-cents-Altlast war ein *balance*-Leak, KEIN
+   *locked*-Leak — die locked-Invariante war schon in 409 als 0-Drift bestätigt.)
+- Fork-B-Entscheid (D112) jetzt im Flag-Kommentar verankert: Buy-Seite des CLOB bleibt
+  gated bis Matching-Engine (eigener Folge-Slice, nicht Mock→Pro-Scope).
+
+→ Welle 1.4 (Fee 407 + Vokabular 408 + Escrow 409 + Ledger-Label 410 + Buy-Doc 411) ABGESCHLOSSEN.
+
+AC1 stale „10 offen" entfernt ✅ · AC2 D112/Fork-B referenziert ✅ · AC3 tsc grün (Comment-Change, pre-commit) ✅

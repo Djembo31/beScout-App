@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 411 | 2026-06-27 | docs(trading): Welle 1.4d — Buy-Limit gated + Fork-B im Flag-Kommentar verankert (stale geheilt) [Doc/Ops]
+- Stage-Chain: SPEC inline (active.md, XS Doc) → IMPACT skipped (Comment-only) → BUILD (featureFlags.ts Kommentar) → REVIEW self-review (Ops, kein Money/Security) → PROVE (Live-Query) → LOG.
+- **Schließt Welle 1.4 ab.** `featureFlags.ts:28` behauptete „10 Buy-Orders seit 26d offen, 0 Fills" — **stale**. Live-verifiziert (2026-06-27): **0 offene Buy-Orders** (41 historische alle `cancelled`+refunded), `SUM(wallets.locked_balance)=0` global → keine escrowed Geld-Altlast auf der Buy-Seite (konsistent mit 409: dortige 249.800-cents-Altlast war *balance*-Leak, kein *locked*-Leak).
+- **Doc-Inhalt:** Fork-B (D112) im Flag-Kommentar verankert — `orders` (CLOB) + `offers` (P2P) bleiben beide; Buy-Seite des CLOB bleibt bewusst gated bis Matching-Engine (eigener Folge-Slice, nicht Mock→Pro-Scope). Comment-only, kein Code-Verhalten.
+- **Beweis:** `proofs/411-buy-orders-live-state.txt` (Live-Query-Output 0 open / locked=0). tsc grün (pre-commit).
+- **Welle 1.4 komplett:** 407 Fee=6% · 408 Vokabular · 409 Escrow-Robustheit · 410 Ledger-Labels · 411 Buy-Doc.
+- Commit: <pending>
+
 ## 410 | 2026-06-27 | fix(trading): Club-Treasury-Ledger korrekte Quellen-Labels (ipo_fee / p2p_fee) [Money/CEO]
 - Stage-Chain: SPEC (`specs/410-…`, S Money) → IMPACT inline (kein Service/UI/Type/i18n-Change) → BUILD (1 Migration, Trigger CREATE OR REPLACE) → REVIEW reviewer-Agent **PASS** (`reviews/410-review.md`, 2 NIT) → PROVE (force-rollback 3 Pfade + Zero-Sum + ACL) → LOG.
 - **Mock→Pro Welle 1 Abschluss-Kleinkram (Anil-approved Mini-Slice + kohärente P2P-Erweiterung).** Live-Befund (D87): `trg_trades_book_club_treasury()` buchte JEDEN trades-INSERT pauschal als `club_treasury_ledger.type='trade_fee'`. Drei RPCs schreiben aber: `buy_from_ipo` (IPO-85%-Anteil, setzt `ipo_id`) · `buy_from_order`/`buy_player_sc` (Markt-1%, setzt `sell_order_id`) · `accept_offer` (P2P-1%, KEIN Marker). → IPO-Erstverkaufs-Erlös erschien im Club-Kontoauszug als „Handelsgebühr" (doppelt falsch: Event + Erlös-statt-Gebühr). Mock→Pro-Smell „Teil-Konsolidierung": Label-Infrastruktur (get_club_balance-Bucket, UI KNOWN_LEDGER_TYPES, i18n DE+TR) war komplett gebaut — nur der Trigger nutzte sie nie.
