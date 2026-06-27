@@ -1,11 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 11:53)
+# Session Handoff — Auto (2026-06-27 12:18)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
-## Session Commits: 6
+## Session Commits: 8
+- 2817e4cd docs(log): Slice 409 Commit-Hash (a8ff84aa)
+- a8ff84aa fix(trading): Slice 409 — Welle 1.4c P2P-Offer Escrow-Robustheit (Refund-Symmetrie, 4 Stellen) [Money/CEO]
 - cf0667b5 docs(proof): Slice 408 — post-Deploy Playwright DE+TR LIVE PASS, voll-DONE
 - 81ac5bee docs: Slice 408 reconcile (hash 8d15ca85, MASTERPLAN/TODO/handoff 1.4b DONE)
 - 8d15ca85 feat(trading): Slice 408 — Welle 1.4b Trading-Vokabular entwirren (Markt sofort vs Kaufgebot P2P) [UI/i18n]
@@ -18,6 +23,20 @@
 ---
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
+
+## ⏩ STAND 2026-06-27 (heutige Session) — ZUERST LESEN
+**Welle 1 Trading (Mock→Pro) Härtung weit durch — 4 Money/UI-Slices geliefert, alle committed+gepusht (`main`==`origin/main`, zuletzt `2817e4cd`), `active.md`=idle:**
+- **406** Club-Treasury Single-Source (Counter-Orphan `treasury_balance_cents` raus + DROP; 3× Zero-Sum; S406).
+- **407** P2P-Fee = 6 % wie Markt (3,5/1,5/1; fee_config+accept_offer+UI+Docs; Zero-Sum).
+- **408** Trading-Vokabular „Markt sofort kaufbar" vs „Kaufgebote" (P2P) + tote Sektion 6 raus (DE+TR Live PASS).
+- **409** P2P-Offer Escrow-Robustheit — Doppelbelastung (accept buy-Fulfillment) + Geld-Leak (expire/2 Refund-Branches) über 4 Stellen gefixt (4× Zero-Sum diff=0; S409 + trading.md Escrow-Pattern).
+- **D112** Orderbuch-Architektur = Fork B (orders+offers beide behalten, getrennt härten). Karte `worklog/notes/406b-orderbook-offers-map.md`.
+
+**⚠️ OFFENER CEO-ENTSCHEID:** Slice-409-Befund — 6 alte abgelaufene buy-Offers → **249.800 cents (4 Wallets)** nie balance-refunded (historisch). CTO-Empfehlung: **stehen lassen** (Phase-1-Spielgeld D99 + Launch-Reset wischt eh; 1 Wallet=jarvis-Test). Alternativ 1-Query-Refund-Slice.
+
+**➡️ NÄCHSTER (Anil-Wahl):** (a) CEO-Entscheid 249.800-Refund · (b) **1.4d** Buy-Limit-gated-Doc (klein, schließt Welle 1.4 ab) · (c) Mini-Slice IPO-Ledger-Label `trade_fee`→`ipo_fee` · (d) **Welle 2 Spieltag/Scoring** (nächste Domäne). Details unten in „WELLE-1-FORTSCHRITT".
+
+---
 
 ## 🚀 NORDSTERN: E-MOCK2PRO (Beta ABGEBROCHEN, 2026-06-26, D111)
 **Anil-Pivot: Beta gestoppt (zu viele Fehler, nichts lief vernünftig zusammen). „Nichts ist heilig" → ganze Codebase auf Profi-/Sorare-Niveau glattziehen, Domäne für Domäne. Liga + Feature-Bau pausiert. Sommerloch = Tiefenarbeit-Fenster. Re-Launch erst NACH dem Programm.**
