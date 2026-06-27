@@ -27,7 +27,7 @@ export default function AdminEventsTab({ club }: { club: ClubWithAdmin }) {
   const scoutEventsEnabled = useScoutEventsEnabled();
 
   // -- Hooks (ALL before any early returns) ------------------------------------
-  const data = useClubEventsData(club.id);
+  const data = useClubEventsData(club.id, club.league_id);
   const form = useEventForm({ type: 'club', eventTier: 'club' });
   const actions = useClubEventsActions({
     clubId: club.id,

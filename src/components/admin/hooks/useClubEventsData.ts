@@ -28,7 +28,7 @@ export type UseClubEventsDataReturn = {
 // useClubEventsData — data loading for Club admin events tab
 // =============================================================================
 
-export function useClubEventsData(clubId: string): UseClubEventsDataReturn {
+export function useClubEventsData(clubId: string, leagueId?: string | null): UseClubEventsDataReturn {
   // -- Data state --------------------------------------------------------------
   const [events, setEvents] = useState<DbEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +45,7 @@ export function useClubEventsData(clubId: string): UseClubEventsDataReturn {
       try {
         const [data, statuses] = await Promise.all([
           getEventsByClubId(clubId),
-          getGameweekStatuses(1, 38),
+          getGameweekStatuses(1, 38, leagueId),
         ]);
         if (!cancelled) {
           setEvents(data);
@@ -62,7 +62,7 @@ export function useClubEventsData(clubId: string): UseClubEventsDataReturn {
     }
     load();
     return () => { cancelled = true; };
-  }, [clubId]);
+  }, [clubId, leagueId]);
 
   // -- Derived: active/past events -----------------------------------------------
   const TERMINAL_STATUSES: string[] = ['ended', 'cancelled'];
@@ -87,7 +87,7 @@ export function useClubEventsData(clubId: string): UseClubEventsDataReturn {
 
   const refreshGwStatuses = useCallback(async () => {
     try {
-      const statuses = await getGameweekStatuses(1, 38);
+      const statuses = await getGameweekStatuses(1, 38, leagueId);
       setGwStatuses(statuses);
       // Auto-advance to next unsimulated GW
       const nextUnsim = statuses.find(s => !s.is_complete);
@@ -95,7 +95,7 @@ export function useClubEventsData(clubId: string): UseClubEventsDataReturn {
     } catch (err) {
       console.error('[useClubEventsData] refreshGwStatuses error:', err);
     }
-  }, []);
+  }, [leagueId]);
 
   return {
     // Data

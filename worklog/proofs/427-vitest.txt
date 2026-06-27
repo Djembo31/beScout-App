@@ -1,0 +1,16 @@
+=== Slice 427 PROVE — getFullGameweekStatus per-Liga (vitest) ===
+Datum: 2026-06-27
+
+--- tsc --noEmit ---
+tsc: 0 errors
+
+--- vitest (scoring.queries + consumers) ---
+
+[1m[46m RUN [49m[22m [36mv4.1.0 [39m[90mC:/bescout-app[39m
+
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m73 passed[39m[22m[90m (73)[39m
+[2m   Start at [22m 23:50:44
+[2m   Duration [22m 7.44s[2m (transform 1.20s, setup 1.52s, import 4.73s, tests 2.05s, environment 8.93s)[22m
+

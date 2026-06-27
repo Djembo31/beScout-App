@@ -25,7 +25,7 @@ export function AdminGameweeksTab() {
   useEffect(() => {
     if (!selectedClubId) return;
     Promise.allSettled([
-      getFullGameweekStatus(),
+      getFullGameweekStatus(activeClub?.league_id ?? null),
       import('@/lib/services/club').then(({ getActiveGameweek }) =>
         getActiveGameweek(selectedClubId)
       ),
@@ -38,7 +38,7 @@ export function AdminGameweeksTab() {
       }
       setLoading(false);
     });
-  }, [selectedClubId]);
+  }, [selectedClubId, activeClub?.league_id]);
 
   const handleSimAndScore = async (gw: number) => {
     setSimulating(gw);
@@ -50,7 +50,7 @@ export function AdminGameweeksTab() {
       } else {
         addToast(t('gwError', { errors: result.errors.join(', ') }), 'error');
       }
-      const updated = await getFullGameweekStatus();
+      const updated = await getFullGameweekStatus(activeClub?.league_id ?? null);
       setGwStatus(updated);
     } catch (e) {
       addToast(e instanceof Error ? e.message : t('error'), 'error');

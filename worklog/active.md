@@ -1,29 +1,28 @@
 # Active Slice
 
 ```
-status: idle
-slice: 426
-title: Orphan-Cleanup — alte Lineup-Builder-UI löschen (6 Komponenten + Barrel, S280) — DONE
-size: S
-stage: LOG (DONE)
-spec: worklog/specs/426-orphan-lineup-builder-cleanup.md
-impact: skipped (Dead-Code-Removal, 0 Live-Consumer)
-proof: worklog/proofs/426-orphan-cleanup.txt
-review: worklog/reviews/426-review.md (self-review Ops-Lane, PASS)
-proof-summary: 7 Files / 1541 Zeilen gelöscht, 0 Live-Edit. tsc 0 + audit:orphan Real-drift-0 + vitest 317/317. BenchRow bleibt.
+status: in-progress
+slice: 427
+title: Gameweek-Status per-Liga (getFullGameweekStatus + useClubEventsData) — GW-Fork Teil 1/3 (C)
+size: M
+stage: PROVE (DONE) → LOG
+spec: worklog/specs/427-gameweek-status-per-league.md
+impact: skipped (read-only Queries, nur leagueId-Param-Add, kein Schema/Contract-Change)
+proof: worklog/proofs/427-vitest.txt
+proof-live: 427-bl-gw34.png (Live, gebündelt post-Deploy mit 428/429)
+review: worklog/reviews/427-review.md (reviewer-Agent, PASS, 2 NIT — #2 gefixt)
+proof-summary: tsc 0 + 6 neue getFullGameweekStatus-Tests + 73 Consumer-Tests grün. Liga-Filter schließt latenten 1000-Cap (2438→380). AC-06 Live post-Deploy.
 ```
+
+## GW-Lifecycle-Per-Liga-Fork (CEO-Entscheid Anil 2026-06-27)
+
+Recon: `worklog/notes/gameweek-engine-recon.md`. Money-Pfad sicher (score_event liga-korrekt). 3 Risse → 3 Slices:
+- **427 (C, jetzt):** Status-View per-Liga (Riss 3) — getFullGameweekStatus(leagueId) 1..max + useClubEventsData leagueId. Fixt Phantom-GW 35-38 + latenten 1000-Cap (2438 Fixtures).
+- **428 (A):** clubs.active_gameweek DROP, leagues=SSOT (Riss 1) + set_active_gameweek-Guard >38→>max.
+- **429 (B):** finalizeGameweek liga-scoped (Riss 2, Money-nah=selbst + Zero-Sum).
 
 ## Zuletzt
 
-- **Slice 425** (2026-06-27) — Welle-2 Display-Truth A/B/C auf Live-Surface LineupPanel (M, PASS).
+- **Slice 426** (2026-06-27) — Orphan-Cleanup alte Lineup-Builder-UI (S, PASS).
+- **Slice 425** (2026-06-27) — Welle-2 Display-Truth A/B/C auf LineupPanel (M, PASS).
 - **Slice 424** (2026-06-27) — Synergie-Vorschau == Server (M, PASS).
-- **Slice 423** (2026-06-27) — Picker-Club-Identität auf UUID (S, PASS).
-
-## Plan (426) — Dead-Code-Removal
-
-Löschen: `LineupBuilder` · `ScoreBreakdown` · `SynergyPreview` · `PitchView` · `PlayerPicker` · `FormationSelector` (6 Komponenten, 0 Live-Consumer) + Barrel `lineup/index.ts` (0 Importer). `BenchRow.tsx` BLEIBT (Live via Subpath in LineupPanel). Closure verifiziert: alle externen Imports der 6 haben Live-Consumer → keine transitive Kaskade; kein Test referenziert die 6. Proof = tsc 0 + audit:orphan + volle vitest + git diff (nur Deletions).
-
-## 🚩 Offen (nach 426)
-- **CEO-Forks (NICHT autonom):** Admin-Gameweek-Engine („GW-Lifecycle per-Liga?") · Ranking-Konsolidierung scout_scores↔user_stats · Welle 3.
-- **Player-Domain `getClub(player.club)`** (PlayerHero/PlayerRow/TradingCardFrame) = Card-Identitäts-Smell-Cluster.
-- **NIT:** Kader `clubFilter`-State-Reset bei Country/League-Switch (pre-existing).

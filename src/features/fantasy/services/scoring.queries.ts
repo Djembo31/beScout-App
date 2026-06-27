@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabaseClient';
 import { notifText } from '@/lib/notifText';
 import { logSilentRejects } from '@/lib/observability/silentRejects';
+import { getLeagueMaxGameweeks } from '@/lib/services/club';
 
 // ============================================
 // Scoring Service — Queries
@@ -399,12 +400,36 @@ export type FullGameweekStatus = {
   isFullyScored: boolean;
 };
 
-/** Get status for all 38 gameweeks */
-export async function getFullGameweekStatus(): Promise<FullGameweekStatus[]> {
-  const results = await Promise.allSettled([
-    supabase.from('fixtures').select('gameweek, status'),
-    supabase.from('events').select('gameweek, status, scored_at').not('gameweek', 'is', null),
-  ]);
+/**
+ * Get gameweek status for a league (Slice 427 — GW-Lifecycle Per-Liga, Fork Teil 1/3).
+ * @param leagueId  Liga-Scope. Gesetzt: Fixtures `.eq(league_id)`, Events via Club-in-Liga,
+ *   Loop `1..getLeagueMaxGameweeks(leagueId)` → keine Phantom-GW (BL/2BL/SL = 34) + kein
+ *   1000-Cap (2438 Fixtures global, 380 per Liga). `null` = Legacy global 1..38 (Backward-Compat,
+ *   kein aktiver Consumer — der globale Pfad behält den bekannten Cap, da kein Konsument).
+ * Events tragen `league_id` NULL (D113-Denorm ungenutzt) → Liga-Auflösung via club_id-Join
+ *   (database.md „nested unzuverlässig" → separate clubIds-Query + `.in()`).
+ */
+export async function getFullGameweekStatus(leagueId: string | null = null): Promise<FullGameweekStatus[]> {
+  const maxGw = leagueId ? await getLeagueMaxGameweeks(leagueId) : 38;
+
+  // Events-Liga-Filter: events.league_id ist NULL → über die Clubs der Liga auflösen.
+  let leagueClubIds: string[] | null = null;
+  if (leagueId) {
+    const { data: clubRows, error: clubErr } = await supabase
+      .from('clubs')
+      .select('id')
+      .eq('league_id', leagueId);
+    if (clubErr) throw new Error(clubErr.message);
+    leagueClubIds = (clubRows ?? []).map((c) => c.id as string);
+  }
+
+  let fixturesQuery = supabase.from('fixtures').select('gameweek, status');
+  if (leagueId) fixturesQuery = fixturesQuery.eq('league_id', leagueId);
+
+  let eventsQuery = supabase.from('events').select('gameweek, status, scored_at').not('gameweek', 'is', null);
+  if (leagueClubIds) eventsQuery = eventsQuery.in('club_id', leagueClubIds);
+
+  const results = await Promise.allSettled([fixturesQuery, eventsQuery]);
   logSilentRejects('scoring.getFullGameweekStatus', results);
   const [fixturesRes, eventsRes] = results;
 
@@ -412,7 +437,7 @@ export async function getFullGameweekStatus(): Promise<FullGameweekStatus[]> {
   const events = eventsRes.status === 'fulfilled' ? (eventsRes.value.data ?? []) : [];
 
   const result: FullGameweekStatus[] = [];
-  for (let gw = 1; gw <= 38; gw++) {
+  for (let gw = 1; gw <= maxGw; gw++) {
     const gwFixtures = fixtures.filter(f => f.gameweek === gw);
     const gwEvents = events.filter(e => e.gameweek === gw);
     const simulatedCount = gwFixtures.filter(f => f.status === 'simulated' || f.status === 'finished').length;
