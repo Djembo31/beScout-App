@@ -100,7 +100,9 @@ function OfferCard({
 
           {isIncoming && offer.status === 'pending' && !isExpired && (() => {
             const total = offer.price * offer.quantity;
-            const fee = Math.floor(total * 300 / 10000);
+            // [Slice 407] P2P-Fee = 6 % wie Markt (Split 3,5 % Platform + 1,5 % PBT + 1 % Club).
+            // Exakt wie accept_offer (3 Teil-Floors, nicht 1×6 %) → Anzeige == Charge.
+            const fee = Math.floor(total * 350 / 10000) + Math.floor(total * 150 / 10000) + Math.floor(total * 100 / 10000);
             const proceeds = total - fee;
             return (
               <div className="flex items-center gap-2 text-[10px] text-white/40 mb-1">

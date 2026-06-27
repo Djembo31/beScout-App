@@ -180,7 +180,7 @@ Targeted Re-Audit auf BuyConfirmModal-Sentiment-Tooltips fand Securities-Valuati
 | Research | 20% | — | — | 80% |
 | Bounty | 5% | — | — | 95% |
 | Polls | 20% | — | — | 80% |
-| P2P Offers | 2% | 0.5% | 0.5% | — |
+| P2P Offers | 3.5% | 1.5% | 1% | — |
 | Club Abos | 0% | 0% | 100% | — |
 
 ## Platform Treasury (ADR-026)

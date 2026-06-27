@@ -1,0 +1,37 @@
+Slice 407 — P2P-Offer-Fee auf 6% (= Markt) — PROOF
+Datum: 2026-06-27 · Projekt skzjfhvgccaeplydsunz · Migration 20260627140000 applied
+
+CEO-approved Fee-Änderung (Anil): P2P = 6% wie Orderbuch, Split 3,5% Platform + 1,5% PBT + 1% Club.
+Vorher 3% (2/0,5/0,5) → unterlief den Markt + halbierte Plattform-Fee.
+
+──────────────────────────────────────────────────────────────────────
+AC-1 + AC-2 — accept_offer force-rollback (Sell-Offer Douglas @20000, jarvis→nailoku, Club Bandırmaspor)
+  RESULT:
+    success=true
+    platform_fee=700   (soll 700  = 3,5% von 20000)   ✅
+    pbt_fee=300        (soll 300  = 1,5%)              ✅
+    club_fee=200       (soll 200  = 1%)                ✅
+    Σ fee = 1200 = 6% · seller_net=18800 (20000-1200)  ✅
+    ZEROSUM_diff = 0  (Σwallets + platform_net + club_ledger_net + Σpbt vor==nach)  ✅ geldneutral verteilt
+  → Offer in der Txn erzeugt + akzeptiert, alles RAISE→ROLLBACK (null Persistenz, Liquiditäts-Bump +100k mitgerollt).
+
+AC-3 — fee_config Daten
+  offer_platform_bps/offer_pbt_bps/offer_club_bps = 350/150/100  ✅ (vorher 200/50/50)
+
+AC-4 — accept_offer functiondef-Konstanten
+  COALESCE-Defaults: offer_platform_bps,350 ✅ · offer_pbt_bps,150 ✅ · offer_club_bps,100 ✅
+
+AC-6 — Guards erhalten (PATCH-AUDIT S156)
+  auth_uid_mismatch ✅ · book_platform_treasury('p2p') ✅ (Body 1:1 aus 406-Stand, nur 3 Konstanten geändert)
+
+AC-5 — UI Anzeige == Charge
+  OffersTab.tsx:103 Fee-Vorschau = exakt 3 Teil-Floors (350+150+100 bps), spiegelt accept_offer.
+  tsc --noEmit Exit 0 · vitest OffersTab + offers.test = 37 passed.
+
+AC-7 — Compliance-Docs
+  business.md Fee-Split: P2P Offers 3.5% / 1.5% / 1% ✅
+  trading.md Fee-Split: P2P Offers (6% total) Platform 3.5% + PBT 1.5% + Club 1% ✅
+
+──────────────────────────────────────────────────────────────────────
+FAZIT: P2P-Fee = 6% identisch zum Orderbuch (3,5/1,5/1). Zero-Sum diff=0, Guards/Routing erhalten,
+UI-Vorschau == Charge, beide Doc-SSoTs angeglichen. Welle-1.4a DONE. Alle AC PASS.

@@ -75,7 +75,7 @@ paths:
 - **Research Unlock:** 80% Author, 20% Platform
 - **Bounty Approval:** 95% Creator, 5% Platform
 - **Polls:** 80% Creator, 20% Platform (Slice 337)
-- **P2P Offers (3% total):** Platform 2% + PBT 0.5% + Club 0.5% (ADR-025 updated, `offer_*_bps` in fee_config)
+- **P2P Offers (6% total, = Markt seit Slice 407/D112):** Platform 3.5% + PBT 1.5% + Club 1% (`offer_*_bps`=350/150/100 in fee_config; vorher 3% — angeglichen, damit P2P den Orderbuch-Markt nicht unterläuft & die Plattform-Fee nicht halbiert)
 - **Club Abos:** 100% Club (ADR-027)
 - Fee-Discount: Platform absorbs Rabatt, PBT+Club immer voller Anteil
 - Abo-Discount: `buy_player_sc` prueft `club_subscriptions` (active + expires_at > now). Alter Name `buy_player_dpc` existiert als thin-alias (seit 2026-04-14, Migration 20260414151000).
