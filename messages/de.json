@@ -3649,6 +3649,7 @@
     "rateLimited": "Zu viele Anfragen. Bitte warte einen Moment.",
     "networkError": "Netzwerkfehler. Bitte prüfe deine Verbindung.",
     "timeout": "Die Anfrage hat zu lange gedauert. Bitte versuche es erneut.",
+    "idempotencyPending": "Deine vorherige Aktion wird noch verarbeitet. Einen Moment bitte.",
     "subscriptionRequired": "Ein Club-Abo wird für diese Aktion benötigt.",
     "earlyAccessRequired": "Vorkaufsrecht erforderlich. Upgrade auf Silber+ im Club-Abo, um jetzt zu kaufen.",
     "ipoMisconfigured": "Dieser Erstverkauf ist nicht korrekt konfiguriert. Bitte den Verein kontaktieren.",

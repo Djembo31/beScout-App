@@ -11,6 +11,7 @@ import { Card, Button, Dialog } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
 import { PlayerIdentity } from '@/components/player';
 import { useToast } from '@/components/providers/ToastProvider';
+import { useErrorToast } from '@/lib/hooks/useErrorToast';
 import { centsToBsd } from '@/lib/services/players';
 import { usePlayerSearch } from '@/lib/queries';
 import { createOffer } from '@/lib/services/offers';
@@ -200,6 +201,7 @@ function CreateOfferModal({
 }) {
   const t = useTranslations('offers');
   const { addToast } = useToast();
+  const { showError } = useErrorToast();
   const [search, setSearch] = useState('');
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [side, setSide] = useState<'buy' | 'sell'>('buy');
@@ -246,10 +248,12 @@ function CreateOfferModal({
         setReceiverHandle('');
         setMessage('');
       } else {
-        addToast(result.error ?? t('error'), 'error');
+        // Slice 412: result.error ist roher RPC-String (z.B. "Nicht genug BSD.") →
+        // via mapErrorToKey übersetzen statt roh anzeigen (BSD-Leak + DE-im-TR, §4).
+        showError(result.error ?? 'generic');
       }
     } catch (e) {
-      addToast(e instanceof Error ? e.message : t('error'), 'error');
+      showError(e);
     } finally {
       setLoading(false);
     }

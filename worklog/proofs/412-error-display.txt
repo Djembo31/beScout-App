@@ -1,0 +1,42 @@
+Slice 412 — Welle 1.5(b)+1.5(f) Trading-Error-Display-Konsistenz — PROOF
+Datum: 2026-06-27 · Frontend/i18n (kein Money-RPC/Logic-Change)
+
+================================================================
+Root-Cause (live-verifiziert)
+================================================================
+ToastProvider.addToast(message) rendert `message` ROH (ToastProvider.tsx:81) — übersetzt NICHT.
+→ Im selten genutzten P2P-Offers-Tab (offers ~0 Nutzung) leakten:
+  - useOffersState.ts 5× addToast('<bloßer Key>') → User sah „offerAccepted" etc. roh.
+  - OffersTab.tsx:249 (result.error roh) + :252 (e.message roh) → roher RPC-Fehler
+    inkl. „BSD"-Wort + deutscher Text im TR-Locale (§4-Verstoß).
+useOffersState showError-Pfade waren bereits sauber (useErrorToast → mapErrorToKey).
+
+================================================================
+Fix
+================================================================
+- useOffersState.ts: + useTranslations('offers'); 5 Keys übersetzt
+  (offerAccepted/offerRejected/counterCreated/offerCancelled/invalidPrice); t in handleCounter-deps.
+- OffersTab.tsx: + useErrorToast().showError; Z.249 showError(result.error ?? 'generic'), Z.252 showError(e).
+- errorMessages.ts: ERROR_MAP [/idempotency_pending|idempotent.?replay/i → 'idempotencyPending']
+  + KNOWN_KEYS 'idempotencyPending'. (1.5f: Rapid-Doppelklick-Replay → freundliche Meldung statt 'generic'.)
+- messages/de.json + tr.json: errors.idempotencyPending (DE + TR).
+
+================================================================
+AC-Verifikation
+================================================================
+AC1 grep useOffersState bare-key addToast('offer|counter|invalid' → 0 Treffer ✓
+AC1 grep OffersTab addToast(result.error|e instanceof Error) → 0 Treffer ✓
+AC2 idempotency_pending → ERROR_MAP-Regex → 'idempotencyPending' (in KNOWN_KEYS + i18n DE/TR) ≠ 'generic' ✓
+AC3 node JSON.parse de+tr → valid ✓ (S399-Gate)
+AC3 npx tsc --noEmit → exit 0 ✓
+AC4 Money-RPC/Logic unberührt — nur welcher String angezeigt wird; keine .sql/.rpc/Service-Logic-Änderung ✓
+
+================================================================
+Scope-Out (eigene Folge-Slices, an Anil gemeldet)
+================================================================
+- 1.5(a) Rate-Limit tier-basiert vereinheitlichen · 1.5(c) fee_config-Lookup angleichen
+  · 1.5(d) Menge-zu-viel (kappen vs ablehnen) · 1.5(e) price_change_24h in allen Kaufwegen
+  → Money-RPC-Analyse nötig, separat.
+- 1.5(b)-Rest: „BSD"-Prosa IN den Money-RPC-Bodies (buy_*/accept_offer/create_offer) ist
+  intern (User sieht via mapErrorToKey nie roh) → Hygiene, optionaler RPC-Text-Slice.
+- 1.6: OrderDepthView Empty-State existiert bereits; offen = Best-Ask/Spread eigene Orders excludieren.

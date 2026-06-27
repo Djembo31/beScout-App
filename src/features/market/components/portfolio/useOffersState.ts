@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { useQueryClient } from '@tanstack/react-query';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/providers/ToastProvider';
@@ -44,6 +45,7 @@ export function useOffersState() {
   const { user } = useUser();
   const { addToast } = useToast();
   const { showError } = useErrorToast();
+  const t = useTranslations('offers');
   const qc = useQueryClient();
 
   const [subTab, setSubTab] = useState<SubTab>('incoming');
@@ -89,7 +91,7 @@ export function useOffersState() {
     },
     onSuccess: (_result, { offerId }) => {
       if (!uid) return;
-      addToast('offerAccepted', 'success');
+      addToast(t('offerAccepted'), 'success');
       const offer = offers.find((o) => o.id === offerId);
       if (offer) invalidateTradeQueries(offer.player_id, uid);
       loadOffers();
@@ -117,7 +119,7 @@ export function useOffersState() {
       return result;
     },
     onSuccess: () => {
-      addToast('offerRejected', 'success');
+      addToast(t('offerRejected'), 'success');
       loadOffers();
     },
     onError: (err) => {
@@ -144,7 +146,7 @@ export function useOffersState() {
       return result;
     },
     onSuccess: () => {
-      addToast('counterCreated', 'success');
+      addToast(t('counterCreated'), 'success');
       setCounterModal(null);
       setCounterPrice('');
       loadOffers();
@@ -172,7 +174,7 @@ export function useOffersState() {
       return result;
     },
     onSuccess: () => {
-      addToast('offerCancelled', 'success');
+      addToast(t('offerCancelled'), 'success');
       loadOffers();
     },
     onError: (err) => {
@@ -220,7 +222,7 @@ export function useOffersState() {
     if (counterMut.isPending) return;
     const priceCents = Math.round(parseFloat(counterPrice) * 100);
     if (priceCents <= 0) {
-      addToast('invalidPrice', 'error');
+      addToast(t('invalidPrice'), 'error');
       return;
     }
     try {
@@ -228,7 +230,7 @@ export function useOffersState() {
     } catch {
       // onError handled.
     }
-  }, [counterMut, uid, counterModal, counterPrice, addToast]);
+  }, [counterMut, uid, counterModal, counterPrice, addToast, t]);
 
   const handleCancel = useCallback(
     async (offerId: string) => {

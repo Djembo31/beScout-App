@@ -2,16 +2,28 @@
 
 ```
 status: idle
-slice: 411
-title: Welle 1.4d — Buy-Limit-Doc: FEATURE_BUY_ORDERS gated + Fork-B + Live-Stand (stale Kommentar heilen) — DONE
-size: XS (Doc/Ops — Kommentar-Edit featureFlags.ts, kein Money/Security-Verhalten; lean ceremony Slice 352)
+slice: 412
+title: Welle 1.5(b)+1.5(f) — Trading-Error-Display-Konsistenz (P2P-Offers Roh-Key/Roh-Error-Leaks + idempotency_pending mappen) — DONE
+size: S (Frontend/i18n — kein Money-RPC/Logic-Change; Error-Display-Schicht)
 stage: LOG (DONE)
 spec: inline (unten)
-impact: skipped (Comment-only, kein Behavior/Shape-Change)
-proof: worklog/proofs/411-buy-orders-live-state.txt
-proof-note: live 0 open buy-orders + SUM(locked)=0 global; stale „10 offen" geheilt, Fork-B verankert. WELLE 1.4 ABGESCHLOSSEN.
-review: self-review (Ops/Doc, kein Money/Security)
+impact: skipped (Display-only: welcher String gezeigt wird; kein Money-Flow/Shape-Change)
+proof: worklog/proofs/412-error-display.txt
+proof-note: tsc 0 + JSON-Gate de/tr + 0 Leak-greps; idempotency_pending→idempotencyPending
+review: worklog/reviews/412-review.md — self-review PASS (Display-only, geldneutral)
 ```
+
+## INLINE-SPEC Slice 412 (Welle 1.5b + 1.5f)
+**Problem (live-verifiziert, kein Raten):**
+- `addToast` übersetzt NICHT (rendert `message` roh, ToastProvider:81). Im selten genutzten P2P-Offers-Tab leaken dadurch:
+  - `useOffersState.ts` 5× `addToast('<bloßer Key>',…)` (offerAccepted/offerRejected/counterCreated/offerCancelled/invalidPrice) → **Roh-Key-Leak** in UI bei jedem erfolgreichen Offer.
+  - `OffersTab.tsx:249` (`result.error` roh) + `:252` (`e.message` roh) → **Roh-RPC-Error-Leak** (BSD-Wort + Deutsch im TR-Locale, §4-Verstoß).
+  - (`useOffersState` showError-Pfade sind sauber — mappen via mapErrorToKey.)
+- `idempotency_pending` (RPC-Reject bei Rapid-Doppelklick) fehlt in errorMessages → fällt auf 'generic' statt freundlicher „wird verarbeitet"-Meldung (1.5f).
+**Lösung:** useOffersState `useTranslations('offers')` + 5 Keys übersetzen · OffersTab `useErrorToast().showError` statt roher addToast (2 Stellen) · errorMessages ERROR_MAP+KNOWN_KEYS `idempotencyPending` + i18n DE/TR.
+**AC:** (1) kein bloßer-Key/roher e.message-addToast mehr im Offers-Tab (grep). (2) idempotency_pending → mapErrorToKey ≠ 'generic'. (3) tsc grün + JSON-Gate de/tr. (4) Money-RPC/Logic unberührt.
+
+## 411 (vorige) — DONE (Welle 1.4 komplett)
 
 ## INLINE-SPEC Slice 411 (1.4d, Doc/Ops lean)
 **Problem:** `featureFlags.ts:28` behauptet „10 Buy-Orders seit 26d offen, 0 Fills" — **stale**. Live (2026-06-27): 0 offene Buy-Orders, 41 historische alle `cancelled`+refunded, `SUM(wallets.locked_balance)=0` global. Fork-B-Entscheid (D112) ist im Flag-Kommentar nicht verankert.

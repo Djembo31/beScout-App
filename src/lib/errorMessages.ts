@@ -22,6 +22,10 @@ const KNOWN_KEYS = new Set([
   'dailyTradeLimit', 'circularTradeBlocked', 'cancelCooldown', 'orderRateLimit',
   'researchWeeklyCap', 'cosmeticAlreadyOwned', 'cosmeticOutOfStock',
   'ipoMisconfigured',
+  // Slice 412 (Welle 1.5f) — Money-RPC Idempotenz-Replay (Rapid-Doppelklick im
+  // 300s-Fenster): RPC gibt 'idempotency_pending' zurück → freundliche „wird
+  // verarbeitet"-Meldung statt generischem Fehler.
+  'idempotencyPending',
   // Mystery Box (J5F-06 / J5B-13 / AR-49)
   'mysteryBoxDailyLimit', 'mysteryBoxNotEnoughTickets', 'mysteryBoxPaidDisabled',
   // Missions (J7B-06 / J7B-13)
@@ -147,6 +151,9 @@ const ERROR_MAP: [RegExp, string][] = [
   [/research.weekly.cap|max.*3.*research.*post/i, 'researchWeeklyCap'],
   [/already.owned/i, 'cosmeticAlreadyOwned'],
   [/out.of.stock/i, 'cosmeticOutOfStock'],
+
+  // Slice 412 (Welle 1.5f) — Idempotenz-Replay (Money-RPC Doppelklick-Schutz)
+  [/idempotency_pending|idempotent.?replay/i, 'idempotencyPending'],
 
   // Subscription
   [/ipo_misconfigured/i, 'ipoMisconfigured'],

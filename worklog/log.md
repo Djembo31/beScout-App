@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 412 | 2026-06-27 | fix(trading): Welle 1.5b+1.5f — Trading-Error-Display-Konsistenz (Offers-Tab Roh-Leaks + idempotency_pending) [UI/i18n]
+- Stage-Chain: SPEC inline (active.md, S) → IMPACT skipped (Display-only) → BUILD (3 Files + 2 i18n) → REVIEW self-review PASS (geldneutral) → PROVE (tsc+JSON+grep) → LOG.
+- **Welle 1.5 Teil-Schließung (Anil: 1.5+1.6 schließen → dann Live-Walk).** Root-Cause: `addToast` rendert `message` ROH (ToastProvider:81, übersetzt nicht). Im selten genutzten P2P-Offers-Tab leakten: `useOffersState` 5× `addToast('<bloßer Key>')` (Roh-Key-Leak bei jedem erfolgreichen Offer) + `OffersTab:249/252` rohes `result.error`/`e.message` (BSD-Wort + Deutsch-im-TR, §4).
+- **Fix:** useOffersState `useTranslations('offers')` + 5 Keys übersetzt · OffersTab `useErrorToast().showError` (mapErrorToKey) statt roher addToast · errorMessages `idempotency_pending`→`idempotencyPending` (ERROR_MAP+KNOWN_KEYS) + i18n DE/TR (1.5f: Rapid-Doppelklick zeigt „wird verarbeitet" statt 'generic').
+- **Geldneutral:** keine RPC/Migration/Service-Logic — nur welcher String im Toast erscheint.
+- **Beweis (`proofs/412-error-display.txt`):** tsc exit 0 · JSON-Gate de+tr valid · grep 0 Roh-Leak-Treffer · idempotency_pending≠generic.
+- **Scope-Out (gemeldet):** 1.5(a) rate-limit · (c) fee_config · (d) qty-too-much · (e) price_change_24h = Money-RPC-Analyse, separat. 1.5(b)-RPC-interne „BSD"-Prosa = Hygiene (nie roh user-facing). 1.6 Empty-State existiert schon; offen = Best-Ask/Spread Own-Order-Exclusion.
+- Commit: <pending>
+
 ## 411 | 2026-06-27 | docs(trading): Welle 1.4d — Buy-Limit gated + Fork-B im Flag-Kommentar verankert (stale geheilt) [Doc/Ops]
 - Stage-Chain: SPEC inline (active.md, XS Doc) → IMPACT skipped (Comment-only) → BUILD (featureFlags.ts Kommentar) → REVIEW self-review (Ops, kein Money/Security) → PROVE (Live-Query) → LOG.
 - **Schließt Welle 1.4 ab.** `featureFlags.ts:28` behauptete „10 Buy-Orders seit 26d offen, 0 Fills" — **stale**. Live-verifiziert (2026-06-27): **0 offene Buy-Orders** (41 historische alle `cancelled`+refunded), `SUM(wallets.locked_balance)=0` global → keine escrowed Geld-Altlast auf der Buy-Seite (konsistent mit 409: dortige 249.800-cents-Altlast war *balance*-Leak, kein *locked*-Leak).
