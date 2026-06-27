@@ -23,5 +23,14 @@ AC-Verifikation
 ================================================================
 AC1 marketSells-Filter für bestAsk/askVol/Depth/Empty-State — Code.
 AC2 tsc --noEmit → exit 0 ✓
-AC3 Live nach Deploy (jarvis@Douglas, @200 einzige Order → eigene raus → BESTER ASK „–"):
-    [wird nach Deploy ergänzt]
+AC3 Live nach Deploy (jarvis@Douglas, @200 einzige Order) — VERIFIZIERT 2026-06-27 ✓:
+    - VORHER (pre-deploy): "BESTER ASK 200" (jarvis' eigene Order) sichtbar.
+    - NACHHER: `hasOrderbookWidget=false` — OrderbookSummary versteckt sich (marketSells leer
+      + keine Bids → return null). Eigene Order erscheint NICHT mehr als Best-Ask. ✓
+    - Seite gesund (title Douglas, 0 Console-Errors), 408-Labels live ("Marktplatz · sofort kaufbar").
+
+NEUER FOLGE-BEFUND (vom selben Live-Walk): die Player-Detail-Sektion "Marktplatz · sofort
+kaufbar" listet weiter "1 Order" = jarvis' EIGENE als kaufbar. Klick → buy_from_order lehnt
+"Eigene Order kaufen nicht möglich" ab (RPC-guarded, KEIN Geld-Bug) → UX-Papercut, eigener
+Folge-Slice (5. Best-Ask/Order-Surface). Bid-Seite (OfferWithDetails ohne is_own) + PlayerHero
+bestBid (TradingTab:126) ebenfalls offen.

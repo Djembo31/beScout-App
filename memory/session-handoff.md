@@ -1,24 +1,21 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 13:11)
+# Session Handoff — Auto (2026-06-27 13:55)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
 ## Session Commits: 10
+- e00dd859 docs(handoff): Welle 1.5 KOMPLETT (413 Markt-Kauf-RPCs vereinheitlicht) — offen 1.6 + Live-Walk
+- ae68fc5b docs(log): Slice 413 Commit-Hash (80720552)
+- 80720552 fix(trading): Slice 413 — Welle 1.5a/c/d/e Markt-Kauf-RPCs vereinheitlichen [Money/CEO]
+- 3b1029e9 docs(handoff): Welle 1.5/1.6 Stand — 412 (1.5b+1.5f) DONE, 1.5a/c/d/e + 1.6 own-order offen
+- 3e49c292 docs(log): Slice 412 Commit-Hash (ac51aab2)
+- ac51aab2 fix(trading): Slice 412 — Welle 1.5b+1.5f Offers-Tab Error-Display-Leaks + idempotency_pending [UI/i18n]
 - fdb4de6e docs(handoff): Resume-Anker — Welle 1.4 KOMPLETT (410 Ledger-Labels + 411 Buy-Doc), CEO-Entscheid 249.800 resolved
 - ce6ad0bd docs(log): Slice 411 Commit-Hash (277124a3)
 - 277124a3 docs(trading): Slice 411 — Welle 1.4d Buy-Limit gated + Fork-B verankert (stale Flag-Kommentar geheilt) [Doc/Ops]
 - 9098c49c docs(log): Slice 410 Commit-Hash (98d6ecb6)
-- 98d6ecb6 fix(trading): Slice 410 — Club-Treasury-Ledger korrekte Quellen-Labels (ipo_fee / p2p_fee) [Money/CEO]
-- e44e5cd1 docs(handoff): Resume-Anker 2026-06-27 — Welle 1.4 (406-409) + D112 + offener CEO-Entscheid (249.800 cents)
-- 2817e4cd docs(log): Slice 409 Commit-Hash (a8ff84aa)
-- a8ff84aa fix(trading): Slice 409 — Welle 1.4c P2P-Offer Escrow-Robustheit (Refund-Symmetrie, 4 Stellen) [Money/CEO]
-- cf0667b5 docs(proof): Slice 408 — post-Deploy Playwright DE+TR LIVE PASS, voll-DONE
-- 81ac5bee docs: Slice 408 reconcile (hash 8d15ca85, MASTERPLAN/TODO/handoff 1.4b DONE)
 
 <!-- auto:handoff-end -->
 
@@ -43,10 +40,11 @@
 - ✅ **412 (1.5b+1.5f) DONE** (`ac51aab2`): Offers-Tab Roh-Key/Roh-Error-Leaks (useOffersState 5× + OffersTab 2×) → übersetzt/`showError`; `idempotency_pending`→`idempotencyPending` (+i18n DE/TR). Geldneutral, tsc 0, self-review PASS.
 - ✅ **413 (1.5a/c/d/e) DONE** (`80720552`) [Money/CEO]: die zwei Markt-Kauf-RPCs (`buy_player_sc` Markt/auto-cheapest ↔ `buy_from_order` gewählte Order) waren über 4 Dim gedriftet → vereinheitlicht: (d) Menge-zu-viel = **ABLEHNEN** (Anil-Entscheid; buy_player_sc war still-kappen) · (a) tier-Rate-Limit (buy_from_order war hart 20) · (c) fee_config created_at DESC (war club_id NULLS LAST) · (e) price_change_24h beide (buy_player_sc setzte es nicht; v_player +last_price). PATCH-AUDIT byte-treu, force-rollback Zero-Sum=0 beide (AC1 reject + AC2 price_change=-33.33 + buy_from_order fee_bps=600), Reviewer PASS, ACL erhalten. fee_config live=1 Row → 1.5c geldneutral.
 - **→ WELLE 1.5 KOMPLETT.**
-- **NOCH OFFEN vor Live-Walk:**
-  - **1.6** OrderDepthView: Empty-State existiert schon (`noOrdersForPlayer`); **offen = Best-Ask/Spread eigene Orders excludieren** (`OrderDepthView.tsx:180-189` Spread/best-ask inkl. eigener Orders; Component kennt heute nur `playerId`, KEIN userId → braucht `useUser()` + `is_own`/`user_id` aus `getSellOrders`/`getAllOpenBuyOrders` — Service-Felder ZUERST prüfen). Frontend, kein Money.
-  - **1.5(b)-Rest:** „BSD"-/`'Max 20 Trades/24h'`-Prosa IN Money-RPC-Bodies = intern (User sieht via mapErrorToKey nie roh) → Hygiene, optional (413-Reviewer-INFO).
-- **DANACH:** Live-e2e-Walk (IPO-Kauf → Markt-Kauf → Sell-Order → P2P-Gebot → annehmen → stornieren) auf bescout.net = Proof „Trading läuft vollständig" (Login `jarvis-qa@bescout.net`/`JarvisQA2026!`).
+- ✅ **414 (1.6 OrderDepthView, Markt-Tab) DONE** (`9b7eb094`): `if (o.is_own) continue;` in askLevels+bidLevels. Wird in `TransferListSection` (Markt-Tab) gerendert.
+- ✅ **415 (1.6 OrderbookSummary, Player-Detail) DONE + LIVE-VERIFIED** (`7e9afcfc`): `marketSells = sellOrders.filter(!is_own)` für bestAsk/askVol/Depth/Empty-State. **Live bestätigt (jarvis@Douglas): „BESTER ASK 200" (eigene Order) ist weg** (Widget versteckt sich bei own-only). **Lehre:** der Live-Walk deckte auf, dass 414 die FALSCHE Surface fixte (Markt-Tab ≠ Player-Detail) — Best-Ask wird an **mehreren** Stellen gerechnet (von-allem-N). Statische Verifikation hätte das NIE gefangen.
+- **🟡 OFFENE 1.6-FOLGE-SURFACES (vom Live-Walk gefunden, eigene Slices):** (1) Player-Detail-Sektion „Marktplatz · sofort kaufbar" listet weiter EIGENE Order als kaufbar (`buy_from_order` lehnt „Eigene Order kaufen nicht möglich" ab → RPC-guarded, KEIN Geld-Bug, UX-Papercut). (2) Bid-Seite own-exclusion (`OfferWithDetails` hat kein `is_own` → Type/Service-Change). (3) PlayerHero `bestBid` (`TradingTab:126`).
+- **1.5(b)-Rest:** „BSD"-/`'Max 20 Trades/24h'`-Prosa IN Money-RPC-Bodies = intern (User sieht via mapErrorToKey nie roh) → Hygiene, optional (413-Reviewer-INFO).
+- **➡️ NÄCHSTES = der eigentliche Live-e2e-Walk** (IPO-Kauf → Markt-Kauf → Sell-Order → P2P-Gebot → annehmen → stornieren) auf bescout.net = Proof „Trading läuft vollständig" (Login `jarvis-qa@bescout.net`/`JarvisQA2026!`). Eingeloggt-Stand: jarvis ~12.397 CR, 29 Cards. Deploy von 412/414/415 ist LIVE. Davor/dabei optional die 1.6-Folge-Surfaces in 1 gebündelten Slice schließen.
 
 ---
 
