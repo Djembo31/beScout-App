@@ -9,7 +9,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **Tote Sektion 6 entfernt:** `player.listings` ist im Player-Detail immer `[]` (players.ts:252, nie befüllt; nur KaderTab/Manager füllt es) → Render-Block raus + ungenutzter Clock-Import. Type + KaderTab-Nutzung unberührt. Orderbuch (Sektion 7) = SSOT für Markt-Verkäufe.
 - **Beweis:** `node JSON.parse` de+tr grün (S399-Gate), Key-Parität 8/8, Compliance-grep 0 „Orderbuch", tsc 0, 24 TradingTab-Tests (1 umgestellt auf Removal-Assertion). `proofs/408-i18n.txt`. **post-Deploy Playwright (408-live.txt) folgt.**
 - **Scope-Out:** Portfolio-Offers-Tab-Label (gemischte P2P) · orphan playerDetail.activeOffers/listingsCount-Keys. Nächste 1.4-Härtung: 1.4c offers-Robustheit · 1.4d Buy-Limit-Doc.
-- Commit: <hash>
+- Commit: 8d15ca85
 
 ## 407 | 2026-06-27 | feat(trading): Welle 1.4a — P2P-Offer-Fee auf 6% (= Markt) angleichen [Money/CEO]
 - Stage-Chain: SPEC (`specs/407-…`, S Money) → IMPACT skipped (nur accept_offer liest offer_*_bps, 1 UI-Stelle) → BUILD (1 Migration + OffersTab + business.md/trading.md/index.ts) → REVIEW reviewer-Agent **CONCERNS→geheilt→PASS** (`reviews/407-review.md`, 1 LOW Stale-Kommentar gefixt) → PROVE (force-rollback 6%-Split + Zero-Sum + tsc 0 + vitest 37) → LOG.
