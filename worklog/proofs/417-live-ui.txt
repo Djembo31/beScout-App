@@ -1,0 +1,31 @@
+Slice 417 — Live-UI-Verify (AC-5) gegen bescout.net (jarvis-qa)
+================================================================
+Datum: 2026-06-27 · Deploy von Commit eb69c4e2 live · 0 Console-Errors durchgehend
+
+## Seed (echtes Gebot, S369-Impersonation)
+create_offer(jarvis, Yildiz[besessen 5×], receiver=NULL, buy, 5000 cents, qty 1)
+→ offer e08c006c-9415-4610-ba38-4946922eb02a, jarvis locked 0→5000 (Escrow gelockt).
+
+## AC-5 Teil 1 — "Offene Gebote"-Tab schließt eigenes Gebot aus  ✓
+/market?tab=angebote → Angebote → "Offene Gebote":
+  Panel-Text = "Keine offenen Gebote / Erstelle ein offenes Gebot…"
+  mentionsYildiz = false  → eigenes Yildiz-Kaufgebot NICHT gelistet (= tote Zeile weg).
+  Screenshot: 417-offene-gebote-empty.png
+
+## AC-5 Teil 2 — Storno lebt im "Ausgehend"-Tab  ✓
+"Ausgehend"-Tab: Karte "Ali Arda Yildiz · DEF · Kaufangebot · 50 CR · 1x ·
+  An: Offen (alle Halter) · 48h verbleibend · Ausstehend" + Button "Zurückgezogen" (Storno).
+  → Handoff-Befund "kein Storno-Button / escrow trapped" widerlegt: Storno IST verkabelt,
+    nur im richtigen Tab. Screenshot: 417-ausgehend-mit-storno.png
+
+## AC-5 Teil 3 — Storno via UI → Escrow-Refund  ✓
+Klick "Zurückgezogen" → DB:
+  offer_status = cancelled
+  jarvis balance = 1.250.147 (zurück auf pre-seed)
+  jarvis locked  = 0  (Escrow vollständig released, S409-Symmetrie)
+  → Self-Service-Exit vollständig funktional. Seed sauber aufgelöst (kein Rest-Lock).
+
+## Ergebnis
+Bug behoben: eigenes Kaufgebot erscheint nicht mehr als tote Zeile in "Offene Gebote";
+der korrekte Storno-Pfad ("Ausgehend") funktioniert e2e inkl. Escrow-Refund.
+ALLE ACs (1-6) PASS.

@@ -1,21 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 16:43)
+# Session Handoff — Auto (2026-06-27 16:50)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 8 Files
+## Uncommitted Changes: 1 Files
 ```
- M memory/session-handoff.md
- M src/lib/services/__tests__/offers.test.ts
- M src/lib/services/offers.ts
- M worklog/active.md
-?? supabase/migrations/20260627230000_open_bids_exclude_own_dashboard.sql
-?? worklog/proofs/417-offers-tests.txt
-?? worklog/proofs/417-rpc-verify.txt
-?? worklog/specs/417-open-bids-own-exclusion.md
+ M TODO.md
 ```
 
 ## Session Commits: 10
+- eb69c4e2 fix(trading): Slice 417 — Offers Eigen-Gebot-Leak in "Offene Gebote" schliessen (server-SSOT)
 - c5cefd04 docs(distill): Session-Close 2026-06-27 — 416 + e2e-Walk verankert, errors-frontend S416
 - df6beeb2 docs(proof): Welle 1 Trading e2e-Lebenszyklus-Walk live bewiesen + 416 4-Surface live-verify
 - 6e721568 docs(proof): Slice 416 live-verified — eigene Order weg aus 'sofort kaufbar' (bescout.net jarvis@Douglas)
@@ -25,7 +19,6 @@
 - c69aa61d docs(log): Slices 414+415 — Welle 1.6 Orderbook own-order exclusion (2 Surfaces); Live-Verify nach Deploy
 - 7e9afcfc fix(trading): Slice 415 — Welle 1.6 OrderbookSummary Player-Detail eigene Sell-Orders aus Best-Ask excludieren [UI]
 - 9b7eb094 fix(trading): Slice 414 — Welle 1.6 OrderDepthView eigene Orders aus Best-Ask/Spread excludieren [UI]
-- e00dd859 docs(handoff): Welle 1.5 KOMPLETT (413 Markt-Kauf-RPCs vereinheitlicht) — offen 1.6 + Live-Walk
 
 <!-- auto:handoff-end -->
 
@@ -33,6 +26,8 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🧹 SESSION 2026-06-27 (Abend 3) — Slice 417 DONE + LIVE-VERIFIED (Welle-1-Offers-Rest geschlossen):** Der „Offers-Storno"-UX-Befund aus dem e2e-Walk ist **resolved — mit korrigierter Root-Cause.** Faktencheck widerlegte den Handoff: „cancel_offer_rpc nicht verkabelt" war FALSCH — der Storno IST im **„Ausgehend"-Tab** verkabelt (`OffersTab.tsx:464`). Echter Bug = **Eigen-Gebot-Leak**: `getOpenBids({ownedByUserId})` schloss eigene öffentliche Kaufgebote nicht aus → eigenes Gebot auf einen besessenen Spieler leckte als **tote Zeile** in „Offene Gebote" (nicht annehmbar: `accept_offer` blockt Selbst-Annahme; nicht stornierbar: falscher Tab). = Welle-1.6-Eigen-Ausschluss-Klasse (S416). **Fix = server-SSOT an 2 Quellen** (statt Consumer-Band-Aid, D111-Ursache-#1): (1) `getOpenBids` `.neq('sender_id', ownedByUserId)` NUR im ownedByUserId-Zweig · (2) RPC `get_market_user_dashboard` open_bids `AND sender_id <> p_user_id`. Pfad 3 (Player-Detail `getOpenBids({playerId})`) bewusst unberührt (Welle-1.6-Client-SSOT). `BestandView`-Client-Filter wird redundant, bleibt DiD. **PATCH-AUDIT** (RPC byte-treu D87: ACL+auth-guard unverändert, 1 AND-Zeile neu), **kein Zero-Sum** (read-only). Reviewer **PASS** (2 NIT out-of-scope: orphan `useOpenBids` no-arg-Hook + AR-44-grep-False-Positive). 36 offers-Tests, tsc 0. **Live-Walk (geseedetes Yildiz-Gebot 50 CR, sauber storniert):** „Offene Gebote" leer · „Ausgehend" mit „Zurückgezogen" · Storno via UI → cancelled + balance +5000 refunded + locked 0. Commit `eb69c4e2` (+Live-Proof-Finalize). Knowledge: trading.md S7-303-Block um S417 erweitert. Trackers reconciled. **➡️ NÄCHSTER = Welle 2 Spieltag/Scoring [Money]** (Anil-Wahl „2 dann 1" erfüllt).
+>
 > **🧹 SESSION-CLOSE 2026-06-27 (Abend 2 — DISTILL erledigt, fresh-session-ready):** **Slice 416 (Welle 1.6 KOMPLETT)** + **voller Live-e2e-Lebenszyklus-Walk** geliefert+gepusht (zuletzt `df6beeb2`). 416 = SSOT-Helper `src/lib/orderbook.ts` (`excludeOwnBids`/`bestForeignBidCents`) vereinheitlicht Eigene-Order/Bid-Exclusion über **4 Surfaces** (QuickStats bestBid · „sofort kaufbar"-Liste · OrderbookSummary bid · **SellModal** = vom Handoff übersehen). Reviewer PASS, 39 Tests, **live an allen 4 Surfaces bestätigt** (selektiv: Fremd-Gebot zählt, eigenes nicht). **Walk:** alle 6 Schritte (IPO→Markt-Kauf→Sell→P2P-Gebot→Annehmen→Stornieren) UI+DB-reconciled, Wallet +10.420 exakt, Fee 6% korrekt, Escrow symmetrisch → **Welle 1 Trading e2e KOMPLETT bewiesen** (`proofs/welle1-e2e-lifecycle-walk.txt`). Wissen verdrahtet: errors-frontend **S416** (in S414/S415-Block) + trading.md S7-303 F-1 (Bid-Exclusion komplett, „kein Type-Change"-Korrektur). **Handoff-Korrekturen:** kein Type/Service-Change nötig (sender_id existiert); „PlayerHero bestBid" existiert nicht (=QuickStats). Trackers reconciled (active/MASTERPLAN/TODO/log/trading.md). **🚩 1 OFFENER UX-BEFUND:** ausgehende Kaufgebote (Portfolio „Angebote→Offene Gebote") haben KEINEN Storno-Button → escrow-Guthaben ohne Self-Service-Exit (`cancel_offer_rpc` existiert, nicht verkabelt) = kleiner Folge-Slice. **Keine sonstigen Widersprüche/Stale.**
 >
 > **➡️ DIREKT-START NÄCHSTE SESSION (Anil-Wahl):** (a) **Welle 2 Spieltag/Scoring** [Money] — größter Mock→Pro-Brocken (`mock2pro-plan.md` Welle 2: Scores an GW-Nummer statt Fixture-gebunden, Datenmodell-Integrität); selbst + Live-`pg_get_functiondef` vor Spec (D87) + Zero-Sum. ODER (b) **kleiner Offers-Storno-UI-Fix** (Welle-1-Rest, XS-S: `cancel_offer_rpc` an „Offene Gebote"-Zeile verkabeln). ODER (c) **2. ausführlicherer Live-Walk** (Anil-Frage) — der 1. Walk deckte die KERN-6-Schritte, NICHT erschöpfend. Noch ungetestet (für 2. Walk gezielt): Sell-Order-FILL (jemand kauft jarvis' gelistete Order, jarvis-als-Verkäufer-Orderbuch-Pfad) · Multi-Quantity (alles war qty1) · Preis-Band-Reject (Lowball-Sell, S368c) · Menge>verfügbar=ABLEHNEN live (S413) · Gegengebot/Reject-P2P-Flow (counter_offer) · IPO Early-Access-Gate/Sold-out · Mobile 393px für 416 · Offers-Storno via UI (sobald gebaut). Empfehlung: 2. Walk lohnt, aber gezielt auf diese Lücken (kein Repeat der 6 Kern-Schritte).
