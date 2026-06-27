@@ -49,7 +49,24 @@ $ grep -n "getClub(" src/components/fantasy/FantasyPlayerRow.tsx
   out-of-scope Folge-Smell, vermerkt. Detail: worklog/reviews/422-review.md
 
 ═══════════════════════════════════════════════════════════════════
-4. LIVE-VERIFY (post-Deploy) — folgt nach Push, siehe 422-*.png
+4. LIVE-VERIFY (post-Deploy bescout.net, jarvis-qa, Commit 7e81487e) — PASS
 ═══════════════════════════════════════════════════════════════════
-  Bundesliga-Lineup-Picker auf bescout.net (jarvis-qa): BAY-Gegner-Logo korrekt +
-  ein stale-String-Spieler (z.B. Amine Adli) mit Leverkusen-Logo+Name statt Bournemouth.
+  Deploy bestätigt live (Seite rendert, 0 Console-Errors).
+
+— Eigenes Logo+Name (Fall Melih Bostan, in jarvis' Holdings, qty 2) —
+  Event-Modal „E2E User-Event 397" (Bundesliga GW34) → FantasyPlayerRow-Liste:
+  Zeile BOSTAN #91 zeigt jetzt **„Konyaspor"** + Konyaspor-Club-Logo + SL-Liga-Badge
+  (Süper Lig) — NICHT den stale players.club-String „Sakaryaspor" (TFF 1. Lig).
+  → Logo + Name + Liga-Badge alle aus club_id/UUID, konsistent.
+  Vor Fix: Name „Sakaryaspor" + Sakaryaspor-Logo (falsch). NACH Fix: korrekt.
+  Screenshot: worklog/proofs/422-event-player-list-live.png (BOSTAN→Konyaspor sichtbar).
+  (Aufstellung gesperrt = GW34 läuft, aber FantasyPlayerRow-Liste rendert → Display verifizierbar.)
+
+— Gegner-Short-Kollision real in Live-Daten —
+  Bundesliga GW34 Spiele-Tab: „BAY" ist gleichzeitig Bayern München (Topspiel vs Köln)
+  UND Bayer Leverkusen (vs HAM) — beide korrekt per UUID disambiguiert (img-alt + Logo
+  je Fixture verschieden). Belegt: getClub('BAY') war zweideutig (→ null), Fix nutzt das
+  per-Fixture aufgelöste opponentLogoUrl. Screenshot: worklog/proofs/422-bay-collision-fixtures.png
+
+  VERDICT: PASS — eigenes Logo+Name live aus UUID-Wahrheit (Bostan→Konyaspor),
+  BAY-Kollision in Live-Daten bestätigt + per-Fixture-UUID korrekt aufgelöst.

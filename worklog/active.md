@@ -1,15 +1,16 @@
 # Active Slice
 
 ```
-status: active
+status: idle
 slice: 422
-title: FantasyPlayerRow Club-Identität (eigen + Gegner) aus zuverlässiger Quelle (UUID/aufgelöstes Logo statt Freitext/Short)
+title: FantasyPlayerRow Club-Identität (eigen + Gegner) aus zuverlässiger Quelle (UUID/aufgelöstes Logo statt Freitext/Short) — DONE
 size: S
-stage: PROVE
+stage: LOG (DONE)
 spec: worklog/specs/422-fantasyplayerrow-club-identity-uuid.md
 impact: skipped (reines UI-Prop-Routing entlang vorhandener NextFixtureInfo.opponentLogoUrl + UserDpcHolding.clubId; kein DB/Service/Mapper-Change)
-proof: worklog/proofs/422-club-identity.txt
+proof: worklog/proofs/422-club-identity.txt (+ 422-event-player-list-live.png BOSTAN→Konyaspor, 422-bay-collision-fixtures.png)
 review: worklog/reviews/422-review.md (PASS, Finding #1 gefixt)
+proof-summary: tsc 0 + 110 Tests + DB-Vorher/Nachher (294/4472 stale, Amine Adli Bournemouth→Leverkusen, BAY doppelt same-league) + Live bescout.net: Melih Bostan rendert „Konyaspor"+Logo+SL-Badge statt stale „Sakaryaspor". Commit 7e81487e.
 ```
 
 ## Zuletzt
