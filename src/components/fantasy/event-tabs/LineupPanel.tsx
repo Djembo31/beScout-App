@@ -56,6 +56,13 @@ export interface LineupPanelProps {
   setCaptainSlot: (slot: string | null) => void;
   // Synergy
   synergyPreview: { totalPct: number; details: SynergyDetail[] };
+  /**
+   * Slice 425 (A) — gesettelte Server-Synergie (lineups.synergy_bonus_pct + synergy_details).
+   * Im scored View bevorzugt vor `synergyPreview` (= Client-Approximation) angezeigt, sodass
+   * der tatsächlich gebuchte Bonus inkl. Surge-×2 sichtbar ist. null = Legacy-Lineup ohne Feld
+   * → Fallback auf synergyPreview. Required-Prop (S149b: explizit `?? null` am Caller).
+   */
+  settledSynergy: { pct: number; details: SynergyDetail[] } | null;
   // DPC Ownership bonus — all player IDs the user owns DPCs for
   ownedPlayerIds?: Set<string>;
   // Lineup state
@@ -110,6 +117,7 @@ export default function LineupPanel({
   captainSlot,
   setCaptainSlot,
   synergyPreview,
+  settledSynergy,
   ownedPlayerIds,
   isLineupComplete,
   reqCheck,
@@ -159,6 +167,10 @@ export default function LineupPanel({
     openPicker, closePicker, selectPlayerFromPicker,
     pickerMode, openBenchPicker,
   } = st;
+
+  // Slice 425 (A) — im scored View den gesettelten Server-Bonus zeigen (inkl. Surge),
+  // Fallback auf Client-Vorschau nur bei Legacy-Lineups ohne gespeichertes Feld.
+  const scoredSynergy = settledSynergy ?? { pct: synergyPreview.totalPct, details: synergyPreview.details };
 
   // ── Slice 382 (E-1b): Liga-Vorfilter — spiegelt das rpc_save_lineup-Gate (E-1/380).
   // boundLeagueId = events.league_id (NICHT die Vereins-Liga `leagueId`). Filter via clubId
@@ -729,7 +741,8 @@ export default function LineupPanel({
                       {ownershipBonusIds.has(player.id) && <span className="text-[10px] font-bold text-gold bg-gold/[0.08] border border-gold/20 px-1 py-0.5 rounded">SC +5%</span>}
                     </div>
                     <div className="text-xs text-white/40 flex items-center gap-1.5">
-                      {player.club}
+                      {/* Slice 425 (B) — Club-Name aus UUID statt stale players.club-Freitext (S368b/S276). */}
+                      {getClub(player.clubId ?? '')?.name ?? player.club}
                       {tierCfg && (
                         <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${tierCfg.bg} ${tierCfg.color}`}>
                           {tierCfg.labelDe} +{tierCfg.bonusCents / 100} CR
@@ -758,14 +771,14 @@ export default function LineupPanel({
         </div>
       )}
 
-      {/* Synergy Bonus (scored view) */}
-      {isScored && synergyPreview.totalPct > 0 && (
+      {/* Synergy Bonus (scored view) — Slice 425 (A): gesettelter Server-Bonus inkl. Surge. */}
+      {isScored && scoredSynergy.pct > 0 && (
         <div className="flex items-center gap-3 p-3 bg-sky-500/5 border border-sky-500/20 rounded-lg">
           <Building2 aria-hidden="true" className="size-5 text-sky-400 flex-shrink-0" />
           <div>
-            <div className="text-sm font-bold text-sky-300">{t('synergyBonus', { pct: synergyPreview.totalPct })}</div>
+            <div className="text-sm font-bold text-sky-300">{t('synergyBonus', { pct: scoredSynergy.pct })}</div>
             <div className="text-xs text-white/40">
-              {synergyPreview.details.map(d => `${d.source} (${d.bonus_pct}%)`).join(' + ')}
+              {scoredSynergy.details.map(d => `${d.source} (${d.bonus_pct}%)`).join(' + ')}
             </div>
           </div>
         </div>

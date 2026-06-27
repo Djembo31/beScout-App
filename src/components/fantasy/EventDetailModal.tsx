@@ -331,6 +331,7 @@ export const EventDetailModal = ({
                 captainSlot={lb.captainSlot}
                 setCaptainSlot={lb.setCaptainSlot}
                 synergyPreview={lb.synergyPreview}
+                settledSynergy={lb.settledSynergy ?? null}
                 ownedPlayerIds={lb.ownedPlayerIds}
                 isLineupComplete={lb.isLineupComplete}
                 reqCheck={lb.reqCheck}

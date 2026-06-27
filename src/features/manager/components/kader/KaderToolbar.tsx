@@ -27,7 +27,8 @@ interface KaderToolbarProps {
   onTogglePos: (pos: Pos) => void;
   clubFilter: string;
   onClubFilterChange: (club: string) => void;
-  availableClubs: string[];
+  /** Slice 425 (C) — {id,name}: id = clubId-Key (Filter-Wahrheit), name = aufgelöster Anzeigename. */
+  availableClubs: { id: string; name: string }[];
   groupByClub: boolean;
   onGroupByClubChange: (v: boolean) => void;
   showFilters: boolean;
@@ -147,7 +148,7 @@ export default function KaderToolbar({
               className="px-2.5 py-1.5 bg-surface-base border border-white/10 rounded-lg text-[10px] text-white/60 focus:outline-none"
             >
               <option value="">{t('allClubs')}</option>
-              {availableClubs.map(c => <option key={c} value={c}>{c}</option>)}
+              {availableClubs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
             {hasActiveFilters && (
               <button

@@ -1,0 +1,47 @@
+SLICE 425 — Welle-2 Display-Truth Cleanup (A/B/C) — PROOF
+==========================================================
+Datum: 2026-06-27 | display-only, money-neutral, kein Migration
+
+— FAKTEN-BASIS (DB-Probe, vor Bau) —
+lineups.synergy_details.source = Club-NAME (nicht UUID):
+  [{"type":"club","count":4,"source":"Amedspor","bonus_pct":5},
+   {"type":"club","count":2,"source":"Erzurumspor FK","bonus_pct":5}]
+lineups.synergy_bonus_pct = NUMERIC-String "10.00"/"5.00" (PostgREST .select('*') ohne Mapping)
+  → Coercion Math.round(Number("10.00"))=10 im Hook nötig (sonst Banner "10.00 %").
+
+— KRITISCHER BEFUND (Scope-Korrektur mid-BUILD) —
+Die im 424-Review genannte Surface ScoreBreakdown.tsx ist TOTER CODE:
+  <LineupBuilder>  : 0 JSX-Render-Sites (nur Selbst-Import)
+  <ScoreBreakdown> : nur in LineupBuilder.tsx:286 (= im toten LineupBuilder)
+  Live-Surface     : LineupPanel.tsx (EventDetailModal:316 + AufstellenTab:307)
+→ Fix auf die LIVE-Surface LineupPanel umgelenkt; tote ScoreBreakdown/LineupBuilder-Edits revertiert.
+ORPHAN-CLUSTER (eigener S280-Slice, GEMELDET, NICHT hier gelöscht):
+  LineupBuilder, ScoreBreakdown, SynergyPreview, PitchView, PlayerPicker, FormationSelector
+  = 6 Komponenten in features/fantasy/components/lineup/ mit 0 Live-Consumer
+  (nur BenchRow wird von LineupPanel genutzt). Komplette alte Builder-UI dupliziert.
+
+— FIX (3 live Surfaces) —
+A: LineupPanel scored Synergie-Banner (Z.775) → scoredSynergy = settledSynergy ?? client-preview.
+   Hook useLineupBuilder exposed settledSynergy {pct:Math.round(Number(...)), details} aus dbLineup.
+B: LineupPanel scored-Breakdown Z.732 {player.club} → getClub(player.clubId ?? '')?.name ?? player.club.
+C: KaderTab/KaderToolbar Club-Filter String→clubId (availableClubs {id,name}[], filter player.clubId===clubFilter,
+   clubGroups.clubName via getClub, Dropdown value=id/label=name).
+
+— GATES —
+$ npx tsc --noEmit
+EXIT: 0
+
+$ CI=true npx vitest run src/features/fantasy src/features/manager src/components/fantasy src/types/__tests__/synergy-preview.test.ts
+  Test Files  29 passed (29)
+       Tests  323 passed (323)
+EXIT: 0
+
+— VERIFY (greps) —
+Einzige live scored-Synergie-Render = LineupPanel.tsx:775 (scoredSynergy.pct). ✓
+Kein nacktes {player.club} mehr im LineupPanel scored-Breakdown. ✓
+SynergyPreview.tsx (Bau-Banner, tot) NICHT im Diff → AC4 ✓ (Bau-Verhalten unverändert).
+git diff --stat: 6 Source-Files (EventDetailModal, LineupPanel, useLineupBuilder, AufstellenTab, KaderTab, KaderToolbar).
+
+— LIVE —
+Scored-Event mit Synergie für jarvis-qa nicht garantiert erreichbar → Live-Screenshot deferred;
+Anzeige-Logik ist deterministische Display-Bindung (settled bevorzugt), durch DB-shape + tsc + Reviewer gedeckt.

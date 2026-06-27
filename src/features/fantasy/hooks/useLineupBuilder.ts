@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { calculateSynergyPreview } from '@/types';
+import type { SynergyDetail } from '@/types';
 import { getClub } from '@/lib/clubs';
 import { useLineupStore, type BenchSlotKey } from '../store/lineupStore';
 import { getFormationsForFormat, getDefaultFormation, buildSlotDbKeys } from '../constants';
@@ -76,6 +77,11 @@ export function useLineupBuilder({
   const [slotScores, setSlotScores] = useState<Record<string, number> | null>(null);
   const [myTotalScore, setMyTotalScore] = useState<number | null>(null);
   const [myRank, setMyRank] = useState<number | null>(null);
+  // Slice 425 (A) — gesettelte Server-Synergie (lineups.synergy_bonus_pct + synergy_details).
+  // pct ist runtime ein NUMERIC-String ("10.00") da getLineup `.select('*')`+`as DbLineup`
+  // ohne Mapping macht → Math.round(Number(...)). source in details = Club-Name (DB-verifiziert),
+  // kein getClub nötig. Scored-View zeigt das statt der Client-Approximation (inkl. Surge ×2).
+  const [settledSynergy, setSettledSynergy] = useState<{ pct: number; details: SynergyDetail[] } | null>(null);
   const [progressiveScores, setProgressiveScores] = useState<Map<string, number>>(new Map());
 
   // ==================== Local equipment state ====================
@@ -416,6 +422,11 @@ export function useLineupBuilder({
             setSlotScores(dbLineup.slot_scores ?? null);
             setMyTotalScore(dbLineup.total_score);
             setMyRank(dbLineup.rank);
+            // Slice 425 (A) — Server-Synergie aus der gesettelten Lineup übernehmen.
+            setSettledSynergy({
+              pct: Math.round(Number(dbLineup.synergy_bonus_pct ?? 0)),
+              details: dbLineup.synergy_details ?? [],
+            });
 
             // Defer equipment population until equipDefs/userEquipment queries resolve.
             // Population effect above watches dbEquipmentRaw + queries.
@@ -428,6 +439,7 @@ export function useLineupBuilder({
           } else {
             storeResetLineup(getDefaultFormation(event.format, event.lineupSize));
             setSlotScores(null);
+            setSettledSynergy(null);
             setEquipmentMap({});
             setDbEquipmentRaw(null);
           }
@@ -437,6 +449,7 @@ export function useLineupBuilder({
           console.error('[useLineupBuilder] Failed to load lineup:', err);
           storeResetLineup(getDefaultFormation(event.format, event.lineupSize));
           setSlotScores(null);
+          setSettledSynergy(null);
         });
     } else {
       storeResetLineup(getDefaultFormation(event.format, event.lineupSize));
@@ -571,6 +584,7 @@ export function useLineupBuilder({
     slotScores,
     myTotalScore,
     myRank,
+    settledSynergy,
     progressiveScores,
     setSlotScores,
     setMyTotalScore,

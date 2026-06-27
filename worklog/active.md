@@ -2,27 +2,29 @@
 
 ```
 status: idle
-slice: 424
-title: Synergie-Vorschau == Server (Formel flat +5%/≥2-Verein + clubId-Key + count) — DONE
+slice: 425
+title: Welle-2 Display-Truth Cleanup (A scored-Synergie==Server · B Club-UUID-Label · C Kader-Filter-clubId) — DONE
 size: M
 stage: LOG (DONE)
-spec: worklog/specs/424-synergy-preview-server-parity.md
-impact: skipped (Display-only: Client-Vorschau an score_event angeglichen; Server-RPC UNBERÜHRT, kein Migration)
-proof: worklog/proofs/424-synergy-parity.txt
-review: worklog/reviews/424-review.md (CONCERNS→adressiert: Doku-Korrektur, kein Code-Fix)
-proof-summary: tsc 0 + 277 Tests (+6 neue Synergie-Unit, Server-Spiegel-ACs) + git diff (7 TS, kein Migration) + functiondef. Reviewer-Korrektur: ALLE Synergie-Banner (Bau+Scored) lesen den Client-Rechner → Fix macht alle server-treu. Folge-Slice notiert (Scored an echtes synergy_bonus_pct binden).
+spec: worklog/specs/425-welle2-display-truth-cleanup.md
+impact: skipped (display-only, kein Service-Contract/RPC/Schema-Change)
+proof: worklog/proofs/425-display-truth.txt
+review: worklog/reviews/425-review.md (PASS, 2 NIT pre-existing)
+proof-summary: tsc 0 + 323 Tests grün + DB-shape (synergy_details.source=Name, synergy_bonus_pct=NUMERIC-String) + grep-Verify (LineupPanel = einzige live scored-Surface). Reviewer PASS.
 ```
 
 ## Zuletzt
 
-- **Slice 423** (2026-06-27) — Picker-Club-Identität auf UUID (Filter + Synergie-Gruppierung) (S, PASS).
-- **Slice 422** (2026-06-27) — FantasyPlayerRow Club-Logo+Name aus UUID (S, PASS, Live Bostan→Konyaspor).
-- **Slice 421** (2026-06-27) — Welle 2.4 Per-Liga-GW-Max + GameweekSelector-Orphan (S, PASS).
+- **Slice 425** (2026-06-27) — Welle-2 Display-Truth A/B/C, Fix auf LIVE-Surface LineupPanel umgelenkt (ScoreBreakdown=tot) (M, PASS).
+- **Slice 424** (2026-06-27) — Synergie-Vorschau == Server (M, PASS).
+- **Slice 423** (2026-06-27) — Picker-Club-Identität auf UUID (S, PASS).
 
-## Plan (424) — CEO-Entscheid Anil: Synergie BEHALTEN + Vorschau == Server
+## Plan (425) — DONE
 
-`calculateSynergyPreview` (Banner) divergierte 3-fach vom Server (`score_event`, functiondef D87): (1) Key `h.club`-String statt club_id (423 erfasste das hier nicht), (2) Formel `5×(count−1)` statt server-flat **+5 % pro Verein mit ≥2** (LEAST 15) — 3 Spieler = Client 10 % vs Server 5 %, (3) `count` fehlt → `×N`-Anzeige nach flat-Formel falsch. Plus Row-Pill `length×4` (immer 4). Fix: server-exakte Formel + clubId + count; Pill flat 5. **Rein Display — score_event UNBERÜHRT** (kein Migration). Surge (×2) bewusst Scope-Out (Client-Chip-State nicht ohne neue Query).
+A scored Synergie-Banner an gesettelte `lineups.synergy_bonus_pct`+`synergy_details` (inkl. Surge ungecappt; Coerce NUMERIC-String "10.00"→10 im Hook) · B scored-Breakdown Club-Name via `getClub(player.clubId)` · C KaderTab/Toolbar Club-Filter String→clubId-Key. Hook `useLineupBuilder` exposed `settledSynergy` (required-Prop durch EventDetailModal+AufstellenTab). **Surface-Korrektur:** ScoreBreakdown.tsx ist toter Code → Live-Surface = LineupPanel.tsx. Money-neutral, kein Migration. tsc 0 + 323 Tests + Reviewer PASS.
 
-## Eskalation an CEO (offen, NICHT autonom)
-- **Admin-Gameweek-Engine** inkohärent liga-gescoped (finalizeGameweek club-scoped vs syncFixtureScores global). Architektur-Entscheid „GW-Lifecycle per-Liga?".
-- **Ranking-Konsolidierung** scout_scores↔user_stats (Quelle-Entscheid). **Welle 3** (Lineup-Datenmodell-Fork).
+## 🚩 Eskalation / gemeldete Smells (offen)
+- **ORPHAN-CLUSTER (CTO-autonom, eigener S280-Slice):** `LineupBuilder`/`ScoreBreakdown`/`SynergyPreview`/`PitchView`/`PlayerPicker`/`FormationSelector` = 6 Komponenten in `features/fantasy/components/lineup/` mit **0 Live-Consumer** (nur `BenchRow` live). Komplette alte Builder-UI dupliziert (D111-Wurzel #1). Löschen mit Cascade-Closure + Barrel + EventDetailModal.test-Mocks.
+- **CEO-Forks (NICHT autonom):** Admin-Gameweek-Engine („GW-Lifecycle per-Liga?", Money-Path) · Ranking-Konsolidierung scout_scores↔user_stats · Welle 3 (Lineup-Datenmodell-Fork).
+- **Player-Domain `getClub(player.club)`** (PlayerHero/PlayerRow/TradingCardFrame/player/index.tsx) = eigener Card-Identitäts-Smell-Cluster.
+- **NIT (eigener Slice):** Kader `clubFilter`-State-Reset bei Country/League-Switch (pre-existing).

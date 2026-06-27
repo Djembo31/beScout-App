@@ -8,6 +8,7 @@ import NewUserTip from '@/components/onboarding/NewUserTip';
 import { fmtScout, cn } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { computePlayerFloor } from '@/lib/playerMath';
+import { getClub } from '@/lib/clubs';
 import { useToast } from '@/components/providers/ToastProvider';
 import { getCountries, getLeaguesByCountry, type CountryLocale } from '@/lib/leagues';
 import type { Player, Pos, DbIpo, DbHolding, OfferWithDetails } from '@/types';
@@ -267,7 +268,9 @@ export default function KaderTab({
     return kaderLeagueId;
   }, [kaderCountry, kaderLeagueId]);
 
-  // Filter available clubs by selected league
+  // Filter available clubs by selected league.
+  // Slice 425 (C) — Club-Identität über clubId (Key) statt stale players.club-Freitext
+  // (S276/S368b). Key konsistent zu clubGroups (clubId ?? club); Label aus getClub(id).
   const availableClubs = useMemo(() => {
     let items = bestandItems;
     if (kaderCountry) {
@@ -276,7 +279,12 @@ export default function KaderTab({
     if (smartLeagueId) {
       items = items.filter(i => i.player.leagueId === smartLeagueId);
     }
-    return Array.from(new Set(items.map(i => i.player.club))).sort();
+    const byId = new Map<string, string>();
+    for (const i of items) {
+      const id = i.player.clubId ?? i.player.club;
+      if (!byId.has(id)) byId.set(id, getClub(i.player.clubId ?? '')?.name ?? i.player.club);
+    }
+    return Array.from(byId, ([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
   }, [bestandItems, kaderCountry, smartLeagueId]);
 
   // Summary stats
@@ -311,7 +319,8 @@ export default function KaderTab({
       );
     }
     if (posFilter.size > 0) result = result.filter(item => posFilter.has(item.player.pos));
-    if (clubFilter) result = result.filter(item => item.player.club === clubFilter);
+    // Slice 425 (C) — Filter über clubId-Key (konsistent zu availableClubs/clubGroups).
+    if (clubFilter) result = result.filter(item => (item.player.clubId ?? item.player.club) === clubFilter);
     // Slice 197a — Form-L5 universal filter.
     result = applyFormL5Filter(result, formL5, item => item.player.perf.l5);
     // Slice 197d — MV-Trend universal filter.
@@ -336,7 +345,8 @@ export default function KaderTab({
       if (existing) {
         existing.items.push(item);
       } else {
-        groups.set(key, { clubId: item.player.clubId ?? '', clubName: item.player.club, items: [item] });
+        // Slice 425 (C) — Gruppen-Name aus UUID statt stale players.club-Freitext.
+        groups.set(key, { clubId: item.player.clubId ?? '', clubName: getClub(item.player.clubId ?? '')?.name ?? item.player.club, items: [item] });
       }
     }
     return Array.from(groups.values());
