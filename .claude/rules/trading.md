@@ -87,6 +87,13 @@ paths:
 4. On insert failure: unlock amount (Rollback)
 - Gleicher Pattern fuer `create_offer` und `create_user_bounty`
 
+### Lock/Unlock-Symmetrie — MONEY-KRITISCH (S409, Slice 409)
+- **Lock (create buy-offer):** `balance -= total, locked_balance += total` (total = price*quantity). Modell: `balance`=frei verfügbar, `locked`=reserviert, **Gesamt-Wealth = balance + locked**.
+- **Unlock = Refund (cancel/reject/expire/auto-cancel):** MUSS das Lock exakt spiegeln → `balance += total, locked_balance = GREATEST(0, locked - total)`. **Referenz-korrekt: `cancel_offer_rpc` + `reject_offer`.** Refund mit `price` statt `price*quantity` = Teil-Leak bei qty>1.
+- **Fulfillment (Trade kommt zustande):** Käufer-Geld liegt SEIT create im `locked` → Fulfillment darf NICHT erneut `balance -= total` (= Doppelbelastung), sondern **konsumiert nur**: `locked -= total`, balance unberührt. Verkäufer bekommt `balance += seller_net`.
+- **3 Bug-Spielarten (alle Zero-Sum-Brecher, Slice 409 in `accept_offer` 3 Branches + `expire_pending_offers` gefixt):** (a) Refund ohne `balance +=` → Käufer-Geld verschwindet; (b) Fulfillment mit `balance -=` + `locked -=` → 2× gezahlt; (c) `price` statt `price*qty`. Sell-Offers (kein Lock) sind unberührt — nur buy-Side hat Escrow.
+- **Pflicht-Beweis bei jedem Escrow-Touch:** force-rollback Zero-Sum `Σ(balance+locked)+Töpfe` vor==nach über create + JEDEN Terminal-Pfad (success/cancel/reject/expire/insufficient) = diff 0. Jeder Refund-Pfad braucht einen `offer_unlock`-Tx (Audit-Parität).
+
 ## IPO System
 - Status: none → announced → early_access → open → ended → cancelled
 - Early Access: Silber+ Abo (server-seitig in RPC, NICHT UI-Gate — ADR-018)

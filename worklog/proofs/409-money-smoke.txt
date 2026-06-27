@@ -1,0 +1,42 @@
+Slice 409 — P2P-Offer Escrow-Robustheit — PROOF (force-rollback Zero-Sum)
+Datum: 2026-06-27 · Projekt skzjfhvgccaeplydsunz · Migration 20260627160000 applied
+Zero-Sum-Gesamt = Σ(wallets.balance + locked_balance) + platform_net + club_ledger_net + Σpbt
+
+═══ VORHER (Bugs empirisch bewiesen, force-rollback) ═══
+Bug 1 expire_pending_offers (buy qty2 ×100): ZEROSUM diff=-100, buyer balance NICHT restored, locked 0->100 stuck.
+Bug 2 accept_offer buy-Fulfillment (qty1 ×100): ZEROSUM diff=-100, buyer balance -200 für 100-Kauf (Doppelbelastung).
+(4 betroffene Stellen: expire-Cron + accept_offer Fulfillment/expired-Branch/insufficient-qty-Branch.)
+
+═══ NACHHER (Fix verifiziert) ═══
+AC-1 buy-Fulfillment (create buy qty1 ×100 → seller accept):
+  accept=true · ZEROSUM diff=0 ✅ · buyer balance 1239727->1239627 (−100 = exakt Kosten) · locked 0->0 ✅
+  → Doppelbelastung weg (war −200, jetzt −100). Escrow wird konsumiert (locked −total), balance nicht erneut belastet.
+
+AC-2 expire (create buy qty2 → expire):
+  ZEROSUM diff=0 ✅ · balance voll zurück, locked −total.
+
+AC-3 expire qty>1 (create buy qty3 ×100=300 → expire):
+  balance net dInc=0 (create −300, expire +300 = voller Round-Trip-Restore) ✅
+  → expire refundet price*quantity (300), NICHT mehr nur price (100). Bei altem Bug wäre net −200.
+
+AC-4 sell-offer Fulfillment (seller create sell → buyer accept): ZEROSUM diff=0 ✅ accept=true
+  → sell-Pfad regression-safe (buyer balance −total, kein locked-Pfad berührt).
+
+AC-5 cancel-Regression (create buy qty2 → cancel): balance zurück auf Start = true ✅ (cancel war schon korrekt, unverändert).
+
+AC-6 functiondef / PATCH-AUDIT (S156):
+  accept_offer: auth_uid_mismatch ✅ · book_platform_treasury ✅ · offer_platform_bps,350 ✅ (Fee/Guards/Routing/Idempotency erhalten)
+  expire_pending_offers: 'balance = balance + v_amount' ✅ · 'price * v_offer.quantity' ✅
+  ACL: accept_offer {authenticated,service_role} (kein anon) ✅ · expire_pending_offers {service_role} (cron-only) ✅
+
+AC-7 Build: tsc --noEmit Exit 0 · vitest offers+trading = 105 passed (kein Service/Shape-Change).
+
+═══ HISTORISCHER LIVE-SCHADEN (CEO-Entscheid §9, NICHT auto-refunded) ═══
+6 abgelaufene buy-offers (alle qty=1, 0× offer_unlock-Tx) → 249.800 cents nie balance-refunded über 4 Wallets:
+  67c35b57 87.000 · 46535ade 100.000 · jarvis 535bbcaf 38.000 · ca37ebe6 24.800.
+locked-Invariante (locked == Σ pending buy) = 0 Drift (qty=1 → locked korrekt reduziert; nur balance leakte).
+CTO-Empfehlung: stehen lassen (Phase-1-Spielgeld D99 + Launch-Reset pending project_launch_sequence_reset).
+Fix verhindert künftige Leaks/Doppelbelastungen — das ist der Wert.
+
+FAZIT: Escrow-Refund-Symmetrie über alle 4 Pfade geheilt (mirror cancel/reject: balance+=total, locked-=total;
+Fulfillment konsumiert locked). 4 force-rollback Smokes diff=0, Guards/Fee/ACL erhalten. Alle AC PASS.

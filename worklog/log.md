@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 409 | 2026-06-27 | fix(trading): Welle 1.4c — P2P-Offer Escrow-Robustheit (Refund-Symmetrie, 4 Stellen) [Money/CEO]
+- Stage-Chain: SPEC (`specs/409-…`, M Money) → IMPACT skipped (2 RPCs, kein Service/Shape-Change) → BUILD (1 Migration) → REVIEW reviewer-Agent **PASS** (`reviews/409-review.md`, 1 LOW Audit-Nuance §11 + 1 INFO) → PROVE (4 force-rollback Zero-Sum diff=0 + functiondef) → LOG.
+- **Mock→Pro Welle 1.4c (D112 Fork-B-Härtung).** Escrow-Lock/Unlock-Asymmetrie empirisch bewiesen (force-rollback Zero-Sum je **diff=−100 VORHER**): create_offer(buy) verschiebt total=price*qty von `balance`→`locked` (Gesamt=balance+locked), korrektes Unlock = `balance += total, locked -= total` (cancel/reject = Referenz). **4 Stellen brachen das:** (a) `accept_offer` buy-Fulfillment `balance -= total` UND `locked -= total` = **Doppelbelastung** (zahlt 2×); (b) expired-Branch + (c) insufficient-qty-Branch: `locked -=` ohne `balance +=` (Leak); (d) `expire_pending_offers`: `locked -= price` (statt price*qty) ohne `balance +=` (Leak).
+- **Fix:** Fulfillment konsumiert nur `locked -= total` (balance blieb seit create reduziert); alle Refund-Pfade auf `balance += total, locked -= total` + `offer_unlock`-Tx; expire nutzt `price*quantity`. Bodies aus 407-Stand byte-identisch (PATCH-AUDIT S156: Guards/Fee 350/150/100/book_platform_treasury/pbt/Idempotenz erhalten — Reviewer line-by-line bestätigt).
+- **Beweis (`proofs/409-money-smoke.txt`):** AC-1 buy-Fulfillment diff=0 (Käufer −100 = Kosten, nicht −200) · AC-2 expire diff=0 · AC-3 expire qty3 voller Round-Trip · AC-4 sell-Pfad diff=0 (Regression) · AC-5 cancel diff=0 · AC-6 functiondef Guards/Fee/ACL (kein anon) · AC-7 tsc 0 + 105 Tests.
+- **Wissens-Kopplung (D88):** Escrow-Symmetrie-Regel → `trading.md` Escrow-Pattern (Lock/Unlock/Fulfillment) + `errors-db.md` **S409**. `docs/knowledge/treasury.md` beschreibt Escrow nicht im Detail → kein Doc-Drift.
+- **Historischer Live-Schaden (CEO-Entscheid offen, §9):** 6 abgelaufene buy-Offers (qty=1, 0× offer_unlock) → 249.800 cents über 4 Wallets nie balance-refunded. CTO-Empfehlung: stehen lassen (Phase-1-Spielgeld D99 + Launch-Reset pending). Fix verhindert künftige Leaks.
+- Commit: <hash>
+
 ## 408 | 2026-06-27 | feat(trading): Welle 1.4b — Trading-Vokabular entwirren (Markt sofort vs Kaufgebot P2P) [UI/i18n]
 - Stage-Chain: SPEC (`specs/408-…`, S UI/i18n) → IMPACT skipped (reine Label/i18n + 1 toter Block) → BUILD (TradingTab + de/tr.json + Test) → REVIEW self-review **PASS** (`reviews/408-review.md`, kein Money/Compliance-geprüft) → PROVE (JSON+Parität+Compliance+tsc+24 Tests; post-Deploy Playwright ausstehend) → LOG.
 - **Mock→Pro Welle 1.4b (D112 Fork-B-Härtung).** „Angebot" war 3× überladen: Markt-Orderbuch (Sektion 7, sofort kaufbar) · P2P-Verhandlung (Sektion 5) · tote Listings-Sektion 6 — Nutzer konnte sofort-Kauf nicht von Verhandlung unterscheiden.

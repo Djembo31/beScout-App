@@ -2,25 +2,28 @@
 
 ```
 status: idle
-slice: 408
-title: Welle 1.4b — Trading-Vokabular entwirren: Markt (sofort) vs Kaufgebot (P2P) — DONE
-size: S (UI/i18n — kein Money; Wording-Klarheit + tote Sektion-6 raus)
+slice: 409
+title: Welle 1.4c — P2P-Offer Escrow-Robustheit: Refund-Symmetrie heilen (4 Stellen) — DONE
+size: M (Money/CEO — accept_offer 3 Branches + expire_pending_offers; Doppelbelastung + balance-Leak)
 stage: LOG (DONE)
-spec: worklog/specs/408-trading-vocab-clarity.md
-impact: skipped (reine Label/i18n + 1 toter Render-Block; Consumer §4 gegreppt)
-proof: worklog/proofs/408-i18n.txt
-proof2: worklog/proofs/408-live.txt — post-Deploy Playwright DE+TR LIVE PASS (neue Labels rendern, alte+tote Sektion 6 weg, kein Roh-Key, 0 Console-Errors)
-review: worklog/reviews/408-review.md — self-review PASS (S UI/i18n, kein Money, Compliance-geprüft)
+spec: worklog/specs/409-offer-escrow-robustness.md
+impact: skipped (2 RPCs, kein Service/UI-Shape-Change; Consumer §3 gegreppt)
+proof: worklog/proofs/409-money-smoke.txt
+proof-note: AC1-7 PASS; 4 force-rollback Zero-Sum diff=0 (Doppelbelastung+Leak gefixt), Guards/Fee/ACL erhalten
+review: worklog/reviews/409-review.md — PASS (1 LOW Audit-Nuance §11, 1 INFO Reconciliation)
 ```
 
+## OFFENER CEO-ENTSCHEID (Slice 409 §9)
+Historische 249.800 cents (4 Wallets) aus den 6 alten abgelaufenen buy-Offers nie balance-refunded. CTO-Empfehlung: **stehen lassen** (Phase-1-Spielgeld D99 + Launch-Reset pending, 1 Wallet=jarvis-Test). RPC-Fix verhindert künftige Leaks. → Anil entscheidet refund-jetzt vs. Reset.
+
 ## Zuletzt
-- **Slice 407** (2026-06-27) — P2P-Offer-Fee auf 6% (=Markt, 3,5/1,5/1) angeglichen, Reviewer PASS, Zero-Sum diff=0, DONE.
+- **Slice 409** (2026-06-27) — P2P-Offer Escrow-Robustheit (Refund-Symmetrie, 4 Stellen), Reviewer PASS, 4× Zero-Sum diff=0, DONE.
+- **Slice 408** (2026-06-27) — Trading-Vokabular Markt/Kaufgebot, DE+TR Live PASS, DONE.
+- **Slice 407** (2026-06-27) — P2P-Offer-Fee auf 6% (=Markt, 3,5/1,5/1), Reviewer PASS, Zero-Sum diff=0, DONE.
 - **Slice 406** (2026-06-27) — Club-Treasury Single-Source (Counter-Orphan raus + DROP), Reviewer PASS, 3× Zero-Sum diff=0, DONE.
-- **Slice 405** (2026-06-27) — Player-Detail Order-Kauf Shape-Norm + est-total, Reviewer PASS, post-Deploy Playwright AC1-6 LIVE PASS, DONE.
-- **Slice 404** (2026-06-26) — Markt-Tab order-gebunden, post-Deploy Playwright voll bewiesen (AC01-08), DONE.
 
 ## Inline-Notiz
-Slice 407 DONE — P2P-Offer-Fee auf 6 % (= Markt) angeglichen (Split 3,5 % Platform + 1,5 % PBT + 1 % Club). `fee_config` offer_* 200/50/50→350/150/100 + `accept_offer` COALESCE-Defaults + UI-Fee-Vorschau (`OffersTab:103`, exakt 3-Teil-Floor) + business.md/trading.md/index.ts angeglichen. Smoke 6 %-Split 700/300/200 + Zero-Sum diff=0, Reviewer PASS. Schließt Welle-1.4a (D112 Fork-B-Härtung). Slice 406 davor: Club-Treasury Single-Source (Counter-Orphan raus, Pattern S406).
+Slice 409 DONE — Escrow-Lock/Unlock-Asymmetrie in P2P-Offers über 4 Stellen geheilt (accept_offer Fulfillment-Doppelbelastung + expired/insufficient-Branch-Leak + expire_pending_offers Leak). Fix = Refund spiegelt Lock (`balance += total, locked -= total`), Fulfillment konsumiert nur locked. 4× force-rollback Zero-Sum diff=0 (vorher je −100), Reviewer PASS. Pattern → trading.md Escrow + errors-db.md S409. **Welle 1.4 (Fee + Vokabular + Escrow) komplett bis auf 1.4d (Buy-Limit-Doc) + Mini-Slice IPO-Ledger-Label.** Offen: CEO-Entscheid 249.800 cents historischer Refund (s.o.).
 
 **Geseedet PERMANENT (NICHT aufräumen, E2E-Beweis):** jarvis-Order Douglas @200 CR (96d3ce14, OPEN rem 1) + bot031-Order @300 CR (9405452f, filled). jarvis hält 4 Douglas. (406/407-Smokes force-rollback → keine neuen Artefakte.)
 
