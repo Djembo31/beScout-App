@@ -1,14 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 12:18)
+# Session Handoff — Auto (2026-06-27 12:22)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
-## Session Commits: 8
+## Session Commits: 9
+- e44e5cd1 docs(handoff): Resume-Anker 2026-06-27 — Welle 1.4 (406-409) + D112 + offener CEO-Entscheid (249.800 cents)
 - 2817e4cd docs(log): Slice 409 Commit-Hash (a8ff84aa)
 - a8ff84aa fix(trading): Slice 409 — Welle 1.4c P2P-Offer Escrow-Robustheit (Refund-Symmetrie, 4 Stellen) [Money/CEO]
 - cf0667b5 docs(proof): Slice 408 — post-Deploy Playwright DE+TR LIVE PASS, voll-DONE
@@ -24,17 +22,27 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-## ⏩ STAND 2026-06-27 (heutige Session) — ZUERST LESEN
-**Welle 1 Trading (Mock→Pro) Härtung weit durch — 4 Money/UI-Slices geliefert, alle committed+gepusht (`main`==`origin/main`, zuletzt `2817e4cd`), `active.md`=idle:**
+## ⏩ STAND 2026-06-27 (Teil 2) — ZUERST LESEN
+**WELLE 1.4 KOMPLETT. 2 weitere Slices geliefert+gepusht (`main`==`origin/main`, zuletzt `ce6ad0bd`), `active.md`=idle:**
+- **410** [Money/CEO] Club-Treasury-Ledger Quellen-Labels: Trigger `trg_trades_book_club_treasury` buchte JEDEN trades-INSERT pauschal `trade_fee` → 3-Wege-Discriminator (`ipo_id`→`ipo_fee`, `sell/buy_order_id`→`trade_fee`, sonst alle-NULL=P2P→`p2p_fee`). **Geldneutral** (get_club_balance bucketet alle 3 in `v_trade_fees`), kein FE/i18n-Change (UI `KNOWN_LEDGER_TYPES`+i18n DE/TR vorab vorhanden = klassischer „Teil-Konsolidierung"-Smell). force-rollback Zero-Sum + ACL erhalten, Reviewer PASS. Commit `98d6ecb6`.
+- **411** [Doc] 1.4d Buy-Limit-Doc: stale `featureFlags.ts`-Kommentar geheilt → live **0 offene Buy-Orders** (41 hist. cancelled+refunded), **`SUM(wallets.locked_balance)=0` global** (Buy-Seite escrow-sauber); Fork-B (D112) im Flag verankert. Commit `277124a3`.
+- **WELLE 1.4 = 407 Fee + 408 Vokabular + 409 Escrow + 410 Labels + 411 Buy-Doc — ALLE DONE.**
+
+**✅ CEO-ENTSCHEID RESOLVED (Anil 2026-06-27):** Die 249.800 cents (4 Wallets) historischer buy-Offer-Refund → **STEHEN LASSEN** (Phase-1-Spielgeld D99 + Launch-Reset; RPC-Fix 409 stoppt künftige Leaks). Kein Refund-Slice.
+
+**➡️ NÄCHSTER (Anil-Wahl, Welle 1 Trading bis auf evtl. Rest durch):** (a) **Welle 2 Spieltag/Scoring** [Money] — nächste Domäne, größter Mock→Pro-Brocken (Scores an GW-Nummer statt Fixture-gebunden, Datenmodell-Integrität; `mock2pro-plan.md` Welle 2) · (b) 1.5/1.6 Trading-Rest falls noch offen. CTO-Empfehlung: **Welle 2 starten** (Domäne für Domäne). Money-Wellen = selbst (§3) + Live-`pg_get_functiondef` VOR Spec (D87) + Zero-Sum.
+
+**Offene Smell-Notiz (nicht gefixt, für später):** `get_club_balance` lumpt den IPO-85%-Erlös in den `trade_fees`-Bucket + i18n `ipo_fee`=„Erstverkauf-Gebühr" — „Gebühr" vs „Erlös" ist Wording/Bucket-Frage (Compliance/CEO), bewusst Scope-Out von 410.
+
+---
+
+### 📦 (vorige) STAND 2026-06-27 Teil 1 — Slices 406-409 (Referenz)
+**Welle 1 Trading Härtung — 4 Money/UI-Slices (`2817e4cd`):**
 - **406** Club-Treasury Single-Source (Counter-Orphan `treasury_balance_cents` raus + DROP; 3× Zero-Sum; S406).
 - **407** P2P-Fee = 6 % wie Markt (3,5/1,5/1; fee_config+accept_offer+UI+Docs; Zero-Sum).
 - **408** Trading-Vokabular „Markt sofort kaufbar" vs „Kaufgebote" (P2P) + tote Sektion 6 raus (DE+TR Live PASS).
-- **409** P2P-Offer Escrow-Robustheit — Doppelbelastung (accept buy-Fulfillment) + Geld-Leak (expire/2 Refund-Branches) über 4 Stellen gefixt (4× Zero-Sum diff=0; S409 + trading.md Escrow-Pattern).
+- **409** P2P-Offer Escrow-Robustheit — Doppelbelastung + Geld-Leak über 4 Stellen gefixt (4× Zero-Sum diff=0; S409 + trading.md Escrow-Pattern).
 - **D112** Orderbuch-Architektur = Fork B (orders+offers beide behalten, getrennt härten). Karte `worklog/notes/406b-orderbook-offers-map.md`.
-
-**⚠️ OFFENER CEO-ENTSCHEID:** Slice-409-Befund — 6 alte abgelaufene buy-Offers → **249.800 cents (4 Wallets)** nie balance-refunded (historisch). CTO-Empfehlung: **stehen lassen** (Phase-1-Spielgeld D99 + Launch-Reset wischt eh; 1 Wallet=jarvis-Test). Alternativ 1-Query-Refund-Slice.
-
-**➡️ NÄCHSTER (Anil-Wahl):** (a) CEO-Entscheid 249.800-Refund · (b) **1.4d** Buy-Limit-gated-Doc (klein, schließt Welle 1.4 ab) · (c) Mini-Slice IPO-Ledger-Label `trade_fee`→`ipo_fee` · (d) **Welle 2 Spieltag/Scoring** (nächste Domäne). Details unten in „WELLE-1-FORTSCHRITT".
 
 ---
 
