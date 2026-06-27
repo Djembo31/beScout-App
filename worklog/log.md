@@ -10,7 +10,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **Wissens-Kopplung (D88):** kein neuer Bug-Typ (Pattern durch S329/S406/S156 gedeckt) → keine errors-*.md-Ergänzung. `docs/knowledge/treasury.md` beschreibt Ledger-type-Labels nicht im Detail → kein Doc-Drift.
 - **Bewusst NICHT:** Backfill der 7 historischen `trade_fee`-Rows (5007 cents) — append-only Ledger-Hygiene / fix-forward (konsistent mit CEO-Entscheid 249.800-cents stehen lassen).
 - **Smell-Notiz an CEO (nicht gefixt):** `get_club_balance` lumpt den IPO-85%-Erlös in den `trade_fees`-Bucket + i18n-Label heißt „Erstverkauf-Gebühr" — „Gebühr" vs „Erlös" ist eine separate Wording/Bucket-Frage (Compliance/CEO), bewusst Scope-Out.
-- Commit: <pending>
+- Commit: 98d6ecb6
 
 ## 409 | 2026-06-27 | fix(trading): Welle 1.4c — P2P-Offer Escrow-Robustheit (Refund-Symmetrie, 4 Stellen) [Money/CEO]
 - Stage-Chain: SPEC (`specs/409-…`, M Money) → IMPACT skipped (2 RPCs, kein Service/Shape-Change) → BUILD (1 Migration) → REVIEW reviewer-Agent **PASS** (`reviews/409-review.md`, 1 LOW Audit-Nuance §11 + 1 INFO) → PROVE (4 force-rollback Zero-Sum diff=0 + functiondef) → LOG.
