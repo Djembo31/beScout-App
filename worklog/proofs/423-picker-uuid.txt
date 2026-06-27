@@ -1,0 +1,53 @@
+PROOF — Slice 423: Picker-Club-Identität durchgängig auf UUID (Filter + Synergie)
+Datum 2026-06-27 · Projekt skzjfhvgccaeplydsunz
+
+=== 1. BUILD-Gate ===
+$ npx tsc --noEmit → exit 0 (alle 5 Konsumenten kompilieren; PickerSortFilter-Typ-Change
+   {short,logo}→{id,label,logo} fand alle Render-Sites via tsc)
+$ CI=true vitest run (fantasy + lineup) → 13 Files / 110 Tests passed
+
+=== 2. MONEY UNBERÜHRT (AC-3) — git diff --stat (nur Code) ===
+    src/components/fantasy/PickerSortFilter.tsx        | 23 +++++++------
+    src/components/fantasy/event-tabs/LineupPanel.tsx  | 17 +++++-----
+    .../fantasy/event-tabs/useLineupPanelState.ts      | 24 ++++++++-----
+    .../fantasy/components/lineup/LineupBuilder.tsx    | 21 +++++-------
+    .../fantasy/components/lineup/PlayerPicker.tsx     | 39 ++++++++++++++--------
+    5 files changed, 71 insertions(+), 53 deletions(-)
+   → 5 TS/TSX-Files, KEIN supabase/migrations. score_event/Money-Path nicht angefasst.
+
+=== 3. SERVER-WAHRHEIT (functiondef, D87): score_event rechnet Synergie per club_id ===
+   v_club_ids UUID[]; SELECT p.club_id INTO v_club_id FROM players p WHERE p.id = v_player_id;
+   IF v_club_id IS NOT NULL THEN v_club_ids := array_append(v_club_ids, v_club_id);
+   → Client-Vorschau gleicht sich dem Server an (vorher stale players.club-String = Divergenz).
+
+=== 4. KONSISTENZ-BEWEIS: einheitliche Key-Ableitung 'clubId ?? club' über ALLE Pfade ===
+--- Chip-Identität + Synergie-Key (3 Picker) ---
+   src/features/fantasy/components/lineup/PlayerPicker.tsx:73:      return h ? (h.clubId ?? h.club) : undefined;
+   src/features/fantasy/components/lineup/PlayerPicker.tsx:85:      const id = h.clubId ?? h.club;
+   src/features/fantasy/components/lineup/PlayerPicker.tsx:105:    const playerClubKey = player.clubId ?? player.club;
+   src/features/fantasy/components/lineup/PlayerPicker.tsx:106:    const hasSynergy = synergyClubs.includes(playerClubKey) && !isSelected;
+   src/features/fantasy/components/lineup/PlayerPicker.tsx:107:    const synergyPct = hasSynergy ? synergyClubs.filter(c => c === playerClubKey).length * 4 : null;
+   src/features/fantasy/components/lineup/PlayerPicker.tsx:162:    availablePlayers = availablePlayers.filter(h => clubFilter.includes(h.clubId ?? h.club));
+   src/features/fantasy/components/lineup/PlayerPicker.tsx:170:    availablePlayers = availablePlayers.filter(h => synergyClubs.includes(h.clubId ?? h.club));
+   src/components/fantasy/event-tabs/useLineupPanelState.ts:98:      return h ? (h.clubId ?? h.club) : undefined;
+   src/components/fantasy/event-tabs/useLineupPanelState.ts:108:      const id = h.clubId ?? h.club;
+   src/components/fantasy/event-tabs/useLineupPanelState.ts:128:    const playerClubKey = player.clubId ?? player.club;
+   src/components/fantasy/event-tabs/useLineupPanelState.ts:129:    const hasSynergy = synergyClubs.includes(playerClubKey) && !isSelected;
+   src/components/fantasy/event-tabs/useLineupPanelState.ts:130:    const synergyPct = hasSynergy ? synergyClubs.filter(c => c === playerClubKey).length * 4 : null;
+--- Filter-Anwendung + boundLeague-Vorfilter (LineupPanel) ---
+   181:  const boundLeagueClubIds = useMemo(() => {
+   183:    return new Set(effectiveHoldings.filter(isInBoundLeague).map(h => h.clubId ?? h.club));
+   185:  const pickerClubsList = boundLeagueClubIds
+   186:    ? availableClubsList.filter(c => boundLeagueClubIds.has(c.id))
+   938:          availablePlayers = availablePlayers.filter(h => clubFilter.includes(h.clubId ?? h.club));
+   946:          availablePlayers = availablePlayers.filter(h => synergyClubs.includes(h.clubId ?? h.club));
+
+=== 5. REVIEW ===
+   reviewer-Agent PASS. 2 INFO (beide Scope-Out vorab): (a) synergyPct durch Set-dedup
+   immer 4/null = grobe Vorschau (kein Regress) → Folge-Slice; (b) ScoreBreakdown-Labels
+   zeigen weiter player.club-Freitext (Display-Klasse) → Folge. Detail: reviews/423-review.md
+
+=== 6. LIVE (best-effort) ===
+   Filter-Chip-Live-Verify nicht möglich: alle Bundesliga-GW34-Events sind locked (laufen),
+   Picker rendert editierbar nur bei offenem Event. Korrektheit über functiondef+grep+tests belegt.
+   (422 hatte den Row-Teil bereits live bewiesen: Bostan→Konyaspor.)

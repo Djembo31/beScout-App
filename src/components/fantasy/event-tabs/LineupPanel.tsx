@@ -177,12 +177,13 @@ export default function LineupPanel({
     [boundLeagueId, allPlayers],
   );
   // Club-Chips im Picker ebenfalls auf Liga-Vereine reduzieren (sonst Chip → leere Liste).
-  const boundLeagueClubShorts = useMemo(() => {
+  // Slice 423: per club_id (UUID), konsistent zur Chip-Identität (availableClubsList.id).
+  const boundLeagueClubIds = useMemo(() => {
     if (!boundLeagueId) return null;
-    return new Set(effectiveHoldings.filter(isInBoundLeague).map(h => h.club));
+    return new Set(effectiveHoldings.filter(isInBoundLeague).map(h => h.clubId ?? h.club));
   }, [boundLeagueId, effectiveHoldings, isInBoundLeague]);
-  const pickerClubsList = boundLeagueClubShorts
-    ? availableClubsList.filter(c => boundLeagueClubShorts.has(c.short))
+  const pickerClubsList = boundLeagueClubIds
+    ? availableClubsList.filter(c => boundLeagueClubIds.has(c.id))
     : availableClubsList;
 
 
@@ -932,17 +933,17 @@ export default function LineupPanel({
           const q = pickerSearch.toLowerCase();
           availablePlayers = availablePlayers.filter(h => `${h.first} ${h.last} ${h.club}`.toLowerCase().includes(q));
         }
-        // Club filter
+        // Club filter — Slice 423: per club_id (UUID), Fallback Freitext.
         if (clubFilter.length > 0) {
-          availablePlayers = availablePlayers.filter(h => clubFilter.includes(h.club));
+          availablePlayers = availablePlayers.filter(h => clubFilter.includes(h.clubId ?? h.club));
         }
         // Available filter
         if (onlyAvailable) {
           availablePlayers = availablePlayers.filter(h => h.dpcAvailable > 0 && !h.isLocked);
         }
-        // Synergy filter
+        // Synergy filter — Slice 423: per club_id (UUID), Fallback Freitext.
         if (synergyOnly && synergyClubs.length > 0) {
-          availablePlayers = availablePlayers.filter(h => synergyClubs.includes(h.club));
+          availablePlayers = availablePlayers.filter(h => synergyClubs.includes(h.clubId ?? h.club));
         }
         // Slice 382 (E-1b): Liga-Vorfilter — nur Spieler der Event-Liga (spiegelt rpc_save_lineup-Gate).
         if (boundLeagueId) {

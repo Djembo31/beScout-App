@@ -8,7 +8,6 @@ import type { FormationDef } from '@/components/fantasy/constants';
 import { useNextFixtures, useEventCaptainDistribution, useEventPlayerPickRates } from '@/lib/queries/fantasyPicker';
 import { useRecentScores } from '@/lib/queries/managerData';
 import { getClubAvgL5 } from '@/components/fantasy/FDRBadge';
-import { getClub } from '@/lib/clubs';
 import { usePlayers } from '@/lib/queries/players';
 import { centsToBsd } from '@/lib/services/players';
 import FantasyPlayerRow from '@/components/fantasy/FantasyPlayerRow';
@@ -126,11 +125,12 @@ export function LineupBuilder({
     return new Set(active);
   }, [selectedPlayers, ownedPlayerIds]);
 
-  // Derive synergy clubs from currently selected lineup
+  // Derive synergy clubs from currently selected lineup.
+  // Slice 423: per club_id (UUID) wie score_event (Server-Wahrheit), nicht stale players.club.
   const synergyClubs = useMemo(() => {
     const clubs = selectedPlayers.map(sp => {
       const h = effectiveHoldings.find(eh => eh.id === sp.playerId);
-      return h?.club;
+      return h ? (h.clubId ?? h.club) : undefined;
     }).filter(Boolean) as string[];
     return Array.from(new Set(clubs));
   }, [selectedPlayers, effectiveHoldings]);
@@ -158,14 +158,8 @@ export function LineupBuilder({
     return m;
   }, [pickRates]);
 
-  // Available clubs for filter (from holdings)
-  const availableClubsList = useMemo(() => {
-    const clubShorts = Array.from(new Set(effectiveHoldings.map(h => h.club)));
-    return clubShorts.map(short => {
-      const c = getClub(short);
-      return { short, logo: c?.logo ?? null };
-    });
-  }, [effectiveHoldings]);
+  // (Slice 423: toter `availableClubsList`-useMemo entfernt — LineupBuilder rendert den
+  //  Club-Filter via PlayerPicker, der seine eigene Liste baut; war 0-Consumer-Orphan.)
 
   // Helper: map a UserDpcHolding to FantasyPlayerRow props
   function getRowProps(player: UserDpcHolding) {
@@ -178,8 +172,9 @@ export function LineupBuilder({
     const clubId = player.clubId ?? allPlayers.find(p => p.id === player.id)?.clubId;
     const nextFix = clubId ? nextFixturesMap?.get(clubId) : undefined;
     const oppAvgL5 = nextFix ? getClubAvgL5(nextFix.opponentClubId, allPlayers) : 0;
-    const hasSynergy = synergyClubs.includes(player.club) && !isSelected;
-    const synergyPct = hasSynergy ? synergyClubs.filter(c => c === player.club).length * 4 : null;
+    const playerClubKey = player.clubId ?? player.club;
+    const hasSynergy = synergyClubs.includes(playerClubKey) && !isSelected;
+    const synergyPct = hasSynergy ? synergyClubs.filter(c => c === playerClubKey).length * 4 : null;
 
     let rowState: 'default' | 'selected' | 'locked' | 'deployed' | 'injured' | 'suspended' = 'default';
     if (fixtureLocked) rowState = 'locked';

@@ -1,14 +1,27 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 20:03)
+# Session Handoff — Auto (2026-06-27 21:02)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 12 Files
 ```
+ M .claude/rules/fantasy.md
  M memory/session-handoff.md
+ M src/components/fantasy/PickerSortFilter.tsx
+ M src/components/fantasy/event-tabs/LineupPanel.tsx
+ M src/components/fantasy/event-tabs/useLineupPanelState.ts
+ M src/features/fantasy/components/lineup/LineupBuilder.tsx
+ M src/features/fantasy/components/lineup/PlayerPicker.tsx
+ M worklog/active.md
+ M worklog/log.md
+?? worklog/proofs/423-picker-uuid.txt
+?? worklog/reviews/423-review.md
+?? worklog/specs/423-picker-club-identity-uuid.md
 ```
 
 ## Session Commits: 10
+- 12e3477f docs(log): Slice 422 DONE — Live-verified Bostan→Konyaspor + BAY-Kollision (proof finalize, *.png force-add)
+- 7e81487e fix(fantasy): Slice 422 — FantasyPlayerRow Club-Logo+Name aus UUID statt Freitext/Short [W2-Cleanup]
 - d44f79d5 docs(proof): Slice 421 — Live-Screenshot Bundesliga GW34 Next-Button [disabled] (force-add, *.png-ignore)
 - 2d2736e9 docs(log): Slice 421 DONE — Live-verified Bundesliga GW34-Cap + Admin-38-Smell-Anker
 - 95e7edc6 fix(fantasy): Slice 421 — Per-Liga GW-Max in SpieltagSelector durchrouten + toten GameweekSelector löschen [W2.4]
@@ -17,8 +30,6 @@
 - 3a5e43f7 docs(distill): D113 + Session-Close — Welle 2.1+2.2 (Slice 419) verankert, Stale/Widersprüche geglättet
 - 637c8140 feat(scoring): Slice 419 — player_gameweek_scores fixture-gebunden + score_event liga-bewusst [W2.1+2.2]
 - be068a2a docs(handoff): Session-Close 2026-06-27 — Stale/Widersprüche geglättet
-- 0ecabc01 docs(handoff): Slice 418 Resume-Anker — 2 Funde gefixt, CI gruen
-- 88a463c4 fix(test): Slice 418 — Welle-1-Cleanup (kaputter useOffersState-Test + Orphan useOpenBids)
 
 <!-- auto:handoff-end -->
 
@@ -26,6 +37,8 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 STAND 2026-06-27 (Abend 8) — WELLE-2-CLEANUP: Slice 423 DONE, committed+gepusht, `main`==`origin/main`, `active.md`=idle.** Picker-Club-Identität durchgängig auf **UUID** — vollendet 422. Nach 422 zeigte die Row den Club per club_id (Bostan→Konyaspor), aber der Picker gruppierte **Filter-Chips** + **Synergie-Vorschau** noch nach stale `players.club`-Freitext. **Faktenbasiert (Live-`functiondef` D87):** `score_event` rechnet Synergie schon serverseitig per `club_id` (`v_club_ids UUID[]`, +5 %/Paar) → die Client-String-Vorschau **divergierte** für die 6,6 % stale Spieler vom echten Scoring. **Fix (rein Display, `score_event` UNBERÜHRT — kein Migration im Diff):** einheitlicher Key `h.clubId ?? h.club` über Chip-ID/Filter-Anwendung/boundLeague-Vorfilter + Synergie; PickerSortFilter-Chip `{id,label,logo}` (Key≠Label, S276-Wurzel). 5 Files + toter LineupBuilder-`availableClubsList`-useMemo aufgeräumt. Reviewer **PASS** (2 INFO Scope-Out). Proof tsc 0 + 110 Tests + diff (5 TS, kein Migration) + functiondef + grep. Spec `423-…`, Proof `423-picker-uuid.txt`, Review `423-review.md`. **➡️ NÄCHSTER — (CEO-Vorlagen, NICHT autonom):** (1) **Admin-Gameweek-Engine** (war „Admin-38"): inkohärent liga-gescoped — `finalizeGameweek` scored Events **club-scoped** (`WHERE club_id`), aber `importProgressiveStats`→`syncFixtureScores(gw)` synct **global pro GW-Nummer**; `getFullGameweekStatus` global+1..38. Nach 419/421 (fixture/liga-gebunden) inkohärent, Money-Path (`scoreEvent` mintet) → Architektur-Entscheid „GW-Lifecycle vollständig per-Liga?". (2) **Ranking-Konsolidierung** `scout_scores`↔`user_stats` (Quelle-Entscheid). (3) **Welle 3 (Events/Aufstellung)** (Lineup-Datenmodell-Fork). **(CTO-autonome Folge-Smells, klein):** (a) Synergie-Vorschau-Magnitude == Server (Set-dedup → faktisch immer 4 %, Server 5 %/Surge/Cap); (b) ScoreBreakdown-Labels auf `getClub(clubId).name`; (c) `KaderTab`/KaderToolbar-Filter gleicher String-Smell.
+>
 > **🟢 STAND 2026-06-27 (Abend 7) — WELLE-2-CLEANUP: Slice 422 DONE, committed+gepusht (`7e81487e`), `main`==`origin/main`, `active.md`=idle.** FantasyPlayerRow Club-Logo+Name aus **zuverlässiger Quelle** (UUID/aufgelöstes Logo) statt unzuverlässigem String — schließt den in fantasy.md/Slice 420 vermerkten Display-Rest (S276). **2 Logos, gleicher Anti-Pattern, gebatcht (Anil „gleichartige batchen"):** (A) **Gegner** `getClub(opponentShort)` → BAY-Kollision (Leverkusen↔Bayern same-league Bundesliga, `getClub` returnt null) → Fix: bereits per UUID-Join aufgelöstes `NextFixtureInfo.opponentLogoUrl` (Slice 420) direkt rendern. (B) **Eigen** `getClub(players.club)` = stale Freitext → **DB-belegt 294/4472 Spieler (6,6 %) falsches Logo** (z.B. Amine Adli `players.club`="Bournemouth" vs wahr Bayer Leverkusen) → Fix: `getClub(player.clubId)` (UUID) für Logo **und** Name-Text (Konsistenz), Fallback auf String wenn clubId null. **4 Render-Sites** (PlayerPicker, LineupBuilder, useLineupPanelState=2 LineupPanel) durchgereicht — required `opponentLogoUrl`-Prop fand die 2 LineupPanel-Sites via tsc (sonst S149b-Blindspot). Reviewer **PASS** (Finding #1 mit-gefixt: aufgelöste `clubId ?? player.clubId` statt rohe durchgereicht). **PROVE:** tsc 0 + 110 Tests + DB-Vorher/Nachher + **Live bescout.net (jarvis-qa): Melih Bostan rendert „Konyaspor"+Logo+SL-Badge statt stale „Sakaryaspor"** (`proofs/422-event-player-list-live.png`) + BAY-Kollision live (`422-bay-collision-fixtures.png`). Spec `422-…`, Proof `422-club-identity.txt`, Review `422-review.md`. **➡️ NÄCHSTER (CTO-Empf.):** (1) **Admin-38-Hardcodes** (`getFullGameweekStatus` scoring.queries.ts:415 loopt global 1..38 + `useClubEventsData getGameweekStatuses(1,38)` → braucht leagueId-Param; gemeldeter Smell aus 421). (2) **Folge-Smell aus 422 (Reviewer-INFO):** `availableClubsList`-Filter-Logos (PlayerPicker:79/LineupBuilder:165/useLineupPanelState:105) + Synergy-Gruppierung nutzen weiter `getClub(short)`/`player.club`-Freitext = gleiche Klasse. (3) **Ranking-Konsolidierung** `scout_scores`↔`user_stats` [money-nah, CEO-Quelle-Entscheid] ODER **Welle 3 (Events/Aufstellung)** [Money/CEO-Architektur-Fork]. Smells 1+2 = CTO-autonom; Ranking/Welle 3 = CEO-Vorlage.
 >
 > **🟢 STAND 2026-06-27 (Abend 6) — WELLE 2.4 DONE: Slice 421 committed+gepusht (`95e7edc6`), `main`==`origin/main`, `active.md`=idle.** Per-Liga-GW-Max-Routing + toter `GameweekSelector` gelöscht. **Bug:** `SpieltagSelector` „Nächster Spieltag" cappte für JEDE Liga bei 38 (Component-Default), weil `FantasyNav` die `maxGameweek`-Prop nicht durchreichte und `useGameweek` sie nicht liefert → Geister-Spieltage bei Ligen mit Saisonende < 38. **FAKTEN-KORREKTUR (D87, Live-DB schlägt Annahme):** betroffen sind **BUNDESLIGA + 2. Bundesliga = 34** (je 4 Geister-GWs, 18 Vereine → 34 Spieltage), NICHT TFF 1. Lig (=38, wie Handoff/Test-Fixtures fälschlich behaupteten). **Fix A:** `FantasyContent` mountet `useLeagueMaxGameweeks(leagueScopeId)` (kanonische Quelle seit Slice 251) → `maxGameweek={data ?? 38}` über `FantasyNav` (neue required Prop) an `SpieltagSelector`; Fallback 38 fail-safe an allen 4 Datenquellen-Zuständen. **Fix B:** `GameweekSelector` (0 Prod-Consumer) + Barrel-Zeile + eigener Test gelöscht (S280/S375, grep=0). Test: beide events-Modul-Mocks um `useLeagueMaxGameweeks` ergänzt (S199-Doppel-Mock). **PROVE Live (bescout.net, jarvis-qa):** Bundesliga GW34 → „Nächster" **[disabled]** (vor Fix wäre 35-38 klickbar) + TFF1 GW38 [disabled] (38-Liga unverändert) + 0 Console-Errors; Screenshot `proofs/421-bundesliga-gw34-next-disabled.png`. tsc 0 + FantasyContent(+club) 87 Tests grün. Reviewer **PASS** (1 NIT akzeptiert). Spec `421-gw-max-routing-orphan-delete.md`, Proof `421-gw-max.txt`, Review `421-review.md`. **➡️ NÄCHSTER (CTO-Empf., alle CTO-Scope außer Welle 3):** (1) **Admin-38-Hardcodes** — `getFullGameweekStatus` (`scoring.queries.ts:415`) loopt `1..38` GLOBAL über ALLE Ligen + `useClubEventsData` `getGameweekStatuses(1,38)` → braucht `leagueId`-Param + Consumer-Threading in Admin-SpieltagTab (gemeldeter Smell, eigener Slice). (2) **`FantasyPlayerRow:72`** Gegner-Logo via `opponentShort` (S276-Display-Variante, BAY-Kollision → falsches Logo; `opponentClubId` liegt seit 420 bereit). (3) **Ranking-Konsolidierung** `scout_scores`↔`user_stats`. ODER **Welle 3 (Events/Aufstellung)** [Money/CEO]. (419-LOW/INFO bleiben offen.)

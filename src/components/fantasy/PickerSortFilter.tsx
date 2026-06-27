@@ -19,7 +19,10 @@ interface PickerSortFilterProps {
   onOnlyAvailableChange: (v: boolean) => void;
   synergyOnly: boolean;
   onSynergyOnlyChange: (v: boolean) => void;
-  availableClubs: { short: string; logo: string | null }[];
+  // Slice 423: id = clubId (UUID, Fallback Freitext wenn clubId null) als stabiler
+  // Toggle-Key; label = aufgelöster Club-Name. Vorher war `short` Key UND Label aus
+  // dem stale players.club-String (S368b, inkonsistent zur Row seit Slice 422).
+  availableClubs: { id: string; label: string; logo: string | null }[];
   synergyClubs: string[];
 }
 
@@ -52,11 +55,11 @@ export function PickerSortFilter({
 }: PickerSortFilterProps) {
   const t = useTranslations('fantasy');
 
-  const toggleClub = (short: string) => {
-    if (clubFilter.includes(short)) {
-      onClubFilterChange(clubFilter.filter((c) => c !== short));
+  const toggleClub = (id: string) => {
+    if (clubFilter.includes(id)) {
+      onClubFilterChange(clubFilter.filter((c) => c !== id));
     } else {
-      onClubFilterChange([...clubFilter, short]);
+      onClubFilterChange([...clubFilter, id]);
     }
   };
 
@@ -128,12 +131,12 @@ export function PickerSortFilter({
 
         {/* Club chips — multi-select */}
         {availableClubs.map((club) => {
-          const isActive = clubFilter.includes(club.short);
+          const isActive = clubFilter.includes(club.id);
           return (
             <button
-              key={club.short}
+              key={club.id}
               type="button"
-              onClick={() => toggleClub(club.short)}
+              onClick={() => toggleClub(club.id)}
               className={cn(
                 'shrink-0 min-h-[36px] flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors',
                 isActive
@@ -144,14 +147,14 @@ export function PickerSortFilter({
               {club.logo && (
                 <Image
                   src={club.logo}
-                  alt={club.short}
+                  alt={club.label}
                   width={14}
                   height={14}
                   className="shrink-0 rounded-full"
                   unoptimized
                 />
               )}
-              <span>{club.short}</span>
+              <span>{club.label}</span>
             </button>
           );
         })}

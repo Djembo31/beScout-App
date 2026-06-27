@@ -63,22 +63,32 @@ export function PlayerPicker({
   const { data: nextFixturesMap } = useNextFixtures(true);
   const { data: allPlayers = [] } = usePlayers(true);
 
-  // Derive synergy clubs from currently selected lineup
+  // Derive synergy clubs from currently selected lineup.
+  // Slice 423: gruppiere nach club_id (UUID) — exakt wie score_event (Server-Wahrheit:
+  // v_club_ids UUID[]). Der stale players.club-String (6,6 % falsch, S368b) ließ die
+  // Vorschau von der tatsächlichen Server-Synergie divergieren. Fallback Freitext wenn null.
   const synergyClubs = useMemo(() => {
     const clubs = selectedPlayers.map(sp => {
       const h = effectiveHoldings.find(eh => eh.id === sp.playerId);
-      return h?.club;
+      return h ? (h.clubId ?? h.club) : undefined;
     }).filter(Boolean) as string[];
     return Array.from(new Set(clubs));
   }, [selectedPlayers, effectiveHoldings]);
 
-  // Available clubs for filter (from holdings)
+  // Available clubs for filter (from holdings).
+  // Slice 423: gruppiere + löse Label/Logo über club_id (UUID) statt stale players.club —
+  // konsistent zur Row (Slice 422). Fallback auf Freitext nur wenn clubId null.
   const availableClubsList = useMemo(() => {
-    const clubShorts = Array.from(new Set(effectiveHoldings.map(h => h.club)));
-    return clubShorts.map(short => {
-      const c = getClub(short);
-      return { short, logo: c?.logo ?? null };
-    });
+    const seen = new Set<string>();
+    const out: { id: string; label: string; logo: string | null }[] = [];
+    for (const h of effectiveHoldings) {
+      const id = h.clubId ?? h.club;
+      if (!id || seen.has(id)) continue;
+      seen.add(id);
+      const c = h.clubId ? getClub(h.clubId) : getClub(h.club);
+      out.push({ id, label: c?.name ?? h.club, logo: c?.logo ?? null });
+    }
+    return out;
   }, [effectiveHoldings]);
 
   // Helper: map a UserDpcHolding to FantasyPlayerRow props
@@ -92,8 +102,9 @@ export function PlayerPicker({
     const clubId = player.clubId ?? allPlayers.find(p => p.id === player.id)?.clubId;
     const nextFix = clubId ? nextFixturesMap?.get(clubId) : undefined;
     const oppAvgL5 = nextFix ? getClubAvgL5(nextFix.opponentClubId, allPlayers) : 0;
-    const hasSynergy = synergyClubs.includes(player.club) && !isSelected;
-    const synergyPct = hasSynergy ? synergyClubs.filter(c => c === player.club).length * 4 : null;
+    const playerClubKey = player.clubId ?? player.club;
+    const hasSynergy = synergyClubs.includes(playerClubKey) && !isSelected;
+    const synergyPct = hasSynergy ? synergyClubs.filter(c => c === playerClubKey).length * 4 : null;
 
     let rowState: 'default' | 'selected' | 'locked' | 'deployed' | 'injured' | 'suspended' = 'default';
     if (fixtureLocked) rowState = 'locked';
@@ -146,17 +157,17 @@ export function PlayerPicker({
     const q = pickerSearch.toLowerCase();
     availablePlayers = availablePlayers.filter(h => `${h.first} ${h.last} ${h.club}`.toLowerCase().includes(q));
   }
-  // Club filter
+  // Club filter — Slice 423: per club_id (UUID), Fallback Freitext.
   if (clubFilter.length > 0) {
-    availablePlayers = availablePlayers.filter(h => clubFilter.includes(h.club));
+    availablePlayers = availablePlayers.filter(h => clubFilter.includes(h.clubId ?? h.club));
   }
   // Available filter
   if (onlyAvailable) {
     availablePlayers = availablePlayers.filter(h => h.dpcAvailable > 0 && !h.isLocked);
   }
-  // Synergy filter
+  // Synergy filter — Slice 423: per club_id (UUID), Fallback Freitext.
   if (synergyOnly && synergyClubs.length > 0) {
-    availablePlayers = availablePlayers.filter(h => synergyClubs.includes(h.club));
+    availablePlayers = availablePlayers.filter(h => synergyClubs.includes(h.clubId ?? h.club));
   }
   // Apply local sort
   availablePlayers = [...availablePlayers].sort((a, b) => {

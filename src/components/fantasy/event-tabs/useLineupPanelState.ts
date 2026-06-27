@@ -91,20 +91,27 @@ export function useLineupPanelState({
     return new Set(active);
   }, [selectedPlayers, ownedPlayerIds]);
 
+  // Slice 423: Synergie per club_id (UUID) wie score_event (Server-Wahrheit), nicht stale players.club.
   const synergyClubs = useMemo(() => {
     const clubs = selectedPlayers.map(sp => {
       const h = effectiveHoldings.find(eh => eh.id === sp.playerId);
-      return h?.club;
+      return h ? (h.clubId ?? h.club) : undefined;
     }).filter(Boolean) as string[];
     return Array.from(new Set(clubs));
   }, [selectedPlayers, effectiveHoldings]);
 
+  // Slice 423: Filter-Chips gruppiert + aufgelöst über club_id (UUID), konsistent zur Row (422).
   const availableClubsList = useMemo(() => {
-    const clubShorts = Array.from(new Set(effectiveHoldings.map(h => h.club)));
-    return clubShorts.map(short => {
-      const c = getClub(short);
-      return { short, logo: c?.logo ?? null };
-    });
+    const seen = new Set<string>();
+    const out: { id: string; label: string; logo: string | null }[] = [];
+    for (const h of effectiveHoldings) {
+      const id = h.clubId ?? h.club;
+      if (!id || seen.has(id)) continue;
+      seen.add(id);
+      const c = h.clubId ? getClub(h.clubId) : getClub(h.club);
+      out.push({ id, label: c?.name ?? h.club, logo: c?.logo ?? null });
+    }
+    return out;
   }, [effectiveHoldings]);
 
   // ── Row Props Helper ──
@@ -118,8 +125,9 @@ export function useLineupPanelState({
     const clubId = player.clubId ?? allPlayers.find(p => p.id === player.id)?.clubId;
     const nextFix = clubId ? nextFixturesMap?.get(clubId) : undefined;
     const oppAvgL5 = nextFix ? getClubAvgL5(nextFix.opponentClubId, allPlayers) : 0;
-    const hasSynergy = synergyClubs.includes(player.club) && !isSelected;
-    const synergyPct = hasSynergy ? synergyClubs.filter(c => c === player.club).length * 4 : null;
+    const playerClubKey = player.clubId ?? player.club;
+    const hasSynergy = synergyClubs.includes(playerClubKey) && !isSelected;
+    const synergyPct = hasSynergy ? synergyClubs.filter(c => c === playerClubKey).length * 4 : null;
 
     let rowState: 'default' | 'selected' | 'locked' | 'deployed' | 'injured' | 'suspended' = 'default';
     if (fixtureLocked) rowState = 'locked';
