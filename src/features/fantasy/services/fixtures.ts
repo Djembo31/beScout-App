@@ -484,6 +484,9 @@ export async function getRecentPlayerScoresAndGameweeks(): Promise<Map<string, R
 export type NextFixtureInfo = {
   opponentName: string;
   opponentShort: string;
+  /** Slice 420: opponent club UUID — eindeutiger FDR-Disambiguator (S276).
+   *  opponentShort kollidiert (6 reale Fälle, BAY same-league Bundesliga). */
+  opponentClubId: string;
   opponentLogoUrl: string | null;
   isHome: boolean;
   gameweek: number;
@@ -529,6 +532,7 @@ export async function getNextFixturesByClub(): Promise<Map<string, NextFixtureIn
       result.set(homeClubId, {
         opponentName: away?.name ?? '',
         opponentShort: away?.short ?? '',
+        opponentClubId: awayClubId,
         opponentLogoUrl: away?.logo_url ?? null,
         isHome: true,
         gameweek: row.gameweek as number,
@@ -540,6 +544,7 @@ export async function getNextFixturesByClub(): Promise<Map<string, NextFixtureIn
       result.set(awayClubId, {
         opponentName: home?.name ?? '',
         opponentShort: home?.short ?? '',
+        opponentClubId: homeClubId,
         opponentLogoUrl: home?.logo_url ?? null,
         isHome: false,
         gameweek: row.gameweek as number,
@@ -591,12 +596,14 @@ export async function getNextFixturesForClub(
     const home = row.home_club as unknown as { name: string; short: string; logo_url: string | null } | null;
     const away = row.away_club as unknown as { name: string; short: string; logo_url: string | null } | null;
     const homeClubId = row.home_club_id as string;
+    const awayClubId = row.away_club_id as string;
     const isHome = homeClubId === clubId;
     const opponent = isHome ? away : home;
 
     result.push({
       opponentName: opponent?.name ?? '',
       opponentShort: opponent?.short ?? '',
+      opponentClubId: isHome ? awayClubId : homeClubId,
       opponentLogoUrl: opponent?.logo_url ?? null,
       isHome,
       gameweek: row.gameweek as number,

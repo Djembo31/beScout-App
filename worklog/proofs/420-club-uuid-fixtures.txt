@@ -1,0 +1,67 @@
+Slice 420 — Heim/Auswärts + FDR über Club-UUID statt Short-String/Majority-Vote
+PROOF — 2026-06-27
+
+═══════════════════════════════════════════════════════════════
+A) DATEN-FAKTEN (gemessen via Supabase MCP, Projekt skzjfhvgccaeplydsunz)
+═══════════════════════════════════════════════════════════════
+fixture_player_stats.club_id NULL  : 0 / 67.737   → per-Fixture-UUID 100% sicher
+players.club_id NULL               : 84 / 4.556 (1,8%) → FDR-clubId-Filter trifft 98,2%
+Spieler mit Multi-Club-Stat-Rows   : 117          → Majority-Vote real falsch für Minderheits-Fixtures
+Short-Kollisionen (≠Clubs)         : 6  (ALA/BAY/BOL/GEN/KAR/WOL)
+  davon BAY = Bayer Leverkusen ↔ Bayern München in DERSELBEN Liga (Bundesliga)
+  → FDR gegen Bayern mischte bisher Leverkusens + Bayerns L5 (S276)
+
+═══════════════════════════════════════════════════════════════
+B) AC1/AC6 — Self-Verification-Greps
+═══════════════════════════════════════════════════════════════
+$ grep -rn "effectiveClubId|clubVoteCount|maxVotes" scoring.queries.ts
+  → 0 Treffer (Majority-Vote ersatzlos entfernt)
+
+$ grep -rn "getClubAvgL5(" src/ | grep -v __tests__
+  FDRBadge.tsx:39   export function getClubAvgL5(opponentClubId: string, … Pick<Player,'clubId'|'perf'>)
+  ClubFixturesStrip.tsx:67   getClubAvgL5(fix.opponentClubId, allPlayers)
+  useLineupPanelState.ts:120 getClubAvgL5(nextFix.opponentClubId, allPlayers)
+  LineupBuilder.tsx:180      getClubAvgL5(nextFix.opponentClubId, allPlayers)
+  PlayerPicker.tsx:94        getClubAvgL5(nextFix.opponentClubId, allPlayers)
+  → Definition + 4 Call-Sites, ALLE opponentClubId. (Signaturwechsel string→string
+     ist tsc-unsichtbar → grep ist das Sicherheitsnetz, S102. 0 opponentShort-Reste.)
+
+$ grep -n "opponentClubId" fixtures.ts
+  489 (Typ) · 535 + 547 (getNextFixturesByClub) · 606 (getNextFixturesForClub)
+
+═══════════════════════════════════════════════════════════════
+C) AC7 — tsc + vitest
+═══════════════════════════════════════════════════════════════
+$ pnpm exec tsc --noEmit        → exit 0 (clean)
+$ CI=true pnpm exec vitest run scoring fixtures MatchTimeline
+  → Test Files 7 passed (7) · Tests 127 passed (127)
+$ CI=true pnpm exec vitest run   (FULL SUITE — S418-Lehre: CI-only-Breakage ausschließen)
+  → Test Files 233 passed (233) · Tests 3301 passed, 1 skipped · 0 fail
+$ fixtures.test.ts (nach F1-Heal: opponentClubId-Assert) → 29 passed (29)
+
+═══════════════════════════════════════════════════════════════
+D) AC2/AC3 — SQL-Probe Multi-Club-Spieler (alt-Vote-Kipp vs neu-korrekt)
+═══════════════════════════════════════════════════════════════
+Spieler: Zdravko Minchev Dimitrov (2 Clubs: BOD GW1-22 → Transfer AMD GW23-37)
+Alter Majority-Vote = BOD (Mehrheit der Fixtures).
+
+GW  played_for  new_isHome(truth=fps.club_id)  old_vote(=BOD)  verdict
+37  AMD         H                               A               *** FLIP ***
+36  AMD         A                               A               ok
+35  AMD         H                               A               *** FLIP ***
+33  AMD         H                               A               *** FLIP ***
+29  AMD         H                               A               *** FLIP ***
+27  AMD         H                               A               *** FLIP ***
+25  AMD         H                               A               *** FLIP ***
+23  AMD         H                               A               *** FLIP ***
+22..1 BOD       (H/A korrekt)                   (gleich)        ok
+
+→ 8 AMD-Heimspiele wurden bisher als Auswärts gezeigt + matchScore invertiert
+  (isHome steuert `isHome ? home-away : away-home`). Neuer Pfad: jede Zeile
+  aus fps.club_id = korrekt. Verifiziert die Fix-Wirkung end-to-end.
+
+═══════════════════════════════════════════════════════════════
+E) Live-Render (post-Deploy) — AC8: offen bis Deploy
+═══════════════════════════════════════════════════════════════
+Nach Merge+Deploy: Player-Detail von Zdravko Minchev Dimitrov (AMD-GWs H/A korrekt)
++ FDR-Strip eines Bundesliga-Clubs gegen Bayern (kein gemischter Leverkusen-L5).

@@ -293,6 +293,10 @@ describe('getNextFixturesByClub', () => {
     expect(result.get('c2')?.opponentShort).toBe('HFC');
     expect(result.get('c2')?.opponentLogoUrl).toBe('https://cdn/home.png');
     expect(result.get('c2')?.isHome).toBe(false);
+    // Slice 420: opponentClubId = Gegner-Club-UUID (FDR-Disambiguator, S276).
+    // Signaturwechsel string→string ist tsc-unsichtbar → expliziter Test-Anker.
+    expect(result.get('c1')?.opponentClubId).toBe('c2');
+    expect(result.get('c2')?.opponentClubId).toBe('c1');
   });
   it('returns null opponentLogoUrl when club has no logo', async () => {
     mockTable('fixtures', [{

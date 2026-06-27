@@ -114,7 +114,7 @@ export async function getPlayerMatchTimeline(
   //    für „in welchem Match war der Spieler kader-relevant".
   const { data: statRows, error: statError } = await supabase
     .from('fixture_player_stats')
-    .select('fixture_id, minutes_played, goals, assists, clean_sheet, yellow_card, red_card, saves, rating, is_starter')
+    .select('fixture_id, club_id, minutes_played, goals, assists, clean_sheet, yellow_card, red_card, saves, rating, is_starter')
     .eq('player_id', playerId);
 
   if (statError) throw new Error(statError.message);
@@ -142,27 +142,13 @@ export async function getPlayerMatchTimeline(
   if (fixError) throw new Error(fixError.message);
   if (!fixtures || fixtures.length === 0) return [];
 
-  // 3. Determine player's effective club (majority of his stat-fixtures).
-  //    Used to determine isHome/opponent. Robust gegen Cross-Club-Drift,
-  //    weil wir die Wahrheit aus den Match-Daten ableiten, nicht aus dem
-  //    möglicherweise stale `players.club_id`-Feld.
-  const clubVoteCount = new Map<string, number>();
-  for (const fix of fixtures) {
-    const home = fix.home_club_id as string;
-    const away = fix.away_club_id as string;
-    clubVoteCount.set(home, (clubVoteCount.get(home) ?? 0) + 1);
-    clubVoteCount.set(away, (clubVoteCount.get(away) ?? 0) + 1);
-  }
-  // Beide Clubs jeder Fixture haben +1 — der echte Club erscheint in JEDER
-  // Fixture (also count = N). Andere Clubs erscheinen nur einmalig.
-  let effectiveClubId: string | null = null;
-  let maxVotes = 0;
-  clubVoteCount.forEach((count, clubId) => {
-    if (count > maxVotes) {
-      maxVotes = count;
-      effectiveClubId = clubId;
-    }
-  });
+  // 3. (Slice 420) isHome/opponent werden PRO FIXTURE aus `fixture_player_stats.club_id`
+  //    abgeleitet (= der Club, für den der Spieler in genau DIESEM Spiel auflief),
+  //    NICHT mehr über einen Mehrheitsentscheid über alle Fixtures. Der alte
+  //    Majority-Vote kippte isHome/matchScore für mid-season-Transfer-Spieler
+  //    (117 Spieler mit Multi-Club-Stat-Rows) und war bei 50/50-Split
+  //    nicht-deterministisch (Map-Iterationsreihenfolge). `fps.club_id` ist
+  //    100% befüllt (0/67.737 NULL gemessen) und UUID-eindeutig (S276).
 
   // 4. Get scores for the fixtures in this timeline.
   //    Slice 419: scores are fixture-bound — map per fixture_id (not gameweek).
@@ -185,7 +171,11 @@ export async function getPlayerMatchTimeline(
     const homeClub = fix.home_club as unknown as { short: string; logo_url: string | null } | null;
     const awayClub = fix.away_club as unknown as { short: string; logo_url: string | null } | null;
     const gw = fix.gameweek as number;
-    const isHome = effectiveClubId === (fix.home_club_id as string);
+    const stat = statMap.get(fix.id as string);
+    // Slice 420: per-fixture truth — der Club, für den der Spieler in DIESEM
+    // Spiel auflief (fps.club_id), bestimmt Heim/Auswärts. UUID-Vergleich, kein
+    // Short-String, kein Mehrheitsentscheid.
+    const isHome = (stat?.club_id as string | undefined) === (fix.home_club_id as string);
     const opponent = isHome ? (awayClub?.short ?? '???') : (homeClub?.short ?? '???');
     const opponentLogoUrl = isHome ? (awayClub?.logo_url ?? null) : (homeClub?.logo_url ?? null);
     const homeScore = fix.home_score as number | null;
@@ -194,7 +184,6 @@ export async function getPlayerMatchTimeline(
       ? (isHome ? `${homeScore}-${awayScore}` : `${awayScore}-${homeScore}`)
       : '';
 
-    const stat = statMap.get(fix.id as string);
     const minutesPlayed = (stat?.minutes_played as number) ?? 0;
     const hasEntry = !!stat;
 

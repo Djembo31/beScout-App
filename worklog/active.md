@@ -2,15 +2,25 @@
 
 ```
 status: idle
-slice: 419
-title: Welle 2.1+2.2 — player_gameweek_scores fixture-gebunden (Sorare-Pro) + score_event liga-bewusst — DONE
-size: L (Schema-Migration + Writer-RPC + Money-Reader score_event + 3 Reader-Services + Cron-Guard + Form-Bar-RPC-Heal)
+slice: 420
+title: Welle 2.3 — Heim/Auswärts + FDR über Club-UUID statt Short-String/Majority-Vote — DONE
+size: M (1 Service-Fix + NextFixtureInfo-Typ + 2 Producer + FDR-Helper + 4 Consumer + 1 Test)
 stage: LOG (DONE)
-spec: worklog/specs/419-fixture-bound-scores.md
-impact: in Spec (Reader-Karte via Explore) + Reviewer-Catch (rpc_get_recent_player_scores, live-only RPC)
-proof: worklog/proofs/419-money-smoke.txt (force-rollback Zero-Sum + Invarianz 1721==1721 + Writer-Smoke + Fanout-Proof + tsc/249 Tests)
-review: worklog/reviews/419-review.md (CONCERNS → 1 HIGH gefunden+geheilt in 419b → PASS)
+spec: worklog/specs/420-club-uuid-fixtures.md
+impact: in Spec (Consumer-Karte grep-verifiziert: 4 FDR-Consumer via NextFixtureInfo, 1 Timeline-Consumer)
+proof: worklog/proofs/420-club-uuid-fixtures.txt
+review: worklog/reviews/420-review.md
+proof-summary: SQL-Probe 8 Flips + tsc 0 + full vitest 3301 grün; Reviewer PASS (F1 geheilt, F2 out-of-scope)
 ```
+
+## Kontext (Faktenbasis, gemessen 2026-06-27)
+- `fixture_player_stats.club_id`: **0/67.737 NULL** → per-Fixture-UUID 100% sicher.
+- `players.club_id`: 84/4.556 (1,8%) NULL → FDR-clubId-Filter trifft 98,2%.
+- **117 Spieler** mit Multi-Club-Stat-Rows → Majority-Vote real falsch für deren Minderheits-Fixtures.
+- **6 Short-Kollisionen**, davon **BAY = Leverkusen↔Bayern SAME-LEAGUE** (Bundesliga) → FDR mischt heute beide L5.
+
+## Vorige Slice (419 — DONE, Referenz)
+CEO Option A (Fixture-bound). Migration live (`419`+`419b`). Knowledge: errors-db S419 + fantasy.md.
 
 ## Ergebnis
 CEO Option A (Fixture-bound). Migration live (`419` + `419b`), `main` push pending.

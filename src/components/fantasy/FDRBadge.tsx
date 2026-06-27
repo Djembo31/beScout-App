@@ -32,9 +32,12 @@ export default function FDRBadge({ opponentAvgL5, className }: FDRBadgeProps) {
   );
 }
 
-/** Compute average L5 for a club's players */
-export function getClubAvgL5(clubShort: string, allPlayers: Pick<Player, 'club' | 'perf'>[]): number {
-  const clubPlayers = allPlayers.filter(p => p.club === clubShort);
+/** Compute average L5 for a club's players.
+ *  Slice 420: filtert über die Club-UUID (`p.clubId`), NICHT über den Short-String —
+ *  `club`-Shorts kollidieren (6 reale Fälle, BAY = Leverkusen↔Bayern in derselben
+ *  Liga) und mischten sonst die L5 zweier Clubs in die FDR (S276). */
+export function getClubAvgL5(opponentClubId: string, allPlayers: Pick<Player, 'clubId' | 'perf'>[]): number {
+  const clubPlayers = allPlayers.filter(p => p.clubId === opponentClubId);
   if (clubPlayers.length === 0) return 0;
   return Math.round(clubPlayers.reduce((s, p) => s + p.perf.l5, 0) / clubPlayers.length);
 }

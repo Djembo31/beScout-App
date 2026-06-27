@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 420 | 2026-06-27 | fix(fantasy): Welle 2.3 — Heim/Auswärts + FDR über Club-UUID statt Short-String/Majority-Vote [Datenkorrektheit]
+- Stage-Chain: SPEC (`specs/420-…`, M) → IMPACT (in Spec, Consumer-grep) → BUILD (selbst, CTO/kein Money) → REVIEW reviewer-Agent **PASS** (`reviews/420-review.md`, 1 LOW geheilt + 1 NIT out-of-scope) → PROVE (`proofs/420-club-uuid-fixtures.txt`) → LOG.
+- **Problem (gemessen, keine Annahmen):** (A) `getPlayerMatchTimeline` bestimmte Heim/Auswärts per **Majority-Vote** über alle Fixtures → kippte isHome/matchScore für **117 Multi-Club-Spieler** (mid-season-Transfer) + nicht-deterministisch bei 50/50. (B) FDR `getClubAvgL5` filterte per Club-`short`-String → **6 reale Short-Kollisionen**, davon **BAY = Leverkusen↔Bayern same-league (Bundesliga)** → FDR mischte beide L5 (S276).
+- **Fix A:** `club_id` in den Stat-Select; Vote-Block ersatzlos raus; `isHome = stat.club_id === fix.home_club_id` pro Fixture (UUID, transfer-korrekt). `fps.club_id` 0/67.737 NULL → kein Fallback.
+- **Fix B:** `NextFixtureInfo.opponentClubId` (neu, befüllt in beiden Producern aus FK) + `getClubAvgL5(opponentClubId)` filtert `p.clubId`; 4 Consumer (ClubFixturesStrip/useLineupPanelState/LineupBuilder/PlayerPicker) durchgereicht. Display-Labels unverändert.
+- **Proof:** SQL-Probe Zdravko Minchev (BOD→AMD-Transfer): **8 AMD-Heimspiele** zeigte der alte Vote als Auswärts + invertiertes Ergebnis → neu pro Fixture korrekt. tsc 0, vitest (full suite, s. Proof). F1-Heal: `opponentClubId`-Test-Assert (tsc-unsichtbarer string→string-Signaturwechsel abgesichert).
+- **Files:** scoring.queries.ts + fixtures.ts + FDRBadge.tsx + 4 Consumer + fixtures.test.ts (7 Code + 1 Test).
+- **Wissens-Kopplung:** fantasy.md Scoring-Sektion (Heim/Auswärts+FDR = Club-UUID) — kein neuer Fehler-Pattern (saubere S276/S102-Anwendung).
+- **Offen (Folge-Smell, Reviewer-F2):** `FantasyPlayerRow:72` Gegner-Logo via `opponentShort` = S276-Display-Variante → eigener Slice (opponentClubId liegt bereit).
+
 ## 419 | 2026-06-27 | feat(scoring): Welle 2.1+2.2 — player_gameweek_scores fixture-gebunden (Sorare-Pro) + score_event liga-bewusst [Migration/Money]
 - Stage-Chain: SPEC (`specs/419-…`, L) → IMPACT (Explore-Reader-Karte + D87 Live-functiondefs) → BUILD (selbst, §3 Money) → REVIEW reviewer-Agent **CONCERNS→PASS** (`reviews/419-review.md`, 1 HIGH gefunden+geheilt 419b) → PROVE (`proofs/419-money-smoke.txt`) → LOG.
 - **CEO-Entscheid Anil (Datenmodell-Gabelung):** Option A **Fixture-bound (Sorare-Pro)** + 1401 herkunftslose Orphan-Scores (GW32-35, kein Spiel) **löschen**.

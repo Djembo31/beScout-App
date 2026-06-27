@@ -91,7 +91,7 @@ export function PlayerPicker({
     }));
     const clubId = player.clubId ?? allPlayers.find(p => p.id === player.id)?.clubId;
     const nextFix = clubId ? nextFixturesMap?.get(clubId) : undefined;
-    const oppAvgL5 = nextFix ? getClubAvgL5(nextFix.opponentShort, allPlayers) : 0;
+    const oppAvgL5 = nextFix ? getClubAvgL5(nextFix.opponentClubId, allPlayers) : 0;
     const hasSynergy = synergyClubs.includes(player.club) && !isSelected;
     const synergyPct = hasSynergy ? synergyClubs.filter(c => c === player.club).length * 4 : null;
 

@@ -63,7 +63,8 @@ export function ClubFixturesStrip({ clubId, count = 5, className }: ClubFixtures
       <div className="flex gap-1.5 overflow-x-auto scrollbar-hide -mx-1 px-1">
         {fixtures.map((fix, i) => {
           const opponentShort = fix.opponentShort || '?';
-          const avgL5 = opponentShort && opponentShort !== '?' ? getClubAvgL5(opponentShort, allPlayers) : 0;
+          // Slice 420: FDR über Gegner-Club-UUID (eindeutig), nicht Short-String (S276).
+          const avgL5 = fix.opponentClubId ? getClubAvgL5(fix.opponentClubId, allPlayers) : 0;
           const fdr: FDR = avgL5 >= 55 ? 'hard' : avgL5 >= 40 ? 'med' : 'easy';
 
           // Static Tailwind classes (kein dynamic JIT) — siehe rule
