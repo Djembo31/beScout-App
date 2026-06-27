@@ -441,7 +441,10 @@ describe('TradingTab', () => {
     expect(screen.queryByText('transferMarketOrders')).not.toBeInTheDocument();
   });
 
-  it('renders sell listings section when player has listings', () => {
+  // Slice 408: Die alte „Aktive Angebote"-Sektion (player.listings) wurde entfernt — im
+  // Player-Detail-Pfad toter Render (listings immer [], nie befüllt) + dritter überladener
+  // „Angebot"-Begriff. Das Orderbuch (Sektion 7, allSellOrders) ist SSOT für Markt-Verkäufe.
+  it('does NOT render the legacy sell-listings section even with listings data (Slice 408 removal)', () => {
     const playerWithListings = {
       ...basePlayer,
       listings: [
@@ -451,8 +454,8 @@ describe('TradingTab', () => {
     } as unknown as Player;
 
     renderWithProviders(<TradingTab {...defaultProps} player={playerWithListings} />);
-    expect(screen.getByText('activeOffers')).toBeInTheDocument();
-    expect(screen.getByText('Seller A')).toBeInTheDocument();
-    expect(screen.getByText('Seller B')).toBeInTheDocument();
+    expect(screen.queryByText('activeOffers')).not.toBeInTheDocument();
+    expect(screen.queryByText('Seller A')).not.toBeInTheDocument();
+    expect(screen.queryByText('Seller B')).not.toBeInTheDocument();
   });
 });

@@ -1,16 +1,16 @@
 # Active Slice
 
 ```
-status: idle
-slice: 407
-title: Welle 1.4a — P2P-Offer-Fee auf 6% (= Markt) angleichen (Fee-Änderung, CEO-approved) — DONE
-size: S (Money/CEO — accept_offer COALESCE 350/150/100 + fee_config UPDATE + 1 UI-Zeile + business.md/trading.md)
-stage: LOG (DONE)
-spec: worklog/specs/407-p2p-fee-6pct.md
-impact: skipped (Consumer §4 live-gegreppt: nur accept_offer liest offer_*_bps; 1 UI-Fee-Stelle OffersTab:103)
-proof: worklog/proofs/407-money-smoke.txt
-proof-note: AC1-7 PASS; 6%-Split 700/300/200, Zero-Sum diff=0, fee_config 350/150/100, Docs angeglichen
-review: worklog/reviews/407-review.md — CONCERNS→geheilt→PASS (1 LOW Stale-Kommentar gefixt)
+status: active
+slice: 408
+title: Welle 1.4b — Trading-Vokabular entwirren: Markt (sofort) vs Kaufgebot (P2P)
+size: S (UI/i18n — kein Money; Wording-Klarheit + tote Sektion-6 raus)
+stage: PROVE
+spec: worklog/specs/408-trading-vocab-clarity.md
+impact: skipped (reine Label/i18n + 1 toter Render-Block; Consumer §4 gegreppt)
+proof: worklog/proofs/408-i18n.txt
+proof-note: JSON OK, Key-Parität 8/8 DE+TR, Compliance clean, tsc 0, 24 Tests. post-Deploy Playwright (408-live.txt) ausstehend.
+review: worklog/reviews/408-review.md — self-review PASS (S UI/i18n, kein Money, Compliance-geprüft)
 ```
 
 ## Zuletzt

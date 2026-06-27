@@ -7,7 +7,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import {
   ChevronDown, Trophy, ShoppingCart, History, Users,
   Layers, ArrowRight, ShieldAlert, BadgeCheck, Loader2,
-  MessageSquare, Clock,
+  MessageSquare,
 } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
@@ -183,6 +183,7 @@ function TradingTabInner({
                 </button>
               )}
             </div>
+            <p className="text-[11px] text-white/45 mt-1.5 text-pretty">{t('offersSubtitle')}</p>
           </div>
           <div className="p-4">
             {openBids.length > 0 ? (
@@ -221,49 +222,11 @@ function TradingTabInner({
         </Card>
       )}
 
-      {/* ── 6. Sell Listings ── */}
-      {player.listings.length > 0 && (
-        <Card className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <ShoppingCart className="size-5 text-white/50" aria-hidden="true" />
-              <span className="font-bold">{t('activeOffers')}</span>
-            </div>
-            <span className="text-xs text-white/40">{t('listingsCount', { count: player.listings.length })}</span>
-          </div>
-          <div className="space-y-2">
-            {player.listings.map((listing) => (
-              <div key={listing.id} className="flex items-center justify-between p-3 bg-surface-base rounded-xl border border-white/10 hover:bg-surface-subtle transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="size-8 rounded-lg bg-surface-base flex items-center justify-center">
-                    <span className="font-bold text-[10px]">Lv{listing.sellerLevel}</span>
-                  </div>
-                  <div>
-                    <div className="font-bold text-sm flex items-center gap-1">
-                      {listing.sellerName}
-                      {listing.verified && <BadgeCheck className="size-3 text-gold" aria-hidden="true" />}
-                    </div>
-                    <div className="text-[10px] text-white/40 font-mono tabular-nums">{listing.qty || 1} SC</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="text-right">
-                    <div className="font-mono font-bold tabular-nums text-gold">{fmtScout(listing.price)}</div>
-                    {listing.expiresAt > 0 && (
-                      <div className="text-[10px] text-white/40 flex items-center gap-1 justify-end">
-                        <Clock className="size-2.5" aria-hidden="true" />
-                        {Math.max(0, Math.floor((listing.expiresAt - Date.now()) / 3_600_000))}h
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
+      {/* ── 6. (entfernt Slice 408) Sell-Listings-Block war toter Render — player.listings ist im
+              Player-Detail-Pfad immer [] (players.ts:252, nie befüllt; nur KaderTab/Manager füllt es).
+              Das Orderbuch (Sektion 7, allSellOrders) ist die echte, gefüllte Markt-Liste. ── */}
 
-      {/* ── 7. Order Book (full table, replaces duplicate) ── */}
+      {/* ── 7. Marktplatz / Orderbuch (sofort kaufbar) ── */}
       {allSellOrders.length > 0 && (
         <Card className="overflow-hidden">
           <div className="bg-gradient-to-r from-orange-500/10 to-orange-500/5 border-b border-orange-500/20 p-4">
@@ -278,6 +241,7 @@ function TradingTabInner({
                   : t('ordersCount', { count: allSellOrders.length })}
               </span>
             </div>
+            <p className="text-[11px] text-white/45 mt-1.5 text-pretty">{t('marketSubtitle')}</p>
           </div>
           <div className="p-4">
             <div className="space-y-1">

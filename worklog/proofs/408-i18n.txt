@@ -1,0 +1,36 @@
+Slice 408 — Trading-Vokabular entwirren (Markt vs Kaufgebot) — BUILD-PROOF
+Datum: 2026-06-27
+
+ZIEL: „Angebot" war 3× überladen (Markt-Orderbuch / P2P-Verhandlung / tote Listings-Sektion).
+Klar getrennt: Markt = „Angebote, sofort kaufbar" · P2P = „Kaufgebote, Verhandlung". Sektion 6 (tot) raus.
+
+── AC-4 JSON-Validität (S399-Gate) ──
+node JSON.parse messages/de.json + tr.json → "JSON OK (de+tr)"
+
+── AC-5 Compliance (business.md: Orderbuch/Trader user-facing verboten) ──
+grep -niE 'orderbuch' messages/{de,tr}.json → 0 Treffer
+grep 'trader' → nur i18n-KEYS mit compliant VALUES ("Sammler"/"Koleksiyoncu") = die korrekte Umbenennung, KEIN Verstoß.
+
+── AC-4 Key-Parität DE+TR (8/8 OK) ──
+playerDetail.offers            de="Kaufgebote"                       tr="Alım teklifleri"
+playerDetail.offersSubtitle    de="Dein Gebot — ein Halter kann es annehmen. Kein Sofortkauf."
+                               tr="Senin teklifin — bir sahip kabul edebilir. Anında alım değil."
+playerDetail.makeOffer         de="Kaufgebot abgeben"                tr="Alım teklifi ver"
+playerDetail.transferMarketOrders de="Marktplatz · sofort kaufbar"   tr="Transfer Piyasası · hemen al"
+playerDetail.marketSubtitle    de="Günstigstes Angebot wird sofort gekauft."  tr="En düşük fiyat anında alınır."
+player.offer.title             de="Kaufgebot abgeben"                tr="Alım teklifi ver"
+player.offer.subtitle          de="Dein Gebot — ein Halter kann es annehmen. Kein Sofortkauf, du verhandelst."
+                               tr="Senin teklifin — bir sahip kabul edebilir. Anında alım değil, pazarlık."
+player.offer.send              de="Gebot senden"                     tr="Teklif gönder"
+
+── AC-3 Tote Sektion 6 raus ──
+TradingTab.tsx: Sell-Listings-Render-Block (player.listings, immer [] im Detail) entfernt + Clock-Import (nur dort genutzt) raus.
+player.listings-Type + KaderTab/Manager-Nutzung unberührt.
+
+── AC-6 Build ──
+pnpm exec tsc --noEmit → Exit 0
+vitest src/components/player/detail/__tests__/TradingTab.test.tsx → 24 passed
+  (Test „renders sell listings" → „does NOT render legacy listings (Slice 408 removal)" umgestellt: queryByText not.toBeInTheDocument)
+
+── AC-7 post-Deploy Playwright ──
+→ separat nach Vercel-Deploy (408-live.txt): Player-Detail Trading-Tab DE+TR, Markt- vs Kaufgebot-Sektion lesen distinkt, kein MISSING_MESSAGE.
