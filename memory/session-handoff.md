@@ -1,20 +1,24 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 12:22)
+# Session Handoff — Auto (2026-06-27 13:11)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
-## Session Commits: 9
+## Session Commits: 10
+- fdb4de6e docs(handoff): Resume-Anker — Welle 1.4 KOMPLETT (410 Ledger-Labels + 411 Buy-Doc), CEO-Entscheid 249.800 resolved
+- ce6ad0bd docs(log): Slice 411 Commit-Hash (277124a3)
+- 277124a3 docs(trading): Slice 411 — Welle 1.4d Buy-Limit gated + Fork-B verankert (stale Flag-Kommentar geheilt) [Doc/Ops]
+- 9098c49c docs(log): Slice 410 Commit-Hash (98d6ecb6)
+- 98d6ecb6 fix(trading): Slice 410 — Club-Treasury-Ledger korrekte Quellen-Labels (ipo_fee / p2p_fee) [Money/CEO]
 - e44e5cd1 docs(handoff): Resume-Anker 2026-06-27 — Welle 1.4 (406-409) + D112 + offener CEO-Entscheid (249.800 cents)
 - 2817e4cd docs(log): Slice 409 Commit-Hash (a8ff84aa)
 - a8ff84aa fix(trading): Slice 409 — Welle 1.4c P2P-Offer Escrow-Robustheit (Refund-Symmetrie, 4 Stellen) [Money/CEO]
 - cf0667b5 docs(proof): Slice 408 — post-Deploy Playwright DE+TR LIVE PASS, voll-DONE
 - 81ac5bee docs: Slice 408 reconcile (hash 8d15ca85, MASTERPLAN/TODO/handoff 1.4b DONE)
-- 8d15ca85 feat(trading): Slice 408 — Welle 1.4b Trading-Vokabular entwirren (Markt sofort vs Kaufgebot P2P) [UI/i18n]
-- eeef6d99 docs(knowledge): P2P-Fee 6% (Slice 407) in treasury.md + cross-domain-map.md nachgezogen
-- 87395880 docs(log): Slice 407 Commit-Hash (1de5902d)
-- 1de5902d feat(trading): Slice 407 — Welle 1.4a P2P-Offer-Fee auf 6% (= Markt) angleichen [Money/CEO]
 
 <!-- auto:handoff-end -->
 
@@ -33,6 +37,15 @@
 **➡️ NÄCHSTER (Anil-Wahl, Welle 1 Trading bis auf evtl. Rest durch):** (a) **Welle 2 Spieltag/Scoring** [Money] — nächste Domäne, größter Mock→Pro-Brocken (Scores an GW-Nummer statt Fixture-gebunden, Datenmodell-Integrität; `mock2pro-plan.md` Welle 2) · (b) 1.5/1.6 Trading-Rest falls noch offen. CTO-Empfehlung: **Welle 2 starten** (Domäne für Domäne). Money-Wellen = selbst (§3) + Live-`pg_get_functiondef` VOR Spec (D87) + Zero-Sum.
 
 **Offene Smell-Notiz (nicht gefixt, für später):** `get_club_balance` lumpt den IPO-85%-Erlös in den `trade_fees`-Bucket + i18n `ipo_fee`=„Erstverkauf-Gebühr" — „Gebühr" vs „Erlös" ist Wording/Bucket-Frage (Compliance/CEO), bewusst Scope-Out von 410.
+
+## ⏩ STAND 2026-06-27 (Teil 3) — Welle 1 e2e-Vollständigkeit (Anil: 1.5+1.6 schließen → dann Live-Walk)
+**Faktencheck gg. `mock2pro-plan.md`: Welle 1 war NICHT e2e-vollständig.** 1.1-1.4 ✅, aber **1.5 (MEDIUM-Cluster) + 1.6 (MEDIUM) offen**. Anil-Auftrag: erst 1.5+1.6 schließen, dann 1 zusammenhängender Live-e2e-Walk als Beweis.
+- ✅ **412 (1.5b+1.5f) DONE** (`ac51aab2`): Offers-Tab Roh-Key/Roh-Error-Leaks (useOffersState 5× + OffersTab 2×) → übersetzt/`showError`; `idempotency_pending`→`idempotencyPending` (+i18n DE/TR). Geldneutral, tsc 0, self-review PASS.
+- **NOCH OFFEN (faktenbasiert kartiert):**
+  - **1.5(a)** Rate-Limit tier-basiert · **1.5(c)** fee_config-Lookup angleichen · **1.5(d)** Menge-zu-viel (kappen vs ablehnen) · **1.5(e)** `price_change_24h` in allen Kaufwegen → **Money-RPC-Analyse** (`buy_player_sc`/`buy_from_order`/`accept_offer` Live-functiondef diffen; teils evtl. schon konsistent). Selbst (§3).
+  - **1.6** OrderDepthView: Empty-State existiert schon (`noOrdersForPlayer`); **offen = Best-Ask/Spread eigene Orders excludieren** (OrderDepthView.tsx:180-189; braucht `is_own` auf `getSellOrders`/`getAllOpenBuyOrders` — prüfen ob Service liefert).
+  - **1.5(b)-Rest:** „BSD"-Prosa IN Money-RPC-Bodies = intern (User sieht via mapErrorToKey nie roh) → Hygiene, optional.
+- **DANACH:** Live-e2e-Walk (IPO-Kauf → Markt-Kauf → Sell-Order → P2P-Gebot → annehmen → stornieren) auf bescout.net = Proof „Trading läuft vollständig".
 
 ---
 
