@@ -2,19 +2,25 @@
 
 ```
 status: in-progress
-slice: 428
-title: active_gameweek leagues=SSOT — Reader/Writer→leagues, Dual-Write+Drift-Audit raus (Expand-Phase) — GW-Fork 2/3 (A)
-size: L
+slice: 429
+title: finalizeGameweek entkoppeln — Score ≠ Advance (manueller Pfad scored, kein Liga-Advance) — GW-Fork 3/3 (B)
+size: M
 stage: PROVE (DONE) → LOG
-spec: worklog/specs/428-active-gameweek-leagues-ssot.md
-impact: inline (Vollscan in Spec §3 — alle clubs.active_gameweek-Reader/Writer gemappt)
-proof: worklog/proofs/428-rpc.txt
-review: worklog/reviews/428-review.md (reviewer-Agent PASS, 2 NIT — #1 gefixt)
-proof-summary: RPC functiondef kein-clubs-Write + ACL erhalten + Force-Rollback Round-Trip (leagues=12, clubs frozen=38) + Cron leagues-only (beide Advance) + getActiveGameweek→leagues + Drift-Audit entfernt. tsc 0 + 106 Tests.
-note: DROP COLUMN clubs.active_gameweek bewusst NICHT hier → 428b nach Vercel-Deploy-Verify (Anil Expand/Contract). Spalte bleibt frozen+unread (kein Runtime-Reader, Reviewer-verifiziert).
+spec: worklog/specs/429-finalize-decouple-advance.md
+impact: skipped (Removal eines Advance-Calls, kein Schema/Contract/Money-Flow-Change)
+proof: worklog/proofs/429-vitest.txt
+review: worklog/reviews/429-review.md (reviewer-Agent PASS, 3 NIT — #2/#3 gefixt)
+proof-summary: setActiveGameweek-Call aus finalize raus (nur Kommentar), scoreEvent unberührt (money-neutral), AdminGameweeksTab re-fetcht DB-Wahrheit, finalizeStep3 i18n truthful DE+TR. tsc 0 + 119 Tests + JSON-Gate.
+note: Money-NEUTRAL (entfernt setActiveGameweek-Call aus finalize; scoreEvent-Minting unberührt). CEO-Entscheid Anil: Entkoppeln. Liga-Advance bleibt Cron + AdminSettings.
 
-## Zuletzt-427
-- **Slice 427** (2026-06-27) — Gameweek-Status per-Liga (M, PASS, committed aeaaae4e).
+## GW-Fork-Fortschritt
+- **427** (C) Status per-Liga ✅ committed aeaaae4e, gepusht.
+- **428** (A) active_gameweek leagues=SSOT (Expand) ✅ committed 3d95d9f9, gepusht. **428b DROP** deferred (nach Deploy-Verify).
+- **429** (B) finalize entkoppeln — jetzt.
+
+## Zuletzt
+- **Slice 428** (2026-06-28) — active_gameweek leagues=SSOT Expand-Phase (L, PASS).
+- **Slice 427** (2026-06-27) — Gameweek-Status per-Liga (M, PASS).
 ```
 
 ## GW-Lifecycle-Per-Liga-Fork (CEO-Entscheid Anil 2026-06-27)

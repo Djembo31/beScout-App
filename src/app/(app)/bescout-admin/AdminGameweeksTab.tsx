@@ -46,7 +46,10 @@ export function AdminGameweeksTab() {
       const result = await simulateGameweekFlow(selectedClubId, gw, user?.id);
       if (result.success) {
         addToast(t('gwResult', { gw, fixtures: result.fixturesSimulated, events: result.eventsScored }), 'success');
-        setActiveGw(result.nextGameweek);
+        // Slice 429: Score ≠ Advance — der manuelle Pfad rückt den Liga-GW nicht mehr vor.
+        // DB-Wahrheit re-fetchen (unveränderter GW) statt optimistischem Sprung auf nextGameweek.
+        const { getActiveGameweek } = await import('@/lib/services/club');
+        setActiveGw(await getActiveGameweek(selectedClubId));
       } else {
         addToast(t('gwError', { errors: result.errors.join(', ') }), 'error');
       }

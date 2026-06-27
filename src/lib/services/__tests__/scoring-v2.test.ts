@@ -427,14 +427,15 @@ describe('Scoring Service v2', () => {
       expect(result.eventsScored).toBe(0);
     });
 
-    it('advances gameweek to next', async () => {
+    it('does NOT advance gameweek (Slice 429: Score ≠ Advance — decoupled)', async () => {
       setFromResponse('events', []);
 
       const { setActiveGameweek } = await import('@/lib/services/club');
 
       await finalizeGameweek(CLUB_ID, GW);
 
-      expect(setActiveGameweek).toHaveBeenCalledWith(CLUB_ID, GW + 1);
+      // Manueller Finalize scored nur — Liga-Advance besitzt Cron + AdminSettings (leagues=SSOT seit 428).
+      expect(setActiveGameweek).not.toHaveBeenCalled();
     });
 
     it('creates next gameweek events', async () => {

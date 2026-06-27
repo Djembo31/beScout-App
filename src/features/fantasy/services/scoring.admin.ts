@@ -202,11 +202,13 @@ export async function importProgressiveStats(
 }
 
 // ============================================
-// Finalize Gameweek (Score + Advance)
+// Finalize Gameweek (Score + Clone — KEIN Advance, Slice 429)
 // ============================================
 
 /**
- * Finalize a gameweek: score events, create next GW events, advance GW.
+ * Finalize a gameweek: score events + create next GW events.
+ * Slice 429 (Score ≠ Advance): rückt den Liga-GW NICHT mehr vor — das besitzen
+ * Cron (automatisch) + die explizite setActiveGameweek-Admin-Aktion (leagues=SSOT seit 428).
  * Should only be called once when all fixtures are finished.
  */
 export async function finalizeGameweek(
@@ -263,14 +265,12 @@ export async function finalizeGameweek(
     errors.push(`Nächster GW Events: ${e instanceof Error ? e.message : 'Fehler'}`);
   }
 
-  // 5. Advance active_gameweek
+  // 5. Slice 429 — Score ≠ Advance: der manuelle Finalize rückt den Liga-GW NICHT mehr vor.
+  // Ein Club-Admin scored seinen Club; den liga-weiten GW-Advance besitzen Cron (automatisch)
+  // + die explizite setActiveGameweek-Admin-Aktion (AdminSettings, leagues=SSOT seit 428).
+  // Verhindert, dass ein Club-Finalize die un-gescorten Events anderer Liga-Clubs überspringt.
+  // nextGw bleibt = GW, zu dem createNextGameweekEvents geklont hat (prepare-ahead).
   const nextGw = gameweek + 1;
-  const { setActiveGameweek } = await import('@/lib/services/club');
-  try {
-    await setActiveGameweek(clubId, nextGw);
-  } catch (e) {
-    errors.push(`GW advance: ${e instanceof Error ? e.message : 'Fehler'}`);
-  }
 
   // 6. Bust API cache
   try { await fetch('/api/events?bust=1'); } catch { /* best-effort */ }
@@ -293,7 +293,7 @@ export async function simulateGameweekFlow(clubId: string, gameweek: number, adm
   // Step 1: Import + Sync
   const importResult = await importProgressiveStats(clubId, gameweek, adminId);
 
-  // Step 2: Finalize (Score + Advance)
+  // Step 2: Finalize (Score + Clone — kein Advance, Slice 429)
   const finalResult = await finalizeGameweek(clubId, gameweek, adminId);
 
   return {

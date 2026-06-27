@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 429 | 2026-06-28 | refactor(fantasy): finalizeGameweek entkoppeln — Score ≠ Advance (GW-Fork 3/3, B) [Money-neutral]
+- Stage-Chain: SPEC (`specs/429-…`, M) → IMPACT (skipped: Removal eines Advance-Calls) → BUILD (selbst) → REVIEW reviewer-Agent **PASS** (`reviews/429-review.md`, 3 NIT — #2/#3 gefixt) → PROVE (`proofs/429-vitest.txt`) → LOG. **CEO-Entscheid Anil 2026-06-28: Entkoppeln (Score ≠ Advance).**
+- **Teil 3/3 GW-Fork** (Recon `gameweek-engine-recon.md`). Riss 2 = finalize club-scoped, advance liga-weit. **Bug:** seit 428 rückte der manuelle `finalizeGameweek` (1 Club gescored) via `setActiveGameweek` die GANZE Liga vor → überspringt un-gescorte Events anderer Liga-Clubs (Bundesliga 2 Clubs live) = verwaiste, un-gemintete Rewards.
+- **Fix (money-NEUTRAL):** `setActiveGameweek`-Aufruf aus `finalizeGameweek` Schritt 5 entfernt — der manuelle Pfad scored + klont nur. **Liga-Advance besitzen jetzt ausschließlich** Cron `gameweek-sync` (automatisch, eigene Logik) + explizite `setActiveGameweek`-Admin-Aktion (AdminSettings, leagues=SSOT seit 428). `scoreEvent`/`score_event`-RPC/Notifications/Clone **unberührt** (PATCH-AUDIT: nur Advance-Block raus).
+- **Consumer:** `AdminGameweeksTab` re-fetcht `getActiveGameweek` (DB-Wahrheit, S368b) statt optimistischem `setActiveGw(result.nextGameweek)`-Sprung. `SpieltagTab` unberührt (nutzt `eventsScored`). **i18n-Truthfulness:** `finalizeStep3` DE+TR von „Spieltag wird vorgerückt" → „Wechsel erfolgt automatisch nach Spielende (nicht durch diesen Schritt)"; Step1 (score)+Step2 (clone) bleiben wahr.
+- **Proof:** grep setActiveGameweek=nur-Kommentar + scoreEvent-4-Refs unverändert + AdminGameweeksTab re-fetch + Test invertiert (`not.toHaveBeenCalled`) + JSON-Gate + tsc 0 + 119 Tests (scoring-v2/events-v2/SpieltagTab).
+- **Wissens-Kopplung (D88):** `.claude/rules/fantasy.md` Spieltag-Lifecycle — GW per-Liga (427-429) + „advance pfad-abhängig: manueller Finalize score-only, Advance = Cron + AdminSettings".
+- **Files:** scoring.admin.ts + AdminGameweeksTab.tsx + messages/de+tr.json + scoring-v2.test.ts (EDIT) + fantasy.md (Wissen).
+
 ## 428 | 2026-06-28 | refactor(fantasy): active_gameweek leagues=SSOT (GW-Fork 2/3, A — Expand-Phase) [Money-nah]
 - Stage-Chain: SPEC (`specs/428-…`, L) → IMPACT (inline Vollscan §3) → BUILD (Migration + Service + Cron + Tooling-Removal) → REVIEW reviewer-Agent **PASS** (`reviews/428-review.md`, 2 NIT — #1 gefixt) → PROVE (`proofs/428-rpc.txt`) → LOG. **CEO-approved + Sequenz-Entscheid Anil 2026-06-27: Expand/Contract, DROP defer.**
 - **Teil 2/3 GW-Fork** (Recon `worklog/notes/gameweek-engine-recon.md`). Riss 1 = `active_gameweek` doppelt (clubs + leagues, 3 Dual-Write-Konventionen = D111-Wurzel #1). **Expand-Phase:** alle Reader/Writer → `leagues.active_gameweek` (SSOT), Dual-Write-Fragilität weg.

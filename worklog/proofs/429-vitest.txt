@@ -1,0 +1,44 @@
+=== Slice 429 PROVE — finalizeGameweek entkoppeln (Score ≠ Advance) ===
+Datum: 2026-06-28 · Money-NEUTRAL (Removal eines Advance-Writes, scoreEvent unberührt)
+
+[AC-01] finalizeGameweek ruft setActiveGameweek NICHT mehr
+-----------------------------------------------------------------
+  grep setActiveGameweek scoring.admin.ts → nur Z.268 (Kommentar), 0 Calls  ✅
+  Test invertiert: "does NOT advance gameweek" → setActiveGameweek not.toHaveBeenCalled()
+
+[AC-03] Money-Pfad unberührt
+-----------------------------------------------------------------
+  scoreEvent/score_event-Refs in scoring.admin.ts = 4 (unverändert)
+  git diff: nur Schritt-5-Block (Advance) entfernt, scoreEvent/Notifications/score_event-RPC intakt
+
+[AC-02] Scoring + Clone unverändert
+-----------------------------------------------------------------
+  scoring-v2-Tests: score_event für Events mit entries, createNextGameweekEvents aufgerufen → grün
+
+[AC-04] AdminGameweeksTab springt nicht falsch vor
+-----------------------------------------------------------------
+  AdminGameweeksTab Z.51-52: nach sim re-fetch getActiveGameweek(selectedClubId) statt setActiveGw(result.nextGameweek)
+  → zeigt DB-Wahrheit (unveränderter GW)
+
+[i18n-Truthfulness] finalizeStep3 (DE+TR)
+-----------------------------------------------------------------
+  war: "Spieltag wird auf {nextGw} vorgerückt" / "Hafta {nextGw} olarak ilerletilir"
+  neu: "Der Wechsel auf Spieltag {nextGw} erfolgt automatisch nach Spielende (nicht durch diesen Schritt)"
+       "Hafta {nextGw} geçişi maçlardan sonra otomatik olur (bu adımla değil)"
+  finalizeStep1 (score) + finalizeStep2 (clone next events) bleiben wahr.
+
+[AC-05] tsc + Tests + JSON
+-----------------------------------------------------------------
+  node JSON.parse de+tr → OK (S399-Gate)
+  npx tsc --noEmit → 0 errors
+  vitest scoring-v2 + events-v2 + SpieltagTab → 3 Files / 119 Tests PASS
+
+[git diff --stat]
+-----------------------------------------------------------------
+  scoring.admin.ts (-Advance-Block) · AdminGameweeksTab.tsx (re-fetch) · scoring-v2.test.ts (invert)
+  · messages/de+tr.json (finalizeStep3 truthful). 5 Files, +14/-12.
+
+[SCOPE-OUT]
+-----------------------------------------------------------------
+  Liga-scoped finalize (alle Clubs) → verworfen (Anil: Decouple)
+  nextGw>38-Hardcode in createNextGameweekEvents → eigener 38-Klassen-Fix, nicht hier

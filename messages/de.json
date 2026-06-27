@@ -4026,7 +4026,7 @@
     "finalizeStep1": "Events werden gescored und Rankings erstellt",
     "finalizeStep1Simple": "Events werden gescored und Ergebnisse stehen fest",
     "finalizeStep2": "Events für Spieltag {nextGw} werden automatisch erstellt",
-    "finalizeStep3": "Spieltag wird auf {nextGw} vorgerückt",
+    "finalizeStep3": "Der Wechsel auf Spieltag {nextGw} erfolgt automatisch nach Spielende (nicht durch diesen Schritt)",
     "finalizeWarning": "Dieser Schritt kann nicht rückgängig gemacht werden. Stelle sicher, dass alle Fixtures importiert sind.",
     "finalizeNowBtn": "Jetzt auswerten",
     "importResult": "{fixtures} Fixtures, {scores} Scores",

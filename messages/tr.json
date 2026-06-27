@@ -4026,7 +4026,7 @@
     "finalizeStep1": "Etkinlikler puanlanır ve sıralama oluşturulur",
     "finalizeStep1Simple": "Etkinlikler puanlanır ve sonuçlar belirlenir",
     "finalizeStep2": "Hafta {nextGw} için etkinlikler otomatik oluşturulur",
-    "finalizeStep3": "Hafta {nextGw} olarak ilerletilir",
+    "finalizeStep3": "Hafta {nextGw} geçişi maçlardan sonra otomatik olur (bu adımla değil)",
     "finalizeWarning": "Bu adım geri alınamaz. Tüm maçların içe aktarıldığından emin olun.",
     "finalizeNowBtn": "Şimdi Değerlendir",
     "importResult": "{fixtures} Maç, {scores} Puan",

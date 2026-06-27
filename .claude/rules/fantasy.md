@@ -48,6 +48,7 @@ close → simulate → score → clone → advance
 ```
 - `simulateGameweekFlow()` verarbeitet ALLE Events eines GW zusammen
 - Kein einzelnes Event scoren (ADR-012)
+- **GW-Lifecycle ist per-Liga (GW-Fork 427-429, CEO-Entscheid 2026-06-27/28):** der Gameweek ist ein **Liga**-Konzept; `leagues.active_gameweek` = SSOT (Slice 428, `clubs.active_gameweek` frozen → 428b DROP). Status-Views liga-gefiltert + `1..max_gameweeks` statt `1..38` (Slice 427). **`advance` ist pfad-abhängig (Slice 429, „Score ≠ Advance"):** der **manuelle** `finalizeGameweek`/`simulateGameweekFlow` (SpieltagTab/AdminGameweeksTab) scored + klont nur — er rückt den Liga-GW NICHT mehr vor (sonst überspringt ein Club-Finalize die un-gescorten Events anderer Liga-Clubs = verwaiste Rewards). **Liga-Advance besitzen ausschließlich:** der Cron `gameweek-sync` (automatisch, eigene `set_active_gameweek`-Logik) + die explizite `setActiveGameweek`-Admin-Aktion (AdminSettings, liga-weit). `set_active_gameweek`-RPC schreibt leagues-only + Guard `>max_gameweeks`.
 
 ## Cross-Domain (bei Bedarf nachladen)
 - **Gamification:** Manager Points nach Scoring (Percentile → Elo), Achievements (event_winner, podium_3x) → `gamification.md`
