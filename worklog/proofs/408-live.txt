@@ -1,0 +1,29 @@
+Slice 408 — post-Deploy Playwright LIVE (bescout.net) — AC-7 PASS
+Datum: 2026-06-27 · Player Douglas Willian (1cc3f504…, hat Sell-Orders → Markt-Sektion rendert)
+Methode: DOM-Evaluate gegen Live (konklusiv wie S405; PNGs gitignored). Session jarvis/ali persistiert. Trading-Tab „Handel" aktiv.
+
+── DE (Locale de) ──
+  NEW „Marktplatz · sofort kaufbar"          = true  ✅
+  NEW „Günstigstes Angebot wird sofort gekauft" = true ✅ (Markt-Subtitle)
+  NEW „Kaufgebote"                            = true  ✅ (P2P-Sektion)
+  NEW „Kaufgebot abgeben"                     = true  ✅ (Button)
+  NEW „Dein Gebot …"                          = true  ✅ (P2P-Subtitle)
+  OLD „User-Angebote"                         = false ✅ (weg)
+  OLD „Kaufangebot machen"                    = false ✅ (weg)
+  OLD „Aktive Angebote" (tote Sektion 6)      = false ✅ (weg)
+  Roh-Key playerDetail.*                      = false ✅ (kein MISSING_MESSAGE)
+  Console-Errors                              = 0     ✅
+
+── TR (Locale tr) ──
+  locale TR aktiv (Performans/Topluluk/Ticaret) = true ✅
+  NEW „hemen al" (Transfer Piyasası · hemen al) = true ✅
+  NEW „Alım teklifleri"                         = true ✅
+  NEW „En düşük fiyat anında alınır"            = true ✅ (Markt-Subtitle TR)
+  NEW „Senin teklifin …"                        = true ✅ (P2P-Subtitle TR)
+  OLD „Kullanıcı Teklifleri"                    = false ✅ (weg)
+  Roh-Key playerDetail.*                        = false ✅
+  Console-Errors                                = 0    ✅
+
+FAZIT: Markt-Sektion liest klar „sofort kaufbar", P2P-Sektion klar „Kaufgebote/Verhandlung" —
+distinkt in DE+TR, tote Sektion 6 weg, kein Roh-Key, kein Console-Error. AC-1..AC-7 ALLE PASS.
+Slice 408 voll-DONE.

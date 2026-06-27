@@ -1,15 +1,15 @@
 # Active Slice
 
 ```
-status: active
+status: idle
 slice: 408
-title: Welle 1.4b — Trading-Vokabular entwirren: Markt (sofort) vs Kaufgebot (P2P)
+title: Welle 1.4b — Trading-Vokabular entwirren: Markt (sofort) vs Kaufgebot (P2P) — DONE
 size: S (UI/i18n — kein Money; Wording-Klarheit + tote Sektion-6 raus)
-stage: PROVE
+stage: LOG (DONE)
 spec: worklog/specs/408-trading-vocab-clarity.md
 impact: skipped (reine Label/i18n + 1 toter Render-Block; Consumer §4 gegreppt)
 proof: worklog/proofs/408-i18n.txt
-proof-note: JSON OK, Key-Parität 8/8 DE+TR, Compliance clean, tsc 0, 24 Tests. post-Deploy Playwright (408-live.txt) ausstehend.
+proof2: worklog/proofs/408-live.txt — post-Deploy Playwright DE+TR LIVE PASS (neue Labels rendern, alte+tote Sektion 6 weg, kein Roh-Key, 0 Console-Errors)
 review: worklog/reviews/408-review.md — self-review PASS (S UI/i18n, kein Money, Compliance-geprüft)
 ```
 
