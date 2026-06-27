@@ -9,7 +9,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **Geldneutral:** keine RPC/Migration/Service-Logic — nur welcher String im Toast erscheint.
 - **Beweis (`proofs/412-error-display.txt`):** tsc exit 0 · JSON-Gate de+tr valid · grep 0 Roh-Leak-Treffer · idempotency_pending≠generic.
 - **Scope-Out (gemeldet):** 1.5(a) rate-limit · (c) fee_config · (d) qty-too-much · (e) price_change_24h = Money-RPC-Analyse, separat. 1.5(b)-RPC-interne „BSD"-Prosa = Hygiene (nie roh user-facing). 1.6 Empty-State existiert schon; offen = Best-Ask/Spread Own-Order-Exclusion.
-- Commit: <pending>
+- Commit: ac51aab2
 
 ## 411 | 2026-06-27 | docs(trading): Welle 1.4d — Buy-Limit gated + Fork-B im Flag-Kommentar verankert (stale geheilt) [Doc/Ops]
 - Stage-Chain: SPEC inline (active.md, XS Doc) → IMPACT skipped (Comment-only) → BUILD (featureFlags.ts Kommentar) → REVIEW self-review (Ops, kein Money/Security) → PROVE (Live-Query) → LOG.
