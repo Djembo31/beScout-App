@@ -103,8 +103,11 @@ export function PlayerPicker({
     const nextFix = clubId ? nextFixturesMap?.get(clubId) : undefined;
     const oppAvgL5 = nextFix ? getClubAvgL5(nextFix.opponentClubId, allPlayers) : 0;
     const playerClubKey = player.clubId ?? player.club;
+    // Slice 424: Server vergibt flat +5 % pro Verein mit ≥2 Spielern (score_event).
+    // hasSynergy = Verein schon im Lineup (clubId-keyed seit 423) → dieser Spieler
+    // gehört zu einem +5 %-Synergie-Verein. (Exakte Lineup-Summe zeigt das Banner.)
     const hasSynergy = synergyClubs.includes(playerClubKey) && !isSelected;
-    const synergyPct = hasSynergy ? synergyClubs.filter(c => c === playerClubKey).length * 4 : null;
+    const synergyPct = hasSynergy ? 5 : null;
 
     let rowState: 'default' | 'selected' | 'locked' | 'deployed' | 'injured' | 'suspended' = 'default';
     if (fixtureLocked) rowState = 'locked';

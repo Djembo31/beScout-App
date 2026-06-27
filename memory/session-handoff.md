@@ -1,25 +1,29 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 21:02)
+# Session Handoff — Auto (2026-06-27 21:42)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 12 Files
+## Uncommitted Changes: 15 Files
 ```
  M .claude/rules/fantasy.md
  M memory/session-handoff.md
- M src/components/fantasy/PickerSortFilter.tsx
  M src/components/fantasy/event-tabs/LineupPanel.tsx
  M src/components/fantasy/event-tabs/useLineupPanelState.ts
  M src/features/fantasy/components/lineup/LineupBuilder.tsx
  M src/features/fantasy/components/lineup/PlayerPicker.tsx
+ M src/features/fantasy/components/lineup/SynergyPreview.tsx
+ M src/features/fantasy/hooks/useLineupBuilder.ts
+ M src/types/index.ts
  M worklog/active.md
  M worklog/log.md
-?? worklog/proofs/423-picker-uuid.txt
-?? worklog/reviews/423-review.md
-?? worklog/specs/423-picker-club-identity-uuid.md
+?? src/types/__tests__/
+?? worklog/proofs/424-synergy-parity.txt
+?? worklog/reviews/424-review.md
+?? worklog/specs/424-synergy-preview-server-parity.md
 ```
 
 ## Session Commits: 10
+- 428e70fb fix(fantasy): Slice 423 — Picker-Club-Identität durchgängig auf UUID (Filter + Synergie) [W2-Cleanup]
 - 12e3477f docs(log): Slice 422 DONE — Live-verified Bostan→Konyaspor + BAY-Kollision (proof finalize, *.png force-add)
 - 7e81487e fix(fantasy): Slice 422 — FantasyPlayerRow Club-Logo+Name aus UUID statt Freitext/Short [W2-Cleanup]
 - d44f79d5 docs(proof): Slice 421 — Live-Screenshot Bundesliga GW34 Next-Button [disabled] (force-add, *.png-ignore)
@@ -29,7 +33,6 @@
 - 9248ef38 fix(fantasy): Slice 420 — Heim/Auswärts + FDR über Club-UUID statt Short-String/Majority-Vote [W2.3]
 - 3a5e43f7 docs(distill): D113 + Session-Close — Welle 2.1+2.2 (Slice 419) verankert, Stale/Widersprüche geglättet
 - 637c8140 feat(scoring): Slice 419 — player_gameweek_scores fixture-gebunden + score_event liga-bewusst [W2.1+2.2]
-- be068a2a docs(handoff): Session-Close 2026-06-27 — Stale/Widersprüche geglättet
 
 <!-- auto:handoff-end -->
 
@@ -37,6 +40,8 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 STAND 2026-06-27 (Abend 9) — WELLE-2-CLEANUP: Slice 424 DONE, committed+gepusht, `main`==`origin/main`, `active.md`=idle.** **Synergie-Vorschau == Server** (CEO-Entscheid Anil: Synergie BEHALTEN). Die Client-Synergie divergierte 3-fach vom Server (`score_event`, functiondef D87 = **flat +5 % pro distinct club_id mit ≥2 Spielern, LEAST 15, Surge ×2**): (1) Banner-Rechner `calculateSynergyPreview` nutzte `h.club`-Freitext (423 erfasste nur die Picker, nicht den Banner), (2) Formel `5×(count−1)` überzeichnete (3 Spieler = 10 % statt 5 %), (3) `count` fehlte. **Fix (rein Display, `score_event` UNBERÜHRT, kein Migration):** `calculateSynergyPreview({id,name}[])` server-exakt + clubId + count; Banner `×${count}`; Row-Pill flat `5`. **Reviewer-Korrektur (selbst verifiziert):** ALLE Synergie-Banner — Bau UND Scored — lesen den Client-Rechner (`grep synergy_bonus_pct` = 0 Render-Consumer), NICHT das gesettelte Server-Feld → der Fix macht alle server-treu. NEU permanenter Unit-Test (6 Server-Spiegel-ACs). Surge ×2 = Scope-Out (Chip-State nicht im Builder). Spec `424-…`, Proof `424-synergy-parity.txt`, Review `424-review.md` (CONCERNS→adressiert). **➡️ NÄCHSTER — (CEO-Vorlagen, NICHT autonom):** (1) **Admin-Gameweek-Engine** (war „Admin-38"): inkohärent liga-gescoped — `finalizeGameweek` club-scoped (`WHERE club_id`) vs `importProgressiveStats`→`syncFixtureScores(gw)` global pro GW-Nummer; `getFullGameweekStatus` global+1..38. Nach 419/421 inkohärent, Money-Path → Architektur-Entscheid „GW-Lifecycle vollständig per-Liga?". (2) **Ranking-Konsolidierung** `scout_scores`↔`user_stats`. (3) **Welle 3** (Lineup-Datenmodell-Fork). **(CTO-autonome Folge-Smells, klein):** (a) **Scored-Fantasy-View an echtes Server-`synergy_bonus_pct` binden** (inkl. Surge — zeigt sonst Client-Approximation; money-neutral, aus 424-Review); (b) ScoreBreakdown/Scored-Labels auf `getClub(clubId).name` (player.club-Freitext); (c) `KaderTab`/KaderToolbar-Filter gleicher String-Smell.
+>
 > **🟢 STAND 2026-06-27 (Abend 8) — WELLE-2-CLEANUP: Slice 423 DONE, committed+gepusht, `main`==`origin/main`, `active.md`=idle.** Picker-Club-Identität durchgängig auf **UUID** — vollendet 422. Nach 422 zeigte die Row den Club per club_id (Bostan→Konyaspor), aber der Picker gruppierte **Filter-Chips** + **Synergie-Vorschau** noch nach stale `players.club`-Freitext. **Faktenbasiert (Live-`functiondef` D87):** `score_event` rechnet Synergie schon serverseitig per `club_id` (`v_club_ids UUID[]`, +5 %/Paar) → die Client-String-Vorschau **divergierte** für die 6,6 % stale Spieler vom echten Scoring. **Fix (rein Display, `score_event` UNBERÜHRT — kein Migration im Diff):** einheitlicher Key `h.clubId ?? h.club` über Chip-ID/Filter-Anwendung/boundLeague-Vorfilter + Synergie; PickerSortFilter-Chip `{id,label,logo}` (Key≠Label, S276-Wurzel). 5 Files + toter LineupBuilder-`availableClubsList`-useMemo aufgeräumt. Reviewer **PASS** (2 INFO Scope-Out). Proof tsc 0 + 110 Tests + diff (5 TS, kein Migration) + functiondef + grep. Spec `423-…`, Proof `423-picker-uuid.txt`, Review `423-review.md`. **➡️ NÄCHSTER — (CEO-Vorlagen, NICHT autonom):** (1) **Admin-Gameweek-Engine** (war „Admin-38"): inkohärent liga-gescoped — `finalizeGameweek` scored Events **club-scoped** (`WHERE club_id`), aber `importProgressiveStats`→`syncFixtureScores(gw)` synct **global pro GW-Nummer**; `getFullGameweekStatus` global+1..38. Nach 419/421 (fixture/liga-gebunden) inkohärent, Money-Path (`scoreEvent` mintet) → Architektur-Entscheid „GW-Lifecycle vollständig per-Liga?". (2) **Ranking-Konsolidierung** `scout_scores`↔`user_stats` (Quelle-Entscheid). (3) **Welle 3 (Events/Aufstellung)** (Lineup-Datenmodell-Fork). **(CTO-autonome Folge-Smells, klein):** (a) Synergie-Vorschau-Magnitude == Server (Set-dedup → faktisch immer 4 %, Server 5 %/Surge/Cap); (b) ScoreBreakdown-Labels auf `getClub(clubId).name`; (c) `KaderTab`/KaderToolbar-Filter gleicher String-Smell.
 >
 > **🟢 STAND 2026-06-27 (Abend 7) — WELLE-2-CLEANUP: Slice 422 DONE, committed+gepusht (`7e81487e`), `main`==`origin/main`, `active.md`=idle.** FantasyPlayerRow Club-Logo+Name aus **zuverlässiger Quelle** (UUID/aufgelöstes Logo) statt unzuverlässigem String — schließt den in fantasy.md/Slice 420 vermerkten Display-Rest (S276). **2 Logos, gleicher Anti-Pattern, gebatcht (Anil „gleichartige batchen"):** (A) **Gegner** `getClub(opponentShort)` → BAY-Kollision (Leverkusen↔Bayern same-league Bundesliga, `getClub` returnt null) → Fix: bereits per UUID-Join aufgelöstes `NextFixtureInfo.opponentLogoUrl` (Slice 420) direkt rendern. (B) **Eigen** `getClub(players.club)` = stale Freitext → **DB-belegt 294/4472 Spieler (6,6 %) falsches Logo** (z.B. Amine Adli `players.club`="Bournemouth" vs wahr Bayer Leverkusen) → Fix: `getClub(player.clubId)` (UUID) für Logo **und** Name-Text (Konsistenz), Fallback auf String wenn clubId null. **4 Render-Sites** (PlayerPicker, LineupBuilder, useLineupPanelState=2 LineupPanel) durchgereicht — required `opponentLogoUrl`-Prop fand die 2 LineupPanel-Sites via tsc (sonst S149b-Blindspot). Reviewer **PASS** (Finding #1 mit-gefixt: aufgelöste `clubId ?? player.clubId` statt rohe durchgereicht). **PROVE:** tsc 0 + 110 Tests + DB-Vorher/Nachher + **Live bescout.net (jarvis-qa): Melih Bostan rendert „Konyaspor"+Logo+SL-Badge statt stale „Sakaryaspor"** (`proofs/422-event-player-list-live.png`) + BAY-Kollision live (`422-bay-collision-fixtures.png`). Spec `422-…`, Proof `422-club-identity.txt`, Review `422-review.md`. **➡️ NÄCHSTER (CTO-Empf.):** (1) **Admin-38-Hardcodes** (`getFullGameweekStatus` scoring.queries.ts:415 loopt global 1..38 + `useClubEventsData getGameweekStatuses(1,38)` → braucht leagueId-Param; gemeldeter Smell aus 421). (2) **Folge-Smell aus 422 (Reviewer-INFO):** `availableClubsList`-Filter-Logos (PlayerPicker:79/LineupBuilder:165/useLineupPanelState:105) + Synergy-Gruppierung nutzen weiter `getClub(short)`/`player.club`-Freitext = gleiche Klasse. (3) **Ranking-Konsolidierung** `scout_scores`↔`user_stats` [money-nah, CEO-Quelle-Entscheid] ODER **Welle 3 (Events/Aufstellung)** [Money/CEO-Architektur-Fork]. Smells 1+2 = CTO-autonom; Ranking/Welle 3 = CEO-Vorlage.

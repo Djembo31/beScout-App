@@ -878,22 +878,37 @@ export type DbPlatformSetting = {
 // SYNERGY TYPES
 // ============================================
 
-export type SynergyDetail = { type: 'club'; source: string; bonus_pct: number };
+export type SynergyDetail = { type: 'club'; source: string; bonus_pct: number; count?: number };
 
-/** Client-side preview: detect club duos in lineup and calculate synergy bonus */
-export function calculateSynergyPreview(clubs: string[]): { totalPct: number; details: SynergyDetail[] } {
-  const counts = new Map<string, number>();
-  for (const c of clubs) counts.set(c, (counts.get(c) || 0) + 1);
+/**
+ * Client-side preview of the server synergy bonus — Slice 424.
+ * Mirrors score_event EXACTLY (Live-functiondef, D87): for each distinct
+ * club_id with >= 2 lineup players → +5% (flat, NOT scaled by count),
+ * total capped at 15% (Math.min(15, …)). Input keyed by club_id (UUID) so the
+ * preview matches the server (which uses players.club_id), not the stale
+ * players.club freetext (S368b). `source` = resolved club name for display,
+ * `count` = real player count (drives the "×N" chip in the banner).
+ * NOTE: the synergy_surge chip doubles this server-side at settle (LEAST 30) —
+ * not previewed here (chip state not available in the builder).
+ */
+export function calculateSynergyPreview(
+  clubs: { id: string; name: string }[],
+): { totalPct: number; details: SynergyDetail[] } {
+  const groups = new Map<string, { name: string; count: number }>();
+  for (const c of clubs) {
+    if (!c.id) continue;
+    const g = groups.get(c.id);
+    if (g) g.count += 1;
+    else groups.set(c.id, { name: c.name, count: 1 });
+  }
   const details: SynergyDetail[] = [];
   let totalPct = 0;
-  Array.from(counts.entries()).forEach(([club, count]) => {
+  groups.forEach(({ name, count }) => {
     if (count >= 2) {
-      const pct = Math.min(5 * (count - 1), 15);
-      details.push({ type: 'club', source: club, bonus_pct: pct });
-      totalPct += pct;
+      details.push({ type: 'club', source: name, bonus_pct: 5, count });
+      totalPct = Math.min(15, totalPct + 5);
     }
   });
-  totalPct = Math.min(totalPct, 15);
   return { totalPct, details };
 }
 

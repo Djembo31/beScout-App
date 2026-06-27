@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useCallback, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { calculateSynergyPreview } from '@/types';
+import { getClub } from '@/lib/clubs';
 import { useLineupStore, type BenchSlotKey } from '../store/lineupStore';
 import { getFormationsForFormat, getDefaultFormation, buildSlotDbKeys } from '../constants';
 import { getLineup } from '@/lib/services/lineups';
@@ -222,9 +223,17 @@ export function useLineupBuilder({
   );
 
   const synergyPreview = useMemo(() => {
+    // Slice 424: nach club_id (UUID) gruppieren wie score_event (Server-Wahrheit),
+    // nicht nach stale players.club; name = aufgelöster Verein fürs Display.
     const clubs = selectedPlayers
-      .map((sp) => effectiveHoldings.find((h) => h.id === sp.playerId)?.club)
-      .filter(Boolean) as string[];
+      .map((sp) => {
+        const h = effectiveHoldings.find((eh) => eh.id === sp.playerId);
+        if (!h) return null;
+        const id = h.clubId ?? h.club;
+        if (!id) return null;
+        return { id, name: getClub(h.clubId ?? '')?.name ?? h.club };
+      })
+      .filter(Boolean) as { id: string; name: string }[];
     return calculateSynergyPreview(clubs);
   }, [selectedPlayers, effectiveHoldings]);
 

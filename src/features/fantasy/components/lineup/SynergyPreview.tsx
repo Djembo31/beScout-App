@@ -166,7 +166,7 @@ export function SynergyPreview({
           <div className="flex-1 min-w-0">
             <span className="text-xs text-sky-300 font-bold">Synergy +{synergyPreview.totalPct}%</span>
             <span className="text-xs text-white/40 ml-2">
-              {synergyPreview.details.map(d => `${d.source} \u00d7${Math.ceil(d.bonus_pct / 5) + 1}`).join(', ')}
+              {synergyPreview.details.map(d => `${d.source} \u00d7${d.count ?? Math.ceil(d.bonus_pct / 5) + 1}`).join(', ')}
             </span>
           </div>
         </div>
