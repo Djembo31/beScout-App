@@ -19,6 +19,9 @@ interface FantasyPlayerRowProps {
     last: string;
     pos: Pos;
     club: string;
+    /** Slice 422: Club-UUID = zuverlässiger Logo/Name-Anker. `players.club` (String)
+     *  ist für 6,6 % der Spieler stale ggü. club_id (S368b). Fallback auf `club` wenn null. */
+    clubId?: string | null;
     imageUrl?: string | null;
     ticket: number;
     status: string;
@@ -38,6 +41,9 @@ interface FantasyPlayerRowProps {
   nextFixture?: {
     opponentShort: string;
     opponentName: string;
+    /** Slice 422: per UUID-Join aufgelöstes Gegner-Logo (Slice 420). Ersetzt
+     *  getClub(opponentShort) — Shorts kollidieren (BAY = Leverkusen↔Bayern, S276). */
+    opponentLogoUrl: string | null;
     isHome: boolean;
   } | null;
   opponentAvgL5: number;
@@ -68,8 +74,11 @@ const FantasyPlayerRow = React.memo(function FantasyPlayerRow({
 }: FantasyPlayerRowProps) {
   const t = useTranslations('fantasy');
   const tint = posTintColors[player.pos];
-  const clubData = getClub(player.club);
-  const opponentClub = nextFixture ? getClub(nextFixture.opponentShort) : null;
+  // Slice 422: Club-Identität aus zuverlässiger Quelle — eigenes Logo/Name über
+  // club_id (UUID), nicht den stale Freitext `players.club` (S368b). Fallback auf
+  // den String nur wenn clubId fehlt. Gegner-Logo kommt fertig aufgelöst aus
+  // NextFixtureInfo.opponentLogoUrl (Slice 420, UUID-Join) — kein getClub(short) mehr (S276).
+  const clubData = player.clubId ? getClub(player.clubId) : getClub(player.club);
 
   // Slice 198d F-13: Form-Trend Δ — perfL5 (current 5) vs perfL15 (season L15 baseline).
   // Pattern wie LineupPanel.tsx:882. Wenn beide >0, zeige Δ als +/- Prozent.
@@ -149,7 +158,7 @@ const FantasyPlayerRow = React.memo(function FantasyPlayerRow({
               <Image src={clubData.logo} alt="" width={16} height={16}
                 className="size-4 shrink-0" aria-hidden="true" />
             )}
-            <span className="text-xs text-white/50">{player.club}</span>
+            <span className="text-xs text-white/50">{clubData?.name ?? player.club}</span>
             {player.leagueShort && (
               <LeagueBadge
                 logoUrl={player.leagueLogoUrl}
@@ -165,8 +174,8 @@ const FantasyPlayerRow = React.memo(function FantasyPlayerRow({
             {nextFixture ? (
               <>
                 <span>{t('vsLabel')}</span>
-                {opponentClub?.logo && (
-                  <Image src={opponentClub.logo} alt="" width={14} height={14}
+                {nextFixture.opponentLogoUrl && (
+                  <Image src={nextFixture.opponentLogoUrl} alt="" width={14} height={14}
                     className="size-3.5 shrink-0" aria-hidden="true" />
                 )}
                 <span className="text-white/50">{nextFixture.opponentShort}</span>

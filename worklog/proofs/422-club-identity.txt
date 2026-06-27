@@ -1,0 +1,55 @@
+PROOF — Slice 422: FantasyPlayerRow Club-Identität (eigen + Gegner) aus zuverlässiger Quelle
+Datum: 2026-06-27 · Projekt: skzjfhvgccaeplydsunz (beScout-App)
+
+═══════════════════════════════════════════════════════════════════
+1. BUILD-Gate
+═══════════════════════════════════════════════════════════════════
+$ npx tsc --noEmit
+  → exit 0 (grün) — alle 4 Aufrufer-Stellen (required opponentLogoUrl-Prop = Sicherheitsnetz)
+    LineupPanel.tsx 878/1047 wurden NUR durch tsc gefunden (sonst übersehen).
+
+$ CI=true npx vitest run src/components/fantasy src/features/fantasy/components/lineup
+  → Test Files 13 passed (13) · Tests 110 passed (110)
+
+$ grep -n "getClub(" src/components/fantasy/FantasyPlayerRow.tsx
+  → einziger echter Aufruf: Z.81 getClub(player.clubId) : getClub(player.club)  [UUID + Fallback]
+  → KEIN getClub(opponentShort) mehr (AC-6 erfüllt).
+
+═══════════════════════════════════════════════════════════════════
+2. DATEN-EVIDENZ (Vorher/Nachher, deploy-unabhängig)
+═══════════════════════════════════════════════════════════════════
+
+— Aggregat (eigenes Logo) —
+  distinct_club_strings = 380, alle matchen einen clubs.name (eindeutig, 0 Dupes)
+  ABER: 294 von 4472 Spielern (6,6 %) → String-aufgelöstes Logo ≠ club_id-aufgelöstes Logo
+        (stale players.club-Freitext vs UUID-Wahrheit).
+
+— Konkreter Fall A: eigenes Logo (stale String → FALSCH) —
+  Spieler:            Amine Adli
+  players.club (alt): "Bournemouth"  → OLD-Logo Team 35   (falscher, früherer Verein)
+  club_id (Wahrheit): Bayer Leverkusen → NEW-Logo Team 168 (korrekt, aktueller Verein)
+  → Fix: Logo + Name kommen jetzt aus getClub(club_id) → "Bayer Leverkusen" + Team-168-Logo.
+  (Weitere belegte stale-Fälle: Aebischer Pisa→Bologna, Afena-Gyan Amedspor→Cremonese,
+   Agirrezabala Valencia→Athletic Club.)
+
+— Konkreter Fall B: Gegner-Logo (Short-Kollision → FEHLTE) —
+  short='BAY' ist DOPPELT belegt, beide in DERSELBEN Liga (league_id 4f96…=Bundesliga):
+    • Bayer Leverkusen  (id 9db3fc5a…, Logo Team 168)
+    • Bayern München    (id 5ac47993…, Logo Team 157)
+  → getClub('BAY') returnt NULL (Konflikt-Pruning clubs.ts:93) → Gegner-Logo fehlte komplett.
+  → Fix: opponentLogoUrl kommt per-Fixture aus NextFixtureInfo (UUID-Join, Slice 420) →
+    korrektes Logo egal ob Gegner Leverkusen (168) oder Bayern (157).
+
+═══════════════════════════════════════════════════════════════════
+3. REVIEW
+═══════════════════════════════════════════════════════════════════
+  reviewer-Agent: PASS. Finding #1 (NIT Vollständigkeit: rohe statt aufgelöste clubId
+  durchgereicht) → GEFIXT (clubId: clubId ?? player.clubId in allen 3 Helpern, tsc grün).
+  Finding #2 (weitere getClub(short)-Surfaces: availableClubsList-Filter, Synergy-Key) =
+  out-of-scope Folge-Smell, vermerkt. Detail: worklog/reviews/422-review.md
+
+═══════════════════════════════════════════════════════════════════
+4. LIVE-VERIFY (post-Deploy) — folgt nach Push, siehe 422-*.png
+═══════════════════════════════════════════════════════════════════
+  Bundesliga-Lineup-Picker auf bescout.net (jarvis-qa): BAY-Gegner-Logo korrekt +
+  ein stale-String-Spieler (z.B. Amine Adli) mit Leverkusen-Logo+Name statt Bournemouth.

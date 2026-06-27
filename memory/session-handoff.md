@@ -1,11 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 19:23)
+# Session Handoff — Auto (2026-06-27 20:03)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
 ## Session Commits: 10
+- d44f79d5 docs(proof): Slice 421 — Live-Screenshot Bundesliga GW34 Next-Button [disabled] (force-add, *.png-ignore)
+- 2d2736e9 docs(log): Slice 421 DONE — Live-verified Bundesliga GW34-Cap + Admin-38-Smell-Anker
+- 95e7edc6 fix(fantasy): Slice 421 — Per-Liga GW-Max in SpieltagSelector durchrouten + toten GameweekSelector löschen [W2.4]
 - 25230ee4 docs(handoff): Slice 420 DONE + Welle-2.4-Recon-Anker (GameweekSelector orphan bestätigt, GW-Max-Routing kartiert)
 - 9248ef38 fix(fantasy): Slice 420 — Heim/Auswärts + FDR über Club-UUID statt Short-String/Majority-Vote [W2.3]
 - 3a5e43f7 docs(distill): D113 + Session-Close — Welle 2.1+2.2 (Slice 419) verankert, Stale/Widersprüche geglättet
@@ -13,9 +19,6 @@
 - be068a2a docs(handoff): Session-Close 2026-06-27 — Stale/Widersprüche geglättet
 - 0ecabc01 docs(handoff): Slice 418 Resume-Anker — 2 Funde gefixt, CI gruen
 - 88a463c4 fix(test): Slice 418 — Welle-1-Cleanup (kaputter useOffersState-Test + Orphan useOpenBids)
-- 51eb0a40 docs(proof): Slice 417 live-verified — Eigen-Gebot weg aus "Offene Gebote", Storno via "Ausgehend" + Escrow-Refund
-- eb69c4e2 fix(trading): Slice 417 — Offers Eigen-Gebot-Leak in "Offene Gebote" schliessen (server-SSOT)
-- c5cefd04 docs(distill): Session-Close 2026-06-27 — 416 + e2e-Walk verankert, errors-frontend S416
 
 <!-- auto:handoff-end -->
 

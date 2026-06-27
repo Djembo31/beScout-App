@@ -1,25 +1,25 @@
 # Active Slice
 
 ```
-status: idle
-slice: 421
-title: Welle 2.4 — Per-Liga GW-Max in SpieltagSelector durchrouten + toten GameweekSelector löschen — DONE
+status: active
+slice: 422
+title: FantasyPlayerRow Club-Identität (eigen + Gegner) aus zuverlässiger Quelle (UUID/aufgelöstes Logo statt Freitext/Short)
 size: S
-stage: LOG (DONE)
-spec: worklog/specs/421-gw-max-routing-orphan-delete.md
-impact: skipped (reines UI-Prop-Routing entlang existierender useLeagueMaxGameweeks-Quelle; kein DB/Service-Change)
-review: worklog/reviews/421-review.md (PASS, 1 NIT akzeptiert, 1 INFO=Scope-Out-Smells)
-proof: worklog/proofs/421-gw-max.txt (+ 421-bundesliga-gw34-next-disabled.png)
-proof-summary: Live bescout.net — Bundesliga GW34 → Next [disabled] (Per-Liga-34-Cap, vor Fix wäre 35-38 klickbar) + TFF1 GW38 Next [disabled] (38-Liga unverändert); tsc 0 + 87 Tests; grep GameweekSelector=0. Reviewer PASS. Commit 95e7edc6.
+stage: PROVE
+spec: worklog/specs/422-fantasyplayerrow-club-identity-uuid.md
+impact: skipped (reines UI-Prop-Routing entlang vorhandener NextFixtureInfo.opponentLogoUrl + UserDpcHolding.clubId; kein DB/Service/Mapper-Change)
+proof: worklog/proofs/422-club-identity.txt
+review: worklog/reviews/422-review.md (PASS, Finding #1 gefixt)
 ```
 
-## Ergebnis (DONE)
-- **Fix A:** FantasyContent mountet `useLeagueMaxGameweeks(leagueScopeId)` → `maxGameweek={data ?? 38}` über FantasyNav (neue required Prop) an SpieltagSelector. Fallback 38 fail-safe (null/loading/DB-NULL/Error).
-- **Fix B:** GameweekSelector-Orphan + Barrel-Zeile + Test gelöscht (0 Refs).
-- **FAKTEN-KORREKTUR (D87):** betroffen = Bundesliga + 2. Bundesliga (max=34, je 4 Geister-GWs), NICHT TFF 1. Lig (=38). Handoff/Test-Fixtures waren stale.
+## Zuletzt
 
-## Gemeldete Design-Smells (Scope-Out → Folge-Slices)
-- **(Admin-38-Hardcodes)** `getFullGameweekStatus` (scoring.queries.ts:415) loopt `1..38` global über ALLE Ligen + `useClubEventsData` `getGameweekStatuses(1,38)` → eigener Admin-Slice (cross-league-Aggregation, braucht leagueId-Param).
-- **(Display)** `FantasyPlayerRow:72` Gegner-Logo via `opponentShort` = S276-Display-Variante (BAY-Kollision) → eigener Slice, `opponentClubId` liegt seit 420 bereit.
+- **Slice 421** (2026-06-27) — Welle 2.4 Per-Liga-GW-Max-Routing + GameweekSelector-Orphan gelöscht (S, PASS).
+- **Slice 420** (2026-06-27) — Welle 2.3 Heim/Auswärts + FDR über Club-UUID (S, PASS).
+- **Slice 419/419b** (2026-06-27) — Welle 2.1+2.2 player_gameweek_scores fixture-gebunden + score_event liga-bewusst (PASS).
 
-Nächstes (CTO-Empf.): Admin-38-Hardcodes ODER FantasyPlayerRow-Logo ODER Ranking-Konsolidierung scout_scores↔user_stats ODER Welle 3 (Events/Aufstellung).
+## Plan (422)
+
+Faktenbasiert (DB-Probe skzjfhvgccaeplydsunz 2026-06-27): eigenes Logo für **294/4472 Spieler (6,6 %)** falsch (stale `players.club`-String ≠ `club_id`-Logo) + Gegner-Logo BAY-Kollision (S276). Beide → UUID/aufgelöste Quelle. 1 Komponente + 2 Aufrufer, kein DB-Change.
+
+Nächstes (CTO-Empf. nach 422): Admin-38-Hardcodes (gemeldeter Smell) → dann Ranking-Konsolidierung scout_scores↔user_stats (money-nah, CEO-Quelle-Entscheid) ODER Welle 3 (CEO-Architektur-Fork).

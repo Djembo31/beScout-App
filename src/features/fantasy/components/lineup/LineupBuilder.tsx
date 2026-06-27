@@ -195,6 +195,8 @@ export function LineupBuilder({
         last: player.last,
         pos: player.pos as Pos,
         club: player.club,
+        // Slice 422: die bereits aufgelöste clubId (mit allPlayers-Fallback, s.o.) durchreichen.
+        clubId: clubId ?? player.clubId,
         imageUrl: player.imageUrl,
         ticket: player.ticket ?? 0,
         status: player.status,
@@ -211,7 +213,7 @@ export function LineupBuilder({
         leagueLogoUrl: player.leagueLogoUrl,
       },
       formEntries,
-      nextFixture: nextFix ? { opponentShort: nextFix.opponentShort, opponentName: nextFix.opponentName, isHome: nextFix.isHome } : null,
+      nextFixture: nextFix ? { opponentShort: nextFix.opponentShort, opponentName: nextFix.opponentName, opponentLogoUrl: nextFix.opponentLogoUrl, isHome: nextFix.isHome } : null,
       opponentAvgL5: oppAvgL5,
       synergyPct,
       rowState,
