@@ -2,7 +2,6 @@
 export * from './types';
 export * from './helpers';
 export * from './constants';
-export { GameweekSelector } from './GameweekSelector';
 export { SpieltagSelector } from './SpieltagSelector';
 export { HistoryTab } from './HistoryTab';
 export { CreateEventModal } from './CreateEventModal';

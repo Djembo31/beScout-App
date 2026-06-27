@@ -15,7 +15,7 @@ import { useUserTickets } from '@/lib/queries/tickets';
 import { getClub } from '@/lib/clubs';
 import { getCountries, type CountryLocale } from '@/lib/leagues';
 import { useLeagueCacheVersion } from '@/lib/hooks/useLeagueCacheVersion';
-import { useIsClubAdmin } from '@/lib/queries/events';
+import { useIsClubAdmin, useLeagueMaxGameweeks } from '@/lib/queries/events';
 import type { FantasyEvent } from '@/components/fantasy';
 import { CreateEventModal, SpieltagTab } from '@/components/fantasy';
 import { EventsTab } from '@/components/fantasy/EventsTab';
@@ -89,6 +89,10 @@ export default function FantasyContent() {
   const leagueScopeId = useLeagueScope((s) => s.leagueId);
   const fantasyCountry = useLeagueScope((s) => s.countryCode);
   const gw = useGameweek(gwEvents, leagueScopeId);
+  // Slice 421 (Welle 2.4): per-league GW-Max for the SpieltagSelector next-button cap.
+  // Without this the selector falls back to its 38 default → non-38 leagues (TFF 1. Lig = 34)
+  // expose ghost gameweeks. `?? 38` keeps the prior behaviour while leagueScopeId is null/loading.
+  const { data: maxGameweek } = useLeagueMaxGameweeks(leagueScopeId);
   const { holdings } = useFantasyHoldings();
   const { joinEvent, leaveEvent, submitLineup: handleSubmitLineup } = useEventActions(clubId);
   const { fixtureDeadlines } = useFixtureDeadlines(gw.currentGw, activeEvents.length > 0);
@@ -225,6 +229,7 @@ export default function FantasyContent() {
       <FantasyNav
         currentGw={gw.currentGw}
         activeGw={gw.activeGw ?? 1}
+        maxGameweek={maxGameweek ?? 38}
         gwStatus={gw.gwStatus}
         fixtureCount={gw.fixtureCount}
         eventCount={filteredGwEvents.length}

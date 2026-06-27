@@ -9,6 +9,7 @@ import type { FantasyTab } from '@/components/fantasy/types';
 interface FantasyNavProps {
   currentGw: number;
   activeGw: number;
+  maxGameweek: number;
   gwStatus: 'open' | 'simulated' | 'empty';
   fixtureCount: number;
   eventCount: number;
@@ -27,6 +28,7 @@ const TAB_ICONS = {
 export function FantasyNav({
   currentGw,
   activeGw,
+  maxGameweek,
   gwStatus,
   fixtureCount,
   eventCount,
@@ -48,6 +50,7 @@ export function FantasyNav({
       <SpieltagSelector
         gameweek={currentGw}
         activeGameweek={activeGw}
+        maxGameweek={maxGameweek}
         status={gwStatus}
         fixtureCount={fixtureCount}
         eventCount={eventCount}

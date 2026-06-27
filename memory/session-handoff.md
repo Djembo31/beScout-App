@@ -1,11 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 19:17)
+# Session Handoff — Auto (2026-06-27 19:23)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- 25230ee4 docs(handoff): Slice 420 DONE + Welle-2.4-Recon-Anker (GameweekSelector orphan bestätigt, GW-Max-Routing kartiert)
 - 9248ef38 fix(fantasy): Slice 420 — Heim/Auswärts + FDR über Club-UUID statt Short-String/Majority-Vote [W2.3]
 - 3a5e43f7 docs(distill): D113 + Session-Close — Welle 2.1+2.2 (Slice 419) verankert, Stale/Widersprüche geglättet
 - 637c8140 feat(scoring): Slice 419 — player_gameweek_scores fixture-gebunden + score_event liga-bewusst [W2.1+2.2]
@@ -15,7 +16,6 @@
 - 51eb0a40 docs(proof): Slice 417 live-verified — Eigen-Gebot weg aus "Offene Gebote", Storno via "Ausgehend" + Escrow-Refund
 - eb69c4e2 fix(trading): Slice 417 — Offers Eigen-Gebot-Leak in "Offene Gebote" schliessen (server-SSOT)
 - c5cefd04 docs(distill): Session-Close 2026-06-27 — 416 + e2e-Walk verankert, errors-frontend S416
-- df6beeb2 docs(proof): Welle 1 Trading e2e-Lebenszyklus-Walk live bewiesen + 416 4-Surface live-verify
 
 <!-- auto:handoff-end -->
 

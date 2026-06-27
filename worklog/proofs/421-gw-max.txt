@@ -1,0 +1,58 @@
+SLICE 421 — Welle 2.4: Per-Liga GW-Max-Routing + Orphan-Delete — PROOF
+========================================================================
+Datum: 2026-06-27 · Scope: CTO (UI-Korrektheit + Dead-Code) · Reviewer: PASS
+
+--- 1. DB-BELEG: Nicht-38-Ligen existieren real (Bug war echt) ---
+Query (Live, project skzjfhvgccaeplydsunz):
+  SELECT name, max_gameweeks,
+    CASE WHEN max_gameweeks<>38 THEN (38-max_gameweeks) ELSE 0 END AS ghost_gws_before_fix
+  FROM leagues ORDER BY max_gameweeks, name;
+
+  name            | max_gameweeks | ghost_gws_before_fix
+  ----------------+---------------+---------------------
+  2. Bundesliga   |      34       |        4
+  Bundesliga      |      34       |        4    <-- DE-PRIO-LIGA betroffen
+  La Liga         |      38       |        0
+  Premier League  |      38       |        0
+  Serie A         |      38       |        0
+  Süper Lig       |      38       |        0
+  TFF 1. Lig      |      38       |        0
+
+FAKTEN-KORREKTUR (D87 — Live schlägt Annahme): Handoff/Test-Fixtures sagten
+"TFF 1. Lig = 34". Live-Wahrheit: BUNDESLIGA + 2. BUNDESLIGA = 34 (18 Vereine →
+34 Spieltage, fußball-korrekt). VOR dem Fix konnte ein Bundesliga-Fantasy-Nutzer
+per "Nächster Spieltag" bis GW38 klicken = 4 Geister-Spieltage ohne Fixtures.
+NACH dem Fix: useLeagueMaxGameweeks(leagueId) routet 34 → SpieltagSelector
+cappt bei 34 (Next-Button disabled bei gameweek >= 34).
+
+--- 2. tsc ---
+$ npx tsc --noEmit   → EXIT 0 (keine Errors)
+
+--- 3. Betroffene Tests ---
+$ CI=true npx vitest run FantasyContent.test.tsx club.test.ts
+  Test Files  2 passed (2)
+       Tests  87 passed (87)
+(FantasyContent rendert FantasyNav real; beide events-Modul-Mocks um
+ useLeagueMaxGameweeks ergänzt → kein "is not a function". club.test.ts:
+ getLeagueMaxGameweeks unverändert grün, BL=38-Fixture-Case inklusive.)
+
+--- 4. Orphan-Delete vollständig (S280/S375) ---
+$ git rm src/components/fantasy/GameweekSelector.tsx \
+         src/components/fantasy/__tests__/GameweekSelector.test.tsx
+$ grep -rn "GameweekSelector" src/   → 0 Treffer (Code-Symbole)
+  (Barrel index.ts:5-Zeile entfernt. Rest-Hits nur in docs/worklog/memory +
+   1 toter Kommentar in scripts/add-i18n-keys-batch8.js = kein Code-Symbol.)
+
+--- 5. Daten-Fluss (Code-Beleg) ---
+FantasyContent.tsx:95  const { data: maxGameweek } = useLeagueMaxGameweeks(leagueScopeId)
+FantasyContent.tsx:232 <FantasyNav maxGameweek={maxGameweek ?? 38} .../>
+FantasyNav.tsx:12      maxGameweek: number;            (required Prop)
+FantasyNav.tsx:50      <SpieltagSelector maxGameweek={maxGameweek} .../>
+SpieltagSelector.tsx:91-92  Math.min(maxGameweek, gw+1) / disabled={gw >= maxGameweek}
+
+Fallback fail-safe an allen 4 Datenquellen-Zuständen (Reviewer-verifiziert):
+  null-Scope (Hook disabled) · loading · DB-NULL · Query-Error → alle → 38 (?? Fallback).
+
+--- 6. Live-Verify (post-Deploy, bescout.net) ---
+[wird nach Vercel-Deploy ergänzt: Bundesliga-Scope, GW34 → "Nächster"-Button
+ disabled, kein GW35-38 erreichbar; 38-Liga (PL) unverändert bis GW38]
