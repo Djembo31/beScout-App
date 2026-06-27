@@ -179,7 +179,7 @@ Diese Components existieren nur lokal in Pages und sollten shared werden:
 | `IPOCardGrid` | market/page.tsx | `PlayerDisplay` + IPO-Variant? |
 | `EventCard` | fantasy/page.tsx | `@/components/fantasy/EventCard` |
 | `EventTableRow` | fantasy/page.tsx | `@/components/fantasy/EventTableRow` |
-| `LineupBuilder` | fantasy/page.tsx | `@/components/fantasy/LineupBuilder` |
+| `LineupPanel` | fantasy/page.tsx (via EventDetailModal/AufstellenTab) | `@/components/fantasy/event-tabs/LineupPanel` |
 | `Modal` | inline überall | `@/components/ui/Modal` |
 | `Tabs` | inline überall | `@/components/ui/Tabs` |
 | `SearchInput` | market/page.tsx | `@/components/ui/SearchInput` |
