@@ -1,30 +1,25 @@
 # Active Slice
 
 ```
-status: active
+status: idle
 slice: 421
-title: Welle 2.4 — Per-Liga GW-Max in SpieltagSelector durchrouten + toten GameweekSelector löschen
-size: S (2 EDIT UI + 1 DELETE Component + 1 EDIT Barrel + 1 DELETE Test)
-stage: PROVE
+title: Welle 2.4 — Per-Liga GW-Max in SpieltagSelector durchrouten + toten GameweekSelector löschen — DONE
+size: S
+stage: LOG (DONE)
 spec: worklog/specs/421-gw-max-routing-orphan-delete.md
-impact: skipped (kein DB/RPC/Service-Change; reines UI-Prop-Routing entlang existierender useLeagueMaxGameweeks-Quelle + Dead-Code-Delete; Consumer-Greps in Spec §3)
-build: tsc 0 + FantasyContent(+club) 87 Tests grün; GameweekSelector 0 Refs nach Delete
+impact: skipped (reines UI-Prop-Routing entlang existierender useLeagueMaxGameweeks-Quelle; kein DB/Service-Change)
 review: worklog/reviews/421-review.md (PASS, 1 NIT akzeptiert, 1 INFO=Scope-Out-Smells)
-proof: worklog/proofs/421-gw-max.txt
-fact-correction: Live-DB (D87) — betroffen sind BUNDESLIGA + 2. Bundesliga (max_gameweeks=34, je 4 Geister-GWs), NICHT TFF 1. Lig (=38). Handoff/Test-Fixtures waren stale.
-review: pending
+proof: worklog/proofs/421-gw-max.txt (+ 421-bundesliga-gw34-next-disabled.png)
+proof-summary: Live bescout.net — Bundesliga GW34 → Next [disabled] (Per-Liga-34-Cap, vor Fix wäre 35-38 klickbar) + TFF1 GW38 Next [disabled] (38-Liga unverändert); tsc 0 + 87 Tests; grep GameweekSelector=0. Reviewer PASS. Commit 95e7edc6.
 ```
 
-## Kontext (Faktenbasis, grep-verifiziert 2026-06-27)
-- **GW-Max-Bug:** `SpieltagSelector.tsx:20` `maxGameweek=38` Default; `FantasyNav.tsx:48` reicht es NICHT durch; `useGameweek` liefert es nicht → jede Liga cappt bei 38. TFF 1. Lig (max 34) = 4 Geister-GWs. Cron respektiert Per-Liga-Max bereits.
-- **Kanonische Quelle existiert:** `useLeagueMaxGameweeks(leagueId)` (events.ts:78) → `getLeagueMaxGameweeks` (club.ts:604, Fallback 38). `FantasyContent` hat `leagueScopeId` in Scope (Z.89).
-- **Orphan:** `GameweekSelector` = 0 Prod-Consumer (nur Component + Barrel index.ts:5 + eigener Test). Lebender Selector = SpieltagSelector.
+## Ergebnis (DONE)
+- **Fix A:** FantasyContent mountet `useLeagueMaxGameweeks(leagueScopeId)` → `maxGameweek={data ?? 38}` über FantasyNav (neue required Prop) an SpieltagSelector. Fallback 38 fail-safe (null/loading/DB-NULL/Error).
+- **Fix B:** GameweekSelector-Orphan + Barrel-Zeile + Test gelöscht (0 Refs).
+- **FAKTEN-KORREKTUR (D87):** betroffen = Bundesliga + 2. Bundesliga (max=34, je 4 Geister-GWs), NICHT TFF 1. Lig (=38). Handoff/Test-Fixtures waren stale.
 
-## Plan
-- Fix A: FantasyContent mountet `useLeagueMaxGameweeks(leagueScopeId)` → `maxGameweek={data ?? 38}` an FantasyNav → an SpieltagSelector (Prop existiert).
-- Fix B: GameweekSelector.tsx + Barrel-Zeile + Test löschen (S375: grep inkl. __tests__).
+## Gemeldete Design-Smells (Scope-Out → Folge-Slices)
+- **(Admin-38-Hardcodes)** `getFullGameweekStatus` (scoring.queries.ts:415) loopt `1..38` global über ALLE Ligen + `useClubEventsData` `getGameweekStatuses(1,38)` → eigener Admin-Slice (cross-league-Aggregation, braucht leagueId-Param).
+- **(Display)** `FantasyPlayerRow:72` Gegner-Logo via `opponentShort` = S276-Display-Variante (BAY-Kollision) → eigener Slice, `opponentClubId` liegt seit 420 bereit.
 
-## Vorige Slice (420 — DONE, Referenz)
-Welle 2.3: Heim/Auswärts + FDR über Club-UUID. Reviewer PASS, full vitest 3301 grün.
-
-Nächstes: Welle 2.4 (dieser Slice) → dann Admin-38-Hardcodes (Smell, scoring.queries.ts:415) ODER FantasyPlayerRow-Logo (S276) ODER Ranking-Konsolidierung ODER Welle 3.
+Nächstes (CTO-Empf.): Admin-38-Hardcodes ODER FantasyPlayerRow-Logo ODER Ranking-Konsolidierung scout_scores↔user_stats ODER Welle 3 (Events/Aufstellung).

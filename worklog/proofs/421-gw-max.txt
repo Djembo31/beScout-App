@@ -53,6 +53,24 @@ SpieltagSelector.tsx:91-92  Math.min(maxGameweek, gw+1) / disabled={gw >= maxGam
 Fallback fail-safe an allen 4 Datenquellen-Zuständen (Reviewer-verifiziert):
   null-Scope (Hook disabled) · loading · DB-NULL · Query-Error → alle → 38 (?? Fallback).
 
---- 6. Live-Verify (post-Deploy, bescout.net) ---
-[wird nach Vercel-Deploy ergänzt: Bundesliga-Scope, GW34 → "Nächster"-Button
- disabled, kein GW35-38 erreichbar; 38-Liga (PL) unverändert bis GW38]
+--- 6. Live-Verify (post-Deploy, bescout.net, jarvis-qa) — BESTÄTIGT ---
+Deploy 95e7edc6 live. Playwright gegen www.bescout.net:
+
+(A) DISKRIMINIERENDER TEST — Bundesliga (max=34):
+    /fantasy → Country=Deutschland → Liga=Bundesliga [pressed]
+    → angezeigter Spieltag = "Spieltag 34" (Offen, 9 Spiele)
+    → "Nächster Spieltag"-Button = [disabled]   ✅
+    Beweis: VOR dem Fix (Default 38) wäre der Button bei GW34 KLICKBAR gewesen
+    (34 < 38 → Geister-GW 35-38). Jetzt [disabled] (34 >= 34) = Per-Liga-Max 34
+    korrekt geroutet. Screenshot: 421-bundesliga-gw34-next-disabled.png
+    "Vorheriger Spieltag" bleibt aktiv (Rückwärts-Nav intakt).
+
+(B) REGRESSION 38-Liga — TFF 1. Lig (max=38):
+    Liga=TFF 1. Lig → Spieltag 38 (Beendet) → "Nächster Spieltag" [disabled]  ✅
+    (cappt korrekt am Liga-Max 38, unverändertes Verhalten für 38-Ligen.)
+
+(C) Console: 0 errors auf /fantasy über den ganzen Walk.
+
+FAZIT: Per-Liga-GW-Max-Routing live bewiesen. AC-01 (Bundesliga statt TFF1 =
+Fakten-Korrektur), AC-02 (38-Liga unverändert), AC-04 (Delete/Regression),
+AC-06 (keine i18n-Änderung) erfüllt.

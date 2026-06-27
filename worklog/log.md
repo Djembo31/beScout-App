@@ -2,6 +2,17 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 421 | 2026-06-27 | fix(fantasy): Welle 2.4 — Per-Liga GW-Max in SpieltagSelector durchrouten + toten GameweekSelector löschen [UI-Korrektheit + Cleanup]
+- Stage-Chain: SPEC (`specs/421-…`, S) → IMPACT (skipped: reines UI-Prop-Routing entlang existierender `useLeagueMaxGameweeks`-Quelle, kein DB/Service-Change) → BUILD (selbst, CTO/kein Money) → REVIEW reviewer-Agent **PASS** (`reviews/421-review.md`, 1 NIT akzeptiert + 1 INFO=Scope-Out-Smells) → PROVE (`proofs/421-gw-max.txt`) → LOG. Commit `95e7edc6`.
+- **Problem (Bug):** `SpieltagSelector` „Nächster Spieltag"-Button cappte für JEDE Liga bei 38 (Component-Default), weil `FantasyNav` die `maxGameweek`-Prop nicht durchreichte und `useGameweek` sie nicht liefert → Ligen mit Saisonende < 38 zeigten klickbare Geister-Spieltage ohne Fixtures.
+- **FAKTEN-KORREKTUR (D87, Live schlägt Annahme):** Handoff/Test-Fixtures sagten „TFF 1. Lig = 34". Live-DB: betroffen sind **BUNDESLIGA + 2. Bundesliga = 34** (je 4 Geister-GWs, 18 Vereine → 34 Spieltage, fußball-korrekt) — TFF 1. Lig/Süper Lig/PL/La Liga/Serie A = 38. Der DE-Prio-Markt war betroffen.
+- **Fix A (Routing):** `FantasyContent` mountet `useLeagueMaxGameweeks(leagueScopeId)` (kanonische Quelle seit Slice 251) → `maxGameweek={data ?? 38}` über `FantasyNav` (neue required Prop) an `SpieltagSelector`. Fallback 38 fail-safe an allen 4 Datenquellen-Zuständen (null-Scope/loading/DB-NULL/Error) — Reviewer-verifiziert.
+- **Fix B (Cleanup):** `GameweekSelector` (0 Prod-Consumer) + Barrel-Zeile `index.ts:5` + eigener Test gelöscht (S280/S375, grep inkl. `__tests__` = 0 Refs).
+- **Proof:** DB-Beleg (2 Ligen=34, je 4 Geister-GWs) + tsc 0 + FantasyContent(+club) 87 Tests grün + grep=0. Test-Fix: beide events-Modul-Mocks um `useLeagueMaxGameweeks` ergänzt (S199-Doppel-Mock-Falle).
+- **Files:** FantasyContent.tsx + FantasyNav.tsx + index.ts + FantasyContent.test.tsx (EDIT) · GameweekSelector.tsx + dessen Test (DELETE).
+- **Wissens-Kopplung:** keine Domänen-Doku berührt (UI-Routing, kein RPC/Schema). Saubere S149b/S254/S375-Anwendung — kein neuer Fehler-Pattern.
+- **Gemeldete Design-Smells (Scope-Out, Folge-Slices):** (1) `getFullGameweekStatus` (`scoring.queries.ts:415`) loopt hart `1..38` global über ALLE Ligen (Admin) → eigener Admin-Slice (cross-league-Aggregation, braucht `leagueId`-Param). (2) `useClubEventsData` `getGameweekStatuses(1,38)` (Admin). (3) `FantasyPlayerRow:72` Gegner-Logo via `opponentShort` (S276-Display-Variante, aus 420).
+
 ## 420 | 2026-06-27 | fix(fantasy): Welle 2.3 — Heim/Auswärts + FDR über Club-UUID statt Short-String/Majority-Vote [Datenkorrektheit]
 - Stage-Chain: SPEC (`specs/420-…`, M) → IMPACT (in Spec, Consumer-grep) → BUILD (selbst, CTO/kein Money) → REVIEW reviewer-Agent **PASS** (`reviews/420-review.md`, 1 LOW geheilt + 1 NIT out-of-scope) → PROVE (`proofs/420-club-uuid-fixtures.txt`) → LOG.
 - **Problem (gemessen, keine Annahmen):** (A) `getPlayerMatchTimeline` bestimmte Heim/Auswärts per **Majority-Vote** über alle Fixtures → kippte isHome/matchScore für **117 Multi-Club-Spieler** (mid-season-Transfer) + nicht-deterministisch bei 50/50. (B) FDR `getClubAvgL5` filterte per Club-`short`-String → **6 reale Short-Kollisionen**, davon **BAY = Leverkusen↔Bayern same-league (Bundesliga)** → FDR mischte beide L5 (S276).
