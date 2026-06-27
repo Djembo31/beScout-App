@@ -1,0 +1,27 @@
+Slice 415 — Welle 1.6 Teil 2 OrderbookSummary eigene Sells excludieren — PROOF
+Datum: 2026-06-27 · Frontend (kein Money/RPC)
+
+================================================================
+Live-Befund (bescout.net, jarvis @ Douglas, VOR Fix)
+================================================================
+OrderbookSummary (Player-Detail) zeigte: BESTER ASK = 200 = jarvis' EIGENE Sell-Order
+(96d3ce14, @200 CR, rem 1) — die er nicht kaufen kann. Der Live-Walk deckte auf, dass
+Slice 414 (OrderDepthView) eine ANDERE Surface fixte (Markt-Tab TransferListSection),
+NICHT die Player-Detail-Seite. Best-Ask wird an 4 Stellen gerechnet (von-allem-vier).
+
+================================================================
+Fix
+================================================================
+OrderbookSummary.tsx: `const marketSells = sellOrders.filter(o => !o.is_own)` → für
+bestAsk, askVol (Balance-Bar), Empty-State (`return null`), Expand-Button-Bedingung und
+`<OrderbookDepth orders={marketSells}>`. PublicOrder.is_own server-projiziert (kein
+Service/userId-Change). Bid-Seite: OfferWithDetails hat KEIN is_own → eigene-Bid-Exclusion
+= Folge-Notiz (Type/Service-Change, separate Slice).
+
+================================================================
+AC-Verifikation
+================================================================
+AC1 marketSells-Filter für bestAsk/askVol/Depth/Empty-State — Code.
+AC2 tsc --noEmit → exit 0 ✓
+AC3 Live nach Deploy (jarvis@Douglas, @200 einzige Order → eigene raus → BESTER ASK „–"):
+    [wird nach Deploy ergänzt]

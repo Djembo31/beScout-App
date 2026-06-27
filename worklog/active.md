@@ -2,15 +2,23 @@
 
 ```
 status: in-progress
-slice: 414
-title: Welle 1.6 — OrderDepthView eigene Orders aus Best-Ask/Spread/Depth excludieren
-size: S (Frontend — kein Money/RPC; is_own-Filter, schließt Welle 1.5/1.6)
+slice: 415
+title: Welle 1.6 (Teil 2) — OrderbookSummary Player-Detail: eigene Sell-Orders aus Best-Ask/Spread/Depth excludieren
+size: S (Frontend — kein Money/RPC; PublicOrder.is_own-Filter)
 stage: BUILD
 spec: inline (unten)
-impact: skipped (Display-only; nutzt vorhandenes PublicOrder.is_own, kein Service/Type-Change)
-proof: Live-Walk-Verify (jarvis hält eigene Douglas-Order @200) + tsc
+impact: skipped (Display-only)
+proof: Live-Verify Douglas (jarvis @200 own) nach Deploy + tsc
 review: self-review (Frontend, kein Money)
 ```
+
+## INLINE-SPEC Slice 415 (Welle 1.6 Teil 2 — vom Live-Walk aufgedeckt)
+**Live-Befund (bescout.net, jarvis @ Douglas):** `OrderbookSummary` (Player-Detail, `TradingTab:142`) zeigt `BESTER ASK: 200` = jarvis' EIGENE Sell-Order — die er nicht kaufen kann. `OrderbookSummary.bestAsk = Math.min(...sellOrders)` (Z.23) + eingebettetes `OrderbookDepth` (Z.111) inkludieren eigene Orders. **414 fixte `OrderDepthView` — das wird aber nur im Markt-Tab (`TransferListSection`) gerendert, NICHT Player-Detail.** Best-Ask wird an 4 Stellen gerechnet (von-allem-vier).
+**Lösung:** in `OrderbookSummary` `const marketSells = sellOrders.filter(o => !o.is_own)` → für bestAsk, askVol, Empty-State, und `<OrderbookDepth orders={marketSells}>`. Bid-Seite (`bids: OfferWithDetails`) hat KEIN is_own → eigene-Bid-Exclusion = Folge-Notiz (Type/Service-Change).
+**AC:** (1) bestAsk/askVol/Depth ohne eigene Sells. (2) tsc 0. (3) Live: jarvis@Douglas → BESTER ASK nicht mehr 200 (eigene einzige Order → „–"). **PROVE = Live nach Deploy.**
+
+## 414 (vorige, OrderDepthView Markt-Tab) — DONE, valider separater Surface
+## 413 — DONE (Welle 1.5 komplett)
 
 ## INLINE-SPEC Slice 414 (Welle 1.6, letzter 1.5/1.6-Punkt)
 **Problem:** `OrderDepthView` aggregiert ALLE Sell/Buy-Orders inkl. der **eigenen** des Betrachters → Best-Ask/Spread (Z.180-189) + hervorgehobene günstigste Zeile zeigen evtl. die eigene Order, die man gar nicht kaufen kann. Inkonsistent mit `buy_player_sc`/`buy_from_order` (matchen nur `user_id != p_user_id`) + trading.md S7-303 F-1.

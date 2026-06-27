@@ -20,8 +20,14 @@ export default function OrderbookSummary({ sellOrders, bids, className = '' }: O
   const t = useTranslations('playerDetail');
   const [expanded, setExpanded] = useState(false);
 
-  const bestAsk = sellOrders.length > 0
-    ? Math.min(...sellOrders.map(o => centsToBsd(o.price)))
+  // Slice 415: eigene Sell-Orders raus — man kauft nur Fremd-Orders (Spiegel
+  // buy_player_sc/buy_from_order `user_id != p_user_id` + trading.md S7-303 F-1);
+  // sonst zeigt BESTER ASK die eigene Order, die man nicht kaufen kann.
+  // (Bid-Seite: OfferWithDetails hat kein is_own → eigene-Bid-Exclusion = Folge-Slice.)
+  const marketSells = sellOrders.filter(o => !o.is_own);
+
+  const bestAsk = marketSells.length > 0
+    ? Math.min(...marketSells.map(o => centsToBsd(o.price)))
     : null;
   const bestBid = bids.length > 0
     ? Math.max(...bids.map(b => centsToBsd(b.price)))
@@ -39,13 +45,13 @@ export default function OrderbookSummary({ sellOrders, bids, className = '' }: O
         : 'text-red-400'
     : 'text-white/40';
 
-  // Volume balance
-  const askVol = sellOrders.reduce((s, o) => s + (o.quantity - o.filled_qty), 0);
+  // Volume balance (Slice 415: askVol ohne eigene Sells = actionable Markt-Tiefe)
+  const askVol = marketSells.reduce((s, o) => s + (o.quantity - o.filled_qty), 0);
   const bidVol = bids.reduce((s, b) => s + b.quantity, 0);
   const totalVol = askVol + bidVol || 1;
   const bidPct = (bidVol / totalVol) * 100;
 
-  if (sellOrders.length === 0 && bids.length === 0) return null;
+  if (marketSells.length === 0 && bids.length === 0) return null;
 
   return (
     <Card className={`overflow-hidden ${className}`}>
@@ -95,8 +101,8 @@ export default function OrderbookSummary({ sellOrders, bids, className = '' }: O
         </div>
       </div>
 
-      {/* Expand to full depth */}
-      {sellOrders.length > 0 && (
+      {/* Expand to full depth (Slice 415: nur Fremd-Orders) */}
+      {marketSells.length > 0 && (
         <div className="border-t border-divider">
           <button
             onClick={() => setExpanded(v => !v)}
@@ -108,7 +114,7 @@ export default function OrderbookSummary({ sellOrders, bids, className = '' }: O
           </button>
           {expanded && (
             <div className="px-4 pb-4">
-              <OrderbookDepth orders={sellOrders} />
+              <OrderbookDepth orders={marketSells} />
             </div>
           )}
         </div>
