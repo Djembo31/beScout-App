@@ -1,11 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 14:28)
+# Session Handoff — Auto (2026-06-27 14:44)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
 ## Session Commits: 10
+- 6862ad2c docs(distill): Session-Close 2026-06-27 — S413/S414/S415 verdrahtet + trading.md + Handoff-Marker
 - 71ca15d9 docs(proof+handoff): 415 live-verified (BESTER ASK own-order weg); 1.6 Folge-Surfaces + Live-Walk offen
 - c69aa61d docs(log): Slices 414+415 — Welle 1.6 Orderbook own-order exclusion (2 Surfaces); Live-Verify nach Deploy
 - 7e9afcfc fix(trading): Slice 415 — Welle 1.6 OrderbookSummary Player-Detail eigene Sell-Orders aus Best-Ask excludieren [UI]
@@ -15,7 +19,6 @@
 - 80720552 fix(trading): Slice 413 — Welle 1.5a/c/d/e Markt-Kauf-RPCs vereinheitlichen [Money/CEO]
 - 3b1029e9 docs(handoff): Welle 1.5/1.6 Stand — 412 (1.5b+1.5f) DONE, 1.5a/c/d/e + 1.6 own-order offen
 - 3e49c292 docs(log): Slice 412 Commit-Hash (ac51aab2)
-- ac51aab2 fix(trading): Slice 412 — Welle 1.5b+1.5f Offers-Tab Error-Display-Leaks + idempotency_pending [UI/i18n]
 
 <!-- auto:handoff-end -->
 

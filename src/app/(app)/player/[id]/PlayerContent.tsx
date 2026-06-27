@@ -323,6 +323,7 @@ export default function PlayerContent({ playerId }: { playerId: string }) {
           lockedQty={data.lockedScMap?.get(playerId) ?? 0}
           userOrders={trading.userOrders}
           openBids={data.openBids}
+          userId={uid}
           onSell={trading.handleSell}
           onCancelOrder={trading.handleCancelOrder}
           onAcceptBid={trading.handleAcceptBid}

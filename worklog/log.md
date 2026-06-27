@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 416 | 2026-06-27 | refactor(trading): Welle 1.6 KOMPLETT — Eigene-Order/Bid-Exclusion auf SSOT-Helper vereinheitlicht (4 Surfaces) [UI]
+- Stage-Chain: SPEC (`specs/416-…`, S UI) → IMPACT skipped (kein Service/RPC/Schema, nur UI-Props + pure Helper) → BUILD (7 Files) → REVIEW reviewer-Agent **PASS** (`reviews/416-review.md`, 2 NIT pre-existing) → PROVE (`proofs/416-orderbook-tests.txt`, tsc 0 + 39 Tests) → LOG.
+- **Schließt die „von-allem-N"-Drift-Klasse (S414/S415) als Root-Cause:** Best-Bid/Best-Ask-Ableitung war über mehrere Komponenten dupliziert mit divergenten Exclusion-Regeln. Neuer pure SSOT-Helper `src/lib/orderbook.ts` (`excludeOwnBids` + `bestForeignBidCents`, cents-Rückgabe). **4 Surfaces umgestellt:** (1) TradingTab Sektion 7 „sofort kaufbar"-Liste eigene Sell-Orders raus (`!is_own`, toter isOwn-Zweig entfernt) · (2) OrderbookSummary bid-Seite (bestBid + Volumen) · (3) QuickStats bestBid (`TradingTab:132`) · (4) **SellModal Höchstes-Gesuch + Accept-Liste — vom Handoff übersehene Surface** (userId-Prop NEU, durchgereicht via PlayerContent).
+- **2 Handoff-Korrekturen (faktenbasiert):** (a) „Bid-Seite braucht Type/Service-Change weil OfferWithDetails kein is_own hat" = FALSCH — `OfferWithDetails extends DbOffer.sender_id`, client-Filter `sender_id !== userId` reicht (Anil-Entscheid: Root-Cause-Helper statt inline). (b) „PlayerHero bestBid" existiert nicht (grep leer) = war QuickStats.
+- **Design-Befund gemeldet (Anil-Request):** ask-Seite bewusst inline gelassen (`!is_own` boolean = kein Rechen-Drift, 5 funktionierende Surfaces nicht angefasst = surgical); nur die driftende bid-Regel (`sender_id`-Kontext) zentralisiert.
+- **Wissens-Kopplung (D88):** trading.md S7-303 F-1 „Noch offen"-Liste → **geschlossen (S416)** aktualisiert (sonst Doku-Drift gg. Code). errors-frontend S414/S415 deckt die Klasse bereits ab → kein neues Pattern.
+- Files: src/lib/orderbook.ts (neu) + orderbook.test.ts (neu) · TradingTab.tsx · OrderbookSummary.tsx · SellModal.tsx · PlayerContent.tsx · TradingTab.test.tsx · trading.md. Commit: <hash>. **⏳ Live-Verify im e2e-Walk nach Deploy.**
+
 ## 415 | 2026-06-27 | fix(trading): Welle 1.6 — OrderbookSummary Player-Detail eigene Sell-Orders aus Best-Ask excludieren [UI]
 - Stage-Chain: SPEC inline → IMPACT skipped (Display-only) → BUILD (OrderbookSummary.tsx) → REVIEW self-review PASS → PROVE (tsc 0; Live nach Deploy) → LOG.
 - **Vom Live-Walk aufgedeckt:** OrderbookSummary (Player-Detail, `TradingTab:142`) zeigte live `BESTER ASK = 200` = jarvis' EIGENE Sell-Order. Slice 414 (OrderDepthView) fixte eine ANDERE Surface (Markt-Tab `TransferListSection`) — Best-Ask wird an 4 Stellen gerechnet (von-allem-vier-Smell). Fix: `marketSells = sellOrders.filter(!is_own)` für bestAsk/askVol/Empty-State/Expand/OrderbookDepth. Bid-Seite (OfferWithDetails ohne is_own) + PlayerHero bestBid = Folge-Notiz.

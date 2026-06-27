@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { cn, fmtScout } from '@/lib/utils';
+import { bestForeignBidCents } from '@/lib/orderbook';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
@@ -75,6 +76,11 @@ function TradingTabInner({
   // Show max 5 trades initially, expand for all
   const visibleTrades = historyExpanded ? trades : trades.slice(0, 3);
 
+  // Slice 416: eigene Sell-Orders raus aus der „sofort kaufbar"-Liste — man kauft
+  // nur Fremd-Orders (Spiegel buy_player_sc/buy_from_order `user_id != p_user_id`,
+  // trading.md S7-303 F-1). Eigene Orders sieht man im Bestand/SellModal.
+  const marketSellOrders = allSellOrders.filter(o => !o.is_own);
+
   return (
     <div className="space-y-5 md:space-y-8">
 
@@ -123,7 +129,7 @@ function TradingTabInner({
       {/* ── 2. Quick Stats: Floor, Spread, 7d Volume, Holders ── */}
       <TradingQuickStats
         floorPrice={player.prices.floor ?? 0}
-        bestBid={openBids.length > 0 ? Math.max(...openBids.map(b => b.price)) : null}
+        bestBid={bestForeignBidCents(openBids, userId)}
         trades={trades}
         holderCount={holderCount}
       />
@@ -139,7 +145,7 @@ function TradingTabInner({
       )}
 
       {/* ── 4. Orderbook Summary (condensed + expandable depth) ── */}
-      <OrderbookSummary sellOrders={allSellOrders} bids={openBids} />
+      <OrderbookSummary sellOrders={allSellOrders} bids={openBids} userId={userId} />
 
       {/* ── 4b. Letzter Preis + Wertentwicklung ── */}
       {(player.prices.lastTrade > 0 || player.prices.ipoPrice) && (
@@ -226,8 +232,8 @@ function TradingTabInner({
               Player-Detail-Pfad immer [] (players.ts:252, nie befüllt; nur KaderTab/Manager füllt es).
               Das Orderbuch (Sektion 7, allSellOrders) ist die echte, gefüllte Markt-Liste. ── */}
 
-      {/* ── 7. Marktplatz / Orderbuch (sofort kaufbar) ── */}
-      {allSellOrders.length > 0 && (
+      {/* ── 7. Marktplatz / Orderbuch (sofort kaufbar) — Slice 416: nur Fremd-Orders ── */}
+      {marketSellOrders.length > 0 && (
         <Card className="overflow-hidden">
           <div className="bg-gradient-to-r from-orange-500/10 to-orange-500/5 border-b border-orange-500/20 p-4">
             <div className="flex items-center justify-between">
@@ -236,9 +242,9 @@ function TradingTabInner({
                 <span className="font-black">{t('transferMarketOrders')}</span>
               </div>
               <span className="text-xs text-white/40">
-                {allSellOrders.length !== 1
-                  ? t('ordersCountPlural', { count: allSellOrders.length })
-                  : t('ordersCount', { count: allSellOrders.length })}
+                {marketSellOrders.length !== 1
+                  ? t('ordersCountPlural', { count: marketSellOrders.length })
+                  : t('ordersCount', { count: marketSellOrders.length })}
               </span>
             </div>
             <p className="text-[11px] text-white/45 mt-1.5 text-pretty">{t('marketSubtitle')}</p>
@@ -251,37 +257,31 @@ function TradingTabInner({
                 <span>{t('total')}</span>
                 <span>{t('seller')}</span>
               </div>
-              {(ordersExpanded ? allSellOrders : allSellOrders.slice(0, 5)).map((order) => {
+              {(ordersExpanded ? marketSellOrders : marketSellOrders.slice(0, 5)).map((order) => {
                 const remaining = order.quantity - order.filled_qty;
-                const isOwn = order.is_own;
                 const sellerHandle = order.handle;
                 return (
-                  <div key={order.id} className={cn(
-                    'grid grid-cols-4 gap-2 items-center px-3 py-2 rounded-lg text-sm transition-colors',
-                    isOwn ? 'bg-gold/5 border border-gold/20' : 'bg-surface-base hover:bg-surface-subtle'
-                  )}>
+                  <div key={order.id} className="grid grid-cols-4 gap-2 items-center px-3 py-2 rounded-lg text-sm transition-colors bg-surface-base hover:bg-surface-subtle">
                     <span className="font-mono font-bold tabular-nums text-gold">{formatScout(order.price)}</span>
                     <span className="font-mono tabular-nums">{remaining} SC</span>
                     <span className="font-mono tabular-nums text-white/60">{formatScout(order.price * remaining)}</span>
                     <span className="text-xs truncate">
-                      {isOwn
-                        ? <span className="text-gold font-bold">{t('you')}</span>
-                        : sellerHandle
-                          ? <Link href={`/profile/${sellerHandle}`} className="text-white/60 hover:text-gold transition-colors">@{sellerHandle}</Link>
-                          : <span className="text-white/60">{t('anonSeller')}</span>
+                      {sellerHandle
+                        ? <Link href={`/profile/${sellerHandle}`} className="text-white/60 hover:text-gold transition-colors">@{sellerHandle}</Link>
+                        : <span className="text-white/60">{t('anonSeller')}</span>
                       }
                     </span>
                   </div>
                 );
               })}
             </div>
-            {allSellOrders.length > 5 && (
+            {marketSellOrders.length > 5 && (
               <div className="border-t border-divider mt-2">
                 <button
                   onClick={() => setOrdersExpanded(v => !v)}
                   className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs text-white/40 hover:text-white/60 transition-colors"
                 >
-                  {ordersExpanded ? t('showLess') : t('showAllOrders', { count: allSellOrders.length })}
+                  {ordersExpanded ? t('showLess') : t('showAllOrders', { count: marketSellOrders.length })}
                   <ChevronDown className={cn('size-3.5 transition-transform', ordersExpanded && 'rotate-180')} />
                 </button>
               </div>

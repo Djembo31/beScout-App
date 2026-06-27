@@ -2,16 +2,18 @@
 
 ```
 status: idle
-slice: 415
-title: Welle 1.6 (Teil 2) — OrderbookSummary Player-Detail: eigene Sell-Orders aus Best-Ask/Spread/Depth excludieren — DONE (Live-Verify nach Deploy ausstehend)
-size: S (Frontend — kein Money/RPC; PublicOrder.is_own-Filter)
+slice: 416
+title: Welle 1.6 abschließen — Eigene-Order/Bid-Exclusion vereinheitlichen (SSOT-Helper bestForeignBidCents); 4 Surfaces — DONE
+size: S (UI — kein Money/RPC; client-Filter sender_id/is_own)
 stage: LOG (DONE)
-spec: inline (unten)
-impact: skipped (Display-only)
-proof: worklog/proofs/415-orderbook-summary-own-exclusion.txt (tsc 0; Live-Verify Douglas BESTER ASK „–" nach Deploy)
-review: worklog/reviews/415-review.md — self-review PASS
+spec: worklog/specs/416-orderbook-own-exclusion-ssot.md
+impact: skipped (kein Service/RPC/Schema — nur UI-Props + pure Helper)
+proof: worklog/proofs/416-orderbook-tests.txt
+proof-note: tsc 0 + 39 Tests grün; Live-Playwright im e2e-Walk nach Deploy
+review: worklog/reviews/416-review.md — PASS (2 NIT pre-existing)
 ```
-**⏳ SOFORT-NÄCHSTES (Deploy-Lag): Live-Verify 414+415+412 auf bescout.net (Douglas BESTER ASK soll „–" statt 200; jarvis@200 einzige Order) → dann Lifecycle-Walk (IPO/Markt/Sell/P2P/accept/cancel). Bid-Seite own-exclusion + PlayerHero bestBid = Folge.**
+**⏳ SOFORT-NÄCHSTES = der Live-e2e-Lebenszyklus-Walk** (IPO→Markt-Kauf→Sell-Order→P2P-Gebot→annehmen→stornieren) auf bescout.net nach Deploy von 416 — Proof „Trading läuft vollständig" + visuelle Verifikation 416 (jarvis@Douglas: eigene @200-Order NICHT in „sofort kaufbar"; QuickStats/OrderbookSummary Best-Bid ohne eigenes Gebot). Login jarvis-qa@bescout.net / JarvisQA2026!. **Welle 1.6 = KOMPLETT (414/415/416). Danach Welle 2 Spieltag/Scoring.**
+**Plan:** neuer `src/lib/orderbook.ts` (excludeOwnBids + bestForeignBidCents, SSOT der driftenden bid-Regel) → 4 Surfaces: TradingTab:126 bestBid (3), OrderbookSummary bid+Volumen (2), SellModal Höchstes-Gesuch+Accept-Liste (4, userId-Prop NEU), TradingTab Sektion 7 „sofort kaufbar" ask-Liste inline `!is_own` (1) + toten isOwn-Zweig raus. PlayerContent: userId={uid} an SellModal. Anil-Entscheid 2026-06-27: Root-Cause-Helper (nicht inline). Handoff-Korrektur: kein Type/Service-Change nötig (sender_id existiert); „PlayerHero bestBid" = QuickStats. **4. Surface (SellModal) war im Handoff übersehen.**
 
 ## INLINE-SPEC Slice 415 (Welle 1.6 Teil 2 — vom Live-Walk aufgedeckt)
 **Live-Befund (bescout.net, jarvis @ Douglas):** `OrderbookSummary` (Player-Detail, `TradingTab:142`) zeigt `BESTER ASK: 200` = jarvis' EIGENE Sell-Order — die er nicht kaufen kann. `OrderbookSummary.bestAsk = Math.min(...sellOrders)` (Z.23) + eingebettetes `OrderbookDepth` (Z.111) inkludieren eigene Orders. **414 fixte `OrderDepthView` — das wird aber nur im Markt-Tab (`TransferListSection`) gerendert, NICHT Player-Detail.** Best-Ask wird an 4 Stellen gerechnet (von-allem-vier).

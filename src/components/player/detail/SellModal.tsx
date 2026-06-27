@@ -7,6 +7,7 @@ import { Card } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
 import { formatScout } from '@/lib/services/wallet';
+import { excludeOwnBids } from '@/lib/orderbook';
 import type { Player, PublicOrder, OfferWithDetails } from '@/types';
 import { SellModalCore } from '@/components/trading/SellModalCore';
 
@@ -18,6 +19,7 @@ interface SellModalProps {
   lockedQty?: number;
   userOrders: PublicOrder[];
   openBids?: OfferWithDetails[];
+  userId?: string;
   onSell: (qty: number, priceCents: number) => void;
   onCancelOrder: (orderId: string) => void;
   onAcceptBid?: (offerId: string) => void;
@@ -40,13 +42,17 @@ interface SellModalProps {
  */
 export default function SellModal({
   open, onClose, player, holdingQty, lockedQty = 0, userOrders,
-  openBids = [], onSell, onCancelOrder,
+  openBids = [], userId, onSell, onCancelOrder,
   onAcceptBid, acceptingBidId,
   selling, cancellingId,
   sellError,
 }: SellModalProps) {
   const t = useTranslations('playerDetail');
   const tm = useTranslations('market');
+
+  // Slice 416: eigene Kaufgebote raus — man kann das eigene Gebot nicht annehmen
+  // (accept_offer-Guard: sender ≠ acceptor). SSOT-Helper, sender_id-basiert.
+  const marketBids = excludeOwnBids(openBids, userId);
 
   const circulation = player.dpc.circulation || 1;
   const share = holdingQty / circulation;
@@ -98,29 +104,29 @@ export default function SellModal({
       {/* Orientation: Hoechstes Gesuch */}
       {availableToSell > 0 && !player.isLiquidated && (
         <div className="flex items-center gap-3 text-xs">
-          {openBids.length > 0 && (
+          {marketBids.length > 0 && (
             <div className="flex-1 bg-green-500/[0.06] border border-green-500/20 rounded-xl px-3 py-2 text-center">
               <div className="text-[10px] text-white/30">{tm('hoechstesGesuch')}</div>
               <div className="font-mono font-bold text-green-500 tabular-nums">
-                {fmtScout(centsToBsd(Math.max(...openBids.map(b => b.price))))}
+                {fmtScout(centsToBsd(Math.max(...marketBids.map(b => b.price))))}
               </div>
             </div>
           )}
         </div>
       )}
 
-      {/* Sofort verkaufen — accept open buy orders */}
-      {availableToSell > 0 && !player.isLiquidated && openBids.length > 0 && onAcceptBid && (
+      {/* Sofort verkaufen — accept open buy orders (Slice 416: ohne eigene Gebote) */}
+      {availableToSell > 0 && !player.isLiquidated && marketBids.length > 0 && onAcceptBid && (
         <Card className="overflow-hidden">
           <div className="px-4 py-2.5 bg-green-500/[0.04] border-b border-green-500/20">
             <div className="flex items-center gap-2">
               <Zap className="size-4 text-green-500" aria-hidden="true" />
               <span className="font-black text-sm text-green-500">{tm('sofortVerkaufen')}</span>
-              <span className="text-[10px] text-white/30">{tm('kaufgesuche')} ({openBids.length})</span>
+              <span className="text-[10px] text-white/30">{tm('kaufgesuche')} ({marketBids.length})</span>
             </div>
           </div>
           <div className="p-3 space-y-1.5">
-            {openBids
+            {marketBids
               .slice()
               .sort((a, b) => b.price - a.price)
               .slice(0, 5)

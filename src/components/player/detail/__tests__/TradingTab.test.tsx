@@ -17,7 +17,12 @@ vi.mock('../PriceChart', () => ({
 
 vi.mock('../TradingQuickStats', () => ({
   default: (props: Record<string, unknown>) => (
-    <div data-testid="trading-quick-stats" data-floor={props.floorPrice} data-holders={props.holderCount} />
+    <div
+      data-testid="trading-quick-stats"
+      data-floor={props.floorPrice as number}
+      data-holders={props.holderCount as number}
+      data-best-bid={props.bestBid === null ? 'null' : String(props.bestBid)}
+    />
   ),
 }));
 
@@ -413,32 +418,62 @@ describe('TradingTab', () => {
     expect(screen.queryByTestId('scout-consensus')).not.toBeInTheDocument();
   });
 
-  it('renders order book table when allSellOrders > 0 with own orders highlighted', () => {
+  // Slice 416: „sofort kaufbar"-Liste (Sektion 7) zeigt NUR Fremd-Orders — man
+  // kann die eigene Order nicht kaufen (buy_from_order lehnt ab). Eigene Orders
+  // sieht man im Bestand/SellModal, nicht in der kaufbaren Markt-Liste.
+  it('excludes own sell orders from the "instantly buyable" order book (Slice 416)', () => {
     const orders = [
       makeOrder({ id: 'o1', is_own: true, handle: 'myhandle', price: 2000, quantity: 3, filled_qty: 1 }, 0),
       makeOrder({ id: 'o2', is_own: false, handle: 'otherhandle', price: 3000, quantity: 2, filled_qty: 0 }, 1),
     ];
-    const profileMap = {
-      u1: { handle: 'myhandle', display_name: null },
-      other: { handle: 'otherhandle', display_name: null },
-    };
     renderWithProviders(
-      <TradingTab {...defaultProps} userId="u1" allSellOrders={orders} profileMap={profileMap} />,
+      <TradingTab {...defaultProps} userId="u1" allSellOrders={orders} />,
     );
 
-    // Order book header visible
+    // Order book header visible (foreign order present)
     expect(screen.getByText('transferMarketOrders')).toBeInTheDocument();
-
-    // Own order shows "you"
-    expect(screen.getByText('you')).toBeInTheDocument();
-
-    // Other seller shows handle link
+    // Foreign seller shown
     expect(screen.getByText('@otherhandle')).toBeInTheDocument();
+    // Own order NOT shown as buyable (no "you" badge in the order book; trades empty here)
+    expect(screen.queryByText('you')).not.toBeInTheDocument();
+  });
+
+  it('hides order book entirely when only own sell orders exist (Slice 416)', () => {
+    const orders = [
+      makeOrder({ id: 'o1', is_own: true, handle: 'myhandle', price: 2000 }, 0),
+    ];
+    renderWithProviders(
+      <TradingTab {...defaultProps} userId="u1" trades={[]} allSellOrders={orders} />,
+    );
+    // No foreign sell orders → "sofort kaufbar" section hidden
+    expect(screen.queryByText('transferMarketOrders')).not.toBeInTheDocument();
   });
 
   it('hides order book when allSellOrders is empty', () => {
     renderWithProviders(<TradingTab {...defaultProps} allSellOrders={[]} />);
     expect(screen.queryByText('transferMarketOrders')).not.toBeInTheDocument();
+  });
+
+  // Slice 416: Best-Bid (QuickStats) ignoriert das eigene Kaufgebot — eigenes Gebot
+  // ist keine annehmbare Markt-Nachfrage (accept_offer-Guard sender ≠ acceptor).
+  it('excludes own bid from QuickStats best-bid (Slice 416)', () => {
+    const bids = [
+      makeBid({ id: 'b1', sender_id: 'u1', price: 9000 }, 0),       // own, higher
+      makeBid({ id: 'b2', sender_id: 'other', price: 4000 }, 1),    // foreign
+    ];
+    renderWithProviders(
+      <TradingTab {...defaultProps} userId="u1" openBids={bids} />,
+    );
+    // QuickStats receives foreign best-bid (4000 cents), not own 9000.
+    expect(screen.getByTestId('trading-quick-stats')).toHaveAttribute('data-best-bid', '4000');
+  });
+
+  it('best-bid is null when only own bid exists (Slice 416)', () => {
+    const bids = [makeBid({ id: 'b1', sender_id: 'u1', price: 9000 }, 0)];
+    renderWithProviders(
+      <TradingTab {...defaultProps} userId="u1" openBids={bids} />,
+    );
+    expect(screen.getByTestId('trading-quick-stats')).toHaveAttribute('data-best-bid', 'null');
   });
 
   // Slice 408: Die alte „Aktive Angebote"-Sektion (player.listings) wurde entfernt — im
