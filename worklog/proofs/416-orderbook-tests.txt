@@ -14,3 +14,18 @@ tsc: 0 errors
 [2m   Start at [22m 15:31:39
 [2m   Duration [22m 5.38s[2m (transform 460ms, setup 1.30s, import 1.87s, tests 1.02s, environment 7.64s)[22m
 
+
+=== LIVE-VERIFY (bescout.net, post-Deploy b5968c0c, jarvis-qa) 2026-06-27 ===
+Spieler: Douglas Willian da Silva Souza (1cc3f504-af2c-4157-9d5c-03fef4312eb8)
+DB-Stand: jarvis (535bbcaf) hat 1 OPEN Sell-Order @200 (20000 cents, qty1, filled0) = EINZIGE Order; keine Fremd-Sells, keine offenen Gebote.
+
+Erwartung 416: eigene Order ist die einzige → "sofort kaufbar" (Sektion 7) muss verschwinden; OrderbookSummary (kein Fremd-Sell/Bid) muss verschwinden.
+Ergebnis (DOM-Eval):
+  - "sofort kaufbar"-Sektion: NICHT vorhanden  ✓ (vor 416 hätte sie jarvis' eigene @200 als kaufbar gelistet)
+  - OrderbookSummary (Orderbuch-Titel/BESTER ASK): NICHT vorhanden  ✓
+  - QuickStats (SPREAD) gerendert ✓; P2P "Kaufgebote": "Keine offenen Gebote" ✓
+  - 0 Console-Errors, keine Roh-i18n-Keys.
+Identität: jarvis' Order (gehört 535bbcaf, DB-offen) wird als is_own gefiltert → Viewer = jarvis bestätigt (sonst wäre sie fremd + sichtbar).
+Screenshot: 416-live-douglas-own-order-excluded.png (gitignored).
+
+Bid-Seite (Surfaces 2/3/4: best-bid/Höchstes-Gesuch ohne eigenes Gebot) = im P2P-Schritt des Lebenszyklus-Walks zu verifizieren (aktuell 0 Gebote auf Douglas).
