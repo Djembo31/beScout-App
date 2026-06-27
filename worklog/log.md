@@ -8,7 +8,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **Doc-Inhalt:** Fork-B (D112) im Flag-Kommentar verankert — `orders` (CLOB) + `offers` (P2P) bleiben beide; Buy-Seite des CLOB bleibt bewusst gated bis Matching-Engine (eigener Folge-Slice, nicht Mock→Pro-Scope). Comment-only, kein Code-Verhalten.
 - **Beweis:** `proofs/411-buy-orders-live-state.txt` (Live-Query-Output 0 open / locked=0). tsc grün (pre-commit).
 - **Welle 1.4 komplett:** 407 Fee=6% · 408 Vokabular · 409 Escrow-Robustheit · 410 Ledger-Labels · 411 Buy-Doc.
-- Commit: <pending>
+- Commit: 277124a3
 
 ## 410 | 2026-06-27 | fix(trading): Club-Treasury-Ledger korrekte Quellen-Labels (ipo_fee / p2p_fee) [Money/CEO]
 - Stage-Chain: SPEC (`specs/410-…`, S Money) → IMPACT inline (kein Service/UI/Type/i18n-Change) → BUILD (1 Migration, Trigger CREATE OR REPLACE) → REVIEW reviewer-Agent **PASS** (`reviews/410-review.md`, 2 NIT) → PROVE (force-rollback 3 Pfade + Zero-Sum + ACL) → LOG.
