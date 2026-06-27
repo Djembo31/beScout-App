@@ -1,11 +1,11 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 429
-title: finalizeGameweek entkoppeln — Score ≠ Advance (manueller Pfad scored, kein Liga-Advance) — GW-Fork 3/3 (B)
+title: finalizeGameweek entkoppeln — Score ≠ Advance (manueller Pfad scored, kein Liga-Advance) — GW-Fork 3/3 (B) — DONE
 size: M
-stage: PROVE (DONE) → LOG
+stage: LOG (DONE)
 spec: worklog/specs/429-finalize-decouple-advance.md
 impact: skipped (Removal eines Advance-Calls, kein Schema/Contract/Money-Flow-Change)
 proof: worklog/proofs/429-vitest.txt

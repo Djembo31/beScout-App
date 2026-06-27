@@ -4290,3 +4290,27 @@ Synergie ist eine **lebende, money-wirksame** Mechanik in `score_event`: pro dis
 Slice 424 (Vorschau server-treu, +6 Unit-ACs). **Folge-Slice (money-neutral, notiert):** der gescorte Synergie-Banner zeigt die Client-Approximation statt des tatsächlich gesettelten Server-`synergy_bonus_pct` (inkl. Surge-×2) — alle Synergie-Banner (Bau UND Scored) hängen am Client-Rechner (`grep synergy_bonus_pct` = 0 Render-Consumer). Knowledge: `.claude/rules/fantasy.md` Synergie-Punkt.
 
 **Re-Visit-Trigger:** Falls das Scoring-Modell weiter Richtung Sorare vereinfacht wird (Welle 3) → Synergie-Entfernung erneut als Option auf den Tisch.
+
+## D115 — ARCHITECTURE: Gameweek-Lifecycle ist ein Per-Liga-Konzept (GW-Fork, Slices 427-429)
+
+**Datum:** 2026-06-28 · **Status:** 🟢 Aktiv · **Category:** ARCHITECTURE (+ PROCESS für die Sequenz) · **Kontext:** Mock→Pro, nach Welle 2 (Scoring fixture/liga-gebunden, D113). Read-only-Recon `worklog/notes/gameweek-engine-recon.md` (Live-`pg_get_functiondef` D87) deckte auf, dass die GW-Lifecycle-Funktionen in **drei verschiedenen Scopes** operierten.
+
+### Befund (Live-DB + functiondef)
+Der Gameweek wurde inkohärent gescoped: `sync_fixture_scores(gw)` global pro GW-Nummer · `score_event` event-scoped (liga-korrekt aufgelöst) · `finalizeGameweek(clubId)` per-Club · `getFullGameweekStatus` global `1..38` · und **`active_gameweek` existierte DOPPELT** (`clubs.active_gameweek` + `leagues.active_gameweek`), synchron gehalten durch 3 Dual-Write-Konventionen (D111-Wurzel #1 „von allem zwei"). **Money-Pfad `score_event` war sicher** (liga-korrekt) → die Schuld war Integrität/Klarheit, kein aktiver Geld-Bug.
+
+### Entscheidung (Anil 2026-06-27/28)
+**Zum Per-Liga-Modell committen** — der Gameweek IST ein Liga-Konzept (Clubs erben ihn); die Evidenz war eindeutig (`set_active_gameweek` verhielt sich schon liga-weit, Daten uniform/Liga, `max_gameweeks` ist per-Liga). 3 Slices:
+- **427 (C, Display):** `getFullGameweekStatus(leagueId)` liga-gefiltert + `1..max_gameweeks` statt `1..38` (fixt Phantom-GW bei 34-Wochen-Ligen + latenten 1000-Cap, 2438 Fixtures).
+- **428 (A, Spalten):** `leagues.active_gameweek` = SSOT; alle Reader/Writer auf leagues, `set_active_gameweek`-RPC leagues-only + Guard `>max_gameweeks`, Cron-Dual-Write raus, obsoleter `gameweek-drift.js`-Audit entfernt. **Sequenz-Entscheid Anil: Expand/Contract** — `ALTER TABLE clubs DROP COLUMN active_gameweek` **NICHT** im selben Slice, sondern **428b nach verifiziertem Vercel-Deploy** (DB-Migration wirkt sofort, deployter Cron-Code lag't → Drop-vor-Deploy bräche den nächsten Cron-Lauf). Spalte bleibt bis dahin frozen+unread.
+- **429 (B, finalize):** **Decouple „Score ≠ Advance"** — der manuelle `finalizeGameweek` scored + klont nur, rückt den Liga-GW NICHT mehr vor (sonst überspringt ein Club-Finalize die un-gescorten Events anderer Liga-Clubs = verwaiste Rewards). Liga-Advance besitzen ausschließlich Cron + explizite AdminSettings-Aktion.
+
+### Alternativen erwogen
+- **429 — Liga-scoped finalize** (`finalizeGameweek(leagueId)` scored ALLE Liga-Clubs + advanced 1×): **verworfen** — Authz-Overreach (ein Club-Admin finalisiert fremde Clubs) + größerer Refactor. Decouple ist der kleinere korrekte Fix (§1 Simplicity).
+- **428 — Spalte behalten / Trigger-Sync** (clubs+leagues per DB-Trigger synchron): verworfen — „von allem zwei" bleibt; DROP ist der saubere SSOT-Weg.
+- **428 — alles inkl. DROP in einem Slice:** verworfen zugunsten Expand/Contract (Deploy-Fenster-Risiko auf money-nahem Cron).
+- **Gesamter Fork — Status quo lassen:** verworfen — Fragilität bleibt, nächster Spieltag-Builder stolpert wieder (Anil: Per-Liga, alle 3).
+
+### Auswirkung
+427 money-neutral, 428 money-nah (PATCH-AUDIT byte-treu, ACL erhalten, Force-Rollback Round-Trip), 429 money-neutral (Removal eines Advance-Writes). Alle Reviewer-PASS, committed+gepusht (aeaaae4e/3d95d9f9/7ad622a4). Wissen: errors-frontend (427-Cap), errors-db (428 SSOT-Expand/Contract-Kandidat), `.claude/rules/fantasy.md` Spieltag-Lifecycle (GW per-Liga + advance pfad-abhängig). **Offen (Post-Deploy):** 428b `DROP COLUMN` (nach Deploy-Verify) + 427 AC-06 Live-Screenshot (AdminGameweeksTab BL = 1..34).
+
+**Re-Visit-Trigger:** Falls jemals per-Club-divergierende Gameweeks fachlich gewollt werden (heute nie gültig) → Per-Liga-Annahme neu prüfen. Ranking-Konsolidierung `scout_scores`↔`user_stats` bleibt offener Folge-Fork.

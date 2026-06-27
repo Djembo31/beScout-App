@@ -1,15 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 23:06)
+# Session Handoff — Auto (2026-06-27 23:26)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 1 Files
 ```
- M memory/session-handoff.md
 ?? worklog/audits/orphan-components-2026-06-27.md
 ```
 
 ## Session Commits: 10
+- a7b3170d docs(handoff): Session-Close 425/426 — Tracker reconcile + Wissen verdrahten + Stale glätten
 - d2749cc8 refactor(fantasy): Slice 426 — Orphan-Cleanup alte Lineup-Builder-UI (S280) [Dead-Code]
 - 05248dff fix(fantasy): Slice 425 — Welle-2 Display-Truth A/B/C [Display-only, money-neutral]
 - 34ded658 docs(distill): D114 Synergie-Entscheid + Session-Close-Hygiene (Welle 2 KOMPLETT 419-424, Tracker/Stale geglättet)
@@ -19,7 +19,6 @@
 - 7e81487e fix(fantasy): Slice 422 — FantasyPlayerRow Club-Logo+Name aus UUID statt Freitext/Short [W2-Cleanup]
 - d44f79d5 docs(proof): Slice 421 — Live-Screenshot Bundesliga GW34 Next-Button [disabled] (force-add, *.png-ignore)
 - 2d2736e9 docs(log): Slice 421 DONE — Live-verified Bundesliga GW34-Cap + Admin-38-Smell-Anker
-- 95e7edc6 fix(fantasy): Slice 421 — Per-Liga GW-Max in SpieltagSelector durchrouten + toten GameweekSelector löschen [W2.4]
 
 <!-- auto:handoff-end -->
 
@@ -27,6 +26,17 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢🟢🟢 STAND 2026-06-28 (SESSION-CLOSE, fresh-session-ready) — GW-LIFECYCLE-PER-LIGA-FORK KOMPLETT: Slices 427+428+429 DONE, committed+gepusht (`7ad622a4`), `main`==`origin/main`, `active.md`=idle. D115. Decision-Log D1–D115.**
+> CEO-Entscheid Anil (diese Session, 4 Forks): **„GW = Per-Liga-Konzept, alle 3"** + Sequenz **Expand/Contract** + finalize **„Score≠Advance"**. Recon-Artefakt: `worklog/notes/gameweek-engine-recon.md` (Live-`pg_get_functiondef` D87; Money-Pfad `score_event` war schon liga-korrekt → die Schuld war Integrität/Klarheit, kein Geld-Bug).
+> - **427 (C, M, Reviewer PASS, `aeaaae4e`):** `getFullGameweekStatus(leagueId)` + `useClubEventsData(clubId, leagueId)` liga-gefiltert + Loop `1..max_gameweeks` statt `1..38`. Fixt Phantom-GW 35-38 bei 34-Wochen-Ligen (BL/2BL/SL) + **latenten 1000-Cap** (`.select()` ohne range, 2438 Fixtures global; per-Liga 380<1000). Events-Liga-Filter via Club-in-Liga (`events.league_id` ist 209/210 NULL). Display-only/money-neutral. 6 neue Tests.
+> - **428 (A, L, Reviewer PASS, `3d95d9f9`, Money-NAH — Expand-Phase):** `leagues.active_gameweek` = SSOT. `set_active_gameweek`-RPC **leagues-only** (kein `UPDATE clubs`) + Guard `>38`→`>COALESCE(max_gameweeks,38)` + `no_league`-RAISE; PATCH-AUDIT byte-treu (auth/club_admins-Guards + SECURITY DEFINER erhalten), ACL `{authenticated,service_role}`, **Force-Rollback Round-Trip: leagues=12, clubs frozen=38**. Cron `gameweek-sync` `get_active_gw` liest leagues + beide Advance-Stellen leagues-only (clubsToProcess={id}=alle Liga-Clubs). `getActiveGameweek`→resolve club→league (non-throw erhalten). Obsoleter `gameweek-drift.js`-Audit gelöscht + package.json + nightly-audit.yml entdrahtet. Migration `20260628120000`. **🚩 OFFEN: 428b** = `ALTER TABLE clubs DROP COLUMN active_gameweek` — **bewusst deferred (Anil Expand/Contract), erst NACH verifiziertem Vercel-Deploy** (DB-Migration wirkt sofort, deployter Cron-Code lag't → Drop-vor-Deploy bräche den nächsten Cron-Lauf). Spalte aktuell frozen+unread (kein Runtime-Reader, Reviewer-verifiziert). 428b-Restscope: DROP + DbClub-Type + 3 club.ts-Selects + 2 Seed-Scripts (`verify-squads`/`import-league` insert `active_gameweek:1`) + schema-contracts.test:265.
+> - **429 (B, M, Reviewer PASS, `7ad622a4`, Money-NEUTRAL):** manueller `finalizeGameweek`/`simulateGameweekFlow` entkoppelt — scored + klont nur, ruft `setActiveGameweek` NICHT mehr (entfernt einen Advance-Write, `scoreEvent`-Minting unberührt). **Bug:** seit 428 rückte ein Club-Finalize via leagues-weiten RPC die GANZE Liga vor → überspringt un-gescorte Events anderer Liga-Clubs (Bundesliga 2 Clubs live) = verwaiste Rewards. Liga-Advance besitzen jetzt nur Cron + explizite AdminSettings-Aktion. AdminGameweeksTab re-fetcht `getActiveGameweek` (DB-Wahrheit) statt nextGameweek-Sprung. i18n `finalizeStep3` DE+TR truthful. Test invertiert (`not.toHaveBeenCalled`).
+> - **Wissen verdrahtet:** D115 (decisions.md + INDEX D1–D115) · `.claude/rules/fantasy.md` Spieltag-Lifecycle (GW per-Liga + „advance pfad-abhängig: manueller Finalize score-only, Advance=Cron+AdminSettings").
+> - **➡️ DIREKT-START NÄCHSTE SESSION (Post-Deploy, Anil-Wahl):** (a) **428b DROP** — sobald Vercel-Deploy von `7ad622a4` live ist (verifizieren z.B. via bescout.net AdminGameweeksTab BL zeigt 1..34): `ALTER TABLE clubs DROP COLUMN active_gameweek` + DbClub-Type + 3 club.ts-Selects + 2 Seed-Scripts + schema-contracts.test bereinigen (eigener S-Slice, grep-gestützt, S280-Removal-Achsen). (b) **427 AC-06 Live-Screenshot** (AdminGameweeksTab BL = 1..34, jarvis-qa). DANN **(1) Ranking-Konsolidierung** scout_scores↔user_stats [CEO-Quelle-Entscheid] ODER **(2) Welle 3** (Events/Aufstellung, Lineup-Datenmodell-Fork, Money/CEO). Money-Wellen = selbst (§3) + Live-functiondef vor Spec (D87) + Zero-Sum.
+> - **CTO-autonome Folge-Smells (klein, optional):** Player-Domain `getClub(player.club)`-Freitext-Card-Identitäts-Cluster (PlayerHero/PlayerRow/TradingCardFrame, gleiche 6,6 %-Klasse wie 422-425) · `nextGw>38`-Hardcode in `createNextGameweekEvents:234` (gleiche 38-Klasse wie 427/428-Guard).
+>
+> ---
+>
 > **🟢🟢 STAND 2026-06-27 (Abend 10 — SESSION-CLOSE, fresh-session-ready) — Slice 425 + 426 DONE, committed+gepusht (`d2749cc8`), `main`==`origin/main`, `active.md`=idle. WELLE 2 jetzt 419-426 KOMPLETT. Scoring-DISPLAY-Domäne vollständig sauber.**
 > Diese Session schloss die Welle-2-Display-Reste + räumte den dahinter gefundenen Architektur-Smell auf:
 > - **Slice 425 [Display-only, money-neutral, M, Reviewer PASS]** — die 3 verifizierten 424-Review-Smells geheilt: **(A)** scored Synergie-Banner liest jetzt die **gesettelte** `lineups.synergy_bonus_pct`+`synergy_details` (inkl. **Surge ungecappt**, >15 möglich) statt der Client-Approximation; Hook `useLineupBuilder` exposed `settledSynergy` mit Coercion `Math.round(Number(...))` (**Faktum: `synergy_bonus_pct` runtime NUMERIC-String "10.00"** via `getLineup` `.select('*')`-ohne-Mapping; `synergy_details.source`=Club-**Name**, DB-verifiziert → kein getClub). **(B)** scored-Breakdown-Club-Name `getClub(player.clubId)?.name ?? player.club`. **(C)** `KaderTab`/`KaderToolbar`-Club-Filter String→**clubId-Key**. **🚩 Kritische Surface-Korrektur mid-BUILD (S424-Lehre):** die in 424 genannte `ScoreBreakdown.tsx` war **toter Code** (0 Live-Render) — die **live** Surface ist **`LineupPanel.tsx`**; Fix dorthin umgelenkt, tote Edits revertiert. Spec `425-…`, Proof `425-display-truth.txt`, Review `425-review.md`.
