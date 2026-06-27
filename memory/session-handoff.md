@@ -1,14 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 16:50)
+# Session Handoff — Auto (2026-06-27 16:58)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M TODO.md
-```
+## Working Tree: Clean
 
 ## Session Commits: 10
+- 51eb0a40 docs(proof): Slice 417 live-verified — Eigen-Gebot weg aus "Offene Gebote", Storno via "Ausgehend" + Escrow-Refund
 - eb69c4e2 fix(trading): Slice 417 — Offers Eigen-Gebot-Leak in "Offene Gebote" schliessen (server-SSOT)
 - c5cefd04 docs(distill): Session-Close 2026-06-27 — 416 + e2e-Walk verankert, errors-frontend S416
 - df6beeb2 docs(proof): Welle 1 Trading e2e-Lebenszyklus-Walk live bewiesen + 416 4-Surface live-verify
@@ -18,7 +16,6 @@
 - 71ca15d9 docs(proof+handoff): 415 live-verified (BESTER ASK own-order weg); 1.6 Folge-Surfaces + Live-Walk offen
 - c69aa61d docs(log): Slices 414+415 — Welle 1.6 Orderbook own-order exclusion (2 Surfaces); Live-Verify nach Deploy
 - 7e9afcfc fix(trading): Slice 415 — Welle 1.6 OrderbookSummary Player-Detail eigene Sell-Orders aus Best-Ask excludieren [UI]
-- 9b7eb094 fix(trading): Slice 414 — Welle 1.6 OrderDepthView eigene Orders aus Best-Ask/Spread excludieren [UI]
 
 <!-- auto:handoff-end -->
 

@@ -1,0 +1,28 @@
+Slice 418 — Welle-1-Cleanup (2 Funde aus 417): Test-Health + Orphan-Removal
+==========================================================================
+Datum: 2026-06-27
+
+## Fund #1 — kaputter useOffersState-Test (CI seit S412 rot)
+Root-Cause: S412 führte `useTranslations('offers')` in useOffersState ein (Toast-
+Übersetzung), ohne next-intl-Mock im Test → "NextIntlClientProvider not found".
+Fix: vi.mock('next-intl', () => ({ useTranslations: () => (key) => key })) ergänzt.
+
+VORHER (clean stand, gestasht): 25 failed / 25
+NACHHER: 25 passed / 25  ✓
+
+## Fund #2 — Orphan useOpenBids() (no-arg) vollständig entfernt
+- features/market/queries/offers.ts: useOpenBids() raus + getOpenBids-Import raus
+- lib/queries/marketDashboard.ts: toter Primer `setQueryData(qk.offers.openBids,…)` raus + JSDoc
+- lib/queries/keys.ts: Orphan-Key `offers.openBids` raus
+Verhaltensneutral: BestandView liest open_bids aus dem Dashboard-Query-Result, nicht aus dem Cache.
+Player-Detail-`useOpenBids(playerId)` (misc.ts) = anderer Hook, unberührt.
+
+## Verifikation
+tsc --noEmit: clean (exit 0)
+useOffersState.test.ts: 25 passed
+offers.test.ts + useMarketData.test.ts: 65 passed
+
+## FULL VITEST (CI-Green-Beweis)
+ Test Files  233 passed (233)
+      Tests  3301 passed | 1 skipped (3302)
+      0 failed → CI grün (war seit S412 rot wegen useOffersState 25 fails).

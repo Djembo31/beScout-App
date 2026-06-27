@@ -97,6 +97,14 @@ Mehrere Acting-User (verschiedene Seller/Club-Admins) in EINEM `DO $$ BEGIN PERF
 
 Wenn Component/Hook auf `useSafeMutation` migriert wird, erfordert das **Test-Mock-Expansion** (transitive Imports) + **Handler-Testing-Pattern** (Observer ist async).
 
+### 0. i18n in einen bisher-nicht-i18n-Hook einführen bricht dessen Unit-Test STILL (CI-only) — Slice 418
+
+Fügt ein Slice `useTranslations('ns')` zu einem Hook/Component hinzu, der vorher kein i18n nutzte (z.B. um hardcodierte Toast-Strings zu übersetzen), wirft dessen bestehender Unit-Test `Failed to call useTranslations because the context from NextIntlClientProvider was not found` — JEDER Test des Files (`renderHook`/`render` ohne Provider) failt. `src/test/setup.ts` mockt next-intl **NICHT** global → jedes Test-File braucht den Mock selbst. **tsc ist clean** (Runtime-Context), und der Pre-Push-Hook ist fast-only (S350, volle Tests = CI) → die rote Suite fällt erst in CI auf und bleibt mehrere Slices unbemerkt (S412→417 lief CI rot, in 418 geheilt). **Fix-Mock (Identity-Passthrough, exakt was key-asserting Tests erwarten `t('x')→'x'`):**
+```typescript
+vi.mock('next-intl', () => ({ useTranslations: () => (key: string) => key }));
+```
+Muster: `src/features/market/hooks/__tests__/useTradeActions.test.ts`. **Regel:** fügst du i18n zu einem Hook/Component hinzu, lauf SOFORT dessen Test-File (`vitest run <file>`) — nicht auf CI verlassen. Verwandt: jede transitive-Dependency-Einführung (useSafeMutation→ToastProvider unten) braucht Test-Mock-Expansion.
+
 ### 1. Mock-Expansion-Template
 
 `useSafeMutation` importiert `@/components/providers/ToastProvider` (fuer `logSilentCatch` + Toast-Breadcrumb). ToastProvider zieht lucide-react Icons (`AlertCircle`, `CheckCircle2`, `Info`, `X`) — diese muessen im Test-Mock stehen **oder** ToastProvider selbst gestubbt werden.

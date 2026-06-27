@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 418 | 2026-06-27 | fix(test)+refactor: Welle-1-Cleanup — kaputter useOffersState-Test (CI seit S412 rot) + Orphan useOpenBids-Hook [Ops]
+- Stage-Chain: SPEC inline (Ops-Lane S352) → IMPACT inline (Consumer gegrept) → BUILD (4 Files) → REVIEW self-review (Ops, kein Money/Security) → PROVE (`proofs/418-cleanup-tests.txt`, full vitest 233/233 Files + 3301 grün) → LOG.
+- **Beide Funde aus Slice 417 gefixt:**
+- **Fund #1 [Test-Health, CI-Regression]:** `useOffersState.test.ts` 25 Tests rot seit **Slice 412** — 412 führte `useTranslations('offers')` in useOffersState ein (Toast-Übersetzung), ohne next-intl-Mock im Test → „NextIntlClientProvider not found". `setup.ts` mockt next-intl nicht global; tsc clean + Pre-Push fast-only (S350) → rote Suite blieb CI-only unbemerkt (412→417). Fix = `vi.mock('next-intl', () => ({ useTranslations: () => (key) => key }))` (Identity). 25/25 grün.
+- **Fund #2 [Dead-Code]:** Orphan `useOpenBids()` (no-arg, `features/market/queries/offers.ts`, 0 Consumer) vollständig entfernt + Kaskade: toter Primer `setQueryData(qk.offers.openBids,…)` (`marketDashboard.ts`) + Orphan-Key `qk.offers.openBids` (`keys.ts`). Verhaltensneutral (BestandView liest open_bids aus Dashboard-Query-Result, nicht Cache). Player-Detail-`useOpenBids(playerId)` (misc.ts) unberührt.
+- **CI-Beweis:** full vitest 233/233 Files, 3301 passed, 1 skipped, **0 failed** → CI grün (war seit 412 rot).
+- **Wissens-Kopplung:** testing.md neue Sektion 0 — „i18n in nicht-i18n-Hook einführen bricht dessen Unit-Test still (CI-only)" + Identity-Mock-Fix.
+- Files: useOffersState.test.ts · features/market/queries/offers.ts · lib/queries/marketDashboard.ts · lib/queries/keys.ts · testing.md. Commit: <hash>.
+
 ## 417 | 2026-06-27 | fix(trading): Offers — Eigen-Gebot-Leak in „Offene Gebote" schließen (server-SSOT) [Service+RPC]
 - Stage-Chain: SPEC (`specs/417-…`, S) → IMPACT inline (3 Consumer-Pfade gegrept) → BUILD (Service +1 Filter + SEC-DEFINER-RPC read-filter + 2 Tests) → REVIEW reviewer-Agent **PASS** (`reviews/417-review.md`, 2 NIT out-of-scope) → PROVE (`proofs/417-rpc-verify.txt` PATCH-AUDIT+AC-3 force-rollback · `417-offers-tests.txt` 36 Tests + tsc 0) → LOG.
 - **Bug (e2e-Walk Z.51 live):** jarvis' eigenes öffentliches Kaufgebot auf einen besessenen Spieler leckte in den Portfolio-Tab „Offene Gebote" als TOTE Zeile — nicht annehmbar (`isIncoming=false`, `accept_offer` blockt Selbst-Annahme) und nicht stornierbar (Cancel nur im „Ausgehend"-Tab). Wirkte wie escrow-gelocktes Guthaben ohne Exit.

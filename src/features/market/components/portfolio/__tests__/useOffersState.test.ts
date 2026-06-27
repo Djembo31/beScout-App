@@ -30,6 +30,15 @@ const mockInvalidateWallet = vi.fn().mockResolvedValue(undefined);
 const mockInvalidateTradeQueries = vi.fn();
 const mockLogSilentCatch = vi.fn();
 
+// [Slice 418] next-intl-Mock (Identity-Passthrough). useOffersState ruft seit
+// Slice 412 `useTranslations('offers')` für Toast-Übersetzung — ohne diesen Mock
+// wirft der Hook "NextIntlClientProvider not found" (25 Tests rot, CI seit 412).
+// Identity ist exakt was die Assertions erwarten (t('offerAccepted')→'offerAccepted').
+// Muster: src/features/market/hooks/__tests__/useTradeActions.test.ts:64.
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
+}));
+
 vi.mock('@/components/providers/AuthProvider', () => ({
   useUser: () => ({ user: { id: 'u1' } }),
 }));

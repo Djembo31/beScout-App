@@ -64,12 +64,12 @@ export function useMarketUserDashboard(userId: string | undefined) {
  * navigation. `useHoldings()` runs its own query against `getHoldings()`
  * (PostgREST nested-select) to fetch the player-joined shape.
  *
- * Note: `qk.offers.openBids` is pre-filtered to the user's owned players
- * (matches getOpenBids({ ownedByUserId }) branch). Same shape.
+ * Slice 418: `qk.offers.openBids`-Priming entfernt — der einzige Reader
+ * (orphan `useOpenBids()` no-arg) wurde gelöscht; BestandView liest `open_bids`
+ * direkt aus dem Dashboard-Query-Result, nicht aus diesem Cache.
  */
 export function primeMarketDashboardCaches(userId: string, dash: EnrichedMarketDashboard): void {
   // INTENTIONALLY skipping qk.holdings.byUser — see JSDoc above (Slice 192)
   queryClient.setQueryData(qk.watchlist.byUser(userId), dash.watchlist);
   queryClient.setQueryData(qk.offers.incoming(userId), dash.incoming_offers);
-  queryClient.setQueryData(qk.offers.openBids, dash.open_bids);
 }

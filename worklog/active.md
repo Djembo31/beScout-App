@@ -2,18 +2,25 @@
 
 ```
 status: idle
-slice: 417
-title: Offers — Eigen-Gebot-Leak in "Offene Gebote" geschlossen (server-SSOT, getOpenBids + dashboard-RPC) — DONE
-size: S (Service +1 Filter + SEC-DEFINER-RPC read-filter + Tests; Money-Domain read-only)
+slice: 418
+title: Welle-1-Cleanup — 2 Funde aus 417 gefixt (kaputter useOffersState-Test + Orphan useOpenBids-Hook) — DONE
+size: S (Ops/Cleanup: Test-Mock + Dead-Code-Removal; kein Money/Security/User-facing-Verhalten)
 stage: LOG (DONE)
-spec: worklog/specs/417-open-bids-own-exclusion.md
-impact: inline (3 Consumer-Pfade gegrept; nur Pfad 1 sichtbarer Bug)
-proof: worklog/proofs/417-rpc-verify.txt + 417-offers-tests.txt + 417-live-ui.txt
-review: worklog/reviews/417-review.md — PASS (2 NIT out-of-scope)
+spec: inline (Ops-Lane, Slice 352)
+impact: inline (Consumer gegrept: beide Funde lokal, kein externer Reader)
+proof: worklog/proofs/418-cleanup-tests.txt (full vitest 233/233 Files, 3301 grün, 0 fail)
+review: self-review (Ops, kein Money/Security) — full vitest green = Regressions-Beweis
 ```
-**✅ DONE + LIVE-VERIFIED (2026-06-27, bescout.net jarvis-qa):** Bug = eigenes öffentliches Kaufgebot auf besessenen Spieler leckte als tote Zeile in „Offene Gebote". Handoff-Befund „cancel_offer_rpc nicht verkabelt" war FALSCH — Storno IST im „Ausgehend"-Tab. Fix = server-SSOT Eigen-Ausschluss an 2 Quellen (`getOpenBids` `.neq('sender_id', ownedByUserId)` + RPC `get_market_user_dashboard` open_bids `AND sender_id <> p_user_id`); Pfad 3 (Player-Detail) bewusst unberührt (Welle-1.6-Client-SSOT). Reviewer PASS, 36 Tests, tsc 0, PATCH-AUDIT (ACL+auth-guard erhalten), AC-3 force-rollback. **Live-Walk (geseedetes Yildiz-Gebot 50 CR):** „Offene Gebote" leer (Eigen-Gebot weg) · „Ausgehend" zeigt es mit „Zurückgezogen"-Button · Storno via UI → cancelled, balance +5000 refunded, locked 0. Seed sauber aufgelöst. Commit eb69c4e2 (Live-Proof folgt im Finalize-Commit).
+
+## Inline-Spec (Ops-Lane)
+**Fund #1 — kaputter Test `useOffersState.test.ts` (25 Fehler, CI seit S412 rot):** S412 führte `useTranslations('offers')` in `useOffersState` ein (Toast-Übersetzung), ohne den next-intl-Mock im Test zu ergänzen → `useTranslations`-Context-Throw. setup.ts mockt next-intl NICHT global; Schwester-Test `useTradeActions.test.ts:64` zeigt das Muster. **Fix:** `vi.mock('next-intl', () => ({ useTranslations: () => (key) => key }))` ergänzen (Identity = was die Assertions `t('offerAccepted')→'offerAccepted'` erwarten).
+
+**Fund #2 — Orphan `useOpenBids()` (no-arg):** `features/market/queries/offers.ts:20`, 0 Consumer (grep-verifiziert). Liest `qk.offers.openBids`, der NUR vom toten Primer `marketDashboard.ts:74` geschrieben wird. `BestandView` liest `open_bids` aus dem Dashboard-Query-Result (nicht aus dem Cache) → Primer-Entfernung verhaltensneutral. **Fix (vollständiger Cleanup, kein Orphan-Verschieben):** (a) `useOpenBids()` raus, (b) Primer-Zeile 74 + JSDoc-Note raus, (c) Key `qk.offers.openBids` (keys.ts:166) raus. Player-Detail-`useOpenBids(playerId)` (misc.ts) bleibt — anderer Hook.
+
+## AC
+1. `useOffersState.test.ts` 25/25 grün. 2. Orphan-Hook + Primer + Key entfernt, tsc 0. 3. FULL vitest grün (CI-Beweis). 4. keine offene `qk.offers.openBids`/`useOpenBids()`-Referenz mehr.
 
 ## Zuletzt
-- **Slice 416** (2026-06-27) — Welle 1.6 Eigen-Order/Bid-Exclusion SSOT, 4 Surfaces (S, PASS). Welle 1 Trading e2e KOMPLETT.
+- **Slice 417** (2026-06-27) — Offers Eigen-Gebot-Leak server-SSOT, live-verified (S, PASS).
 
-Nächstes: **Welle 2 Spieltag/Scoring [Money]** — größter Mock→Pro-Brocken (Scores an GW-Nummer statt Fixture-gebunden, Datenmodell-Integrität). Selbst (§3) + Live-`pg_get_functiondef` VOR Spec (D87) + Zero-Sum.
+Nächstes: Welle 2 Spieltag/Scoring [Money].
