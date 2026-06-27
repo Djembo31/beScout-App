@@ -4220,3 +4220,32 @@ Read-only Bestandsaufnahme **Domäne für Domäne** (7 Domänen: Trading · Spie
 [[project_beta_live]] superseded. MASTERPLAN/TODO/Handoff auf Mock→Pro umgestellt. Re-Launch (Test-IPOs/Daten-Reset/Cold-Start-Liquidität) = Phase NACH dem Programm ([[project_launch_sequence_reset]]).
 
 **Re-Visit-Trigger:** Nach Abschluss aller 7 Wellen → Re-Launch-Prep + Beta-Sign-Off (beta-phase PASS, [[feedback_no_premature_ready]]).
+
+---
+
+## D112 — ARCHITECTURE: Trading-Modell — Orderbuch (CLOB) UND P2P-Offers beide behalten, als getrennte Produkte härten (Welle-1.4-Gabelung)
+
+**Datum:** 2026-06-27 · **Status:** 🟢 Aktiv · **Category:** ARCHITECTURE · **Kontext:** Mock→Pro Welle 1 (Trading), Architektur-Gabelung „Orderbuch-Vereinigung" aus D111. Faktenkartierung `worklog/notes/406b-orderbook-offers-map.md`.
+
+### Befund (Live-DB + Code, 2026-06-27)
+`orders` und `offers` sind **strukturell zwei verschiedene Handelsmodelle**, kein „von allem zwei"-Duplikat:
+- **`orders` = anonymes Limit-Orderbuch (CLOB)** — Teilfüllung (`filled_qty`), jeder füllt, Fee 6 % (trade_*). Sell-Seite = der **einzige lebende Markt** (4 aktiv, 77 filled). Buy-Seite (`place_buy_order`) **bereits per Flag aus** (`FEATURE_BUY_ORDERS=false`, kein Matching-Engine, AR-11; letzte Aktivität 2026-03-19).
+- **`offers` = gerichtete P2P-Verhandlung** — sender→receiver, counter_offer/message/reject, all-or-nothing, Fee 3 % (offer_*). Live in UI (OfferModal/OffersTab) aber **~0 Nutzung** (0 pending, ~16 Zeilen lifetime, meist cancelled/expired/QA).
+
+### Entscheidung
+**Fork B (Anil-Wahl): Beide Mechaniken behalten und als getrennte Produkte härten** — Orderbuch = Markt (Instant-Kauf + Sell-Orders), `offers` = „Angebot machen / verhandeln". KEIN Stilllegen, KEINE Tabellen-Vereinigung.
+
+### Härtungs-Sub-Plan (je eigener Slice, Welle 1.4x)
+- **1.4a [Money/CEO] Fee-Kohärenz:** P2P 3 % vs Orderbuch 6 % auflösen — bewusst (P2P billiger?) oder angleichen? Smell: günstigeres P2P unterläuft den Markt + halbiert Plattform-Fee. **Braucht Anil-Fee-Entscheid vor Bau.**
+- **1.4b [UI] Klarheits-Trennung:** „Instant-Kauf (Markt)" vs „Angebot machen (Verhandlung)" klar unterscheidbar machen (Labels/CTAs) — vor Bau Code-State prüfen.
+- **1.4c [Money] offers-Robustheit:** buy-offer Escrow (`locked_balance`), Expiry-Cron, counter/reject-Flow gegen Live härten.
+- **1.4d [Doc] Buy-Limit-Order:** `place_buy_order` bleibt unter Fork B gated (FEATURE_BUY_ORDERS=false) — als bewusster Stand dokumentieren (echtes Buy-Matching = Fork C, post-Launch).
+
+### Alternativen erwogen
+- **Fork A — Orderbuch-only, P2P stilllegen:** empfohlen war's (kleinste Fläche, Sorare-nah, reversibel per Flag) — Anil verwarf: Verhandlungs-Feature soll bleiben.
+- **Fork C — Echte zweiseitige Börse (Buy-Matching-Engine + P2P retiren):** verworfen für jetzt — größter Bau (Matching, Race-Conditions), realistisch post-Launch.
+
+### Auswirkung
+Welle 1.4 wird ein kleiner Härtungs-Strang (1.4a–d) statt eines Slices. Fee-Asymmetrie (1.4a) ist das offene Money/CEO-Item. Anker: `worklog/notes/406b-orderbook-offers-map.md`.
+
+**Re-Visit-Trigger:** Wenn P2P-Nutzung dauerhaft ~0 bleibt → Fork A (stilllegen) erneut erwägen. Wenn echtes Buy-Limit gewünscht → Fork C.
