@@ -9,7 +9,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **Beweis (`proofs/413-…txt`):** buy_player_sc force-rollback — AC1 `Nur 1 SCs verfuegbar` (reject) · AC2 price_change=-33.3333 · AC5 Zero-Sum delta=0. buy_from_order Regression — ok/effective_fee_bps=600/Zero-Sum delta=0. ACL beide unverändert (kein anon). fee_config live=1 Row → 1.5c geldneutral. S406-ILIKE-FP (Kommentar-Artefakt) im Proof entschärft.
 - **Wissens-Kopplung (D88):** kein neuer Bug-Typ (S156/S406/created_at-Kanon angewandt) → keine errors-*.md-Ergänzung. `docs/knowledge/treasury.md` Fee-Split unberührt → kein Doc-Drift.
 - **Offene INFO (eigene Slices):** `'Max 20 Trades/24h'`-String jetzt inhaltlich falsch für gold/silber/bronze (Limit 200/50/30) → i18n-Polish · `'Nicht genug BSD'`-Prosa = 1.5b-Hygiene.
-- Commit: <pending>
+- Commit: 80720552
 
 ## 412 | 2026-06-27 | fix(trading): Welle 1.5b+1.5f — Trading-Error-Display-Konsistenz (Offers-Tab Roh-Leaks + idempotency_pending) [UI/i18n]
 - Stage-Chain: SPEC inline (active.md, S) → IMPACT skipped (Display-only) → BUILD (3 Files + 2 i18n) → REVIEW self-review PASS (geldneutral) → PROVE (tsc+JSON+grep) → LOG.
@@ -495,7 +495,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **Money-Sicherheit:** Fee-Konstante `(v_reward*500)/10000`=5 % verbatim (S356-Drift-Klasse via ILIKE-Assert `fee_constant_intact`), CREATE-OR-REPLACE = exakter Live-`functiondef` (D87, 1:1 gegen 332-Vorversion gegengeprüft) + genau 1 Block, Header bewusst OHNE `SET search_path` (Original-Eigenheit, `no_search_path_drift`-Assert), AR-44 REVOKE/GRANT (anon=false, authed=true). `'bounty'` im CHECK schon gedeckt → keine CHECK-Migration.
 - **Proof:** `worklog/proofs/365-money-smoke.txt` — Force-Rollback-Smoke (Pfad 1 user_bounty, umgeht Escrow-Trigger): Topf +50 (5 % von 1000), Zero-Sum 1000=950+50, 1 `'bounty'`-Ledger-Row ref=bounty_id, sauberer Rollback (pot=0, 0 Residue). tsc EXIT 0 (kein src/-Change), INV-18 unberührt.
 - Files: `supabase/migrations/20260624180000_slice_365_bounty_fee_rein.sql` (via `apply_migration`). Knowledge: `docs/knowledge/domain/treasury.md` §10 (REIN-Tabelle letzte Zeile Bounty → ✅, Fees-REIN-Sequenz komplett).
-- Commit: <pending>
+- Commit: 80720552
 - Notes: **Mit Slice 365 ist E3 Slice 2 „Fees REIN" KOMPLETT (5/5 Quellen).** Nächster Track: E3 Slice 3 Monats-Liga e2e (RAUS-Kanal).
 
 ## 364 | 2026-06-24 | feat(treasury): Research-Fee REIN in Plattform-Topf (E3-2d, D96/D98)
@@ -505,7 +505,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **Money-Sicherheit:** Fee-Konstante `(v_price*80)/100` verbatim (S356-Drift-Klasse via ILIKE-Assert `fee_constant_intact`), CREATE-OR-REPLACE = exakter Live-`functiondef` (D87) + genau 1 Block, AR-44 REVOKE/GRANT (anon=false, authed=true). `'research'` im CHECK schon gedeckt → keine CHECK-Migration. Alle 4 Vor-Guards (auth.uid-Mismatch/eigener Bericht/bereits/nicht genug BSD) intakt.
 - **Proof:** `worklog/proofs/364-money-smoke.txt` — Force-Rollback-Smoke: Topf +200 (20 % von 1000), Zero-Sum 1000=800+200, 1 `'research'`-Ledger-Row ref=research_id, sauberer Rollback (pot=0, 0 Residue). tsc EXIT 0 (kein src/-Change), INV-18 unberührt.
 - Files: `supabase/migrations/20260624170000_slice_364_research_fee_rein.sql` (via `apply_migration`). Knowledge: `docs/knowledge/domain/treasury.md` §10 (REIN-Tabelle + Sequenz aktualisiert).
-- Commit: <pending>
+- Commit: 80720552
 
 ## 363 | 2026-06-24 | feat(treasury): Polls-Fee REIN in Plattform-Topf (E3-2c, D96/D98)
 - Stage-Chain: SPEC (`worklog/specs/363-poll-fee-rein.md`, S) → IMPACT (skipped, additive Inline-Buchung, 0 Consumer-Contract-Change) → BUILD → REVIEW (`worklog/reviews/363-review.md`, **PASS**, 2 NIT kosmetisch) → PROVE → LOG.
@@ -514,7 +514,7 @@ Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 - **Money-Sicherheit:** Fee-Konstante `(v_cost*80)/100` verbatim (S356-Drift-Klasse abgesichert via ILIKE-Assert), CREATE-OR-REPLACE = exakter Live-`functiondef` + genau 1 Block, AR-44 REVOKE/GRANT (anon=false, authed=true). `'poll'` im CHECK schon gedeckt → keine CHECK-Migration.
 - **Proof:** `worklog/proofs/363-money-smoke.txt` — 2-Branch-Force-Rollback-Smoke: Topf je +200 (20 % von 1000), Zero-Sum 1000=800+200, je 1 `'poll'`-Ledger-Row, Wallet −2000, sauberer Rollback (pot=0, 0 Residue). tsc clean (kein src/-Change), INV-18 unberührt.
 - Files: `supabase/migrations/20260624160000_slice_363_poll_fee_rein.sql` (via `apply_migration`).
-- Commit: <pending>
+- Commit: 80720552
 
 ## 362 | 2026-06-24 | fix(services): platformAdmin chunked/paginated Reads — player_count Live-Bug
 - Stage-Chain: SPEC (inline, S) → IMPACT (skipped, 1 Service-File, 2 Caller verifiziert) → BUILD → REVIEW (`worklog/reviews/362-review.md`, **PASS**, 2 NIT, NIT#1 adressiert) → PROVE → LOG.
