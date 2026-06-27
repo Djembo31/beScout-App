@@ -1,0 +1,54 @@
+=== WELLE 1 TRADING — Live-e2e-Lebenszyklus-Walk (Beweis "Trading läuft vollständig") ===
+Datum: 2026-06-27 · bescout.net (post-Deploy b5968c0c) · Login jarvis-qa (535bbcaf-f33c-4c66-8861-b15cbff2e136)
+Methode: echte UI-Aktionen via Playwright; jeder Money-Schritt gegen Live-DB reconciled. Gegenpartei-Gebot für Accept-Schritt via JWT-Impersonation geseedet (bot010).
+
+START jarvis-Balance: 1.239.727 cents (12.397,27 CR), locked 0.
+
+--- Schritt 1: IPO-Kauf (Rakhim Chaadaev, e4784b96) ---
+UI: Spielerseite → Kaufen → Club-Verkauf 50 CR → Verpflichten.
+DB: balance 1.234.727 (−5000 ✓) · rakhim_qty 1→2 ✓ · ipo.sold →2 ✓.
+
+--- Schritt 2: Markt-Kauf (Muhammed Tiren, 05f7a1a2, Fremd-Order bc63d013 @bot002) ---
+UI: Kaufen → order-gebunden günstigste Fremd-Order 15 CR ("Danach 12.332") → Kaufen.
+416-Gegenprobe: "sofort kaufbar" IST sichtbar (Fremd-Order) — Kontrast zu Douglas (nur eigene → weg).
+DB: balance 1.233.227 (−1500 ✓) · tiren_qty 1→2 ✓ · bot-Order rem 4→3 ✓ · Fee 53/22/15 = 6% von 1500 (3,5/1,5/1) ✓.
+
+--- Schritt 3: Sell-Order (Emre Demir, 2f3442ea) ---
+UI: Verkaufen → Marktpreis 550 → "Für 550 Credits listen".
+DB: Order 72452fea erstellt, 55000 cents, qty1, status open ✓.
+
+--- Schritt 4: P2P-Kaufgebot (Douglas, 1cc3f504) + 416-Bid-Verify ---
+UI: Kaufgebot abgeben → 150 CR → Gebot senden.
+DB: Offer 39db33bf @15000 cents qty1 pending · balance 1.218.227 (−15000) · locked 15000 ✓ (Escrow-Lock).
+416 BID-VERIFY (Douglas reload):
+  - QuickStats SPREAD = "—" (eigenes 150-Gebot NICHT als best-bid; wäre es gezählt → (200−150)/200 = 25%) ✓ Surface 3
+  - "Kaufgebote"-Liste: eigenes @150 sichtbar OHNE Annehmen-Button ✓
+  - SellModal: weder "Höchstes Gesuch" noch "Sofort verkaufen" (marketBids leer, eigenes excludiert) ✓ Surface 4
+  - OrderbookSummary: ausgeblendet (keine Fremd-Liquidität) ✓ Surface 2
+
+--- Schritt 5: Annehmen (Fremd-Gebot) ---
+Seed (JWT-Impersonation): bot010 (3ad78f29) buy-Offer 1ecdafe4 @180 CR auf Douglas.
+416-Gegenprobe nach Seed (Douglas reload):
+  - QuickStats SPREAD = 10.0% (= (200−180)/200; best-bid jetzt aus Fremd-180 berechnet) ✓ selektiv korrekt
+  - "Kaufgebote": bot010 @180 MIT Annehmen-Button · jarvisqa @150 OHNE ✓
+  - SellModal "Sofort verkaufen": zeigt 180 (Fremd), NICHT 150 (eigenes) ✓
+UI: SellModal → "180 1x Sofort verkaufen" (Accept).
+DB: offer 1ecdafe4 → accepted · jarvis balance 1.235.147 (+16920 = 18000 − 1080 Fee) · jarvis_locked 15000 UNVERÄNDERT (eigenes Gebot kein Doppelabzug — S409-Escrow intakt) · jarvis Douglas 4→3 · bot010 Douglas →1 · bot010 locked 18000→0 (Escrow sauber konsumiert) · Trade-Fee 630/270/180 = 6% (3,5/1,5/1) ✓.
+
+--- Schritt 6: Stornieren ---
+6a UI (cancel_order): SellModal Emre → Aktive Listings → Stornieren. DB: Order 72452fea → cancelled ✓.
+6b (cancel_offer, Escrow-Refund — via RPC, weil UI-Lücke s.u.): jarvis Gebot 39db33bf → cancelled · balance 1.235.147→1.250.147 (+15000 refunded) · locked 15000→0 ✓ (Refund-Symmetrie S409).
+
+=== WALLET-GESAMT-RECONCILE ===
+START 1.239.727 → END 1.250.147 = +10.420 cents.
+Check: −5000 (IPO) −1500 (Markt-Kauf) +16920 (Douglas-Verkauf netto) = +10.420 ✓ exakt.
+Holdings netto: +1 Rakhim, +1 Tiren, −1 Douglas (an bot010 verkauft). Emre-Sell-Order cancelled (kein Holding-Change).
+
+=== ERGEBNIS ===
+Alle 6 Trading-Lebenszyklus-Schritte live + DB-reconciled. Fee-Split 6% (3,5/1,5/1) an Markt-Kauf UND P2P-Accept korrekt. Escrow Lock/Konsum/Refund symmetrisch (S409, kein Leak/Doppelabzug). 416 Eigene-Order/Bid-Exclusion an ALLEN 4 Surfaces live bestätigt (selektiv: Fremd zählt, eigenes nicht). 0 trading-bezogene Console-Errors (nur pre-existing AuthProvider S394).
+
+=== UX-BEFUND (Folge-Slice-Kandidat, NICHT 416) ===
+Ausgehende Kaufgebote (buy-offers) im Markt-Portfolio Tab "Angebote → Offene Gebote" haben KEINEN Storno-Button — die Zeile ("Douglas · Kaufangebot · 150 CR · 48h · Ausstehend") ist nicht-interaktiv. cancel_offer_rpc existiert server-seitig (nur für reject/expire genutzt), aber die UI bietet dem Nutzer keinen Self-Service-Weg, ein eigenes Gebot zurückzuziehen → escrow-gelocktes Guthaben ohne sichtbaren Exit. Welle-1-Offers-UI-Vollständigkeit.
+
+=== GESEEDETE LIVE-ARTEFAKTE (disposable, Phase-1, Launch-Reset wischt) ===
+jarvis: +1 Rakhim (IPO), +1 Tiren (Markt), −1 Douglas. bot010: +1 Douglas (via accept). Alle Orders/Offers in Terminal-Status. Tiren-bot-Order bc63d013 rem 3.
