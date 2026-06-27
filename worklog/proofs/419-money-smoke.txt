@@ -1,0 +1,69 @@
+Slice 419 — player_gameweek_scores fixture-gebunden + score_event liga-bewusst
+PROOF (alle force-rollback gegen Live-DB skzjfhvgccaeplydsunz, 2026-06-27)
+================================================================================
+
+D87 FAKTENBASIS (vor Spec):
+- pgs: UNIQUE(player_id,gameweek), KEIN fixture_id. 61462 Zeilen / 3982 Spieler / GW 1-37.
+- GW-Nummern über alle 7 Ligen geteilt (1..34 / 1..38) → ligaübergreifend mehrdeutig.
+- Writer sync_fixture_scores kollabiert per ON CONFLICT(player_id,gameweek).
+- Kollision real: 40 (player,gw) mit 2+ Fixtures, 31 cross-league.
+- Backfill clean: fps.fixture_id nie NULL, fixtures.league_id nie NULL, (player,fixture) 0 Dups.
+- Event→Liga: events.league_id 1/210, club_id 208/210 → über clubs.league_id.
+- Orphans: 1401 pgs-Zeilen ohne Fixture (GW32/33/34/35 = vorgelagerte Mock-Scores). CEO: löschen.
+
+--------------------------------------------------------------------------------
+AC2/AC4 SCHEMA FORCE-ROLLBACK (Backfill+Delete+UNIQUE-Flip, BEGIN…RAISE):
+  ROLLBACK_PROOF orphans_deleted=1401 null_after=0 total_after=60061
+                 distinct_fixtures=1611 (UNIQUE flip OK)
+  → Backfill vollständig, Orphans exakt 1401, UNIQUE(player_id,fixture_id) ohne Dublette.
+
+AC6 SCORE-/REWARD-INVARIANZ (Liga-Filter wirft NIE einen echten Score weg):
+  über ALLE 4813 gewerteten Lineup-Slots:
+  INVARIANCE regressions(old_had_new_null)=0 total_slots=4813 old_nonnull=1721 new_nonnull=1721
+  → old==new Score-Abdeckung; neuer score_event liest exakt dieselben Scores. Money-neutral.
+
+--------------------------------------------------------------------------------
+LIVE APPLY (mcp apply_migration 419_fixture_bound_scores) → {"success":true}
+
+AC1/AC2/AC11 POST-APPLY (live):
+  constraints: player_gameweek_scores_player_fixture_key  UNIQUE (player_id, fixture_id)
+               player_gameweek_scores_fixture_id_fkey     FK fixtures(id) ON DELETE CASCADE
+               player_gameweek_scores_league_id_fkey      FK leagues(id)
+               (alte UNIQUE(player_id,gameweek) entfernt)
+  null_fixture_or_league = 0
+  total_rows = 60061
+  ACL sync_fixture_scores = authenticated=X, service_role=X (kein anon)  [unverändert]
+  ACL score_event        = authenticated=X, service_role=X (kein anon)  [unverändert]
+
+AC7 PATCH-AUDIT (live score_event Marker):
+  has_league_resolve=t  has_score_sum=t  has_minutes_filter=t  has_score_filter=t
+  treasury_calls=3  captain_boost(1.25)=t  captain_default(1.1)=t  default40=t  user_settlement=t
+  → nur die 4 chirurgischen Änderungen; alle Money-/Reward-Pfade byte-treu.
+
+AC4 WRITER-SMOKE (force-rollback, Kollisions-GW4):
+  WRITER_SMOKE gw=4 rows_before=304 rows_after=407 upserted=407 (no second-time error = OK)
+  → neuer Writer erzeugt per-Fixture-Zeilen, ON CONFLICT(player_id,fixture_id) sauber.
+
+--------------------------------------------------------------------------------
+AC8/AC10 READER + TYPECHECK:
+  tsc --noEmit  → exit 0
+  vitest src/features/fantasy             → 11 Files / 167 Tests PASS
+  vitest scoring-v2 + FantasyContent + EventDetailModal + lib/fixtures → 4 Files / 82 Tests PASS
+
+AC9 CRON-GUARD: Coverage zählt jetzt DISTINCT player_id (Set) statt count=exact Zeilen.
+
+CODE-ÄNDERUNGEN:
+  Migration 20260627190000_419_fixture_bound_scores.sql (Schema + sync_fixture_scores + score_event)
+  src/features/fantasy/services/scoring.queries.ts:
+    - getPlayerGameweekScores → SUM pro gameweek (1-Eintrag-Vertrag)
+    - getPlayerMatchTimeline → Score pro fixture_id (behebt GW-Map-Bug)
+    - getProgressiveScores → SUM pro player (deterministisch)
+  src/app/api/cron/gameweek-sync/route.ts → DISTINCT-player Coverage-Guard
+
+--------------------------------------------------------------------------------
+419b — Reviewer-Fund #1 (HIGH) HEAL: rpc_get_recent_player_scores Row-Fanout
+FANOUT FORCE-ROLLBACK (per-fixture rows für Kollisions-GW seeden, OLD vs NEW):
+  FANOUT_PROOF gw=4 old_dup_pairs=1 new_dup_pairs=0 old_rows=4473 new_rows=4472
+  → alte LEFT JOIN ON (player_id,gameweek) fächert auf; neue Skalar-Subquery-SUM nicht.
+LIVE APPLY 419b → {"success":true}
+POST-APPLY: ACL = authenticated=X, service_role=X (kein anon, erhalten) · result_count=22360 (laeuft sauber)

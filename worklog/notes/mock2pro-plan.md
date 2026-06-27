@@ -24,8 +24,8 @@
 
 ## Welle 2 — Spieltag/Gameweek + Scoring  [Money/CEO, Datenmodell]
 **Pro-Ziel:** Jeder Score hart an Karte×Fixture gebunden; Team-Identität über UUID.
-- **2.1 [HIGH, Datenmodell]** `player_gameweek_scores` fixture-/liga-gebunden (Score ans konkrete Spiel statt nur GW-Nummer). Migrations-Pfad + Reader umstellen.
-- **2.2 [HIGH, Money]** `score_event`: league-Filter im Minutes-Join (kein Cross-Liga-Summieren); Default-40-Phantom → 0/explizit „nicht gewertet".
+- **2.1 [HIGH, Datenmodell] ✅ DONE (Slice 419, 2026-06-27):** `player_gameweek_scores` fixture-gebunden — `UNIQUE(player_id,fixture_id)` + denorm `league_id`, Backfill aus `fixture_player_stats` (1401 herkunftslose Orphans GW32-35 gelöscht, CEO-approved), Writer `sync_fixture_scores` schreibt per-Fixture, 3 TS-Reader + Cron-Guard + Form-Bar-RPC (419b) liga-bewusst. CEO Option A. Force-rollback Zero-Sum + Score-Invarianz (1721==1721, regressions=0), Reviewer PASS (1 HIGH gefunden+geheilt).
+- **2.2 [HIGH, Money] ✅ DONE (Slice 419, mit 2.1):** `score_event` Event-Liga via `COALESCE(events.league_id, clubs.league_id)`, Minuten-Join + Score-Lookup liga-gefiltert (kein Cross-Liga-Summieren), SUM bei Mehrfachspiel. Default-40 bewusst belassen (greift nur bei NULL nach Liga-Filter; Invarianz bewiesen). PATCH-AUDIT byte-treu (4 Änderungen, 3 Treasury-Calls intakt).
 - **2.3 [HIGH]** Heim/Auswärts (`getPlayerMatchTimeline`) + FDR (`ClubFixturesStrip`/`FDRBadge`) über Club-**UUID** statt Short-String/Majority-Vote.
 - **2.4 [MEDIUM]** Per-Liga-GW-Max durchrouten (`getLeagueMaxGameweeks`→`SpieltagSelector`); toten `GameweekSelector` löschen; GW-Score-Map Dedup-Konflikt loggen.
 

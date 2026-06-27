@@ -1483,18 +1483,22 @@ async function syncLeague(
       let gwScoreCount = 0;
       if (leaguePlayerIds.length > 0) {
         const CHUNK = 100;
+        // Slice 419: scores are fixture-bound → a player can have >1 row per gameweek.
+        // Count DISTINCT players (not rows) so the coverage threshold stays player-meant.
+        const scoredPlayers = new Set<string>();
         for (let i = 0; i < leaguePlayerIds.length; i += CHUNK) {
           const batch = leaguePlayerIds.slice(i, i + CHUNK);
-          const { count: batchCount, error: scoreCountError } = await supabaseAdmin
+          const { data: scoreRows, error: scoreCountError } = await supabaseAdmin
             .from('player_gameweek_scores')
-            .select('*', { count: 'exact', head: true })
+            .select('player_id')
             .eq('gameweek', activeGw)
             .in('player_id', batch);
           if (scoreCountError) {
             throw new Error(`player_gameweek_scores chunk ${Math.floor(i / CHUNK)} failed: ${scoreCountError.message}`);
           }
-          gwScoreCount += batchCount ?? 0;
+          for (const r of scoreRows ?? []) scoredPlayers.add(r.player_id as string);
         }
+        gwScoreCount = scoredPlayers.size;
       }
 
       if ((gwScoreCount ?? 0) < 50) {

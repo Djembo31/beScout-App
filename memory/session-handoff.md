@@ -1,11 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 17:23)
+# Session Handoff — Auto (2026-06-27 17:32)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- be068a2a docs(handoff): Session-Close 2026-06-27 — Stale/Widersprüche geglättet
 - 0ecabc01 docs(handoff): Slice 418 Resume-Anker — 2 Funde gefixt, CI gruen
 - 88a463c4 fix(test): Slice 418 — Welle-1-Cleanup (kaputter useOffersState-Test + Orphan useOpenBids)
 - 51eb0a40 docs(proof): Slice 417 live-verified — Eigen-Gebot weg aus "Offene Gebote", Storno via "Ausgehend" + Escrow-Refund
@@ -15,7 +16,6 @@
 - 6e721568 docs(proof): Slice 416 live-verified — eigene Order weg aus 'sofort kaufbar' (bescout.net jarvis@Douglas)
 - b5968c0c refactor(trading): Slice 416 — Welle 1.6 KOMPLETT, Eigene-Order/Bid-Exclusion auf SSOT-Helper vereinheitlicht [UI]
 - 6862ad2c docs(distill): Session-Close 2026-06-27 — S413/S414/S415 verdrahtet + trading.md + Handoff-Marker
-- 71ca15d9 docs(proof+handoff): 415 live-verified (BESTER ASK own-order weg); 1.6 Folge-Surfaces + Live-Walk offen
 
 <!-- auto:handoff-end -->
 

@@ -1,11 +1,11 @@
 ---
 title: Fantasy Feature Spec
 created: 2026-03-14
-updated: 2026-06-26
+updated: 2026-06-27
 status: active
 tags: [fantasy, lineup, scoring, gameweek]
 consult_when: Spieltag, Lineup, Captain, Auto-Sub, Gameweek-Cycle, Scoring, Fantasy-Flows, Event-Eintritts-Gates (Abo/Stufe/Follower/Fan-Rang), Aufstellungs-Regeln (lineup_rules/min_per_own_club)
-verified-against: .claude/rules/fantasy.md @ 2026-06-25
+verified-against: .claude/rules/fantasy.md @ 2026-06-27
 ---
 
 > ⚠️ Migriert aus memory/features/ (Stand 2026-03-26) — Feature-Spec; Code-Regel siehe .claude/rules/fantasy.md.
@@ -327,7 +327,7 @@ Kurzform:
 | lineups | id, UNIQUE(event_id,user_id) | formation, slot_*, total_score, rank | SELECT:own+public, CRUD:RPC |
 | holding_locks | (user_id, player_id, event_id) | quantity_locked | SELECT:own, INSERT:own, DELETE:own |
 | ~~predictions~~ | id | ⛔ Legacy-Tabelle — Feature in Slice 338 entfernt, kein aktiver Code-Pfad | — |
-| player_gameweek_scores | (player_id, gameweek) | score | SELECT:all, CRUD:RPC |
+| player_gameweek_scores | (player_id, fixture_id) UNIQUE +league_id (Slice 419, fixture-gebunden) | score, gameweek | SELECT:all, CRUD:RPC |
 | user_wildcards | user_id | balance, earned_total, spent_total | SELECT:own, CRUD:RPC |
 | chip_usages | id | chip_type, is_active, season | SELECT:own, CRUD:RPC |
 | fantasy_leagues | id | invite_code, max_members | SELECT:members, CRUD:creator |

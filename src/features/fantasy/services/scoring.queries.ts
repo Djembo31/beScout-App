@@ -33,7 +33,10 @@ export type PlayerGameweekScore = {
   date: string;
 };
 
-/** Load gameweek score history for a player */
+/** Load gameweek score history for a player.
+ *  Slice 419: scores are fixture-bound (UNIQUE player_id,fixture_id) → a player can
+ *  have >1 row per gameweek (Doppelspiel/cross-league). Aggregate per gameweek (SUM)
+ *  so the history keeps the "one entry per gameweek" contract. 99.9% = 1 row = unchanged. */
 export async function getPlayerGameweekScores(playerId: string): Promise<PlayerGameweekScore[]> {
   const { data, error } = await supabase
     .from('player_gameweek_scores')
@@ -44,11 +47,18 @@ export async function getPlayerGameweekScores(playerId: string): Promise<PlayerG
   if (error) throw new Error(error.message);
   if (!data) return [];
 
-  return data.map((row) => ({
-    gameweek: row.gameweek as number,
-    score: row.score as number,
-    date: row.created_at as string,
-  }));
+  const byGw = new Map<number, { score: number; date: string }>();
+  for (const row of data) {
+    const gw = row.gameweek as number;
+    const prev = byGw.get(gw);
+    byGw.set(gw, {
+      score: (prev?.score ?? 0) + (row.score as number),
+      date: prev?.date ?? (row.created_at as string),
+    });
+  }
+  return Array.from(byGw.entries())
+    .sort((a, b) => b[0] - a[0])
+    .map(([gameweek, v]) => ({ gameweek, score: v.score, date: v.date }));
 }
 
 // ============================================
@@ -154,18 +164,20 @@ export async function getPlayerMatchTimeline(
     }
   });
 
-  // 4. Get GW scores for the gameweeks in this timeline
-  const gameweeks = fixtures.map(f => f.gameweek as number);
+  // 4. Get scores for the fixtures in this timeline.
+  //    Slice 419: scores are fixture-bound — map per fixture_id (not gameweek).
+  //    Behebt den GW-Map-Bug: bei mehreren Fixtures desselben Spielers in einer GW
+  //    bekommt jetzt jedes Fixture seinen eigenen Score statt einem geteilten GW-Score.
   const { data: scoresData, error: scoresError } = await supabase
     .from('player_gameweek_scores')
-    .select('gameweek, score')
+    .select('fixture_id, score')
     .eq('player_id', playerId)
-    .in('gameweek', gameweeks);
+    .in('fixture_id', fixtureIds);
 
   if (scoresError) throw new Error(scoresError.message);
-  const scoreMap = new Map<number, number>();
+  const scoreByFixture = new Map<string, number>();
   for (const row of scoresData ?? []) {
-    scoreMap.set(row.gameweek as number, row.score as number);
+    scoreByFixture.set(row.fixture_id as string, row.score as number);
   }
 
   // 5. Merge: every stat-fixture becomes a timeline entry
@@ -200,7 +212,7 @@ export async function getPlayerMatchTimeline(
       matchScore,
       minutesPlayed,
       isStarter: (stat?.is_starter as boolean) ?? false,
-      score: scoreMap.get(gw) ?? 0,
+      score: scoreByFixture.get(fix.id as string) ?? 0,
       goals: (stat?.goals as number) ?? 0,
       assists: (stat?.assists as number) ?? 0,
       cleanSheet: (stat?.clean_sheet as boolean) ?? false,
@@ -236,9 +248,12 @@ export async function getProgressiveScores(
     .in('player_id', playerIds);
 
   if (error) throw new Error(error.message);
+  // Slice 419: fixture-bound scores → a player can have >1 row per gameweek
+  // (cross-league/Doppelspiel). Accumulate (SUM) so we never silently pick one row.
   const result = new Map<string, number>();
   for (const row of data ?? []) {
-    result.set(row.player_id as string, row.score as number);
+    const pid = row.player_id as string;
+    result.set(pid, (result.get(pid) ?? 0) + (row.score as number));
   }
   return result;
 }

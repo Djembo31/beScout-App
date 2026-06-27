@@ -2,6 +2,20 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 419 | 2026-06-27 | feat(scoring): Welle 2.1+2.2 — player_gameweek_scores fixture-gebunden (Sorare-Pro) + score_event liga-bewusst [Migration/Money]
+- Stage-Chain: SPEC (`specs/419-…`, L) → IMPACT (Explore-Reader-Karte + D87 Live-functiondefs) → BUILD (selbst, §3 Money) → REVIEW reviewer-Agent **CONCERNS→PASS** (`reviews/419-review.md`, 1 HIGH gefunden+geheilt 419b) → PROVE (`proofs/419-money-smoke.txt`) → LOG.
+- **CEO-Entscheid Anil (Datenmodell-Gabelung):** Option A **Fixture-bound (Sorare-Pro)** + 1401 herkunftslose Orphan-Scores (GW32-35, kein Spiel) **löschen**.
+- **Problem (D87 live):** `player_gameweek_scores` war `UNIQUE(player_id,gameweek)` ohne fixture_id; GW-Nummern über alle 7 Ligen geteilt → mehrdeutig (40 reale Kollisionen, 31 cross-league). Writer kollabierte per `ON CONFLICT(player_id,gameweek)`; `score_event` Minuten-Join + Score-Lookup ohne Liga-Filter.
+- **Migration 419:** +`fixture_id`(FK fixtures,CASCADE) +`league_id`(FK leagues, denorm) + Backfill aus `fixture_player_stats` (DISTINCT ON, jüngstes Fixture) + DELETE 1401 Orphans + UNIQUE-Flip `(player_id,gameweek)`→`(player_id,fixture_id)` + Index `(player_id,gameweek,league_id)`. 60.061 Zeilen, null=0.
+- **Writer `sync_fixture_scores`:** per-(player,fixture), `ON CONFLICT(player_id,fixture_id)`, `fps.player_id IS NOT NULL`-Guard.
+- **Money-Reader `score_event`:** Event-Liga `COALESCE(events.league_id, clubs.league_id)`; Minuten-Join + Score-Lookup `SUM(score) … AND (ev_league IS NULL OR league_id=ev_league)`. PATCH-AUDIT byte-treu (4 Änderungen, 3 Treasury-Calls/Captain/Auto-Sub/Synergy/Streak/User-Settlement intakt), ACL kein-anon erhalten.
+- **TS-Reader:** getPlayerGameweekScores (SUM/gw), getPlayerMatchTimeline (Score pro `fixture_id` = behebt GW-Map-Bug), getProgressiveScores (SUM/player). Cron-Guard → DISTINCT player_id.
+- **419b (Reviewer-HIGH-Heal):** `rpc_get_recent_player_scores` (Form-Bars, live-only RPC Slice 274) machte `LEFT JOIN ON (player_id,gameweek)` → Row-Fanout nach Flip → Skalar-Subquery-SUM liga-gefiltert (Fanout-Proof old_dup=1→new=0).
+- **Proofs:** force-rollback Schema (orphans=1401, null=0, UNIQUE-Flip OK) · Score-Invarianz (regressions=0, old_nonnull==new_nonnull=1721 über 4813 Lineup-Slots) · Writer-Smoke (GW4 304→407, kein second-time-Error) · Fanout-Proof · tsc 0 + 249 Tests grün.
+- **Wissens-Kopplung:** errors-db **S419** (UNIQUE-Flip-Reader-Audit) + fantasy.md (Scoring fixture-bound + sync_fixture_scores) + docs/knowledge/domain/fantasy.md (Tabellen-Key + updated).
+- **Offen (Folge):** 2.3 (FDR Club-UUID) · 2.4 (GW-Max-Routing + GameweekSelector-Delete) · Ranking-Konsolidierung · LOW getProgressiveScores-Vorschau-Liga · INFO AR-29-Guard-Verify.
+- Files: migration 419 + 419b · scoring.queries.ts · cron/gameweek-sync/route.ts · 3 Knowledge-Files. Commit: <hash>.
+
 ## 418 | 2026-06-27 | fix(test)+refactor: Welle-1-Cleanup — kaputter useOffersState-Test (CI seit S412 rot) + Orphan useOpenBids-Hook [Ops]
 - Stage-Chain: SPEC inline (Ops-Lane S352) → IMPACT inline (Consumer gegrept) → BUILD (4 Files) → REVIEW self-review (Ops, kein Money/Security) → PROVE (`proofs/418-cleanup-tests.txt`, full vitest 233/233 Files + 3301 grün) → LOG.
 - **Beide Funde aus Slice 417 gefixt:**
