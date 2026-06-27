@@ -1,14 +1,14 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 14:44)
+# Session Handoff — Auto (2026-06-27 16:03)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
-```
- M memory/session-handoff.md
-```
+## Working Tree: Clean
 
 ## Session Commits: 10
+- df6beeb2 docs(proof): Welle 1 Trading e2e-Lebenszyklus-Walk live bewiesen + 416 4-Surface live-verify
+- 6e721568 docs(proof): Slice 416 live-verified — eigene Order weg aus 'sofort kaufbar' (bescout.net jarvis@Douglas)
+- b5968c0c refactor(trading): Slice 416 — Welle 1.6 KOMPLETT, Eigene-Order/Bid-Exclusion auf SSOT-Helper vereinheitlicht [UI]
 - 6862ad2c docs(distill): Session-Close 2026-06-27 — S413/S414/S415 verdrahtet + trading.md + Handoff-Marker
 - 71ca15d9 docs(proof+handoff): 415 live-verified (BESTER ASK own-order weg); 1.6 Folge-Surfaces + Live-Walk offen
 - c69aa61d docs(log): Slices 414+415 — Welle 1.6 Orderbook own-order exclusion (2 Surfaces); Live-Verify nach Deploy
@@ -16,9 +16,6 @@
 - 9b7eb094 fix(trading): Slice 414 — Welle 1.6 OrderDepthView eigene Orders aus Best-Ask/Spread excludieren [UI]
 - e00dd859 docs(handoff): Welle 1.5 KOMPLETT (413 Markt-Kauf-RPCs vereinheitlicht) — offen 1.6 + Live-Walk
 - ae68fc5b docs(log): Slice 413 Commit-Hash (80720552)
-- 80720552 fix(trading): Slice 413 — Welle 1.5a/c/d/e Markt-Kauf-RPCs vereinheitlichen [Money/CEO]
-- 3b1029e9 docs(handoff): Welle 1.5/1.6 Stand — 412 (1.5b+1.5f) DONE, 1.5a/c/d/e + 1.6 own-order offen
-- 3e49c292 docs(log): Slice 412 Commit-Hash (ac51aab2)
 
 <!-- auto:handoff-end -->
 
@@ -26,7 +23,9 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-> **🧹 SESSION-CLOSE 2026-06-27 (DISTILL erledigt, fresh-session-ready):** 6 Slices geliefert+gepusht (410-415), Welle 1.4/1.5 KOMPLETT + 1.6 zu 2/5 Surfaces. Wissen verdrahtet: **S413** (Zwillings-RPC-Drift → errors-db) · **S414/415** (Client-Derived-Value an N Surfaces + Live-Render-Pflicht → errors-frontend) · trading.md (Own-Order-Exclusion + Menge-zu-viel=ABLEHNEN). Auto-`MEMORY.md` verdichtet (16.2KB). Trackers reconciled (active/MASTERPLAN/TODO/log). `main`==`origin/main` zuletzt nach diesem Commit. **Keine offenen Widersprüche/Stale.** Direkt-Start nächste Session: Teil-3-Block unten („NÄCHSTES = 3 Orderbook-Surfaces gebündelt → Live-Lifecycle-Walk").
+> **🧹 SESSION-CLOSE 2026-06-27 (Abend 2 — DISTILL erledigt, fresh-session-ready):** **Slice 416 (Welle 1.6 KOMPLETT)** + **voller Live-e2e-Lebenszyklus-Walk** geliefert+gepusht (zuletzt `df6beeb2`). 416 = SSOT-Helper `src/lib/orderbook.ts` (`excludeOwnBids`/`bestForeignBidCents`) vereinheitlicht Eigene-Order/Bid-Exclusion über **4 Surfaces** (QuickStats bestBid · „sofort kaufbar"-Liste · OrderbookSummary bid · **SellModal** = vom Handoff übersehen). Reviewer PASS, 39 Tests, **live an allen 4 Surfaces bestätigt** (selektiv: Fremd-Gebot zählt, eigenes nicht). **Walk:** alle 6 Schritte (IPO→Markt-Kauf→Sell→P2P-Gebot→Annehmen→Stornieren) UI+DB-reconciled, Wallet +10.420 exakt, Fee 6% korrekt, Escrow symmetrisch → **Welle 1 Trading e2e KOMPLETT bewiesen** (`proofs/welle1-e2e-lifecycle-walk.txt`). Wissen verdrahtet: errors-frontend **S416** (in S414/S415-Block) + trading.md S7-303 F-1 (Bid-Exclusion komplett, „kein Type-Change"-Korrektur). **Handoff-Korrekturen:** kein Type/Service-Change nötig (sender_id existiert); „PlayerHero bestBid" existiert nicht (=QuickStats). Trackers reconciled (active/MASTERPLAN/TODO/log/trading.md). **🚩 1 OFFENER UX-BEFUND:** ausgehende Kaufgebote (Portfolio „Angebote→Offene Gebote") haben KEINEN Storno-Button → escrow-Guthaben ohne Self-Service-Exit (`cancel_offer_rpc` existiert, nicht verkabelt) = kleiner Folge-Slice. **Keine sonstigen Widersprüche/Stale.**
+>
+> **➡️ DIREKT-START NÄCHSTE SESSION (Anil-Wahl):** (a) **Welle 2 Spieltag/Scoring** [Money] — größter Mock→Pro-Brocken (`mock2pro-plan.md` Welle 2: Scores an GW-Nummer statt Fixture-gebunden, Datenmodell-Integrität); selbst + Live-`pg_get_functiondef` vor Spec (D87) + Zero-Sum. ODER (b) **kleiner Offers-Storno-UI-Fix** (Welle-1-Rest, XS-S: `cancel_offer_rpc` an „Offene Gebote"-Zeile verkabeln). ODER (c) **2. ausführlicherer Live-Walk** (Anil-Frage) — der 1. Walk deckte die KERN-6-Schritte, NICHT erschöpfend. Noch ungetestet (für 2. Walk gezielt): Sell-Order-FILL (jemand kauft jarvis' gelistete Order, jarvis-als-Verkäufer-Orderbuch-Pfad) · Multi-Quantity (alles war qty1) · Preis-Band-Reject (Lowball-Sell, S368c) · Menge>verfügbar=ABLEHNEN live (S413) · Gegengebot/Reject-P2P-Flow (counter_offer) · IPO Early-Access-Gate/Sold-out · Mobile 393px für 416 · Offers-Storno via UI (sobald gebaut). Empfehlung: 2. Walk lohnt, aber gezielt auf diese Lücken (kein Repeat der 6 Kern-Schritte).
 
 ## ⏩ STAND 2026-06-27 (Teil 2) — ZUERST LESEN
 **WELLE 1.4 KOMPLETT. 2 weitere Slices geliefert+gepusht (`main`==`origin/main`, zuletzt `ce6ad0bd`), `active.md`=idle:**
