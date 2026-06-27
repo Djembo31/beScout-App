@@ -41,11 +41,12 @@
 ## ⏩ STAND 2026-06-27 (Teil 3) — Welle 1 e2e-Vollständigkeit (Anil: 1.5+1.6 schließen → dann Live-Walk)
 **Faktencheck gg. `mock2pro-plan.md`: Welle 1 war NICHT e2e-vollständig.** 1.1-1.4 ✅, aber **1.5 (MEDIUM-Cluster) + 1.6 (MEDIUM) offen**. Anil-Auftrag: erst 1.5+1.6 schließen, dann 1 zusammenhängender Live-e2e-Walk als Beweis.
 - ✅ **412 (1.5b+1.5f) DONE** (`ac51aab2`): Offers-Tab Roh-Key/Roh-Error-Leaks (useOffersState 5× + OffersTab 2×) → übersetzt/`showError`; `idempotency_pending`→`idempotencyPending` (+i18n DE/TR). Geldneutral, tsc 0, self-review PASS.
-- **NOCH OFFEN (faktenbasiert kartiert):**
-  - **1.5(a)** Rate-Limit tier-basiert · **1.5(c)** fee_config-Lookup angleichen · **1.5(d)** Menge-zu-viel (kappen vs ablehnen) · **1.5(e)** `price_change_24h` in allen Kaufwegen → **Money-RPC-Analyse** (`buy_player_sc`/`buy_from_order`/`accept_offer` Live-functiondef diffen; teils evtl. schon konsistent). Selbst (§3).
-  - **1.6** OrderDepthView: Empty-State existiert schon (`noOrdersForPlayer`); **offen = Best-Ask/Spread eigene Orders excludieren** (OrderDepthView.tsx:180-189; braucht `is_own` auf `getSellOrders`/`getAllOpenBuyOrders` — prüfen ob Service liefert).
-  - **1.5(b)-Rest:** „BSD"-Prosa IN Money-RPC-Bodies = intern (User sieht via mapErrorToKey nie roh) → Hygiene, optional.
-- **DANACH:** Live-e2e-Walk (IPO-Kauf → Markt-Kauf → Sell-Order → P2P-Gebot → annehmen → stornieren) auf bescout.net = Proof „Trading läuft vollständig".
+- ✅ **413 (1.5a/c/d/e) DONE** (`80720552`) [Money/CEO]: die zwei Markt-Kauf-RPCs (`buy_player_sc` Markt/auto-cheapest ↔ `buy_from_order` gewählte Order) waren über 4 Dim gedriftet → vereinheitlicht: (d) Menge-zu-viel = **ABLEHNEN** (Anil-Entscheid; buy_player_sc war still-kappen) · (a) tier-Rate-Limit (buy_from_order war hart 20) · (c) fee_config created_at DESC (war club_id NULLS LAST) · (e) price_change_24h beide (buy_player_sc setzte es nicht; v_player +last_price). PATCH-AUDIT byte-treu, force-rollback Zero-Sum=0 beide (AC1 reject + AC2 price_change=-33.33 + buy_from_order fee_bps=600), Reviewer PASS, ACL erhalten. fee_config live=1 Row → 1.5c geldneutral.
+- **→ WELLE 1.5 KOMPLETT.**
+- **NOCH OFFEN vor Live-Walk:**
+  - **1.6** OrderDepthView: Empty-State existiert schon (`noOrdersForPlayer`); **offen = Best-Ask/Spread eigene Orders excludieren** (`OrderDepthView.tsx:180-189` Spread/best-ask inkl. eigener Orders; Component kennt heute nur `playerId`, KEIN userId → braucht `useUser()` + `is_own`/`user_id` aus `getSellOrders`/`getAllOpenBuyOrders` — Service-Felder ZUERST prüfen). Frontend, kein Money.
+  - **1.5(b)-Rest:** „BSD"-/`'Max 20 Trades/24h'`-Prosa IN Money-RPC-Bodies = intern (User sieht via mapErrorToKey nie roh) → Hygiene, optional (413-Reviewer-INFO).
+- **DANACH:** Live-e2e-Walk (IPO-Kauf → Markt-Kauf → Sell-Order → P2P-Gebot → annehmen → stornieren) auf bescout.net = Proof „Trading läuft vollständig" (Login `jarvis-qa@bescout.net`/`JarvisQA2026!`).
 
 ---
 
