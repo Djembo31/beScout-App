@@ -1,11 +1,11 @@
 ---
 title: Treasury & CSF — Money/Reward-Modell (Kanon)
 created: 2026-06-15
-updated: 2026-06-26
+updated: 2026-06-27
 status: active
 tags: [treasury, csf, money, ipo, scout-cards, fan-rewards, fee-split]
 consult_when: Treasury, CSF, IPO/Erstverkauf, Escrow, Fan-Rewards, Geld-Flows, Credits/cents-Einheit, Fee-Splits-Mechanik, Liquidation, Club-Treasury, Ledger
-verified-against: .claude/rules/trading.md @ 2026-06-24
+verified-against: .claude/rules/trading.md @ 2026-06-27
 ---
 
 # Treasury & CSF — Money/Reward-Modell (Kanon)
@@ -132,7 +132,7 @@ Der IPO-Preis ist **kein starrer `MV/1000`-Automatismus**, sondern eine **Verein
 4. CSF = einmalig (keine Tranchen), aus Club-Treasury, rein proportional nach Besitz (kein `csf_multiplier` — entfernt; Treue läuft über Fan-Reward-Engine). Nur SC im Umlauf.
 5. Club-Treasury = echtes bidirektionales Konto (Einnahmen + Deposit / CSF + Fan-Rewards + Event-Prizes + Poll-Revenue[REIN] + Bounties + Withdrawal[Ph2]).
 
-**Fee-Splits (SSOT `business.md`):** Trading 3,5 % Platform + 1,5 % PBT + 1 % Club · IPO 10 % Plat + 5 % PBT + 85 % Club · Research 20/80 · Bounty 5/95 · Polls 20/80 · P2P 2 % + 0,5 % PBT + 0,5 % Club · Club-Abos 100 % Club.
+**Fee-Splits (SSOT `business.md`):** Trading 3,5 % Platform + 1,5 % PBT + 1 % Club · IPO 10 % Plat + 5 % PBT + 85 % Club · Research 20/80 · Bounty 5/95 · Polls 20/80 · P2P 3,5 % + 1,5 % PBT + 1 % Club (= Markt, seit Slice 407/D112) · Club-Abos 100 % Club.
 
 ---
 
@@ -157,7 +157,7 @@ Echtes Konto = **Saldo + append-only Kontoauszug**. Jede Bewegung (rein wie raus
 ```
    REIN (verdient, Phase 1)        CLUB-KONTO            RAUS (intern $SCOUT, Phase 1)
  Trading 1% · IPO 85% ──┐      ┌─ Saldo (1 Wahrheit) ┐   ├─ CSF an Holder (Liquidation)   ✅330
- P2P 0,5% · Abo 100% ───┼─────►│  + Ledger           │──►├─ Event-Belohnungen (Prize-Pools) ✅331
+ P2P 1% · Abo 100% ───┼─────►│  + Ledger           │──►├─ Event-Belohnungen (Prize-Pools) ✅331
  Poll-Revenue (REIN) ───┤      │  (append-only)      │   ├─ Aufträge/Bounties (vergütet)    ✅332
  (EUR-Deposit = Ph2) ───┘      └─                    ┘   ├─ Fan-Rewards (gezielt)           ⬜
                                                           └─ (Withdrawal EUR = Phase 2)
@@ -232,7 +232,7 @@ Alle Money-kritisch → CEO-Scope, sorgfältige Specs (D87-Muster).
 | Polls | 20 % | `cast_community_poll_vote` | ✅ REIN 'poll' (Slice 363, beide source-Branches) |
 | Research | 20 % | `unlock_research` | ✅ REIN 'research' (Slice 364) |
 | Bounty | 5 % | `approve_bounty_submission` | ✅ REIN 'bounty' (Slice 365, EINE Buchung deckt alle 3 Zahlungspfade) |
-| P2P | 2 % | `accept_offer` | ✅ REIN 'p2p' (Slice 358) |
+| P2P | 3,5 % | `accept_offer` | ✅ REIN 'p2p' (Slice 358; Fee 6 % = Markt seit 407) |
 
 **Fees-REIN KOMPLETT (5/5 Quellen, Slice 365):** Trading 358 · IPO 360 · Polls 363 · Research 364 · Bounty 365 (+ P2P 358). Alle Plattform-Fee-Ströme fließen real in den BeScout-Topf (voller Auffang 100 %, D98). Nächster E3-Track = Slice 3 Monats-Liga e2e (RAUS-Kanal).
 

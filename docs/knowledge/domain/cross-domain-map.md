@@ -1,11 +1,11 @@
 ---
 title: Cross-Domain Dependency Map
 created: 2026-03-26
-updated: 2026-06-24
+updated: 2026-06-27
 status: active
 tags: [cross-domain, dependencies, fee-split, impact]
 consult_when: Cross-Domain-Impact, welche Domain berührt welche, Fee-Splits-Überblick, Domain-Kopplung
-verified-against: .claude/rules/trading.md @ 2026-06-24
+verified-against: .claude/rules/trading.md @ 2026-06-27
 ---
 
 # Cross-Domain Dependency Map
@@ -63,7 +63,7 @@ Gamification ──→ Fantasy   Tier gates (min_tier, min_subscription_tier on 
 | wildcards.ts | wallet-like (own table) | EventDetailModal (wildcard slots) |
 
 ## Treasury / Community-Geldkanäle (ergänzt 2026-06-17)
-- **Club-Treasury** (Saldo + append-only Ledger, Slice 329) ist die *Vereins*-Geld-Drehscheibe: REIN (Trading 1% · IPO 85% · P2P 0,5% · Abo 100% · Poll-Revenue 80%) → RAUS (CSF an Holder ✅330 · Event-Prizes ✅331 · Club-Bounties ✅332 · Fan-Rewards ✅FRE-1/2/3/5 344-347).
+- **Club-Treasury** (Saldo + append-only Ledger, Slice 329) ist die *Vereins*-Geld-Drehscheibe: REIN (Trading 1% · IPO 85% · P2P 1% · Abo 100% · Poll-Revenue 80%) → RAUS (CSF an Holder ✅330 · Event-Prizes ✅331 · Club-Bounties ✅332 · Fan-Rewards ✅FRE-1/2/3/5 344-347).
 - **Plattform-Treasury** (BeScout-Topf, Singleton + Ledger, Slice 357, D96) ist der *Plattform*-Topf für die Plattform-Fee-Anteile, die vorher verbrannten. REIN-Quellen verkabelt: **Trading ✅358 · IPO ✅360 · Polls 20% ✅363** (Research/Bounty offen). Voller Auffang 100% (D98). RAUS später: Monats-Liga + BeScout-Events.
 - **Domain-Kopplung:** Trading/IPO/P2P → Club-Treasury(REIN) + Plattform-Topf(REIN, Plattform-Fee). Liquidation(CSF) → Club-Treasury(RAUS) → Holder-Wallets. Events(type='club') → Club-Treasury(RAUS, Escrow). Bounties(club) → Club-Treasury(RAUS, Escrow). Polls(Vereins) → Club-Treasury(REIN 80%, ✅333-363) + Plattform-Topf(REIN 20%, ✅363). Fan-Rank/Abo → Fan-Reward-Engine.
 - Kanon-Details: `docs/knowledge/domain/treasury.md` (inkl. §10 Plattform-Topf) + `docs/knowledge/domain/polls.md`.
