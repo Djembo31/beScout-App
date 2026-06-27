@@ -574,15 +574,24 @@ export async function removeClubAdmin(
 // Active Gameweek
 // ============================================
 
-/** Get the active gameweek for a club */
+/** Get the active gameweek for a club.
+ *  Slice 428: leagues.active_gameweek = SSOT — resolve club → league → leagues.active_gameweek
+ *  (clubs.active_gameweek ist frozen/unread, → 428b DROP). Non-throw-Vertrag erhalten
+ *  (returns 1 on error) — Consumer (AdminSettings/AdminGameweeks) verlassen sich darauf. */
 export async function getActiveGameweek(clubId: string): Promise<number> {
-  const { data, error } = await supabase
+  const { data: club, error: clubErr } = await supabase
     .from('clubs')
-    .select('active_gameweek')
+    .select('league_id')
     .eq('id', clubId)
     .maybeSingle();
-  if (error || !data) return 1;
-  return (data.active_gameweek as number) ?? 1;
+  if (clubErr || !club?.league_id) return 1;
+  const { data: league, error: leagueErr } = await supabase
+    .from('leagues')
+    .select('active_gameweek')
+    .eq('id', club.league_id as string)
+    .maybeSingle();
+  if (leagueErr || !league) return 1;
+  return (league.active_gameweek as number) ?? 1;
 }
 
 /** Get the active gameweek for a specific league.

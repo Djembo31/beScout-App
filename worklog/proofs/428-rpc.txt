@@ -1,0 +1,51 @@
+=== Slice 428 PROVE — active_gameweek leagues=SSOT (Expand-Phase) ===
+Datum: 2026-06-28 · Money-nah (SEC DEFINER RPC + Scoring-Cron-Orchestrierung)
+
+[AC-02/03] set_active_gameweek RPC nach apply_migration (functiondef + ACL)
+-----------------------------------------------------------------
+  has_clubs_write   = false   (kein UPDATE clubs)        ✅
+  has_leagues_write = true                                ✅
+  has_max_guard     = true    (COALESCE(v_max_gw,38))     ✅
+  acl = {postgres=X, authenticated=X, service_role=X}     ✅ (kein anon/PUBLIC, erhalten S368c)
+
+[AC-07] Force-Rollback Round-Trip (TFF1-Club-Admin, JWT-impersonation, BEGIN…ROLLBACK)
+-----------------------------------------------------------------
+  set_active_gameweek(club, GW 38→12):
+    league_gw_after      = 12   (leagues geschrieben)      ✅
+    club_gw_after_frozen = 38   (clubs UNVERÄNDERT)         ✅
+  ROLLBACK → keine Persistenz.
+
+[AC-04] Cron get_active_gw liest leagues.active_gameweek
+-----------------------------------------------------------------
+  route.ts:527  .from('leagues').select('active_gameweek')  ✅
+  route.ts:531  gw = leagueRow?.active_gameweek ?? 1         ✅
+  route.ts:534  .from('clubs').select('id')  (nur id, kein active_gameweek)
+  clubsToProcess type = { id: string }  (active_gameweek-Feld weg)
+
+[AC-05] Cron Advance schreibt NUR leagues (beide Stellen)
+-----------------------------------------------------------------
+  maybeAdvanceAfterSkip (Z.411-418): .from('leagues').update({active_gameweek})  ✅ (clubs-Loop raus)
+  main advance (Z.1721-1730):        .from('leagues').update({active_gameweek})  ✅ (clubs-Loop raus)
+  grep "from('clubs')" route.ts → Z.233 (unrelated) + Z.534 (.select('id'))  → 0 clubs.active_gameweek-Write/Read
+
+[AC-06] gameweek-drift Audit obsolet — entfernt
+-----------------------------------------------------------------
+  git rm scripts/audit/gameweek-drift.js
+  package.json: audit:gameweek-drift entfernt
+  .github/workflows/nightly-audit.yml: Step + Aggregations-Zeile entfernt
+  grep "gameweek-drift|gameweek_drift" .github/ package.json src/ scripts/ → 0 runtime refs  ✅
+
+[AC-01] getActiveGameweek liest leagues (non-throw-Vertrag erhalten)
+-----------------------------------------------------------------
+  club.ts: resolve clubs.league_id → leagues.active_gameweek, returns 1 on error
+
+[TSC + TESTS]
+-----------------------------------------------------------------
+  npx tsc --noEmit → 0 errors
+  vitest: club.test (getActiveGameweek 5 neue) + AdminSettingsTab.test + advance-helpers.test
+          → 3 Files / 106 Tests PASS
+
+[SCOPE-OUT — bewusst NICHT in 428]
+-----------------------------------------------------------------
+  ALTER TABLE clubs DROP COLUMN active_gameweek → 428b (nach Vercel-Deploy-Verify, Anil Expand/Contract)
+  + DbClub-Type, 3 club.ts-Selects, 2 Seed-Scripts, schema-contracts.test:265 (kohärent mit Spalte bis DROP)

@@ -27,7 +27,6 @@
     "audit:compliance": "bash scripts/audit/compliance.sh",
     "audit:i18n": "node scripts/audit/i18n-coverage.js",
     "audit:rpc-security": "node scripts/audit/rpc-security.js",
-    "audit:gameweek-drift": "node scripts/audit/gameweek-drift.js",
     "audit:silent-fail": "npx tsx scripts/silent-fail-audit.ts",
     "audit:silent-fail:check": "npx tsx scripts/silent-fail-audit.ts --check",
     "audit:stale": "npx tsx scripts/audit-stale-check.ts",

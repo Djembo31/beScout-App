@@ -10,7 +10,7 @@ export type AdvanceDecision =
   | { advance: false; reason: 'season_end' | 'no_next_fixtures' | 'invalid_input' };
 
 export type ShouldAdvanceInput = {
-  /** Aktueller GW der Liga (clubs.active_gameweek) */
+  /** Aktueller GW der Liga (leagues.active_gameweek, SSOT seit Slice 428) */
   activeGw: number;
   /** Liga-spezifische maxGameweeks (TFF1=34, BL=34, PL=38, etc.) */
   maxGameweeks: number;

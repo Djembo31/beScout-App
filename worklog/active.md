@@ -2,16 +2,19 @@
 
 ```
 status: in-progress
-slice: 427
-title: Gameweek-Status per-Liga (getFullGameweekStatus + useClubEventsData) — GW-Fork Teil 1/3 (C)
-size: M
+slice: 428
+title: active_gameweek leagues=SSOT — Reader/Writer→leagues, Dual-Write+Drift-Audit raus (Expand-Phase) — GW-Fork 2/3 (A)
+size: L
 stage: PROVE (DONE) → LOG
-spec: worklog/specs/427-gameweek-status-per-league.md
-impact: skipped (read-only Queries, nur leagueId-Param-Add, kein Schema/Contract-Change)
-proof: worklog/proofs/427-vitest.txt
-proof-live: 427-bl-gw34.png (Live, gebündelt post-Deploy mit 428/429)
-review: worklog/reviews/427-review.md (reviewer-Agent, PASS, 2 NIT — #2 gefixt)
-proof-summary: tsc 0 + 6 neue getFullGameweekStatus-Tests + 73 Consumer-Tests grün. Liga-Filter schließt latenten 1000-Cap (2438→380). AC-06 Live post-Deploy.
+spec: worklog/specs/428-active-gameweek-leagues-ssot.md
+impact: inline (Vollscan in Spec §3 — alle clubs.active_gameweek-Reader/Writer gemappt)
+proof: worklog/proofs/428-rpc.txt
+review: worklog/reviews/428-review.md (reviewer-Agent PASS, 2 NIT — #1 gefixt)
+proof-summary: RPC functiondef kein-clubs-Write + ACL erhalten + Force-Rollback Round-Trip (leagues=12, clubs frozen=38) + Cron leagues-only (beide Advance) + getActiveGameweek→leagues + Drift-Audit entfernt. tsc 0 + 106 Tests.
+note: DROP COLUMN clubs.active_gameweek bewusst NICHT hier → 428b nach Vercel-Deploy-Verify (Anil Expand/Contract). Spalte bleibt frozen+unread (kein Runtime-Reader, Reviewer-verifiziert).
+
+## Zuletzt-427
+- **Slice 427** (2026-06-27) — Gameweek-Status per-Liga (M, PASS, committed aeaaae4e).
 ```
 
 ## GW-Lifecycle-Per-Liga-Fork (CEO-Entscheid Anil 2026-06-27)

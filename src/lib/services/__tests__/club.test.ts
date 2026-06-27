@@ -353,17 +353,28 @@ describe('removeClubAdmin', () => {
 // ============================================
 // Gameweek
 // ============================================
-describe('getActiveGameweek', () => {
-  it('returns active gameweek', async () => {
-    mockTable('clubs', { active_gameweek: 15 });
+describe('getActiveGameweek (Slice 428: leagues=SSOT, resolve club→league)', () => {
+  it('returns leagues.active_gameweek via club league_id', async () => {
+    mockTable('clubs', { league_id: 'l1' });
+    mockTable('leagues', { active_gameweek: 15 });
     expect(await getActiveGameweek('c1')).toBe(15);
   });
-  it('returns 1 on error', async () => {
+  it('returns 1 on clubs error', async () => {
     mockTable('clubs', null, { message: 'err' });
     expect(await getActiveGameweek('c1')).toBe(1);
   });
-  it('returns 1 when null', async () => {
-    mockTable('clubs', { active_gameweek: null });
+  it('returns 1 when club has no league_id', async () => {
+    mockTable('clubs', { league_id: null });
+    expect(await getActiveGameweek('c1')).toBe(1);
+  });
+  it('returns 1 on leagues error (non-throw contract)', async () => {
+    mockTable('clubs', { league_id: 'l1' });
+    mockTable('leagues', null, { message: 'rls_reject' });
+    expect(await getActiveGameweek('c1')).toBe(1);
+  });
+  it('returns 1 when leagues.active_gameweek is NULL', async () => {
+    mockTable('clubs', { league_id: 'l1' });
+    mockTable('leagues', { active_gameweek: null });
     expect(await getActiveGameweek('c1')).toBe(1);
   });
 });

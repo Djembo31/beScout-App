@@ -354,16 +354,17 @@ type LogStep = (
 /**
  * Slice 277 — prüft nach `already_complete` oder `no_past_fixtures` Skip-Branch
  * ob advance_gameweek fällig ist (nextGw <= maxGameweeks UND nextGw hat fixtures).
- * Wenn ja: dual-write (clubs + leagues.active_gameweek) atomar wie Phase B.
+ * Wenn ja: advance leagues.active_gameweek atomar wie Phase B.
  *
  * Verhindert chronischen GW-Drift bei voll-gescored-fertig Ligen (Slice 276b Anil-Live-Bug).
  *
- * Idempotent durch State-Maschine: nach erfolgreichem advance setzt clubs.active_gameweek
+ * Idempotent durch State-Maschine: nach erfolgreichem advance steht leagues.active_gameweek
  * auf nextGw → nächster Cron-Lauf liefert activeGw=nextGw via get_active_gw, sodass
  * der bereits-advancede Pfad nicht erneut betreten wird (kein Doppel-Advance möglich).
  *
+ * Slice 428: leagues.active_gameweek = SSOT (clubs-Dual-Write entfernt).
+ *
  * Side-Effects (only when advance fällig):
- * - clubs.active_gameweek = nextGw für alle clubsToProcess
  * - leagues.active_gameweek = nextGw
  * - cron_sync_log entry: step='advance_after_skip'
  */
@@ -407,17 +408,9 @@ async function maybeAdvanceAfterSkip(params: {
     return;
   }
 
-  // 3. Atomic dual-write (gleiche Logik wie Phase B Z.1598-1616)
+  // 3. Advance leagues.active_gameweek (SSOT).
+  // Slice 428: clubs-Dual-Write entfernt — leagues ist die einzige Quelle.
   const { error: stepError } = await runStep('advance_after_skip', async () => {
-    // Step 1: advance all clubs in this league
-    for (const club of clubsToProcess) {
-      const { error } = await supabaseAdmin
-        .from('clubs')
-        .update({ active_gameweek: decision.nextGw })
-        .eq('id', club.id);
-      if (error) throw new Error(`Club ${club.id}: ${error.message}`);
-    }
-    // Step 2: Dual-Write — also advance leagues.active_gameweek (SSOT, Slice 251 Pattern)
     const { error: leagueErr } = await supabaseAdmin
       .from('leagues')
       .update({ active_gameweek: decision.nextGw })
@@ -527,22 +520,25 @@ async function syncLeague(
 
   try {
     // ---- 3. Get active gameweek (per league) ----
+    // Slice 428: leagues.active_gameweek = SSOT (war: MIN(clubs.active_gameweek); clubs frozen → 428b DROP).
     const { result: gwResult } = await runStep('get_active_gw', async () => {
-      const { data: clubs } = await supabaseAdmin
-        .from('clubs')
-        .select('id, active_gameweek')
-        .eq('league_id', league.id)
-        .order('active_gameweek', { ascending: true });
+      const { data: leagueRow, error: lErr } = await supabaseAdmin
+        .from('leagues')
+        .select('active_gameweek')
+        .eq('id', league.id)
+        .maybeSingle();
+      if (lErr) throw new Error(lErr.message);
+      const gw = (leagueRow?.active_gameweek as number | null) ?? 1;
 
+      const { data: clubs, error: cErr } = await supabaseAdmin
+        .from('clubs')
+        .select('id')
+        .eq('league_id', league.id);
+      if (cErr) throw new Error(cErr.message);
       if (!clubs || clubs.length === 0) throw new Error(`No clubs for league ${leagueShort}`);
 
-      const minGw = Math.min(
-        ...clubs.map((c) => (c.active_gameweek as number) ?? 1),
-      );
-      const clubsAtGw = clubs.filter(
-        (c) => (c.active_gameweek as number) === minGw,
-      );
-      return { gameweek: minGw, clubs: clubsAtGw };
+      // clubsToProcess = ALLE Clubs der Liga (waren bei uniformem GW == minGw-Set).
+      return { gameweek: gw, clubs };
     });
 
     if (!gwResult) {
@@ -558,18 +554,11 @@ async function syncLeague(
     }
 
     activeGw = gwResult.gameweek;
-    const clubsToProcess = gwResult.clubs as Array<{
-      id: string;
-      active_gameweek: number;
-    }>;
+    const clubsToProcess = gwResult.clubs as Array<{ id: string }>;
 
-    // Fetch ALL clubs of this league (needed for fixture-scoping — fixtures.gameweek is not
-    // globally unique across leagues; scope via home_club_id IN leagueClubIds).
-    const { data: allLeagueClubRows } = await supabaseAdmin
-      .from('clubs')
-      .select('id')
-      .eq('league_id', league.id);
-    const allLeagueClubIds = (allLeagueClubRows ?? []).map((c) => c.id as string);
+    // Slice 428: clubsToProcess IST jetzt alle Liga-Clubs (leagues=SSOT) → allLeagueClubIds
+    // direkt ableiten (war separate Query). Fixture-Scoping via home_club_id IN diesen IDs.
+    const allLeagueClubIds = clubsToProcess.map((c) => c.id);
 
     await logStep(activeGw, 'get_active_gw', 'success', {
       gameweek: activeGw,
@@ -1731,19 +1720,9 @@ async function syncLeague(
 
     // ---- 11. Advance active_gameweek ----
     // Direct UPDATE via supabaseAdmin (bypasses RLS, no auth.uid() needed).
-    // Slice 251 Wave 1: per-league cap (was hardcoded 38) + Dual-Write to leagues SSOT.
+    // Slice 428: leagues.active_gameweek = SSOT (clubs-Dual-Write entfernt; per-league cap aus Slice 251).
     if (nextGw <= league.maxGameweeks) {
       await runStep('advance_gameweek', async () => {
-        // Step 1: advance all clubs in this league (legacy source).
-        for (const club of clubsToProcess) {
-          const { error } = await supabaseAdmin
-            .from('clubs')
-            .update({ active_gameweek: nextGw })
-            .eq('id', club.id);
-          if (error) throw new Error(`Club ${club.id}: ${error.message}`);
-        }
-        // Step 2: Slice 251 Wave 1 Dual-Write — also advance leagues.active_gameweek (SSOT).
-        // Atomar im selben runStep: beide oder beide-fail (throw).
         const { error: leagueErr } = await supabaseAdmin
           .from('leagues')
           .update({ active_gameweek: nextGw })

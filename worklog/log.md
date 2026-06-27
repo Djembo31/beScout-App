@@ -2,6 +2,24 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 428 | 2026-06-28 | refactor(fantasy): active_gameweek leagues=SSOT (GW-Fork 2/3, A — Expand-Phase) [Money-nah]
+- Stage-Chain: SPEC (`specs/428-…`, L) → IMPACT (inline Vollscan §3) → BUILD (Migration + Service + Cron + Tooling-Removal) → REVIEW reviewer-Agent **PASS** (`reviews/428-review.md`, 2 NIT — #1 gefixt) → PROVE (`proofs/428-rpc.txt`) → LOG. **CEO-approved + Sequenz-Entscheid Anil 2026-06-27: Expand/Contract, DROP defer.**
+- **Teil 2/3 GW-Fork** (Recon `worklog/notes/gameweek-engine-recon.md`). Riss 1 = `active_gameweek` doppelt (clubs + leagues, 3 Dual-Write-Konventionen = D111-Wurzel #1). **Expand-Phase:** alle Reader/Writer → `leagues.active_gameweek` (SSOT), Dual-Write-Fragilität weg.
+- **Migration** `20260628120000`: `set_active_gameweek` RPC → leagues-only (kein UPDATE clubs) + Guard `>38`→`>COALESCE(max_gameweeks,38)` + `no_league`-RAISE. PATCH-AUDIT (S156): auth.uid()+club_admins-Guards + SECURITY DEFINER erhalten; ACL `{authenticated,service_role}` (AR-44/S368c). **Force-Rollback Round-Trip:** leagues=12, clubs frozen=38.
+- **Cron `gameweek-sync`:** `get_active_gw` liest `leagues.active_gameweek` (war MIN(clubs.active_gameweek)); `clubsToProcess`={id}=alle Liga-Clubs (uniform=äquivalent); beide Advance-Stellen leagues-only (clubs-Loop raus). **Service** `getActiveGameweek(clubId)`→resolve club→league→leagues (non-throw-Vertrag erhalten).
+- **Tooling-Removal:** `scripts/audit/gameweek-drift.js` obsolet (prüfte clubs↔leagues-Sync, nach Write-Stopp tot) → gelöscht + `package.json` + `nightly-audit.yml` (Step + Aggregation) entdrahtet, 0 wiring-Orphan.
+- **Proof:** functiondef (kein clubs-Write) + proacl + Round-Trip + Cron-grep-Audit + tsc 0 + 106 Tests (club/AdminSettings/advance-helpers).
+- **Scope-Out → 428b (nach Vercel-Deploy-Verify):** `ALTER TABLE clubs DROP COLUMN active_gameweek` + DbClub-Type + 3 club.ts-Selects + 2 Seed-Scripts + schema-contracts.test. Spalte bleibt frozen+unread (kein Runtime-Reader, Reviewer-verifiziert).
+- **Files:** 1 Migration (NEU) + club.ts + route.ts + advance-helpers.ts + club.test.ts (EDIT) + gameweek-drift.js (DELETE) + package.json + nightly-audit.yml (EDIT).
+
+## 427 | 2026-06-27 | fix(fantasy): Gameweek-Status per-Liga (GW-Fork Teil 1/3, C) [Display-only, money-neutral]
+- Stage-Chain: SPEC (`specs/427-…`, M) → IMPACT (skipped: read-only Queries, nur leagueId-Param-Add) → BUILD (selbst) → REVIEW reviewer-Agent **PASS** (`reviews/427-review.md`, 2 NIT — #2 gefixt) → PROVE (`proofs/427-vitest.txt`) → LOG. Commit `aeaaae4e`. **CEO-Entscheid Anil: GW-Lifecycle per-Liga, alle 3.**
+- **Teil 1/3 des CEO-Forks „GW-Lifecycle per-Liga"** (Recon `worklog/notes/gameweek-engine-recon.md`). Money-Pfad sicher (score_event liga-korrekt via `COALESCE(events.league_id, clubs.league_id)`, functiondef-verifiziert). Riss 3 = Status-View global 1..38.
+- **Fix:** `getFullGameweekStatus(leagueId)` liga-gefiltert (Fixtures `.eq(league_id)` direkt, Events via Club-in-Liga da `events.league_id` 209/210 NULL → separate clubIds-Query + `.in()`, database.md-konform) + Loop `1..getLeagueMaxGameweeks` statt `1..38`. `useClubEventsData(clubId, leagueId)` → `getGameweekStatuses(1,38,leagueId)`. Consumer AdminGameweeksTab (beide Call-Sites: load + post-sim) + AdminEventsTab (`club.league_id`).
+- **Behebt:** Phantom-GW 35-38 bei 34-Wochen-Ligen (BL/2BL/SL, Live `max_gameweeks=34`) + Liga-Vermischung (geteilte GW-Eimer) + **latenten 1000-Cap** (`getFullGameweekStatus` `.select()` ohne range, **2438 Fixtures global** → still 1000-gecappt; per-Liga max 380 < 1000). Legacy null/global-Pfad behält Cap bewusst (kein Consumer).
+- **Proof:** tsc 0 + 6 neue `getFullGameweekStatus`-Tests (AC-01/02/04/04b + count + error) + 73 Consumer-Tests grün. AC-06 Live-Screenshot gebündelt post-Deploy mit 428/429.
+- **Files:** scoring.queries.ts + useClubEventsData.ts + AdminGameweeksTab.tsx + AdminEventsTab.tsx (EDIT) + scoring.queries.test.ts (NEU).
+
 ## 426 | 2026-06-27 | refactor(fantasy): Orphan-Cleanup — alte Lineup-Builder-UI löschen (S280) [Dead-Code]
 - Stage-Chain: SPEC (`specs/426-…`, S) → IMPACT (skipped: Dead-Code-Removal, 0 Consumer) → BUILD (git rm) → REVIEW **self-review** (`reviews/426-review.md`, Ops-Lane — objektiver Beweis statt Cold-Context) → PROVE (`proofs/426-orphan-cleanup.txt`) → LOG. Commit `<hash>`. **Anil-Wahl: „Orphan-Löschung jetzt".**
 - **Folge aus Slice 425-Befund:** die komplette **alte** Lineup-Builder-UI existierte doppelt (D111-Wurzel #1 „von allem zwei") — `LineupPanel`+`useLineupPanelState` (live) ersetzen sie, Alt-Versionen nie gelöscht. Genau das ließ den 424-Review die falsche (tote) Surface nennen.
