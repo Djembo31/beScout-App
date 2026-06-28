@@ -1,15 +1,15 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-28 14:44)
+# Session Handoff — Auto (2026-06-28 14:56)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 1 Files
 ```
- M memory/session-handoff.md
 ?? worklog/audits/orphan-components-2026-06-27.md
 ```
 
-## Session Commits: 4
+## Session Commits: 5
+- b56dbb9b docs(prep): Workflow-Ideal / Anti-Akkretion vorbereitet — nächste Session ZUERST, vor Mock→Pro
 - 538fc266 docs(process): Slice 430 — Prozess-Elite-Optimierung P1+P2+P5 (Stand-SSOT + Mega-Zeilen + Anti-Drift-Guard)
 - 91c71de2 docs(prep): Prozess-Elite-Optimierung vorbereitet — naechste Session ZUERST, Feature pausiert
 - 587fd8af docs(reconcile): Stale glaetten nach GW-Fork — MASTERPLAN/errors-infra-detail + Handoff-Auto-Block
