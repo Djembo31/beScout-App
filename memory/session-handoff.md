@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-28 14:56)
+# Session Handoff — Auto (2026-06-28 14:59)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -8,7 +8,8 @@
 ?? worklog/audits/orphan-components-2026-06-27.md
 ```
 
-## Session Commits: 5
+## Session Commits: 6
+- 67b14551 docs(handoff): Auto-Block refresh nach Workflow-Ideal-Prep
 - b56dbb9b docs(prep): Workflow-Ideal / Anti-Akkretion vorbereitet — nächste Session ZUERST, vor Mock→Pro
 - 538fc266 docs(process): Slice 430 — Prozess-Elite-Optimierung P1+P2+P5 (Stand-SSOT + Mega-Zeilen + Anti-Drift-Guard)
 - 91c71de2 docs(prep): Prozess-Elite-Optimierung vorbereitet — naechste Session ZUERST, Feature pausiert
@@ -21,10 +22,14 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-> **🟥🟥 NÄCHSTE SESSION = WORKFLOW-IDEAL / ANTI-AKKRETION DURCHPLANEN (Anil-Auftrag 2026-06-28). ZUERST, VOR Mock→Pro. FEATURE-ARBEIT PAUSIERT (428b DROP, Welle 3, Ranking warten).**
-> Anil: „Ein ziemlich wichtiges Thema, das will ich in einer frischen Session durchplanen … ich will endlich unseren Workflow/unsere Arbeitsweise ideal am Laufen haben." **EINSTIEG = `worklog/notes/workflow-ideal-prep.md`** (Diagnose festgehalten + 7 Entscheidungs-Punkte + Kandidaten-Bausteine — frische Session startet direkt mit Anils Entscheidungen + Plan, dann ggf. brainstorming-Skill).
-> **Kern:** die **Akkretions-Krankheit** strukturell bremsen — „immer anhängen, nie konsolidieren" befällt Docs UND Code („von allem zwei"). Regel-Kandidat: *kein ungetrackter zweiter Weg* (Duplikat = konsolidieren ODER bewusst protokollieren wie D112). Braucht: Regel + Ritual + Signal. **NICHT anfassen:** Money/Security-Rigor (fängt echte Bugs).
-> ✅ **Slice 430 (Tracker-Konsolidierung = die kleine Meta-Variante davon) DONE+gepusht (`538fc266`).** Das hier ist die große, grundsätzliche Variante.
+> **🟥🟥 LÄUFT: WORKFLOW-IDEAL / ANTI-AKKRETION — chirurgischer Reset (Anil-Scope B, 2026-06-28). ZUERST, VOR Mock→Pro. FEATURE PAUSIERT (428b DROP, Welle 3, Ranking).**
+> Anil-Auftrag: „endlich unseren Workflow/Arbeitsweise ideal am Laufen haben" + „analysiere wie ich dich nutze" + Great-Reset-Appetit. **Scope-Entscheid = B (chirurgisch):** Ballast schneiden + Anti-Akkretions-Gegengewicht, Money/Security-Rigor UNANGETASTET.
+> **Kern-Befund (neu diese Session):** dieselbe Akkretions-Krankheit befällt eine **3. Ebene — den Workflow selbst** (Hooks 28→38, nie was entfernt). Plus Analyse „wie Anil mich nutzt": frühere Workflow-Fixes waren selbst additiv = Akkretion; Prozess als Ersatz für Verifikation. Regel-Kandidat bleibt: *kein ungetrackter zweiter Weg*.
+> **6-Phasen-Plan:** 0 Inventur ✅ · **1 Ballast-Schnitt ✅ (Slice 431, `ecce4532`)** · 2 Gegengewicht (Regel+Ritual+Signal) ⏳KERN · 3 schlanker workflow.md/CLAUDE.md-Kern ⏳ · 4 Operating-Agreement (wie Anil mich nutzt) ⏳ · FIX-Pass-2 + Auditor-Agent-Cut ⏳mechanisch.
+> **➡️ NÄCHSTE SESSION = PHASE 2 designen** (Anti-Akkretions-Gegengewicht) + Phase 4 (Operating-Agreement). **Anil pausierte 2026-06-28 zum Verdauen nach Phase 1.**
+> **EINSTIEG:** `worklog/notes/workflow-ideal-prep.md` (Diagnose + §4 = die 7 Entscheidungs-Punkte für Phase 2) + `worklog/notes/workflow-ballast-audit.md` (voller Hook/Skill/Agent-Verdict + FIX-Pass-2-Liste).
+> **Phase 1 geliefert (Slice 431):** 6 Hooks gelöscht (test-reminder, ship-stage-timer, **ship-build-goal-suggest=seit Monaten kaputt**, ship-task-enforcement, ship-deferred-reeval-reminder, quality-gate-v2) + kanban-dedup · 2 Priority-Fixes (**crash-recovery** unbegrenztes handoff-Append→dedizierte Datei = die Krankheit IN einem Anti-Drift-Hook; **session-handoff-auto** tsc-bei-jedem-Stop raus) · Skills 26→18 (5 Beta + metrics/improve/optimize geparkt). Hooks **39→32 wired**, wiring-check grün.
+> **FIX-Pass 2 (queued, eigener Slice):** pre-commit-guard (unconditional-run-Bug) · run_tests_on_change (volle Suite blockierend) · auto-lint · pattern-check (offset-bug) · effort-gate-Asymmetrie · **+ `.husky/pre-commit` Perf (tsc+5 Audits >2min/Commit — diese Session live geblockt)**. **Judgment offen:** Auditor-Agents 4→1-2 (brand/ux-coherence/tester-persona/qa-visual). **DISTILL pending:** Scope-B + „Workflow hat selbst die Krankheit"-Insight → decisions.md wenn Phase 2-4 landen.
 > ⚠️ **Erst NACH diesem Thema** zurück zur Feature-Arbeit (Stand dazu unten ↓).
 >
 > ---
