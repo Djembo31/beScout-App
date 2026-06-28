@@ -25,7 +25,7 @@
 - 9 Ranking-Impls kartiert: die meisten legitim verschieden (Fantasy/Predictors/Fan-Ranking/Liga-Tabelle/Spieler). **Echte Redundanz nur:** globale User-Rangliste = `scout_scores` (Elo) vs `user_stats` (parallele Kopie) → 1 Quelle.
 - 2 „tote" Boards (Monthly-Liga `getMonthlyLeaderboard`, Club-Fan `getClubFanLeaderboard`) = **angefangene Features, nicht löschen → fertig verkabeln**.
   - ✅ **Club-Fan-Board `getClubFanLeaderboard` verkabelt (Slice 349)** + Live-bestätigt (Slice 354: PostgREST-FK-Bug `fan_rankings→profiles` gefixt, Board rendert echte Treue-Fans auf Club-Page Tab „Mehr").
-  - ⬜ **Monthly-Liga-Board `getMonthlyLeaderboard`/`useMonthlyLeaderboard` = TOTER-CODE** (e2e-Audit 401): 0 `.tsx`-Consumer; definiert `scoutScores.ts:320` + `gamification.ts:94`, niemand rendert. Aktivieren (Live-Standing-UI, vgl. Treasury-Epic Slice 5) ODER löschen. Hängt mit `close_monthly_liga`-Cron-Frage zusammen (`monthly_liga_winners`=0).
+  - ⬜ **Monthly-Liga-Board `getMonthlyLeaderboard`/`useMonthlyLeaderboard` = UI ungerendert** (e2e-Audit 401, Stale-Fix 2026-06-28): 0 `.tsx`-Consumer; definiert `scoutScores.ts:320` + `gamification.ts:94`, niemand rendert. **ABER Backend lebt** — `monthly_liga_winners`=**15** (Slice 402 lief real, war fälschlich „=0"). → **Board aktivieren** (Live-Standing-UI, Daten sind echt) ODER bewusst manuell-only lassen. `close_monthly_liga`-Cron-Frage offen.
   - ⬜ **Echte Redundanz `scout_scores` (Elo) vs `user_stats`** (e2e-Audit 401): beide live gerendert — `GlobalLeaderboard.tsx:29`→`getScoutLeaderboard`→scout_scores; parallel `useCommunityData.ts:50`→`useLeaderboard`→`getLeaderboard`(`social.ts:211`)→user_stats. Nicht konsolidiert → 1 Quelle.
 - **Stand:** Club-Fan-Board ✅ live; Monthly-Liga-Board (toter Code) + scout_scores/user_stats-Konsolidierung offen.
 
@@ -35,16 +35,16 @@
 
 | Feature | Befund | Evidenz |
 |---|---|---|
-| **Creator-Fund + Ad-Revenue-Share** | TOTER-CODE | `creatorFund.ts`/`calculate_creator_fund_payout`/`adRevenueShare.ts` — Calc-RPC ohne Distribution/Cron. (Sponsors selbst = LEBT) |
-| **Wildcard Earn-Economy** | TOTER-CODE | `earn_wildcards`/`spend_wildcards` 0 src-Consumer; `wildcards.ts:42` Kommentar „dormant". Read-Pfad (`WildcardsSection`) lebt |
-| **Club-Missionen** | TOTER-CODE | `mission_definitions` club_id-Rows = 0 |
-| **Monthly-Liga** | OFFEN-CODE | `close_monthly_liga` nur manuell `AdminLigaTab.tsx:45`, kein Cron; `monthly_liga_winners`=0 (s. Block 2 + Treasury-Epic) |
-| **2 Voting-Systeme** | OFFEN-CODE | `club_votes` (0 Rows, `AdminVotesTab`) vs `community_polls` (4 Rows) beide gerendert, nicht konsolidiert |
+| **Creator-Fund + Ad-Revenue-Share** | TOTER-CODE | `creatorFund.ts`/`calculate_creator_fund_payout`/`adRevenueShare.ts` — Calc-RPC ohne Distribution/Cron; `creator_fund_payouts`=0 (2026-06-28). UI `AdminCreatorFundTab` existiert. (Sponsors selbst = LEBT) |
+| **Wildcard Earn-Economy** | ⏸️ **GEPARKT (Anil 2026-06-28)** — NICHT löschen | Engagement-Feature für später (Joker pro Liga, verdienen+ausgeben). Read-Pfad (`WildcardsSection`+Lineup-Stand) + RPCs `earn/spend_wildcards` existieren, aber 0 src-Caller für earn → live 0 tx / 0 Nutzer. `earn_wildcards` war J4-Exploit (sicherheits-sensibel wenn reaktiviert). Verdien-Logik (z.B. Missions-/Achievement-Kopplung) = künftige Feature-Arbeit. |
+| **Club-Missionen (club-Dimension)** | ⏸️ **GEPARKT (Anil 2026-06-28)** — NICHT löschen | Engagement-Feature für später (Vereine erstellen eigene Fan-Missionen). Missions-System global LEBT; nur die `mission_definitions.club_id`-Abzweigung ungenutzt (0 Rows 2026-06-28, keine Club-Admin-UI). Künftige Feature-Arbeit. |
+| **Monthly-Liga** | ✏️ **LEBT (Stale korrigiert 2026-06-28)** | `monthly_liga_winners`=**15** (3 pro-Liga) — `close_monthly_liga` lief real in **Slice 402** (war fälschlich „=0"). Backend live (manueller Trigger, kein Cron). Offen: nur das **Board (UI)** `getMonthlyLeaderboard` ungerendert + Cron-Frage. = Aktivier-Kandidat (Board), kein toter Code. |
+| **2 Voting-Systeme** | OFFEN-CODE | `club_votes` (0 Rows 2026-06-28, `AdminVotesTab`) vs `community_polls` (4 Rows) beide gerendert, nicht konsolidiert |
 | **Mystery Box (paid)** | MOCK (legitim) | `featureFlags.ts:70` default false + Backend-throw; lizenz-gated; Free-Box lebt |
 | **Research** | ~~Dormant~~ **LEBT** (Stale korrigiert) | `AnalystTab` gerendert `ProfileView.tsx:175`, unlock/rate/expire wired, research_posts=3 Rows. Eher „low-data" als dormant |
 | **`referral_reward`** | ~~„ohne RPC"~~ **LEBT** (Stale korrigiert) | `reward_referral` existiert + feuert aus `trading.ts:122/255`, `ipo.ts:140`, `offers.ts:243` via `triggerReferralReward`→`referral.ts:52` |
 
-- **Stand:** offen. **3 echte Lösch-/Aktivier-Kandidaten:** Creator-Fund+Ad-Revenue, Wildcard-Earn, Club-Missionen (toter Code); + 2 Konsolidierungen (Monthly-Liga, Voting-Systeme).
+- **Stand (2026-06-28):** **Wildcard-Earn + Club-Missionen-Dimension = GEPARKT** (Anil-Entscheid: künftige Engagement-Features, NICHT löschen — „gehen wir noch an"). **Monthly-Liga = LEBT** (15 Winners via 402, Stale-Fix; nur Board-UI offen). **Echte offene Punkte:** (1) Creator-Fund+Ad-Revenue (parken vs. totes Ad-Revenue-Gerüst löschen) · (2) Monthly-Liga-**Board** aktivieren + Cron-Frage · (3) 2 Voting-Systeme konsolidieren (`club_votes`→`community_polls`). **→ KEINE reinen Lösch-Kandidaten mehr offen.**
 
 ### 4. Brücken (Bridges / Workarounds)
 - 46 Bridge-Importer (Komponenten greifen direkt auf Service-Schicht zu statt über Boundary) — `boundary-check` Baseline *gehalten* (kein Wachstum), aber nicht reduziert.

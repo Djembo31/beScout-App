@@ -77,8 +77,10 @@
 - OffersTab-Heal (Error-State + Key-Auflösung + preventClose) → **Welle 5 (5.2)**.
 - Orderbuch-Empty-State → **Welle 1 (1.6) / 7**.
 
-**B) S7-Aufräum-Block — toter Code + Konsolidierung (eigener Block nach/zwischen den Wellen; CEO pro Stück aktivieren-oder-löschen):**
-- Wildcard-Earn-Economy (echter toter Schreib-Pfad) · Creator-Fund+Ad-Revenue (gebaut, nie ausgezahlt) · Club-Missionen *club-Dimension* (System lebt, club_id ungenutzt) · `club_votes`↔`community_polls` (2 Voting-Systeme) · Bridges (46) abbauen.
+**B) S7-Aufräum-Block — toter Code + Konsolidierung (eigener Block nach/zwischen den Wellen; CEO pro Stück aktivieren-oder-löschen). Stand 2026-06-28 (Anil-Reconcile, Live-geprüft):**
+- ⏸️ **GEPARKT (Anil, NICHT löschen — künftige Engagement-Features):** Wildcard-Earn-Economy (Joker verdienen+ausgeben, 0 tx/0 Nutzer, earn nie verkabelt; earn_wildcards=J4-Exploit) · Club-Missionen *club-Dimension* (Vereine erstellen Fan-Missionen; System lebt global, `mission_definitions.club_id` 0 Rows).
+- ✏️ **Stale-Fix:** Monthly-Liga ist NICHT tot — `monthly_liga_winners`=15 (Slice 402 lief real); nur das **Board (UI)** ungerendert → aktivieren ODER manuell-only.
+- **Offen (CEO pro Stück):** Creator-Fund+Ad-Revenue (gebaut, 0 Auszahlungen — parken vs. totes Gerüst löschen) · `club_votes`(0)↔`community_polls`(4) konsolidieren · Monthly-Liga-Board aktivieren · Bridges (46) abbauen. **Keine reinen Lösch-Kandidaten mehr offen.**
 
 **C) Standalone-Backlog (klein, nicht verlieren):**
 - 346-Review: Teaser-RPC oberes LIMIT-Cap (`LEAST(...,50)`) · `posts`-INSERT-Policy `club_admins`-Härtung (Security).
