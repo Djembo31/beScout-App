@@ -18,8 +18,9 @@ review: worklog/reviews/430-review.md (self-review PASS, Ops-Lane)
 - **P5** `tracker-drift-check.mjs` (WARN, .husky non-blocking) + workflow.md Stand-SSOT-Regel.
 - P3 (Archiv log/decisions) + P4 (Lean-Lane) deferred (Anil).
 
-## ➡️ NÄCHSTE: zurück zu Feature (Prozess-Opt durch)
-428b DROP (post-Deploy) · 427 Live-Screenshot · Ranking-Konsolidierung scout_scores↔user_stats · Welle 3.
+## ➡️ NÄCHSTE SESSION = WORKFLOW-IDEAL / ANTI-AKKRETION durchplanen (Anil, ZUERST vor Mock→Pro)
+Einstieg: `worklog/notes/workflow-ideal-prep.md` (Diagnose + 7 Entscheidungs-Punkte fertig).
+DANACH Feature: 428b DROP (post-Deploy) · 427 Live-Screenshot · Ranking-Konsolidierung · Welle 3.
 Stand: `memory/session-handoff.md`.
 
 ## Zuletzt

@@ -28,7 +28,7 @@
 
 - **⏳ Post-Deploy offen:** 428b `DROP clubs.active_gameweek` (nach Vercel-Verify) + 427 AC-06 Live-Screenshot.
 - **➡️ NÄCHSTER (CEO-Vorlagen, NICHT autonom):** (1) Ranking-Konsolidierung `scout_scores`↔`user_stats` · (2) Welle 3 Events/Aufstellung.
-- **🟥 ZUERST (Anil 2026-06-28):** Prozess-Elite-Optimierung (Slice 430, Tracker-Overhead) — Feature pausiert. Einstieg `worklog/notes/process-elite-prep.md`.
+- **🟥 ZUERST (Anil 2026-06-28):** Workflow-Ideal / Anti-Akkretion durchplanen (vor Mock→Pro) — Feature pausiert. Einstieg `worklog/notes/workflow-ideal-prep.md`. (Tracker-Konsolidierung Slice 430 = kleine Meta-Variante, DONE.)
 
 ### ⏸️ PAUSIERT (Pivot D111 — Feature-Bau ruht bis Mock→Pro durch)
 - **E1 — Money/Reward: Polls-Geldmaschine FERTIG (333-337+343), jetzt Fan-Reward-Engine.** Verein belohnt treue Fans (Treasury §8). Design-Alignment + 5 Festlegungen + Slice-Kette = **D93**. Namens-Klarheit: Engine-Schritte = **FRE-1 … FRE-5** (Teil des E1-Epics).

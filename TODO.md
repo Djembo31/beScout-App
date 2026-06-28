@@ -5,7 +5,7 @@
 > Prio: 🔴 P0 = jetzt · 🟡 P1 = als Nächstes · 🟢 P2 = Backlog. v1 — 2026-06-17, gemeinsam zu schärfen.
 
 ## 🔴 P0 — jetzt
-- **🟥 ZUERST: Prozess-Elite-Optimierung (Slice 430, läuft).** Tracker-Overhead lösen (Stand-Konsolidierung + Mega-Zeilen + Anti-Drift-Guard). Feature-Bau pausiert bis durch. Einstieg `worklog/notes/process-elite-prep.md`.
+- **🟥 ZUERST: Workflow-Ideal / Anti-Akkretion durchplanen (Anil, vor Mock→Pro).** Die „immer anhängen, nie konsolidieren"-Krankheit strukturell bremsen (Docs UND Code). Feature-Bau pausiert bis durch. Einstieg `worklog/notes/workflow-ideal-prep.md`. (Tracker-Konsolidierung Slice 430 = kleine Meta-Variante, DONE.)
 - **🚀 E-MOCK2PRO (Nordstern seit 2026-06-26, D111).** Ganze Codebase auf Profi-/Sorare-Niveau, Domäne für Domäne. ✅ Audit aller 7 Domänen + 7-Wellen-Plan (`mock2pro-audit.md` / `mock2pro-plan.md`). **Welle 1 Trading + Welle 2 Spieltag/Scoring e2e KOMPLETT (403-429).** Detail-Stand: `memory/session-handoff.md`; Historie: `worklog/log.md`.
   - **⏳ Post-Deploy (nach Vercel-Verify von `7ad622a4`):** 428b `DROP clubs.active_gameweek` (+DbClub-Type + 3 club.ts-Selects + 2 Seed-Scripts + schema-contracts.test) · 427 AC-06 Live-Screenshot (AdminGameweeksTab BL = 1..34).
   - **➡️ NÄCHSTER (CEO-Vorlagen, NICHT autonom):** (1) Ranking-Konsolidierung `scout_scores`↔`user_stats` · (2) Welle 3 Events/Aufstellung (Lineup-Datenmodell-Fork). Money-Wellen = selbst (§3) + Live-functiondef vor Spec (D87) + Zero-Sum.

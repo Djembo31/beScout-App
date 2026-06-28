@@ -1,14 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-28 11:59)
+# Session Handoff — Auto (2026-06-28 14:44)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 2 Files
 ```
+ M memory/session-handoff.md
 ?? worklog/audits/orphan-components-2026-06-27.md
 ```
 
-## Session Commits: 3
+## Session Commits: 4
+- 538fc266 docs(process): Slice 430 — Prozess-Elite-Optimierung P1+P2+P5 (Stand-SSOT + Mega-Zeilen + Anti-Drift-Guard)
 - 91c71de2 docs(prep): Prozess-Elite-Optimierung vorbereitet — naechste Session ZUERST, Feature pausiert
 - 587fd8af docs(reconcile): Stale glaetten nach GW-Fork — MASTERPLAN/errors-infra-detail + Handoff-Auto-Block
 - 4a8e1013 docs(s7): Wildcard-Earn + Club-Missionen-Dimension GEPARKT (Anil) + Monthly-Liga Stale-Fix
@@ -19,10 +21,11 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-> **🟥🟥 NÄCHSTE SESSION = PROZESS-ELITE-OPTIMIERUNG ZUERST (Anil-Auftrag 2026-06-28). FEATURE-ARBEIT PAUSIERT (428b DROP, Welle 3, Ranking warten).**
-> Bevor weiter an BeScout-Features gebaut wird: erst den Workflow/Tracker-Overhead lösen + auf Elite-Niveau bringen. **EINSTIEG = `worklog/notes/process-elite-prep.md`** (komplettes Briefing: gemessener Befund + Ziel-Zustand + Plan P1-P5 + 5 Entscheidungspunkte für Anil — read-only-Analyse fertig, frische Session startet direkt mit Entscheidungen).
-> **Kern-Befund (gemessen):** „Aktueller Stand" ist in **4-5 Dateien** dupliziert als **Mega-Zeilen** (TODO 7.532 / INDEX 5.602 / MASTERPLAN 4.706 / handoff 4.402 Zeichen je EINE Zeile) → Drift (3 Stale-Stellen diese Session) + Token-Kosten + Edit-Friktion. = „von allem fünf" auf Meta-Ebene. Ziel: EINE Stand-Quelle (handoff), Rest referenziert/Status-Tabelle; Mega-Zeilen → Bullets; History archivieren; Lean-Lane für Trivial-Slices. **NICHT anfassen:** SHIP-Loop-Rigorosität für money-nah (fängt echte Bugs — diese Session bewiesen).
-> ⚠️ **Erst NACH der Prozess-Optimierung** zurück zur Feature-Arbeit (Stand dazu unten ↓).
+> **🟥🟥 NÄCHSTE SESSION = WORKFLOW-IDEAL / ANTI-AKKRETION DURCHPLANEN (Anil-Auftrag 2026-06-28). ZUERST, VOR Mock→Pro. FEATURE-ARBEIT PAUSIERT (428b DROP, Welle 3, Ranking warten).**
+> Anil: „Ein ziemlich wichtiges Thema, das will ich in einer frischen Session durchplanen … ich will endlich unseren Workflow/unsere Arbeitsweise ideal am Laufen haben." **EINSTIEG = `worklog/notes/workflow-ideal-prep.md`** (Diagnose festgehalten + 7 Entscheidungs-Punkte + Kandidaten-Bausteine — frische Session startet direkt mit Anils Entscheidungen + Plan, dann ggf. brainstorming-Skill).
+> **Kern:** die **Akkretions-Krankheit** strukturell bremsen — „immer anhängen, nie konsolidieren" befällt Docs UND Code („von allem zwei"). Regel-Kandidat: *kein ungetrackter zweiter Weg* (Duplikat = konsolidieren ODER bewusst protokollieren wie D112). Braucht: Regel + Ritual + Signal. **NICHT anfassen:** Money/Security-Rigor (fängt echte Bugs).
+> ✅ **Slice 430 (Tracker-Konsolidierung = die kleine Meta-Variante davon) DONE+gepusht (`538fc266`).** Das hier ist die große, grundsätzliche Variante.
+> ⚠️ **Erst NACH diesem Thema** zurück zur Feature-Arbeit (Stand dazu unten ↓).
 >
 > ---
 >
