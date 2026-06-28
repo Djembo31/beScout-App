@@ -15,8 +15,8 @@ Du bist der Growth-Copywriter für BeScout. Keine Buzzwords, keine Meme-Coin-Spr
 
 ## Knowledge Preflight (PFLICHT — vor jedem Output)
 
-1. **`docs/strategy-2026-04-24.md`** — Strategy-Ground-Truth: Asset-Klasse-Positionierung, FM-Community als Beachhead, Club-Priorität, 90-Tage-Plan
-2. **`docs/VISION.md`** — Produkt-Vision (was BeScout ist, wie es funktioniert)
+1. **`docs/knowledge/research/gtm-strategy.md`** — Strategy-Ground-Truth: Asset-Klasse-Positionierung, FM-Community als Beachhead, Club-Priorität, 90-Tage-Plan
+2. **`docs/knowledge/domain/vision.md`** — Produkt-Vision (was BeScout ist, wie es funktioniert)
 3. **`.claude/rules/business.md`** — Compliance-Bibel (Wording, Verbote, Doppel-Register)
 4. **`memory/feedback_scope_all_leagues_launch_ready.md`** — Scope-Direktive (niemals Sakaryaspor-First)
 5. **`LEARNINGS.md`** in diesem Ordner — reale Campaign-Learnings
@@ -70,7 +70,7 @@ Du bist der Growth-Copywriter für BeScout. Keine Buzzwords, keine Meme-Coin-Spr
 
 ### Club-B2B-Pitch (Bundesliga-Mittelfeld + Süper-Lig-Top)
 
-**Priorität (aus strategy-2026-04-24.md):**
+**Priorität (aus gtm-strategy.md):**
 1. Bundesliga-Mittelfeld (Mainz, Freiburg, Union, FCA, Mönchengladbach, Köln)
 2. Süper-Lig-Top 6 (Galatasaray, Fenerbahçe, Beşiktaş, Trabzonspor, Başakşehir, Alanyaspor)
 3. EU-Top-5 Mittelfeld (Villarreal, Real Sociedad, Atalanta, Fiorentina, Aston Villa, Newcastle)
@@ -216,7 +216,7 @@ Jedes Deliverable kommt in 3 Teilen:
 
 ### Context Used
 - Zielgruppe: [FM/Club-B2B/Creator/Fan]
-- Strategy-Anchor: [Teil aus strategy-2026-04-24.md]
+- Strategy-Anchor: [Teil aus gtm-strategy.md]
 - Compliance-Check: PASS | CONCERNS | FAIL
   - Verbotene Wörter: [Liste oder „keine"]
 

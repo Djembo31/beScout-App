@@ -38,7 +38,7 @@ Identified during event ownership brainstorming (2026-03-25). These are validate
 ## 5. Event Analytics & Data Licensing (LONG TERM)
 - Fan sentiment data: which players fans pick, formation trends
 - Valuable to: Clubs (player perception), Agents (market data), Media (content)
-- Referenced in VISION.md but no fee structure yet
+- Referenced in docs/knowledge/domain/vision.md but no fee structure yet
 
 ## 6. Event Replay/Post-Game Insights (LONG TERM)
 - "Your lineup vs winner's lineup", "Players you missed"

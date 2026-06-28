@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 445 | 2026-06-29 | docs(knowledge): K2.3 Welle B — Vision/GTM-Harvest (invertierte Wahrheit behoben)
+- Stage-Chain: SPEC (inline active.md) → IMPACT (inline, 2 knowledge-Files + 9 Refs + 2 Deletions) → BUILD (selbst, Kuratierung) → REVIEW self-review (interne Doku) → PROVE (`proofs/445-welleB-vision-gtm-harvest.txt`) → LOG.
+- **Behebt die „invertierte Wahrheit":** kanon. `domain/vision.md` war Stand-April-12 ÄLTER als die „veralteten" Root-Docs Stand-April-24 (un-routbar) — der aktuellste Strategie-Layer lebte un-kanonisch in `docs/VISION.md`+`docs/strategy-2026-04-24.md`.
+- **`domain/vision.md` ⬆️ upgrade:** konsolidierte Juni-Vision (Kategorie-Innovation/Asset-Positionierung + Bitcoin/Meme-Insight, Plattform-Modell, 7 Verdienst-Wege, Fan-CV, Flywheel, Differenzierung vs Socios/Sorare, Timing-These). Wording geheilt (BSD→Credits, DPC→Scout Card, IPO→Erstverkauf), Asset-Register als „intern" markiert, **keine falschen Code-Prozente** (Scout-Score → reward-ranking.md = SSOT).
+- 🆕 **`research/gtm-strategy.md`:** Dream-Scout-Demand-Pools (~80M), 5 Personas, 90-Tage-Plan, Club-Targeting A-D, ARR-Ladder + Exit. Status „pausiert bis Pro-Stand" (D111).
+- **9 lebende Refs umgebogen, 0 dangling:** business.md(2) · gtm-writer SKILL(3)+Agent(2)+LEARNINGS · decisions.md · current-product-truth · project_missing. **2 INDEX-Einträge.** `VISION.md`+`strategy-2026-04-24` gelöscht (git=Archiv).
+- **Offen (K2.3):** Welle C Legal/Sales-Kanonisierung · D Gamification/Scaling-Harvest · E Frontend-Dedup.
+- Files: 2 knowledge neu/upd + INDEX + 7 Ref-Files + 2 Deletions + active/log/MASTERPLAN + proof.
+
 ## 444 | 2026-06-29 | chore(docs): K2.3 Welle A — 7 superseded docs/-root Files GC (Plan-Scope-Korrektur)
 - Stage-Chain: SPEC (inline active.md, Ops-Lane) → IMPACT (inline, 7 Deletions, 0 lebende Ref via git grep) → BUILD (selbst) → REVIEW self-review (Ops) → PROVE (`proofs/444-welleA-superseded-gc.txt`) → LOG.
 - **K2.3-Recon (4 read-only Agents, live gegen DB/Code verifiziert):** alle 18 docs/-root-Files klassifiziert → **3 Krankheiten statt „4 Dubletten"** (Plan war zu eng): (a) invertierte Wahrheit (kanon. `domain/vision.md` Stand-April ÄLTER als die „veralteten" Root-Docs Stand-24.-Apr, un-routbar), (b) heimatlose Cluster (Legal/Sales/Scaling/Gamification-Design = 0 kanon. Heimat → blind löschen = Wissensverlust), (c) „FINAL"-Lügen (gamification-v4/SYSTEM-DESIGN-v2 „SSOT"-Header aber überholt). CEO (Anil): **Wellen, voll nach knowledge/ kanonisieren.**

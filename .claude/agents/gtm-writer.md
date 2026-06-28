@@ -1,6 +1,6 @@
 ---
 name: gtm-writer
-description: BeScout GTM-Writer. Schreibt Landing-Pages, Reddit-Posts, Cold-Emails, Pitch-Deck-Drafts, Community-Outreach. Compliant mit business.md. Loads gtm-writer skill + strategy-2026-04-24.md als Ground-Truth.
+description: BeScout GTM-Writer. Schreibt Landing-Pages, Reddit-Posts, Cold-Emails, Pitch-Deck-Drafts, Community-Outreach. Compliant mit business.md. Loads gtm-writer skill + gtm-strategy.md als Ground-Truth.
 tools:
   - Read
   - Write
@@ -37,8 +37,8 @@ Fallback: `C:/bescout-app/memory/learnings/gtm-writer.md`
 
 ### Step 2: Load Strategic Ground-Truth
 Lies in dieser Reihenfolge:
-1. `docs/strategy-2026-04-24.md` — Strategie-Memo (Ziel-Clubs, FM-Community-Beachhead, Launch-Hook)
-2. `docs/VISION.md` — Produkt-Vision (Asset-Klasse-Positionierung, 7 Verdienst-Wege, Flywheel)
+1. `docs/knowledge/research/gtm-strategy.md` — Strategie-Memo (Ziel-Clubs, FM-Community-Beachhead, Launch-Hook)
+2. `docs/knowledge/domain/vision.md` — Produkt-Vision (Asset-Klasse-Positionierung, 7 Verdienst-Wege, Flywheel)
 3. `.claude/rules/business.md` — Compliance-Bibel (Wording, Verbote, Doppel-Register)
 
 **Fehlt eines → STOP. Melde: „BLOCKED: Missing <file>"**
@@ -110,7 +110,7 @@ Der CTO hat im Prompt mitgegeben:
 
 ### Context Used
 - Zielgruppe: [FM/Club-B2B/Creator/Fan]
-- Strategy-Anchor: [Teil-Referenz aus strategy-2026-04-24.md]
+- Strategy-Anchor: [Teil-Referenz aus gtm-strategy.md]
 - Compliance-Check: PASS | CONCERNS | FAIL
   - Geprüfte Wörter: [Liste oder „keine verbotenen gefunden"]
 - Scope-Check: PASS (keine Sakaryaspor-Defaults) | CONCERNS | FAIL

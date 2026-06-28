@@ -26,7 +26,7 @@
 
 **Datum:** 2026-04-21
 **Status:** ✅ Aktiv
-**Supersedes:** Historische Pilot-Strategie „Sakaryaspor (TFF 1. Lig) only" aus pre-2026-04 (siehe `docs/VISION.md` historisch, jetzt geupdated)
+**Supersedes:** Historische Pilot-Strategie „Sakaryaspor (TFF 1. Lig) only" aus pre-2026-04 (siehe `docs/knowledge/domain/vision.md` historisch, jetzt geupdated)
 
 ### Entscheidung
 
@@ -40,7 +40,7 @@ Alle 7 Ligen sind launch-ready: Süper Lig, TFF 1. Lig, Bundesliga, 2. Bundeslig
 
 ### Auswirkungen
 
-- **Code:** CLAUDE.md + SHARED-PREFIX + beScout-business LEARNINGS + VISION.md geupdated (Slice 131)
+- **Code:** CLAUDE.md + SHARED-PREFIX + beScout-business LEARNINGS + docs/knowledge/domain/vision.md geupdated (Slice 131)
 - **Content:** Bot-Handles + Seed-Daten mit Sakaryaspor-Fokus bleiben als Test-Content (post-Beta neu seeden)
 - **Vertrieb:** Post-Beta Club-Deal-Entscheidung offen (Anil — realer Club-Partner vor Public-Launch?)
 - **Data-Quality:** Gold-Standard-Ziel gilt für alle 7 Ligen gleichermaßen
@@ -2639,7 +2639,7 @@ Konkret 2026-04-29 entschieden für 3 Money-Path-Pending-Items aus `worklog/audi
 Anil-Direktive 2026-04-29:
 > „alles wont fix, wir wollen keinen klon von deren plattform schaffen, sondern bescout character spezifikation durchsetzen auf bauen!"
 
-Strategischer Kontext (siehe `docs/VISION.md` „Kategorie-Innovation" + `business.md` „Asset-Klasse-Positionierung"):
+Strategischer Kontext (siehe `docs/knowledge/domain/vision.md` „Kategorie-Innovation" + `business.md` „Asset-Klasse-Positionierung"):
 - BeScout-Asset-Klasse ist Equity-analog auf Spieler-Trajektorie, nicht Casual-Fantasy-Sport. FPL-Mechaniken kommen aus anderer Domain.
 - Domain-Authenticity ist Differenzierung. „Wie FPL aber mit Trading" ist NICHT die Kategorie-Innovation — siehe Asset-Klasse-Doppel-Register (Equity-Wahrheit intern, Utility-Sprache extern).
 - Audit-Findings die BeScout am Vergleich zu Comunio/FPL/Sorare messen sind **Audit-Methodik-Drift** — die Vergleichs-Norm ist falsch.

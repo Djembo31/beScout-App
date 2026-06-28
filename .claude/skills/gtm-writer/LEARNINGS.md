@@ -27,7 +27,7 @@ Diese Hypothesen werden nach den ersten 10 Campaigns durch echte Daten ersetzt.
 
 ## Compliance-Learnings (aus Code-Session 2026-04-24, Asset-Klasse-Positionierung)
 
-**Beobachtung:** Selbst in Strategie-Dokumenten (strategy-2026-04-24.md) landet Sakaryaspor als Default-Token wenn nicht explizit gegengesteuert.
+**Beobachtung:** Selbst in Strategie-Dokumenten (gtm-strategy.md) landet Sakaryaspor als Default-Token wenn nicht explizit gegengesteuert.
 **Confidence:** high (eigener Fehler mit Mea-Culpa)
 **Evidence:** Feedback-File-Verschärfung 2026-04-24 nötig gewesen
 

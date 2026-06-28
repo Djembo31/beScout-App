@@ -64,7 +64,7 @@ Treffer → prüfen: Ist es in User-Kontext? → Neutralisieren nach Tabelle obe
 
 ## Asset-Klasse-Positionierung — Wording-Drahtseilakt (Stand 2026-04-24)
 
-**Kategorie-Innovation:** Scout Cards sind strukturell Equity-analog auf Spieler-Trajektorie (siehe `docs/VISION.md` Sektion „Kategorie-Innovation"). Das ist der Produkt-Vorteil. **Genau deshalb ist die rechtliche Sprache der wichtigste Compliance-Drahtseilakt.**
+**Kategorie-Innovation:** Scout Cards sind strukturell Equity-analog auf Spieler-Trajektorie (siehe `docs/knowledge/domain/vision.md` Sektion „Kategorie-Innovation"). Das ist der Produkt-Vorteil. **Genau deshalb ist die rechtliche Sprache der wichtigste Compliance-Drahtseilakt.**
 
 ### Doppel-Register (intern vs. user-facing)
 
@@ -104,7 +104,7 @@ Grund: BeScout zielt auf Football-Manager-Community (primärer Beachhead) — di
 
 ### Zielgruppen-differenziertes Wording
 
-**FM-Community** (primärer Beachhead, siehe VISION.md):
+**FM-Community** (primärer Beachhead, siehe `docs/knowledge/research/gtm-strategy.md`):
 - OK: „Dein FM-Wissen wird belohnt", „Scoute real, nicht nur im Game"
 - NICHT OK: „Dein FM-Wissen wird dein Investment", „Verdiene an jungen Talenten"
 

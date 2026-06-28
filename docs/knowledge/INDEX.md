@@ -18,7 +18,7 @@
 - [Equipment / Chips](../../wiki/equipment-system.md) — consult_when: Equipment, Mystery-Box, Scoring-Boost, Chips
 - [Produkt-Überblick + Identität](../../wiki/bescout-overview.md) — consult_when: was ist BeScout, Value-Prop, Positionierung, kein-FPL-Klon (D59)
 - [Produkt-Map (WAS)](domain/product-map.md) — consult_when: Feature-Landschaft, was existiert, Produkt-Struktur, 3 Säulen, Zielgruppen
-- [Vision & Strategie (WOHIN/WARUM)](domain/vision.md) — consult_when: Vision, Langfrist-Richtung, strategisches Framing, Differenzierung vs FPL/Socios
+- [Vision & Strategie (WAS/WARUM/WOHIN)](domain/vision.md) — consult_when: Vision, Langfrist-Richtung, strategisches Framing, Differenzierung vs FPL/Socios/Sorare, Asset-Klasse-Positionierung, Kategorie-Innovation, Bitcoin/Meme-Coin-Analogie, Timing-These, Zielmarkt
 - [Feature-Dependencies](domain/feature-dependencies.md) — consult_when: wie hängen Features zusammen, Abhängigkeiten vor neuem Feature, Feature-Kopplung
 - [Cross-Domain-Map](domain/cross-domain-map.md) — consult_when: Cross-Domain-Impact, welche Domain berührt welche, Fee-Splits-Überblick, Domain-Kopplung
 - [Missions-Architektur](domain/missions.md) — consult_when: Missions, Tagesziele, Mission-Engine, Reward-Trigger, club-vs-global Missionen
@@ -70,6 +70,7 @@
 
 ## 🟣 research — externe Recherche & Markt
 
+- [Go-To-Market & Markt-These](research/gtm-strategy.md) — consult_when: GTM, Launch-Plan/Funnel, Zielgruppe Dream-Scout, Demand-Pools, Personas (Maria/Ömer/Yusuf/Lisa/Klaus), FM-Community-Beachhead, Club-Targeting (Bundesliga/Süper-Lig/EU-Top-5 Plan A-D), ARR-Benchmarks, Exit-Szenarien, Pitch-Struktur
 - [Wettbewerber-Matrix](../../wiki/vergleich-competitors.md) — consult_when: Wettbewerb, Positionierung, Markt-Vergleich (Detail: comunio/kickbase/sorare/socios-chiliz/fancraze/hattrick/onefootball in `wiki/`)
 - [Early-Adopter-Feedback](../../wiki/early-feedback-freundeskreis.md) — consult_when: Demand-Signal, Freundeskreis-Validierung, Zielgruppen-Reaktion
 - [Agent-Systems Best-Practices](../../memory/research-agent-systems-best-practices.md) — consult_when: Multi-Agent-Architektur, Orchestrierung, Agent-Design

@@ -1,0 +1,48 @@
+SLICE 445 — K2.3 Welle B: Vision/GTM-Harvest
+Datum: 2026-06-29
+Behebt: „invertierte Wahrheit" (kanon. domain/vision.md Stand-April-12 ÄLTER als die
+„veralteten" Root-Docs Stand-April-24, un-routbar im INDEX).
+
+=== AC-1: domain/vision.md upgrade (kanonische Juni-Vision) ===
+Vorher: 139 Z., April-12-Snapshot, Eigen-Warnung „nicht gegen Juni verifiziert".
+Nachher: konsolidiert aus docs/VISION.md (Produkt-Vision) + docs/strategy-2026-04-24.md
+  (strategische Teile) → Was/Problem/Lösung, Kategorie-Innovation (Asset-Positionierungs-
+  Tabelle + Bitcoin/Meme-Coin-Insight), Plattform-Modell, 7 Verdienst-Wege, Fan-CV,
+  Vereins-Ökonomie, Flywheel, Differenzierung vs Socios/Sorare, Timing-These, Ziel-Markt.
+  updated: 2026-06-29, status: active.
+
+=== AC-2: research/gtm-strategy.md NEU ===
+Dream-Scout-Demand-Pools (~80M), 5 Personas (Maria €400-700K / Ömer €1.500/Mo /
+Yusuf €5K/Mo / Lisa €100-150/J / Klaus €3.500/Mo), 90-Tage-Plan (FM-Seeding →
+Social-Proof → Club-Anbahnung), Club-Targeting Plan A-D (Bundesliga-Mittelfeld /
+Süper-Lig-Top-6 / EU-Top-5 / 2.BL+TFF1-Fallback), Pitch-5-Slides, ARR-Ladder +
+Exit-Szenarien, Risiken/Hebel. Status „pausiert bis Pro-Stand" (D111).
+
+=== AC-3: 2 INDEX-Einträge ===
+- domain/vision.md consult_when erweitert (+ Asset-Klasse/Kategorie-Innovation/Timing/Zielmarkt)
+- research/gtm-strategy.md NEU (consult_when GTM/Personas/Club-Targeting/ARR/Exit)
+
+=== AC-4: 9 lebende Refs umgebogen, 0 dangling ===
+docs/VISION.md            → docs/knowledge/domain/vision.md:
+  .claude/rules/business.md (Kategorie-Innovation), memory/decisions.md (×2),
+  memory/current-product-truth.md, memory/project_missing_revenue_streams.md
+docs/strategy-2026-04-24.md → docs/knowledge/research/gtm-strategy.md:
+  .claude/skills/gtm-writer/SKILL.md (×3), .claude/agents/gtm-writer.md (×2),
+  .claude/skills/gtm-writer/LEARNINGS.md
+FM-Beachhead-Ref (business.md:107) → gtm-strategy.md (Zielgruppen-Detail lebt dort).
+Final git grep: 0 lebende Pfad-Refs (nur Provenienz mit git-History-Hinweis).
+
+=== AC-5: Quell-Docs gelöscht (git=Archiv) ===
+git rm docs/VISION.md docs/strategy-2026-04-24.md
+docs/ root: 10 → 9 (.md+.docx).
+
+=== AC-6: Compliance-Wording bei Migration geheilt ===
+BSD→Credits, DPC→Scout Card (user-facing), IPO→Erstverkauf. Asset-/Invest-Register
+explizit als „intern/strategisch" markiert (Doppel-Register, business.md). Keine
+falschen Scout-Score-Prozente verankert (zeigen auf reward-ranking.md = Code-SSOT).
+
+=== Schnitt-Regel (§0) ===
+Alter Weg geschlossen (2 Quell-Docs weg). EINE Vision-Heimat + EINE GTM-Heimat.
+Kein ungetrackter zweiter Weg. Refs zeigen kanonisch.
+
+REVIEW: self-review (interne Doku, Wording selbst geheilt, kein Code/user-facing-String).

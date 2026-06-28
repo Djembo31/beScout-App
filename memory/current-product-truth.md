@@ -79,7 +79,7 @@ Code/internal strategy docs may discuss analogies, but public/product UI copy mu
 Some older files are valuable context but not current truth:
 
 - `README.md` was an MVP-starter README and is no longer architecture truth.
-- `docs/VISION.md` contains strategic narrative and some historical/compliance-sensitive language; use with this file as a safety overlay.
+- `docs/knowledge/domain/vision.md` contains strategic narrative and some historical/compliance-sensitive language; use with this file as a safety overlay.
 - `memory/semantisch/produkt/bescout-vision.md` contains early pilot/token/rollout assumptions; treat Phase-1 Sakaryaspor-only and 25-player/50-tester language as historical.
 - `memory/current-sprint.md` is an old session snapshot, not current status.
 
