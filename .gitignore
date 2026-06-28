@@ -155,6 +155,8 @@ tmp/
 worklog/audits/audit-stale-*.md
 worklog/audits/type-truth-*.md
 worklog/audits/wiring-*.md
+worklog/audits/dup-*.md
+worklog/audits/orphan-components-*.md
 worklog/audits/knowledge-*.md
 worklog/audits/silent-fail-*.md
 worklog/audits/silent-fail-*.json
