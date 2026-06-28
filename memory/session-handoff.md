@@ -1,21 +1,24 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-28 23:25)
+# Session Handoff — Auto (2026-06-29 00:44)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 1 Files
+```
+ M memory/session-handoff.md
+```
 
 ## Session Commits: 10
+- cf207c34 chore(tooling): Slice 443 — K2.2b verbrauchte Multi-Liga-Backfill-Artefakte GC (-11817 Z.)
+- feedbb99 chore(docs): Slice 442 — K2.1 Skill-Trees + K2.2 semantisch/ (89 Einträge weg)
+- 0d3e2906 chore(docs): Slice 441 — K3 docs/plans (147→5, -142 historische Specs, git=Archiv)
+- 34bfd4b0 chore(docs): Slice 440 — K4 root-Entrümpelung (16 Müll-Files, -4612 Z.) + gitignore-Prävention
+- bea7831a docs(tracker): Slice 439 Reconcile — TODO P0 auf K1-DONE + TEIL-A-Stand gestrafft
+- 3de34b73 chore(docs): Slice 439 — K1 Meta-Cleanup (11 tote Tracker/notes, -853 Z.) + K2-Rescope
 - 7d9be255 docs(handoff): Session-Close-Checkpoint 2026-06-28 Abend (Slices 436-438, Werkzeug-Elite Teil 2 komplett)
 - e1fc5257 chore(agents): Slice 438 — Auditor-Agents 4->2 (generischer Linsen-Auditor + qa-visual)
 - 043ab43e chore(workflow): Slice 437 — workflow.md Ballast-Review (Slim 539->420, -25%)
 - ba657a00 chore(tooling): Slice 436 — Hook FIX-Pass-2 (4 Konsolidierungen, 32->28 wired)
-- 31744ad5 docs(handoff): Session-Close-Checkpoint 2026-06-28 (Slices 434+435, Tree clean)
-- f5890847 chore(gitignore): self-renewing Audit-Reports (dup + orphan-components) ignorieren
-- c8a0e327 docs(handoff): Slice 435 Scripts-GC Checkpoint + auto-block
-- de8a76d8 chore(tooling): Slice 435 — Scripts-Folder GC (30 tote one-off Skripte gelöscht)
-- e4bb1559 docs(log): Slice 434 LOG + Tracker-Reconcile (handoff/MASTERPLAN/TODO) + active idle
-- 4b5e2cbb feat(tooling): Slice 434 — Duplikations-Ratchet (audit:dup, §0-Schnitt-Regel maschinell)
 
 <!-- auto:handoff-end -->
 
@@ -23,15 +26,23 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-> **🟢 SESSION-CLOSE 2026-06-28 (Abend) — WERKZEUG-ELITE TEIL 2 KOMPLETT.** Diese Session: **Slices 436-438** — Hook-FIX-Pass-2 (32→28 Hooks, compliance/i18n-Enforcement-Lücke geschlossen) · workflow.md-Slim (539→420, −25%) · Auditor-Merge (4→2, 15→13 Agents, **Registry-live-bestätigt:** `auditor` da, 3 alte weg). Damit ist der **gesamte Workflow-Optimierungs-Track durch** — offen nur der zeit-gegatete `audit:dup` WARN→BLOCK-Flip (passiv, FP=0-Bake, kein Slice nötig). **Tree clean, main==origin.**
+> **🟢 SESSION-CLOSE 2026-06-29 — TEIL A META-CLEANUP Welle 1 (Slices 439-443).** Workflow-Test bestanden (5 Durchläufe, jeder `.husky/pre-commit`-Gate grün: compliance/i18n/tsc/7 Audits; Ops-Lane-Routing korrekt; **2 faktenbasierte Plan-Korrekturen** — K1-Anker-Fund + K2.2-Müll-Korrektur). **~270 Dateien / >18.000 Z. / ~3 MB Akkretion weg, 6× gepusht, `main`==`origin` (`cf207c34`).**
+> - **439 K1:** tote Tracker-Dubletten (root `session-handoff`/`docs/TODO`/`docs/WORKFLOW`) + 8 verwaiste notes. **439-Fund:** die ~13 übrigen notes sind LEBENDE Anker (decisions/INDEX/treasury) → K2.5, nicht Löschung.
+> - **440 K4:** 16 root-Müll-Files (3× 0-Byte Heredoc-Reste, qa-Snapshots/Logs, dumps) + `.gitignore`-Prävention.
+> - **441 K3:** `docs/plans` 147→5 (142 historische Specs gelöscht, git=Archiv [CEO]; 5 Anker → K2.5; `bes*.json`-Perf → MASTERPLAN W6).
+> - **442 K2.1+K2.2:** `.agents/skills` (85 stale) + `bencium`-Repo (verwaister gitlink) + leeres `semantisch/` → EINE Skill-Heimat (`.claude/skills` 18).
+> - **443 K2.2b:** 4 verbrauchte Multi-Liga-Backfill-Scripts + 5 Daten (`debug-payload` 220K + rollback) + `test.rtf` (CTO-Entscheid, Anil delegiert; −11.817 Z.).
 >
-> **Engine-Fundament (Vorsessions — Detail in `log.md`/`MASTERPLAN.md`, nicht hier duplizieren):** Voll-Audit `wf_82fc04e4-733` (5 Wurzeln, Master R1 „anhängen-nie-konsolidieren", 29/32 offene Krankheiten in `disease-register.md`) → §0 Anti-Akkretions-Engine (432/D116) · MASTERPLAN = EINE Plan-Quelle (433) · `audit:dup`-Detektor + Krankheits-Register (434/D117). W0-Security-Triage fertig (kein aktiver anon-Leak; 3 §3-Items warten auf Go).
+> **K2-EPIC = die EINE Wissens-Heimat (6 Wellen, Plan in `MASTERPLAN.md` K2). OFFEN — die schwerere Hälfte (alles Urteil/Migration/CEO):**
+> - **K2.3** docs-root Dubletten: `Context_Pack_v8`+`final-report-v3` = klar veraltet (löschen); **`SYSTEM-DESIGN-v2`+`gamification-v4-FINAL` = „FINAL/verbindlich"-betitelt, git 24. Juni → MIGRATIONS-Urteil** (Inhalt gegen `docs/knowledge` prüfen, NICHT blind löschen).
+> - **K2.4** `wiki/` (21, inkl. Sorare-Competitor-Analysen) → `docs/knowledge/research`+`domain` (autodream-Agent pflegt wiki → Kopplung beachten).
+> - **K2.5** 18 Plan-Anker (13 notes + 5 plans) + `disease-register` → `docs/knowledge` MIT Ref-Umbiegung in decisions/INDEX/treasury/handoff (kanonische Schicht, höchstes Risiko).
+> - **K2.6** Memory-Modell [CEO]: `memory/`-Vault (1.3MB, Obsidian, getrackt) vs Auto-Memory (`MEMORY.md`) → 1 Modell.
+> - **K2.2c** `beta-*`-Docs (12, Beta abgebrochen D111 aber in auditor/errors-infra/beta-metrics referenziert) → Urteil.
 >
-> **➡️ NÄCHSTE (frische) SESSION — CEO-Wahl, EINSTIEG `MASTERPLAN.md`:**
-> - **(1) Mock→Pro Code-Heilung [CTO-Empfehlung]:** **D-01 zuerst** — latenter `42P10`-Spieltag-Bug (`cron_process_gameweek` + `admin_resync_gw_scores` schreiben alte `ON CONFLICT(player_id,gameweek)`-Shape gg. die in 419 gedroppte UNIQUE → bricht Scoring beim ersten echten Spieltag, Off-Season maskiert). §3/Money = selbst, Live-`functiondef` VOR Spec (D87), force-rollback, Reviewer. Danach W2 Ranking-Konsolidierung (`scout_scores`↔`user_stats`) · W3 Events/Aufstellung. **Die 29 offenen Krankheiten = die eigentliche Arbeit.**
-> - **(2) TEIL A Meta-Cleanup:** K1-K7 (peek-then-delete, git=Archiv). NEU: `.agents/`-Stale-Skill-Tree (438-Fund) + **diese Handoff-Historie selbst** (viele alte STAND-Blöcke unten ↓ = Akkretion, gehört konsolidiert). Schnitt-Check: `disease-register` → `docs/knowledge` (K2).
-> - **(3) W0 DB-Security [§3]:** Migration schreiben + force-rollback + anwenden (Anil-§3-Go nötig; D-12 DROP + anon-REVOKE-Hygiene).
-> **Krankheit auf 3 Ebenen: Prozess ✅ · Pläne ✅ · Code ⬜ (29 offen).** Feature-Arbeit paused (428b DROP post-Deploy · Welle 3 · Ranking) — erst nach Konsolidierung.
+> **EINSTIEG NÄCHSTE SESSION:** `MASTERPLAN.md` K2-Wellen-Plan + dieser Anker. **Parallel offen (NICHT TEIL A, CEO-Wahl):** Mock→Pro **D-01** (latenter `42P10`-Scoring-Bug, §3, bricht 1. echten Spieltag) · W0 DB-Security · Produkt-Pivot Sorare-Ziel.
+>
+> **Engine-Fundament (Vorsessions):** Voll-Audit `wf_82fc04e4-733` → §0 Anti-Akkretions-Engine (432/D116) · MASTERPLAN=Plan-SSOT (433) · `audit:dup`+`disease-register` (434/D117). Werkzeug-Elite 436-438. Detail in `log.md`.
 >
 > ---
 >
