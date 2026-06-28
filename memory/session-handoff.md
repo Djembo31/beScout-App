@@ -1,15 +1,14 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-28 21:36)
+# Session Handoff — Auto (2026-06-28 21:54)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
-```
-?? worklog/audits/dup-2026-06-28.md
-?? worklog/audits/orphan-components-2026-06-27.md
-```
+## Working Tree: Clean
 
-## Session Commits: 5
+## Session Commits: 8
+- f5890847 chore(gitignore): self-renewing Audit-Reports (dup + orphan-components) ignorieren
+- c8a0e327 docs(handoff): Slice 435 Scripts-GC Checkpoint + auto-block
+- de8a76d8 chore(tooling): Slice 435 — Scripts-Folder GC (30 tote one-off Skripte gelöscht)
 - e4bb1559 docs(log): Slice 434 LOG + Tracker-Reconcile (handoff/MASTERPLAN/TODO) + active idle
 - 4b5e2cbb feat(tooling): Slice 434 — Duplikations-Ratchet (audit:dup, §0-Schnitt-Regel maschinell)
 - bb8444bf docs(distill): D116 Elite-Workflow-Reset + Slice 432/433 LOG + Checkpoint-Handoff
