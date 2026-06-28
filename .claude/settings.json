@@ -23,27 +23,12 @@
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/test-reminder.sh",
-            "continueOnBlock": true
-          },
-          {
-            "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-post-service.sh",
             "continueOnBlock": true
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/ship-stage-timer.sh",
-            "continueOnBlock": true
-          },
-          {
-            "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/track-file-changes.sh",
-            "continueOnBlock": true
-          },
-          {
-            "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/ship-build-goal-suggest.sh",
             "continueOnBlock": true
           }
         ]
@@ -104,10 +89,6 @@
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/ship-task-enforcement.sh"
-          },
-          {
-            "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/run_tests_on_change.sh"
           }
         ]
@@ -162,23 +143,11 @@
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/ship-kanban-sync.sh"
-          },
-          {
-            "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-phase-tracker-reminder.sh"
           },
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/ship-deferred-reeval-reminder.sh"
-          },
-          {
-            "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/pattern-check.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/quality-gate-v2.sh"
           },
           {
             "type": "command",

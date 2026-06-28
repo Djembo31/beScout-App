@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 431 | 2026-06-28 | chore(workflow): Workflow-Reset Phase 1 — Ballast-Schnitt (Hooks subtrahieren + 2 Priority-Fixes)
+- Stage-Chain: SPEC (inline `active.md` + `notes/workflow-ballast-audit.md`, S) → IMPACT (skipped: Hook/Doc, money-neutral) → BUILD (selbst) → REVIEW self-review **PASS** (Ops-Lane) → PROVE (`proofs/431-ballast-cut.txt`) → LOG. **Anil-Scope B (chirurgischer Reset), „sichere Schnitte autonom".** Teil des großen Workflow-Ideal/Anti-Akkretion-Auftrags (Phase 1 von 4).
+- **Gemessene Meta-Akkretion:** Hooks 28 (April) → 38 (heute), niemand entfernte je etwas. Audit `worklog/notes/workflow-ballast-audit.md` klassifizierte alle 38 Hooks + 26 Skills + 15 Agents KEEP/FIX/CUT.
+- **CUT 6 Hooks** (de-register + **gelöscht**, git history = Archiv — kein totes File „sicherheitshalber"): test-reminder (Dublette), ship-stage-timer (tot), **ship-build-goal-suggest (seit Monaten KAPUTT — Feld-Mismatch, nie Wert)**, ship-task-enforcement (Dublette), ship-deferred-reeval-reminder (Dublette), quality-gate-v2 (no-op). **Dedup:** ship-kanban-sync Stop-Verdrahtung raus (SessionStart behalten).
+- **FIX 2 Priority:** **crash-recovery** — unbegrenztes Append an session-handoff.md (die Akkretions-Krankheit IN einem Anti-Drift-Hook) → dedizierte `crash-<TS>.md`; **session-handoff-auto** — volle `tsc` bei jedem Stop (Theater) raus. Beide bash -n OK.
+- **Skills 26→18:** 5 Beta (D111 abgebrochen) + 3 dormant (metrics/improve/optimize, 0 Nutzungs-Spur) → `_archive/`. Behalten: post-mortem (Pflicht feedback_skill_gates), reflect, promote-rule.
+- **Resultat:** Hooks 39→32 wired, JSON valid, 0 dangling refs, audit:wiring:check 0 real-drift, 8 Skill-Parks + 6 Hook-Deletes (git-reversibel). Stop feuert 9→6 Hooks, PostToolUse 7→4.
+- **Deferred (FIX-Pass 2):** pre-commit-guard (unconditional-run), run_tests_on_change (volle Suite blockierend), auto-lint, pattern-check (offset-bug), effort-gate-Asymmetrie. **Judgment offen:** Auditor-Agents 4→1-2. **DANACH:** Phase 2 (Anti-Akkretion-Gegengewicht) · 3 (schlanker Kern) · 4 (Operating-Agreement).
+- **NICHT angefasst:** Money/Security-Rigor (safety/proof/review/spec/wiring-gates).
+
 ## 430 | 2026-06-28 | docs(process): Prozess-Elite-Optimierung — Stand-Konsolidierung + Mega-Zeilen + Anti-Drift-Guard (P1+P2+P5)
 - Stage-Chain: SPEC (inline + `notes/process-elite-prep.md`, S) → IMPACT (skipped: Doc/Hook, kein Code-Consumer) → BUILD (selbst) → REVIEW self-review **PASS** (`reviews/430-review.md`, Ops-Lane money-neutral) → PROVE (`proofs/430-tracker-drift.txt`) → LOG. **Anil-Auftrag 2026-06-28: Prozess vor Feature.** 4 Entscheide bestätigt: Kern+Guard (P1+P2+P5) · History nicht archivieren · Disziplin+Hook · Auto-MEMORY Kurz-Stand+Pointer.
 - **Problem (gemessen):** laufender „Stand" 4-5× dupliziert als Mega-Zeilen (TODO 7.336 / INDEX 5.473 / MASTERPLAN 4.579 / handoff 4.312 je EINE Zeile) → Drift (3× glätten/Session) + Token + Edit-Friktion = D111-„von-allem-fünf" auf Meta-Ebene.

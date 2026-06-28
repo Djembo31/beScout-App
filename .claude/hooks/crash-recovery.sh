@@ -17,15 +17,19 @@ if [ -n "$CHANGES" ]; then
   git diff --cached >> "$BACKUP_DIR/crash-$TIMESTAMP.diff" 2>/dev/null
 fi
 
-# 2. Write crash handoff (append to existing or create)
+# 2. Write crash report to a DEDICATED, bounded file (NOT appended to handoff).
+#    Old behaviour appended raw (markerless) to session-handoff.md -> unbounded growth
+#    (the accretion bug, fixed in slice 431). One file per crash, lives in BACKUP_DIR
+#    (gitignored). A short pointer is emitted to Claude's context + the next
+#    SessionStart briefing surfaces git status anyway.
+CRASH_FILE="$BACKUP_DIR/crash-$TIMESTAMP.md"
 {
-  echo ""
-  echo "## ⚠ CRASH RECOVERY ($TIMESTAMP)"
+  echo "# ⚠ CRASH RECOVERY ($TIMESTAMP)"
   echo "Session crashed. State at crash time:"
   echo ""
 
   if [ -n "$CHANGES" ]; then
-    echo "### Uncommitted Changes (saved as $BACKUP_DIR/crash-$TIMESTAMP.diff)"
+    echo "## Uncommitted Changes (full diff: $BACKUP_DIR/crash-$TIMESTAMP.diff)"
     echo '```'
     git status --porcelain 2>/dev/null | head -20
     echo '```'
@@ -51,9 +55,9 @@ fi
   fi
 
   echo ""
-  echo "### Recovery: Apply diff with \`git apply $BACKUP_DIR/crash-$TIMESTAMP.diff\`"
-} >> "$HANDOFF"
+  echo "## Recovery: \`git apply $BACKUP_DIR/crash-$TIMESTAMP.diff\`"
+} > "$CRASH_FILE"
 
-echo "CRASH RECOVERY: State saved to $HANDOFF + backup diff in $BACKUP_DIR/"
+echo "CRASH RECOVERY: State saved to $CRASH_FILE + backup diff in $BACKUP_DIR/ (next session: read it, then 'git apply' if needed)"
 
 exit 0

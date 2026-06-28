@@ -1,0 +1,49 @@
+SLICE 431 — Workflow-Reset Phase 1: Ballast-Schnitt (Hook-Hälfte)
+Proof (Ops-Lane, money-neutral, self-review)
+Datum: 2026-06-28
+
+=== VORHER → NACHHER (gemessen) ===
+Hook-Registrierungen (settings.json):  39 → 32   (-7)
+Aktive Hook-Scripts (.claude/hooks/):  37 → 31   (6 gelöscht, git history = Archiv)
+Aktive Projekt-Skills:                 26 → 18   (8 geparkt in _archive/skills/)
+
+=== CUT — 6 Hooks de-registriert + GELÖSCHT (git history = Archiv; Anti-Akkretion: kein totes File „sicherheitshalber") ===
+test-reminder              (Dublette zu ship-post-service + Race-Bug)
+ship-stage-timer           (fütterte nur den kaputten build-goal-suggest)
+ship-build-goal-suggest    (seit Monaten KAPUTT: .last-stage.txt Feld-Mismatch → nie Wert geliefert)
+ship-task-enforcement      (Dublette zu ship-parallel-dispatch-gate)
+ship-deferred-reeval-reminder (Dublette zu ship-phase-tracker-reminder; Beta dormant)
+quality-gate-v2            (No-op Counter, Name lügt)
+
+=== DEDUP ===
+ship-kanban-sync: war doppelt verdrahtet (Stop + SessionStart) → Stop-Verdrahtung raus,
+                  Script bleibt (SessionStart-Reminder behalten).
+
+=== FIX — 2 Priority ===
+crash-recovery.sh:       unbegrenztes Append an session-handoff.md (DIE Akkretions-Krankheit
+                         in einem Anti-Drift-Hook) → schreibt jetzt in dedizierte, datierte
+                         Datei .claude/backups/crash-<TS>.md (bounded). bash -n: OK.
+session-handoff-auto.sh: volle `npx tsc --noEmit` bei JEDEM Stop (Perf-Bremse + Theater,
+                         tsc lief schon im BUILD) → entfernt. bash -n: OK.
+
+=== SKILLS archiviert (.claude/_archive/skills/) ===
+Beta (abgebrochen D111):   audit-beta-readiness, auto-beta-ready, sign-off, persona-walk, sweep-page
+Dormant (0 Nutzungs-Spur): metrics, improve, optimize
+  → Beleg: sessions.jsonl trackt keine Skill-Aufrufe; corrections-Counter eingefroren bei 23;
+    wiki/log.md (autodream) zuletzt 2026-04-21. Behalten: post-mortem (Pflicht via
+    feedback_skill_gates), reflect, promote-rule (Knowledge-Flywheel).
+
+=== VALIDIERUNG ===
+settings.json: VALID JSON
+Alle 32 wired Hook-Scripts existieren (0 dangling refs)
+git: 8 Skill-Renames (geparkt) + 6 Hook-Deletes — vollständig reversibel via git history.
+audit:wiring:check: Real drift 0 ✅ (Pre-Commit-Gate grün).
+
+=== NICHT ANGEFASST (Rigor bleibt) ===
+safety-guard, ship-proof-gate, ship-cto-review-gate, ship-spec-gate, ship-tool-wiring-gate,
+ship-meta-plan-block, ship-status-gate, capture-correction/inject-learnings (Flywheel).
+
+=== DEFERRED (FIX-Pass 2, eigener Slice) ===
+pre-commit-guard (unconditional-run-Bug), run_tests_on_change (volle Suite blockierend),
+auto-lint (debounce), pattern-check (HEAD-offset-Bug), effort-gate-Asymmetrie.
+Judgment-Cut offen: Auditor-Agents 4→1-2 (Anil-Entscheid).

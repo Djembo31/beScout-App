@@ -55,8 +55,9 @@ done < <(git worktree list 2>/dev/null)
 
 STASH=$(git stash list 2>/dev/null | head -5)
 
-TSC_ERRORS=$(npx tsc --noEmit 2>&1 | grep -c "error TS" 2>/dev/null || true)
-TSC_ERRORS=${TSC_ERRORS:-0}
+# tsc-at-Stop removed (slice 431): full `npx tsc --noEmit` on EVERY Stop was a
+# perf brake + theatre — tsc already runs during BUILD. Type-truth belongs in the
+# build loop, not the handoff writer.
 
 # --- Build auto-section content into temp file ---
 
@@ -98,11 +99,6 @@ NEW_AUTO=$(mktemp 2>/dev/null || echo "/tmp/handoff-auto-$$.tmp")
   if [ -n "$STASH" ]; then
     echo "## Stashed Changes"
     echo "$STASH" | sed 's/^/- /'
-    echo ""
-  fi
-
-  if [ "$TSC_ERRORS" -gt 0 ] 2>/dev/null; then
-    echo "## ⚠ tsc: $TSC_ERRORS ERRORS (nicht clean!)"
     echo ""
   fi
 
