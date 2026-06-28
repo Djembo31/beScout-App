@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 442 | 2026-06-29 | chore(docs): K2.1 Skill-Trees + K2.2 semantisch/ — 89 Einträge weg (K2-Epic Welle 1)
+- Stage-Chain: SPEC (inline active.md, Ops-Lane Doc) → IMPACT (inline, 89 Deletions, Verify-vor-Löschen) → BUILD (selbst) → REVIEW self-review (Ops, Verify-Grep) → PROVE (`proofs/442-k2-skilltree-memory-gc.txt`) → LOG.
+- **K2-Epic-Recon (2026-06-29):** Wissens-Akkretion ist 3×3 — 3 Skill-Trees (`.claude/skills` 18 kanonisch · `.agents/skills` 85 stale · `bencium`-Repo) + 3 Heimaten (`docs/knowledge` · `wiki/` 21 · `memory/` 1.3MB). 6-Wellen-Plan in MASTERPLAN K2 verankert.
+- **Gelöscht (89):** `.agents/` (85, stale Skill-Tree, 0 Config-Refs, Duplikat zu `.claude/skills/`) + `bencium-…/` (embedded Git-Repo/gitlink, verwaist) + `memory/semantisch/` (3 .gitkeep, leer D89-tot).
+- **Verify-vor-Löschen (§0):** bencium = NICHT aktive Skill-Quelle (baseline-ui kommt aus `.claude/commands/` + `.agents/`, nicht bencium); `.agents/` 0 Config-Refs; `.claude/skills/` (18) intakt.
+- **🚩 Fakten-Korrektur (kein Blind-Müll):** `debug-payload` (220K) hängt an `backfill-scoring-historical.mjs`, `rollback_*.json` an 4 one-off Scripts, `beta-*` (12) in auditor/errors-infra/beta-metrics referenziert → **bewusst behalten, → K2.2b** (scripts-GC/Urteil).
+- **Embedded-Repo-Lehre:** loser gitlink (kein `.gitmodules`) → `git rm` zickt („could not lookup submodule"); `rm -rf` WT + `git rm --cached` Index löst es.
+- Files: 89 Deletions + active/log/MASTERPLAN + proof.
+
 ## 441 | 2026-06-29 | chore(docs): K3 docs/plans — 142 historische Specs gelöscht (147→5), 5 Anker → K2 (TEIL A)
 - Stage-Chain: SPEC (inline active.md, Ops-Lane Doc) → IMPACT (inline, 142 Deletions, 5 behalten) → BUILD (selbst) → REVIEW self-review (Ops, 0 dangling Grep-verifiziert) → PROVE (`proofs/441-k3-docs-plans.txt`) → LOG.
 - **CEO-Entscheid (AskUserQuestion):** Löschen (git=Archiv) statt nach `docs/_archive/` verschieben — konsistent mit K1/K4 + MASTERPLAN-Philosophie.

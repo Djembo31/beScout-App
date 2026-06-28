@@ -1,0 +1,42 @@
+Slice 442 — K2.1 Skill-Trees + K2.2 memory-GC (K2-Epic Welle 1) — PROOF
+=======================================================================
+Datum: 2026-06-29
+Typ: Doc (Ops-Lane, money-neutral) · CEO-Entscheid: sichere Mechanik zuerst
+
+ZIEL: Skill-Tree-„von-allem-drei" konsolidieren + eindeutig totes memory.
+
+────────────────────────────────────────────────────────────
+1) VERIFY-VOR-LÖSCHEN (§0, faktenbasiert)
+────────────────────────────────────────────────────────────
+- bencium-claude-code-design-skill/ = embedded Git-Repo (loser gitlink, kein
+  .gitmodules), nur 1 git-Eintrag. NICHT aktive Skill-Quelle: die doppelten
+  Design-Skills (baseline-ui) kommen aus .claude/commands/ + .agents/skills/,
+  NICHT bencium. → verwaist, sicher.
+- .agents/ = 85 getrackte Files, 0 Config-Refs (settings.json/.mcp.json/pkg).
+  Duplikat-Tree zu .claude/skills/ (18, kanonisch). → stale, sicher.
+- memory/semantisch/ = nur .gitkeep (leer, D89-tot). → sicher.
+
+KORREKTUR (nicht Blind-Müll, → K2.2b):
+- debug-backfill-payload-BL1-gw4.json (220K) HÄNGT an scripts/backfill-scoring-
+  historical.mjs. rollback_*.json an 4 one-off Scripts. beta-* in auditor.md/
+  errors-infra-detail.md/beta-metrics.mjs referenziert. → scripts-GC-/Urteils-
+  Thema, NICHT „sichere Mechanik". Bewusst BEHALTEN, → K2.2b.
+
+────────────────────────────────────────────────────────────
+2) GELÖSCHT (89 Einträge)
+────────────────────────────────────────────────────────────
+- .agents/ (85 Files: stale Skill-Tree, Duplikat zu .claude/skills/)
+- bencium-claude-code-design-skill (gitlink + Arbeitsverzeichnis mit eigenem .git/)
+- memory/semantisch/ (3 .gitkeep, leerer D89-toter Teilbaum)
+
+────────────────────────────────────────────────────────────
+3) AC-VERIFIKATION
+────────────────────────────────────────────────────────────
+AC-1 (.agents weg, 0 broken):  ✅ git rm 85; .claude/skills/ = 18 intakt
+AC-2 (bencium geklärt):         ✅ embedded Repo, nicht aktiv → entfernt (Index+WT)
+AC-3 (semantisch weg):          ✅
+AC-4 (beta/rollback entschieden):✅ BEHALTEN, begründet (script-/ref-gebunden) → K2.2b
+AC-5 (0 dangling):              ✅ nur MASTERPLAN-Plan-Beschreibung (= reconciled)
+
+ERGEBNIS: Skill-Heimat auf EINE (.claude/skills/) reduziert; 89 Einträge weg.
+debug-payload/rollback/beta sauber an K2.2b übergeben (kein Blind-Schnitt).

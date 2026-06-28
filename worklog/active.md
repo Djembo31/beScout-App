@@ -2,37 +2,36 @@
 
 ```
 status: idle
-slice: 441
-title: K3 docs/plans — 142 Specs+Müll gelöscht (147→5), 5 Anker → K2 — DONE
-size: XS
+slice: 442
+title: K2.1 Skill-Trees (.agents+bencium) + K2.2 semantisch/ — 89 Einträge weg — DONE
+size: S
 type: Doc
 stage: LOG (DONE)
 spec: inline (Ops-Lane, Doc, money-neutral, nicht user-facing)
-impact: inline (142 Doc-Deletions, 5 referenzierte behalten, 0 Code)
-proof: worklog/proofs/441-k3-docs-plans.txt
-review: self-review PASS (Ops-Lane; 0 dangling Grep-verifiziert, 5 Anker → K2)
+impact: inline (89 Skill-Tree/memory-Deletions, Verify-vor-Löschen, 0 broken skill)
+proof: worklog/proofs/442-k2-skilltree-memory-gc.txt
+review: self-review PASS (Ops-Lane; bencium/.agents/beta Verify-Grep, 0 dangling)
 ```
 
 ## Spec (inline, Ops-Lane — Slice 352)
 
-**Problem (Evidence: MASTERPLAN K3 + Recon):** `docs/plans/` = 147 Dateien (2.9 MB). 142 unreferenzierte März/April-Feature-Specs (done-features) + 2 one-off Writer-Scripts + 3 ungetrackte `bes*.json`-Perf-Tasks. CEO-Entscheid (AskUserQuestion 2026-06-29): **Löschen (git=Archiv)**.
+**Problem (Evidence: K2-Recon 2026-06-29):** 3 Skill-Trees (`.claude/skills` 18 kanonisch · `.agents/skills` 77 stale · `bencium`-Repo) + memory-Müll (`debug-backfill-payload` 220K, leeres `semantisch/`, abgebrochene `beta-*` D111). CEO-Entscheid: sichere Mechanik zuerst.
 
-**Plan:**
-1. `bes26/27/28.json` (Player-Detail-Perf-Tasks) in MASTERPLAN **W6** falten (1 Zeile), dann löschen.
-2. Löschen: 142 historische Specs + `_stdin_writer.js` + `_writer.js` + 3 `bes*.json`.
-3. **BEHALTEN → K2** (lebende Anker): `2026-06-24-scout-card-value-model-spec` (D100/treasury) · `2026-04-10-bescout-liga-spec` (bescout-liga.md) · `2026-04-08-transactions-history-spec` · `2026-04-02-jarvis-cortex-design/plan`.
+**Plan (Verify-vor-Löschen, §0):**
+1. **K2.1:** `.agents/skills/` (77) — verify 0 aktive Refs → weg. `bencium-…/` — **verify ob aktive Skill-Quelle** (doppelte Design-Skills?) BEVOR löschen.
+2. **K2.2:** `debug-backfill-payload-BL1-gw4.json` (220K, 0 Refs) → weg · `memory/semantisch/` (leer, D89-tot) → weg · `beta-*`-Docs → Urteil (Infrastruktur-Wert vs Prozess-Müll) · `rollback_*.json` → Urteil (script-referenziert).
 
-**Schnitt-Regel (§0):** nur die 5 referenzierten behalten = 0 dangling. Re-Grep nach Löschung Pflicht.
+**Schnitt-Regel (§0):** kein aktiver Skill/Ref gebrochen. Verify-Grep Pflicht.
 
-**Acceptance:** AC-1 142+2+3 weg (~147→5) · AC-2 5 Anker intakt · AC-3 0 dangling (Re-Grep) · AC-4 bes-Tasks in W6 erhalten.
+**Acceptance:** AC-1 `.agents/skills` weg, 0 broken skill · AC-2 bencium-Status geklärt+behandelt · AC-3 debug-payload+semantisch weg · AC-4 beta/rollback bewusst entschieden (gelöscht ODER begründet behalten) · AC-5 0 dangling.
 
-**Proof:** `worklog/proofs/441-k3-docs-plans.txt`. **Review:** self-review (Ops). **Scope-Out:** K2 (5 Anker-Migration + Ref-Umbiegung), K6/K7.
+**Proof:** `worklog/proofs/442-k2-skilltree-memory-gc.txt`. **Review:** self-review (Ops). **Scope-Out:** K2.3-K2.6.
 **Stage-Chain:** SPEC → IMPACT(inline) → BUILD → REVIEW(self) → PROVE → LOG.
 
 ## Zuletzt
 
-- **Slice 440** (2026-06-29) — K4 root-Entrümpelung, 16 Müll-Files −4612 Z. (XS, self-review PASS).
-- **Slice 439** (2026-06-28) — K1 Meta-Cleanup, 11 tote Tracker/notes −853 Z. (XS).
-- **Slice 438** (2026-06-28) — Auditor-Agents 4→2 (S).
+- **Slice 441** (2026-06-29) — K3 docs/plans 147→5 (XS, self-review PASS).
+- **Slice 440** (2026-06-29) — K4 root-Müll −4612 Z. (XS).
+- **Slice 439** (2026-06-28) — K1 tote Tracker/notes (XS).
 
-Nächstes: K2 (Wissens-Heimat-Migration: 18 Anker [13 notes + 5 plans] + Skill-Trees, L) oder K6/K7.
+Nächstes: K2.3 docs-root · K2.4 wiki/ · K2.5 Anker-Migration · K2.6 Memory-Modell.
