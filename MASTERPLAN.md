@@ -63,4 +63,4 @@ Beta abgebrochen (zu viele Fehler, nichts lief sauber zusammen). Ganze Codebase 
 - **E3** Plattform-Treasury KOMPLETT — REIN 5/5 (357-365) + RAUS 3/3 (376-378), real durchflossen (402).
 - **E5** Event-/Creator-/Liga-Modell bis Slice 400 (Liga-Bindung · Saison-Payout · Regelsatz komplett · User-Events e2e).
 - **Mock→Pro** Welle 1 (Trading 403-418) + Welle 2 (Spieltag/Scoring 419-429) e2e.
-- **Workflow-Reset** Phase 1 (Ballast-Schnitt 431) + Phase 2 (Anti-Akkretions-Engine + Operating-Agreement 432).
+- **Workflow-Reset** Phase 1 (Ballast-Schnitt 431) + Phase 2 (Anti-Akkretions-Engine + Operating-Agreement 432) + Phase 3 Signal-Detektor `audit:dup` (434, D117 — §0-Schnitt-Regel maschinell, WARN-first; Dogfood-Fund D-33). *(Werkzeug-Elite Teil 2 = Tooling-Hygiene K5 + Scripts-GC, offen.)*

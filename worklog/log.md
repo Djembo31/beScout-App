@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 434 | 2026-06-28 | feat(tooling): Duplikations-Ratchet — §0-Schnitt-Regel maschinell (audit:dup)
+- Stage-Chain: SPEC (`specs/434-duplication-ratchet.md`) → IMPACT skipped (money-neutral Tool) → BUILD (selbst) → REVIEW (reviewer-Agent CONCERNS → 6 Findings behoben, `reviews/434-review.md`) → PROVE (`proofs/434-ac-audit.txt`+`434-vitest.txt`) → LOG. Commit `4b5e2cbb`. D117.
+- **Befund:** keiner der 14 `audit:*`-Checks fand aktive Duplikation; §0 behauptete fälschlich „Detektor im wiring-check" (existierte nicht) = Realität-vor-Zeremonie-Verstoß §0.2 in der frischen §0 selbst.
+- **Gebaut:** `scripts/duplication-check.ts` (`audit:dup`/`:check`) = Register-Ratchet (Muster boundary S4/test-confidence S5): Geheilt-Regressions-Guard (code+db, src/-only) + Discovery (Synonym-Stamm-Kollision `format`≈`fmt`/`calc`≈`calculate`≈`compute`, ≤1-Gruppe) + Stale-INFO. Baseline = gefencter `dup-registry`-Block IM `disease-register.md` (kein zweites File). pre-commit Step 7b WARN-first (`|| true`). `wiring-check` härtet (`__tests__`/`*.test.*`-Skip + 2 KNOWN_ORPHANS). §0 auf `audit:dup` korrigiert.
+- **Dogfood-Fund:** erster Lauf fand echten, vom 61-Agent-Audit übersehenen Twin `timeAgo`/`formatTimeAgo` (i18n-Leak) → D-33 registriert.
+- **Reviewer-Rework (CONCERNS→PASS):** db-Guard für Money-Path-Symbole (#1, live mit `locked_balance` bewiesen) · Synonym-Gruppen verhindern komplementäre `calcFee`/`formatFee`-FP (#2) · Cluster-Logik exportiert+getestet (#6). 14→24 Unit-Tests, tsc+wiring grün.
+- Nächstes: Tooling-Hygiene (22 `add-i18n`-Wegwerf · `_investigate`-Halde · 5 K5-Hooks · Auditor 4→1-2) + WARN→BLOCK-Flip nach FP=0-Bake.
+
 ## 433 | 2026-06-28 | docs(plan): Plan-Konsolidierung — eine Plan-Quelle (MASTERPLAN als Plan-SSOT)
 - Stage-Chain: SPEC (inline active.md + MASTERPLAN) → IMPACT skipped (Doc) → BUILD (selbst) → REVIEW self-review (Ops-Lane) → PROVE (`proofs/433-one-plan.txt`) → LOG. Commit `b423682a`. D116.
 - Behebt Plan-/Doc-Akkretion (Ist-Stand-Scan): ~14 Plan-Docs für EINEN Plan · 5 Wissens-Heimaten · versionierte Dubletten (v3/v4-FINAL/v8) · 2× handoff/TODO · docs/plans 147 · 1615 Artefakte.

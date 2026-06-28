@@ -1,18 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-28 20:13)
+# Session Handoff — Auto (2026-06-28 20:21)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 2 Files
+## Uncommitted Changes: 1 Files
 ```
- M memory/session-handoff.md
 ?? worklog/audits/orphan-components-2026-06-27.md
 ```
 
 ## Session Commits: 3
+- bb8444bf docs(distill): D116 Elite-Workflow-Reset + Slice 432/433 LOG + Checkpoint-Handoff
 - b423682a docs(plan): Slice 433 — eine Plan-Quelle (MASTERPLAN als Plan-SSOT)
 - 507a7954 chore(workflow): Slice 432 — Elite-Workflow-Kern (§0 Anti-Akkretion + Schnitt-Regel-DoD + Operating-Agreement)
-- 8039ead5 docs(handoff): Workflow-Reset Phase 1 verankert — Phase 2 als nächstes
 
 <!-- auto:handoff-end -->
 
@@ -20,7 +19,9 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-> **🟢 CHECKPOINT 2026-06-28 — WORKFLOW-RESET + EINE-PLAN-QUELLE STEHEN. Nächste Session = TEIL A execution ODER W0-Security. Alles committed (`b423682a`), main==origin.**
+> **🟢 CHECKPOINT 2026-06-28 — WORKFLOW-RESET + EINE-PLAN-QUELLE + ANTI-AKKRETIONS-DETEKTOR STEHEN. Nächste Session = Werkzeug-Elite Teil 2 (Tooling-Hygiene) ODER TEIL A execution ODER W0-Security. Alles committed (`4b5e2cbb`), main==origin.**
+>
+> **🆕 Slice 434 (D117) — Duplikations-Ratchet `audit:dup` (Reviewer PASS):** Schließt die §0-„Detektor"-Lücke (keiner der 14 `audit:*` fand aktive Duplikation; §0 zeigte auf nicht-existenten wiring-check-Detektor = Zeremonie-Verstoß). Register-Ratchet (`scripts/duplication-check.ts`): Geheilt-Guard (code+db) + Discovery (Synonym-Twins format/calc) + Stale-INFO; Baseline = `dup-registry`-Block IM `disease-register.md`; pre-commit WARN-first. **Dogfood fand sofort echten, audit-übersehenen Twin `timeAgo`/`formatTimeAgo` → D-33.** Reviewer-Rework: db-Guard (Money-Path) + Synonym-Gruppen-FP + Cluster-Tests (24). **➡️ Werkzeug-Elite Teil 2 offen:** Tooling-Hygiene (22 `add-i18n`-Wegwerf-Skripte · `_investigate`-Halde · 5 K5-Hooks · Auditor 4→1-2) + WARN→BLOCK-Flip nach FP=0.
 >
 > **Diese Session geliefert (Anil: „Elite-Workflow + BeScout gesund, Sorare-Niveau"):**
 > - **Voll-Audit** (Run `wf_82fc04e4-733`, 61 Agents, live gegen DB) → 5 Wurzel-Ursachen, Master = **R1 „immer anhängen, nie konsolidieren"**. 34 neue + 32 bekannte Krankheiten. Evidenz: `worklog/notes/disease-register.md` (29/32 offen).
