@@ -1,11 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-28 21:54)
+# Session Handoff — Auto (2026-06-28 22:01)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
-## Session Commits: 8
+## Session Commits: 9
+- 31744ad5 docs(handoff): Session-Close-Checkpoint 2026-06-28 (Slices 434+435, Tree clean)
 - f5890847 chore(gitignore): self-renewing Audit-Reports (dup + orphan-components) ignorieren
 - c8a0e327 docs(handoff): Slice 435 Scripts-GC Checkpoint + auto-block
 - de8a76d8 chore(tooling): Slice 435 — Scripts-Folder GC (30 tote one-off Skripte gelöscht)
@@ -21,9 +22,9 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-> **🟢 CHECKPOINT 2026-06-28 — WORKFLOW-RESET + EINE-PLAN-QUELLE + ANTI-AKKRETIONS-DETEKTOR + SCRIPTS-GC STEHEN. Nächste Session = Werkzeug-Elite Teil 2 Rest (K5-Hooks / Auditor / BLOCK-Flip) ODER TEIL A execution ODER W0-Security. Alles committed (`de8a76d8`), main==origin.**
+> **🟢 CHECKPOINT 2026-06-28 — WORKFLOW-RESET + EINE-PLAN-QUELLE + ANTI-AKKRETIONS-DETEKTOR + SCRIPTS-GC + HOOK-FIX-PASS-2 STEHEN. Nächste Session = Werkzeug-Elite Teil 2 Rest (`workflow.md`-Slim / Auditor 4→1-2 / `audit:dup` BLOCK-Flip) ODER TEIL A execution ODER W0-Security. main==origin (Commits s. Auto-Block oben).**
 >
-> **🆕 Slice 434 (D117) — Duplikations-Ratchet `audit:dup` (Reviewer PASS):** Schließt die §0-„Detektor"-Lücke (keiner der 14 `audit:*` fand aktive Duplikation; §0 zeigte auf nicht-existenten wiring-check-Detektor = Zeremonie-Verstoß). Register-Ratchet (`scripts/duplication-check.ts`): Geheilt-Guard (code+db) + Discovery (Synonym-Twins format/calc) + Stale-INFO; Baseline = `dup-registry`-Block IM `disease-register.md`; pre-commit WARN-first. **Dogfood fand sofort echten, audit-übersehenen Twin `timeAgo`/`formatTimeAgo` → D-33.** Reviewer-Rework: db-Guard (Money-Path) + Synonym-Gruppen-FP + Cluster-Tests (24). **➡️ Werkzeug-Elite Teil 2:** ✅ Scripts-GC (Slice 435: 30 tote one-off Skripte weg, `de8a76d8`); offen: 5 K5-Hooks FIX-Pass-2 · Auditor 4→1-2 · `audit:dup` WARN→BLOCK-Flip nach FP=0. (`wiring-check` scannt nur `.ts/.sh` — `.js/.mjs` blieben unsichtbar = Akkretions-Ursache.)
+> **🆕 Slice 434 (D117) — Duplikations-Ratchet `audit:dup` (Reviewer PASS):** Schließt die §0-„Detektor"-Lücke (keiner der 14 `audit:*` fand aktive Duplikation; §0 zeigte auf nicht-existenten wiring-check-Detektor = Zeremonie-Verstoß). Register-Ratchet (`scripts/duplication-check.ts`): Geheilt-Guard (code+db) + Discovery (Synonym-Twins format/calc) + Stale-INFO; Baseline = `dup-registry`-Block IM `disease-register.md`; pre-commit WARN-first. **Dogfood fand sofort echten, audit-übersehenen Twin `timeAgo`/`formatTimeAgo` → D-33.** Reviewer-Rework: db-Guard (Money-Path) + Synonym-Gruppen-FP + Cluster-Tests (24). **➡️ Werkzeug-Elite Teil 2:** ✅ Scripts-GC (435) + ✅ Hook-FIX-Pass-2 (436: `auto-lint`+`run_tests_on_change` CUT, `pre-commit-guard`→`.husky` [schließt compliance/i18n-Enforcement-Lücke], `pattern-check`→`session-retro` [Offset-Bug→Zeitfenster]; **32→28 Hooks**, husky grün e2e); offen: `workflow.md`-Slim · Auditor 4→1-2 · `audit:dup` BLOCK-Flip nach FP=0. (`wiring-check` scannt nur `.ts/.sh` — `.js/.mjs` blieben unsichtbar = Akkretions-Ursache.)
 >
 > **Diese Session geliefert (Anil: „Elite-Workflow + BeScout gesund, Sorare-Niveau"):**
 > - **Voll-Audit** (Run `wf_82fc04e4-733`, 61 Agents, live gegen DB) → 5 Wurzel-Ursachen, Master = **R1 „immer anhängen, nie konsolidieren"**. 34 neue + 32 bekannte Krankheiten. Evidenz: `worklog/notes/disease-register.md` (29/32 offen).

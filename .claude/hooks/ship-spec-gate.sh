@@ -2,6 +2,12 @@
 # SHIP-Loop: Block Edit/Write on critical paths without active slice.
 # Critical paths: supabase/migrations/, src/lib/services/, src/lib/queries/
 # Exempt: emergency slices, archive paths, test files.
+#
+# BEWUSST NICHT effort-gated (Slice 436, §3): guard't Money-Pfade (migrations/services/queries).
+# Effort-Gaten wuerde Money-Edits ohne aktiven Slice auf low/medium-Effort durchlassen =
+# Money-Gate-Schwaechung. Wie safety-guard laeuft dieser foundational gate IMMER. Die 4
+# Schwester-Hooks am selben Event (spec-quality/meta-plan/parallel-dispatch/ceo-scope) sind
+# effort-gated (reine Convenience-Reminder) — diese Asymmetrie ist Intent, kein Bug.
 
 set -u
 

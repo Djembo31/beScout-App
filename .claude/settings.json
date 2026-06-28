@@ -13,11 +13,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/auto-lint.sh",
-            "continueOnBlock": true
-          },
-          {
-            "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/file-size-warning.sh",
             "continueOnBlock": true
           },
@@ -41,10 +36,6 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/safety-guard.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash C:/bescout-app/scripts/audit/pre-commit-guard.sh"
           },
           {
             "type": "command",
@@ -86,10 +77,6 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-ceo-scope-gate.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/run_tests_on_change.sh"
           }
         ]
       }
@@ -144,10 +131,6 @@
           {
             "type": "command",
             "command": "bash C:/bescout-app/.claude/hooks/ship-phase-tracker-reminder.sh"
-          },
-          {
-            "type": "command",
-            "command": "bash C:/bescout-app/.claude/hooks/pattern-check.sh"
           },
           {
             "type": "command",

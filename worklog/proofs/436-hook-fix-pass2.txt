@@ -1,0 +1,53 @@
+SLICE 436 — Hook FIX-Pass-2: 4 Hook-Konsolidierungen (Werkzeug-Elite Teil 2)
+Proof (Ops-Lane, money-neutral, self-review)
+Datum: 2026-06-28
+
+=== SCOPE (gegen Live-Source verifiziert, nicht stale TODO) ===
+Pass-1 = workflow-ballast-audit.md. 431 fixte 2 Priority (crash-recovery, session-handoff-auto)
++ cut 6. FIX-Pass-2 = die verbleibenden 5 — heute am echten Code verifiziert:
+  CUT  auto-lint.sh            (Dublette zu .husky lint-staged; per-Edit + ||true error-swallow)
+  CUT  run_tests_on_change.sh  (volle npm-test-Suite blockierend VOR jedem Edit = Deadlock)
+  FOLD pre-commit-guard.sh     (2. KAPUTTER Commit-Gate -> .husky/pre-commit)
+  FOLD pattern-check.sh        (HEAD~N-Offset-Bug -> session-retro.sh, Zeitfenster)
+  DOC  ship-spec-gate effort-asymmetrie (§3: NICHT geschwaecht, als Intent dokumentiert+eskaliert)
+
+=== AC1 — settings.json valid + 4 de-registriert ===
+JSON VALID. wired total 32 -> 28.
+  PostToolUse 4->3 (raus auto-lint) · PreToolUse-Bash 6->5 (raus pre-commit-guard)
+  PreToolUse-Edit 6->5 (raus run_tests_on_change) · Stop 6->5 (raus pattern-check)
+  grep: auto-lint/run_tests_on_change/pre-commit-guard/pattern-check = removed ✅ (×4)
+
+=== AC2 — .husky/pre-commit konsolidiert + grün end-to-end ===
+compliance.sh (0,56s) + i18n-coverage.js (0,1s) + conflict-marker -> in husky gefaltet
+(fail-fast VOR tsc). Beweis: voller `bash .husky/pre-commit` exit=0 (62s):
+  compliance ✅ · i18n ✅ 5110 keys · tsc ✅ · type-truth ✅0 · stale ✅0 · wiring ✅drift0
+  boundary ✅ · test-confidence ✅ · knowledge HARD0/SOFT3 (pre-existing Datums-Heuristik,
+  non-blocking) · dup ✅ keine Regression · lint-staged ✅ (keine .ts/.tsx staged) · OK
+SCHLIESST ECHTE LUECKE: compliance+i18n waren ungenforced (guard exit-1 blockte nie,
+husky pruefte sie nicht). conflict-marker auf staged Slice-Files: kein False-Positive.
+
+=== AC3 — pattern-check -> session-retro (Offset-Bug behoben) ===
+bash -n clean. Flywheel-Snippet laeuft: fix()-commits-4h=0 -> Reminder korrekt still.
+alt: git diff HEAD~$FIX_COMMITS HEAD (falsches Fenster bei interleaved commits)
+neu: git log --since="4 hours ago" --name-only (ganzes Fenster, count-unabhaengig)
+     + auf errors-[a-z]+.md-Splits erweitert (common-errors.md wurde gesplittet).
+Stop-Hooks 6 -> 5.
+
+=== AC4 — 4 Scripts geloescht, kein dangling ref ===
+git rm: auto-lint.sh, run_tests_on_change.sh, pattern-check.sh, pre-commit-guard.sh
+test -e: gone ✅ (×4).  bash -n: husky/session-retro/ship-spec-gate = OK (×3).
+pnpm audit:wiring:check: Real drift 0 ✅ — All tools wired.
+
+=== AC5 — Tracker reconciled ===
+MASTERPLAN K5 + TODO + session-handoff abgehakt. Verbleibend (bewusst, kein Heute):
+  audit:dup WARN->BLOCK-Flip = braucht FP=0-Bake-Phase (Zeit/Nutzung, nicht Code).
+
+=== §3-Entscheid (eskaliert an Anil) ===
+ship-spec-gate NICHT effort-gated belassen (guard't migrations/services/queries = Money).
+Effort-Gaten wuerde Money-Edits ohne Slice auf low-Effort durchlassen. Wie safety-guard:
+foundational gate laeuft IMMER. Asymmetrie zu 4 Schwester-Hooks = dokumentierter Intent.
+
+=== NETTO ===
+Hooks 32 -> 28 wired (4 cut). 3 echte Bugs geheilt (pre-commit-guard never-blocked,
+pattern-check offset, run_tests deadlock). 1 Enforcement-Luecke geschlossen (compliance/i18n).
+EIN autoritativer Commit-Gate (husky) statt zwei driftender.

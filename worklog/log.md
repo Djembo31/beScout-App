@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 436 | 2026-06-28 | chore(tooling): Hook FIX-Pass-2 — 4 Hook-Konsolidierungen (Werkzeug-Elite Teil 2)
+- Stage-Chain: SPEC (inline active.md, Ops-Lane) → IMPACT (inline, S234: 4 Hook-Removals) → BUILD (selbst) → REVIEW self-review (Ops, money-neutral) → PROVE (`proofs/436-hook-fix-pass2.txt`) → LOG.
+- Grounding (keine stale TODO): Pass-1 = `workflow-ballast-audit.md`; 431 fixte 2 Priority + cut 6; FIX-Pass-2 = die 5 Reste, heute am echten Source verifiziert.
+- **CUT** `auto-lint.sh` (Dublette zu husky `lint-staged`, per-Edit + `||true`-error-swallow) + `run_tests_on_change.sh` (volle Test-Suite blockierend VOR jedem Edit = Deadlock; redundant zu `ship-post-service`+CI).
+- **FOLD** `pre-commit-guard.sh` → `.husky/pre-commit`: war 2. KAPUTTER Commit-Gate (triggerte auf jedem Bash via nie-gesetztem `$CLAUDE_TOOL_INPUT`; `exit 1` statt `exit 2` → blockte NIE). compliance+i18n+conflict-marker in den EINEN autoritativen Gate gefaltet → **schließt echte Enforcement-Lücke** (compliance/i18n waren ungenforced).
+- **FOLD** `pattern-check.sh` → `session-retro.sh`: `HEAD~$FIX_COMMITS`-Offset-Bug → `git log --since`-Zeitfenster (+ auf `errors-*.md`-Splits erweitert). Stop-Hooks 6→5.
+- **§3-Entscheid:** `ship-spec-gate` NICHT effort-gated belassen (guard't Money-Pfade migrations/services/queries) — als bewusste Intent dokumentiert + an Anil eskaliert statt Money-Gate zu schwächen.
+- Netto: wired Hooks **32→28**; 3 echte Bugs geheilt; voller `.husky/pre-commit` grün e2e (exit 0, 62s); `audit:wiring:check` drift=0.
+- Knowledge: `errors-infra.md` **S436** (Hook exit-Code + stdin-Source + Gate-Dedup + git-window). Files: settings.json + .husky/pre-commit + session-retro.sh + ship-spec-gate.sh (M) · auto-lint/run_tests_on_change/pattern-check/pre-commit-guard (D).
+
 ## 435 | 2026-06-28 | chore(tooling): Scripts-Folder GC — 30 tote one-off Skripte gelöscht (Werkzeug-Elite Teil 2)
 - Stage-Chain: SPEC (inline active.md, Ops-Lane) → IMPACT skipped → BUILD (`git rm`) → REVIEW self-review (mechanisch, peek-then-delete grep-Evidenz) → PROVE (`proofs/435-gc.txt`) → LOG.
 - Gelöscht: 21× `scripts/add-i18n-keys*.js` (i18n-Migration gelaufen, Keys in `messages/`) + 9× `scripts/_*.mjs` (`_preflight/_inspect/_investigate/_check-dups/_verify`-Wegwerf-Investigations). git = Archiv.

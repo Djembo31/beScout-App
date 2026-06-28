@@ -1,8 +1,24 @@
 #!/bin/bash
-# SessionEnd Hook: Write automatic retrospective
-# Non-blocking — just writes a file for next session's injection
+# SessionEnd Hook: Write automatic retrospective + Knowledge-Flywheel-Reminder
+# Non-blocking — writes a retro file + warns if fix()-commits lack errors-*.md updates.
+# (Slice 436: pattern-check.sh hierher gefoldet; HEAD~N-Offset-Bug -> Zeitfenster behoben.)
 
 cd C:/bescout-app
+
+# === Knowledge-Flywheel-Reminder (gefoldet aus pattern-check.sh, Slice 436) ===
+# Zeitfenster statt HEAD~N-Offset: prueft NUR Commits der letzten 4h. Der alte Offset
+# (git diff HEAD~$FIX_COMMITS) nahm bei interleaved non-fix-Commits das falsche Fenster.
+# Auf errors-*.md-Splits erweitert (common-errors.md wurde seit dem Original gesplittet).
+FIX_COMMITS=$(git log --since="4 hours ago" --oneline 2>/dev/null | grep -c "fix(" || true)
+if [ "$FIX_COMMITS" -gt 0 ] 2>/dev/null; then
+  ERRORS_TOUCHED=$(git log --since="4 hours ago" --name-only --pretty=format:"" 2>/dev/null | grep -cE "common-errors\.md|errors-[a-z]+\.md" || true)
+  if [ "$ERRORS_TOUCHED" -eq 0 ] 2>/dev/null; then
+    echo ""
+    echo "PATTERN-CHECK (Knowledge-Flywheel): $FIX_COMMITS fix()-Commits (4h) aber keine errors-*.md aktualisiert."
+    echo "  -> Neue Error-Patterns in common-errors.md / errors-*.md eintragen? (Same-Session Extraction)"
+    echo ""
+  fi
+fi
 
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 RETRO_DIR="memory/episodisch/sessions"
