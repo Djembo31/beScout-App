@@ -1,0 +1,34 @@
+SLICE 444 — K2.3 Welle A: 7 superseded docs/-root Files GC (Ops-Lane)
+Datum: 2026-06-29
+CEO-Entscheid (Anil): "Wellen, A sofort · alles voll nach knowledge/ kanonisieren"
+Basis: 4-Agent-Recon (read-only, live-verifiziert) klassifizierte alle 18 docs/-root-Files.
+
+=== AC-1: 7 Files gelöscht (git rm) ===
+rm 'docs/ARCHITECTURE.md'            (broken pointer → memory/architecture.md existiert nicht; SSOT=knowledge/domain/architecture-3hub)
+rm 'docs/BeScout_Context_Pack_v8.md' (v8.2 Feb; durable in business.md/treasury.md/compliance.md)
+rm 'docs/ROADMAP.md'                 (Mär; Roadmap-SSOT=MASTERPLAN.md)
+rm 'docs/SECURITY-AUDIT.md'          (Feb "Risk LOW" — superseded+übertroffen von disease-register §2: 28 anon-SECDEF)
+rm 'docs/STATUS.md'                  (Mär; Status-SSOT=session-handoff/worklog/active)
+rm 'docs/bescout-briefing-claude-code.md' (Feb BSD/Sakaryaspor-only; durable in rules/wiki)
+rm 'docs/bescout-final-report-v3.md' (Feb Red-Team-Bericht, stale Zahlen 0-User/147-Migrations)
+
+docs/ root *.md: 17 → 10  ✓
+
+=== AC-2: 0 dangling in lebenden Dirs (git grep, exkl. docs/ + worklog/) ===
+Treffer NUR in:
+  MASTERPLAN.md:36     → K2.3-Plan-Eintrag (in diesem Slice korrigiert)
+  session-handoff.md:34 → K2.3-Plan-Eintrag (beim Session-Close aktualisiert)
+→ Keine echte Wissens-Referenz. Sauber.
+
+=== AC-3: Salvage-Pointer (git=Archiv) für die 2 Niedrig-Wert-Funde ===
+Falls je gebraucht (beide Phase-2-deferred / stale, daher nicht migriert):
+  CASP-Lizenz-Kostenrahmen (€125K Mindestkapital, €200-350K Jahr 1):
+    git show 335e1f69:docs/BeScout_Context_Pack_v8.md
+  Adversariale Red-Team-Methode ("versuche das Projekt zu zerstören"):
+    git show 335e1f69:docs/bescout-final-report-v3.md
+
+=== Schnitt-Regel (§0) ===
+Jedes Doc hat eine existierende kanonische SSOT (handoff/MASTERPLAN/disease-register §2/git-History).
+Kein ungetrackter zweiter Weg erzeugt. Reine Subtraktion.
+
+REVIEW: self-review (Ops-Lane, kein Money/Security/User-facing-Verhalten berührt).

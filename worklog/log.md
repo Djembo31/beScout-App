@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 444 | 2026-06-29 | chore(docs): K2.3 Welle A — 7 superseded docs/-root Files GC (Plan-Scope-Korrektur)
+- Stage-Chain: SPEC (inline active.md, Ops-Lane) → IMPACT (inline, 7 Deletions, 0 lebende Ref via git grep) → BUILD (selbst) → REVIEW self-review (Ops) → PROVE (`proofs/444-welleA-superseded-gc.txt`) → LOG.
+- **K2.3-Recon (4 read-only Agents, live gegen DB/Code verifiziert):** alle 18 docs/-root-Files klassifiziert → **3 Krankheiten statt „4 Dubletten"** (Plan war zu eng): (a) invertierte Wahrheit (kanon. `domain/vision.md` Stand-April ÄLTER als die „veralteten" Root-Docs Stand-24.-Apr, un-routbar), (b) heimatlose Cluster (Legal/Sales/Scaling/Gamification-Design = 0 kanon. Heimat → blind löschen = Wissensverlust), (c) „FINAL"-Lügen (gamification-v4/SYSTEM-DESIGN-v2 „SSOT"-Header aber überholt). CEO (Anil): **Wellen, voll nach knowledge/ kanonisieren.**
+- **Welle A (7 superseded gelöscht):** briefing · Context_Pack_v8 · final-report-v3 · STATUS · ROADMAP · SECURITY-AUDIT · ARCHITECTURE. 0 einzigartiger Wert (SSOT=handoff/MASTERPLAN/disease-register §2/git-History). docs/ root **17→10**, 0 dangling (re-grep: nur Plan-Einträge). Salvage-Pointer (CASP-Kosten/Red-Team-Methode) im Proof.
+- **Offen (Wellen B-E in MASTERPLAN K2.3):** B Vision/GTM-Harvest · C Legal/Sales-Kanonisierung · D Gamification/Scaling-Harvest · E Frontend-Dedup.
+- Files: 7 Deletions + active/log/MASTERPLAN + proof.
+
 ## 443 | 2026-06-29 | chore(tooling): K2.2b — 4 verbrauchte Multi-Liga-Backfill-Scripts + Daten + test.rtf (−11.817 Z.)
 - Stage-Chain: SPEC (inline active.md, Ops-Lane) → IMPACT (inline, 10 Files, 0 Verdrahtung) → BUILD (selbst) → REVIEW self-review (Ops) → PROVE (`proofs/443-k2b-backfill-gc.txt`) → LOG.
 - **CTO-Entscheid (Anil delegiert „sagen mir nichts"):** faktenbasiert verbraucht — alle 4 Scripts 2026-04-15, `multi-league`-Einmal-Migration, **0 Verdrahtung** (GHA/Vercel/package.json/Hook/Cron), seit 2.5 Mon nie berührt, Multi-Liga-Expansion längst live.

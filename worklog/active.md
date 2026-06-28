@@ -2,36 +2,43 @@
 
 ```
 status: idle
-slice: 443
-title: K2.2b — 4 verbrauchte Backfill-Scripts + 5 Daten + test.rtf (−11.817 Z.) — DONE
-size: XS
-type: Tool
+slice: 444
+title: K2.3 Welle A — 7 superseded docs/-root Files GC — DONE
+size: S
+type: Doc
 stage: LOG (DONE)
-spec: inline (Ops-Lane, money-neutral; verbrauchte one-off Artefakte)
-impact: inline (10 Files, 0 Verdrahtung, 0 dangling)
-proof: worklog/proofs/443-k2b-backfill-gc.txt
-review: self-review PASS (Ops-Lane; CTO-Entscheid faktenbasiert, self-contained verifiziert)
+spec: inline (Ops-Lane; Doc-GC, 0 einzigartiger Wert, git=Archiv)
+impact: inline (7 Files gelöscht, 0 lebende Refs verifiziert via git grep)
+proof: worklog/proofs/444-welleA-superseded-gc.txt
+review: self-review (Ops-Lane, kein Money/Security/User-facing)
 ```
 
 ## Spec (inline, Ops-Lane — Slice 352)
 
-**Problem (Evidence: K2.2b-Verify 2026-06-29):** 4 Multi-Liga-Backfill/Seed-Scripts (alle 2026-04-15, 0 Verdrahtung in GHA/Vercel/package.json/Hook/Cron, nie wieder angefasst) + ihre 5 Rollback/Debug-Daten-Files (inkl. `debug-backfill-payload` 220K) liegen seit 435-Scripts-GC übrig. Multi-Liga-Expansion ist live → verbraucht. **Anil delegiert die Entscheidung an CTO** („sagen mir nichts").
+**Kontext:** K2-Epic „EINE Wissens-Heimat", Welle A von 4. CEO-Entscheid (Anil 2026-06-29): „Wellen, A sofort · alles voll nach knowledge/ kanonisieren". 4-Agent-Recon (read-only, live-verifiziert) klassifizierte alle 18 `docs/`-root-Files in 4 Klassen. Diese Welle = Klasse 1 (Superseded, 0 einzigartiger Wert).
 
-**Plan:** git rm 4 Scripts + 5 Daten + `docs/test.rtf` (Müll). git=Archiv (jederzeit wiederherstellbar).
+**Problem (Evidence: 4-Agent-Kartierung 2026-06-29):** 7 `docs/`-root-Files (Feb/Mär 2026) sind vollständig superseded — ihr durabler Inhalt lebt in der kanonischen SSOT (handoff/MASTERPLAN/disease-register §2 + git-History). 2 (SECURITY-AUDIT „Risk LOW", ARCHITECTURE broken-pointer) sind aktiv irreführend.
 
-**Schnitt-Regel (§0):** Scripts referenzieren NUR ihre eigenen rollback-jsons (self-contained). Post-Delete Re-Grep = 0 dangling.
+**Files (git rm, git=Archiv):**
+1. `docs/bescout-briefing-claude-code.md` — ❌ Feb, BSD/Sakaryaspor-only; durable Teile in business.md/treasury.md/compliance.md
+2. `docs/BeScout_Context_Pack_v8.md` — ❌ v8.2 Feb; CASP-Kostenrahmen Phase-2-deferred (git-Pointer im Proof)
+3. `docs/bescout-final-report-v3.md` — ❌ Feb Red-Team-Bericht, stale Zahlen
+4. `docs/STATUS.md` — ❌ Mär; Status-SSOT = session-handoff/worklog/active
+5. `docs/ROADMAP.md` — ❌ Mär; Roadmap-SSOT = MASTERPLAN.md
+6. `docs/SECURITY-AUDIT.md` — ❌ Feb; superseded+übertroffen von disease-register §2 (28 anon-SECDEF); „Risk LOW" gefährlich irreführend
+7. `docs/ARCHITECTURE.md` — ❌ broken pointer (memory/architecture.md existiert nicht); SSOT = knowledge/domain/architecture-3hub
 
-**§3-Hinweis:** berührt KEINE Money/Scoring-Logik — nur verbrauchte one-off Artefakte (Daten längst in Prod). Selbst verifiziert, nicht delegiert.
+**Schnitt-Regel (§0):** alter Weg weg, kein zweiter Pfad. SSOT existiert je Doc. 0 lebende Ref verifiziert.
 
-**Acceptance:** AC-1 4 Scripts weg · AC-2 5 Daten-Files weg · AC-3 test.rtf weg · AC-4 0 dangling (kein lebender Reader).
+**Acceptance:** AC-1 alle 7 weg · AC-2 0 dangling in lebenden Dirs (re-grep) · AC-3 git-Pointer für die 2 Niedrig-Salvage (CASP-Kosten, Red-Team-Methode) im Proof.
 
-**Proof:** `worklog/proofs/443-k2b-backfill-gc.txt`. **Review:** self-review (Ops). **Scope-Out:** K2.3 (Strategie-Doc-Dubletten, Inhalts-Urteil), K2.4-K2.6.
-**Stage-Chain:** SPEC → IMPACT(inline) → BUILD → REVIEW(self) → PROVE → LOG.
+**Proof:** `worklog/proofs/444-welleA-superseded-gc.txt` (git rm stat + re-grep 0). **Review:** self-review (Ops).
+**Scope-Out:** Welle B (Vision/GTM-Harvest), C (Legal/Sales-Kanonisierung), D (Gamification/Scaling-Harvest), E (Frontend COMPONENTS/player-card dedup).
+**Stage-Chain:** SPEC(inline) → IMPACT(inline) → BUILD → REVIEW(self) → PROVE → LOG.
 
 ## Zuletzt
 
-- **Slice 442** (2026-06-29) — K2.1 Skill-Trees + K2.2 semantisch/, 89 Einträge (S).
-- **Slice 441** (2026-06-29) — K3 docs/plans 147→5 (XS).
-- **Slice 440** (2026-06-29) — K4 root-Müll (XS).
+- **Slice 443** (2026-06-29) — K2.2b verbrauchte Backfill-Scripts GC (XS).
+- **Slice 442** (2026-06-29) — K2.1 Skill-Trees + K2.2 semantisch/ (S).
 
-Nächstes: K2.3 docs-Strategie-Dubletten (Inhalts-Urteil) · K2.4 wiki/ · K2.5 Anker · K2.6 Memory-Modell.
+Nächstes (K2-Epic): Welle B Vision/GTM-Harvest · C Legal/Sales · D Gamification/Scaling · E Frontend.
