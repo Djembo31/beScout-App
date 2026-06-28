@@ -1,0 +1,48 @@
+# Slice 435 — Scripts-Folder GC Proof  (2026-06-28T19:42:19Z)
+
+## AC-1: 30 tote one-off Skripte gelöscht
+scripts/_check-dups.mjs
+scripts/_inspect-fps-idx.mjs
+scripts/_inspect-rpc.mjs
+scripts/_investigate-gw4.mjs
+scripts/_investigate-payload.mjs
+scripts/_preflight-backfill.mjs
+scripts/_preflight-gw.mjs
+scripts/_preflight-stats.mjs
+scripts/_verify-bl1-gw1.mjs
+scripts/add-i18n-keys-batch10.js
+scripts/add-i18n-keys-batch11.js
+scripts/add-i18n-keys-batch12.js
+scripts/add-i18n-keys-batch13.js
+scripts/add-i18n-keys-batch14.js
+scripts/add-i18n-keys-batch15.js
+scripts/add-i18n-keys-batch16.js
+scripts/add-i18n-keys-batch17.js
+scripts/add-i18n-keys-batch18.js
+scripts/add-i18n-keys-batch19.js
+scripts/add-i18n-keys-batch2.js
+scripts/add-i18n-keys-batch20.js
+scripts/add-i18n-keys-batch21.js
+scripts/add-i18n-keys-batch3.js
+scripts/add-i18n-keys-batch4.js
+scripts/add-i18n-keys-batch5.js
+scripts/add-i18n-keys-batch6.js
+scripts/add-i18n-keys-batch7.js
+scripts/add-i18n-keys-batch8.js
+scripts/add-i18n-keys-batch9.js
+scripts/add-i18n-keys.js
+Count: 30
+
+## AC-4: kein Live-Caller (grep add-i18n-keys / _-prefix in package.json, .github, src, .claude)
+  package.json: 0
+0
+  .github/:     0
+  src/:         0
+  .claude/:     0
+
+## AC-2: audit:wiring:check grün (kein Orphan-Drift durch Löschung)
+Hooks scanned:        32
+Scripts scanned:      26
+Real drift:           0
+✅ No drift orphans found. All tools wired.
+wiring_exit=0

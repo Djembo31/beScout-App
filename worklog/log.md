@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 435 | 2026-06-28 | chore(tooling): Scripts-Folder GC — 30 tote one-off Skripte gelöscht (Werkzeug-Elite Teil 2)
+- Stage-Chain: SPEC (inline active.md, Ops-Lane) → IMPACT skipped → BUILD (`git rm`) → REVIEW self-review (mechanisch, peek-then-delete grep-Evidenz) → PROVE (`proofs/435-gc.txt`) → LOG.
+- Gelöscht: 21× `scripts/add-i18n-keys*.js` (i18n-Migration gelaufen, Keys in `messages/`) + 9× `scripts/_*.mjs` (`_preflight/_inspect/_investigate/_check-dups/_verify`-Wegwerf-Investigations). git = Archiv.
+- Peek-then-delete: **0 Live-Caller** (`package.json`/`.github`/`src`/`.claude`); Referenzen nur frozen `worklog/` (338/367/421) + `memory/_archive/` + intra-script (mit-gelöscht) → per Removal-Regel ausgeschlossen. `audit:wiring:check` + `tsc` grün.
+- **Lehre:** `wiring-check` scannt nur `.ts/.sh` → `.js/.mjs`-one-offs akkretierten **unsichtbar** (Smell aus 434 bestätigt). Konvention: one-off Skripte nach Lauf löschen, nicht in `scripts/` liegen lassen.
+- Werkzeug-Elite Teil 2 Rest: 5 K5-Hooks FIX-Pass-2 · Auditor-Agents 4→1-2 · `audit:dup` WARN→BLOCK-Flip.
+
 ## 434 | 2026-06-28 | feat(tooling): Duplikations-Ratchet — §0-Schnitt-Regel maschinell (audit:dup)
 - Stage-Chain: SPEC (`specs/434-duplication-ratchet.md`) → IMPACT skipped (money-neutral Tool) → BUILD (selbst) → REVIEW (reviewer-Agent CONCERNS → 6 Findings behoben, `reviews/434-review.md`) → PROVE (`proofs/434-ac-audit.txt`+`434-vitest.txt`) → LOG. Commit `4b5e2cbb`. D117.
 - **Befund:** keiner der 14 `audit:*`-Checks fand aktive Duplikation; §0 behauptete fälschlich „Detektor im wiring-check" (existierte nicht) = Realität-vor-Zeremonie-Verstoß §0.2 in der frischen §0 selbst.
