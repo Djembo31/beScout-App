@@ -1,0 +1,40 @@
+Slice 441 — K3 docs/plans Konsolidierung (TEIL A) — PROOF
+=========================================================
+Datum: 2026-06-29
+Typ: Doc (Ops-Lane, money-neutral) · CEO-Entscheid: Löschen (git=Archiv)
+
+ZIEL: docs/plans/ (147 Files, 2.9 MB) auf die 5 lebenden Anker reduzieren.
+
+────────────────────────────────────────────────────────────
+1) GELÖSCHT (142 Dateien)
+────────────────────────────────────────────────────────────
+- 140 historische März/April-Feature-Specs (club-verkauf, jarvis-system,
+  marketplace-ux, admin-event-mgmt, club-portal/storefront, perf-overhaul, …)
+  → done-features, 0 Live-Refs, git=Archiv.
+- _stdin_writer.js + _writer.js (one-off Doc-Generator-Scripts)
+- bes26.json / bes27.json / bes28.json (Player-Detail-Perf-Tasks)
+  → Inhalt VOR Löschung in MASTERPLAN W6 gefaltet:
+      BES-26: 5 Player-Detail-Components React.memo+useCallback
+      BES-27: staleTime entschärfen (Over-Refetch)
+      BES-28: server-side Percentiles-RPC (ersetzt client usePlayers ALL 632)
+
+────────────────────────────────────────────────────────────
+2) BEHALTEN → K2 (5 lebende Anker, faktenbasiert via Ref-Grep)
+────────────────────────────────────────────────────────────
+ 2026-06-24-scout-card-value-model-spec.md → decisions D100 + treasury.md (Slice 368)
+ 2026-04-10-bescout-liga-spec.md           → docs/knowledge/bescout-liga.md
+ 2026-04-08-transactions-history-spec.md   → referenziert
+ 2026-04-02-jarvis-cortex-design.md        → referenziert
+ 2026-04-02-jarvis-cortex-plan.md          → referenziert
+
+────────────────────────────────────────────────────────────
+3) AC-VERIFIKATION
+────────────────────────────────────────────────────────────
+AC-1 (142 weg):        ✅ git rm count = 142 (exakt); ls docs/plans/ = 5 Files
+AC-2 (5 Anker intakt): ✅ alle 5 vorhanden
+AC-3 (0 dangling):     ✅ rg lebende Orte = nur die 5 Anker + 1 Template-
+                          Platzhalter "docs/plans/YYYY-MM-DD-" (keine Datei)
+AC-4 (bes-Tasks erhalten): ✅ in MASTERPLAN W6 gefaltet vor Löschung
+
+ERGEBNIS: AC-1..AC-4 PASS. docs/plans 147→5 (−2.9 MB Akkretion).
+Die 5 Anker wandern in K2 (Wissens-Heimat-Migration mit Ref-Umbiegung).

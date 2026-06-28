@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 441 | 2026-06-29 | chore(docs): K3 docs/plans — 142 historische Specs gelöscht (147→5), 5 Anker → K2 (TEIL A)
+- Stage-Chain: SPEC (inline active.md, Ops-Lane Doc) → IMPACT (inline, 142 Deletions, 5 behalten) → BUILD (selbst) → REVIEW self-review (Ops, 0 dangling Grep-verifiziert) → PROVE (`proofs/441-k3-docs-plans.txt`) → LOG.
+- **CEO-Entscheid (AskUserQuestion):** Löschen (git=Archiv) statt nach `docs/_archive/` verschieben — konsistent mit K1/K4 + MASTERPLAN-Philosophie.
+- **Gelöscht (142):** 140 historische März/April-Feature-Specs (2.9 MB done-features, 0 Live-Refs) + `_stdin_writer.js`/`_writer.js` (one-off) + `bes26/27/28.json` (Perf-Tasks — **VOR Löschung in MASTERPLAN W6 gefaltet:** Player-Detail React.memo + staleTime + server-side Percentiles-RPC).
+- **Behalten → K2 (5 lebende Anker, Ref-Grep-belegt):** `scout-card-value-model-spec` (D100/treasury) · `bescout-liga-spec` · `transactions-history-spec` · `jarvis-cortex-design/plan`.
+- **Schnitt-Regel §0:** Re-Grep nach Löschung = 0 dangling (nur die 5 Anker + 1 Template-Platzhalter `YYYY-MM-DD-`, keine Datei).
+- Files: 142 Deletions + active/log/MASTERPLAN + proof.
+
 ## 440 | 2026-06-29 | chore(docs): K4 root-Entrümpelung — 16 Müll-Dateien (−4612 Z.) + gitignore-Prävention (TEIL A)
 - Stage-Chain: SPEC (inline active.md, Ops-Lane Doc) → IMPACT (inline, 16 root-Deletions + .gitignore) → BUILD (selbst) → REVIEW self-review (Ops, 0 dangling Grep-verifiziert) → PROVE (`proofs/440-k4-root-cleanup.txt`) → LOG.
 - **Gelöscht (16 Files, −4612 Z.):** 3× 0-Byte Heredoc-Reste (`Current`, `Date:`/`Scope:` mit Unicode-U+F03A) · `clean_orphan.py` (one-off Debug) · 7× `qa-*-snapshot.md`/`after-join-state.md` · 2× `qa-*.log` · `supabase_dump.txt`/`_err.txt` · `vitest-output.txt` (1961 Z.).
