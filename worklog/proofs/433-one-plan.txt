@@ -1,0 +1,10 @@
+=== Slice 433 PROVE — eine Plan-Quelle (MASTERPLAN) ===
+MASTERPLAN.md: 66 Zeilen
+--- Struktur vorhanden? ---
+3:> **Die EINE Plan-Quelle.** Vision + Tracker-Architektur + alle offenen Wellen. Wird bei Session-Start gezeigt.
+5:> **SSOT-Regel (Slice 433, Anti-Akkretion):** Pläne leben NUR hier. Status → `memory/session-handoff.md` · Historie → `worklog/log.md` · Warum → `memory/decisions.md` · Wissen/Evidenz → `docs/knowledge/`. **Keine Plan-Dubletten. Keine Referenz-Ketten zwischen operativen Trackern** — Referenzen gehören NUR in die Wissens-Heimat (`docs/knowledge`). Neuer Bedarf → diesen Plan erweitern, NIE einen zweiten anlegen.
+15:## 🗂️ Tracker-Architektur — 1 SSOT pro Ebene (damit es nicht nachwächst)
+29:### TEIL A — Meta/Doc-Cleanup (risikoarm, git = Archiv, ZUERST)
+40:### TEIL B — Code/DB-Heilung (das Engineering; Money-Wellen = §3 selbst, Live-functiondef vor Spec, Zero-Sum, Reviewer-Pflicht)
+--- Mega-Zeilen >1500? ---
+(leer = sauber)

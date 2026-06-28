@@ -41,6 +41,16 @@ Die Synthese fand selbstkritisch: keiner der 34/32 Befunde hatte die **Supabase-
 
 → **Die Akkretion reicht bis in die RLS- und Index-Schicht.** Das ist eine eigene Heilungs-Welle (Money/Security = mein Scope, §3).
 
+### 🔎 Welle-1 Triage-Ergebnis (2026-06-28, read-only Live-DB `skzjfhvgccaeplydsunz` verifiziert)
+**ENTWARNUNG beim Schlimmsten:** Von den 28 anon-SECDEF ist **KEINE anon-aufrufbare Geld-Mutation** dabei. Alle 5 „touches_money"-Treffer sind **Trigger-Funktionen** (`RETURNS trigger`) — ein Client kann sie NICHT direkt via API aufrufen (sie feuern nur tabellengebunden, als Owner). Ebenso **kein katastrophaler PII-Dump**: die exponierten User-Felder sind großteils öffentliche Profil-/Leaderboard-Daten (handle/display_name/avatar), die die App ohnehin zeigt.
+
+**3 echte, kleine Items (alle §3 → warten auf Anil-Approval):**
+1. **D-12 `get_club_dashboard_stats(text)` → DROP.** Tot (0 Caller, `_v2` ist live) + gibt pro Nutzer `holdings_count` (Finanz-Signal) an `anon` zurück, RLS-umgehend, per `club_name` enumerierbar. DROP schließt Exposure + Duplikat (v1/v2) in EINEM Schnitt.
+2. **`get_security_definer_user_param_audit()` + `get_rls_policy_matrix()` → REVOKE anon+authenticated (admin-only).** Geben einem Angreifer die Security-Landkarte (welche Funktion ungeguarded/`needs_fix` ist). Reiner Recon-Leak, kein legitimer Nicht-Admin-Caller.
+3. **Hygiene-Batch (§3-Prinzip): REVOKE anon von 9 Triggern + ~10 Pure-Kalkulatoren** (fn_get_elo_*, fn_get_rang_*, fn_get_streak_*, scout_events_enabled, is_club_admin, get_current_liga_season). Trigger brauchen kein EXECUTE-Grant zum Feuern → REVOKE = null Impact. Kalkulatoren: anon raus, `authenticated` behalten.
+
+**⚠️ VOR REVOKE prüfen (nicht blind):** Rufen öffentliche Club-Seiten (ausgeloggte Besucher = `anon`) `get_club_dashboard_stats_v2` / `get_club_top_scouts` / `get_monthly_liga_winners` auf? Wenn ja = anon gewollt (öffentliche Leaderboards) → behalten. Wenn nur eingeloggt → anon raus. **Read-only Triage abgeschlossen; kein Code/Grant geändert.**
+
 ---
 
 ## 3. Register — bestätigte NEUE Krankheiten (34)

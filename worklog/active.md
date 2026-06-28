@@ -2,28 +2,24 @@
 
 ```
 status: in-progress
-slice: 432
-title: Workflow-Reset Phase 2 — Elite-Workflow-Kern verankern (Anti-Akkretion + Operating-Agreement)
-size: S
-type: Doc/Memory (Ops-Lane, money-neutral)
+slice: 433
+title: Plan-Konsolidierung — die EINE Plan-Quelle (MASTERPLAN als SSOT)
+size: M
+type: Doc (Ops-Lane, money-neutral)
 stage: BUILD
-spec: inline (unten) + worklog/notes/workflow-ideal-prep.md + worklog/notes/disease-register.md
-proof: worklog/proofs/432-*.txt
+spec: inline (unten) + MASTERPLAN.md
+proof: worklog/proofs/433-*.txt
 review: self-review (Ops-Lane, kein Money/Security)
 ```
 
-## 432 — Elite-Workflow-Kern (Anil approved „passt", 2026-06-28)
-**Fundament:** Voll-Audit (Run `wf_82fc04e4-733`, 61 Agents, ~7,6 Mio Token, alle Befunde live-verifiziert) → 5 Wurzel-Ursachen, Master = **R1 „kein Subtraktions-Schritt im Ritual"**. Register (lebend): `worklog/notes/disease-register.md` (34 neue + 32 bekannte Krankheiten). Optimierungs-Historie: ~50 der 115 Decisions = PROCESS, fast alle additiv → frühere Versuche scheiterten, weil sie selbst Akkretion waren.
+## 433 — Plan-Konsolidierung (Anil approved „ja, schreib den einen Plan", 2026-06-28)
+**Problem (Ist-Stand-Scan gemessen):** ~14 Plan-Docs für EINEN Plan · 5 konkurrierende Wissens-Heimaten (`docs/knowledge`+`wiki`+`memory`+`memory/semantisch`+Auto-Memory) · versionierte Doc-Dubletten (v3/v4-FINAL/v8) · 2× session-handoff (root tot) · 2× TODO · `docs/plans` 147 · 1615 Artefakte. Akkretion auf Meta-Ebene = dieselbe Krankheit wie im Code.
+**Getan (dieser Slice):** `MASTERPLAN.md` neu = DIE eine Plan-Quelle — Vision + Tracker-Architektur (1 SSOT/Ebene) + alle Wellen (TEIL A Meta-Cleanup K1-K7 · TEIL B Code/DB W0-W7 + Querschnitt). disease-register-Essenz + Mock2Pro + 11-Punkt-Inventur reingefaltet.
 
-**Dieser Slice (Engine festschreiben, subtraktiv-ehrlich):**
-- `workflow.md` `§0 Elite-Prinzipien` (4 Kern-Regeln, stehen ÜBER der Loop): Schnitt-Regel · Realität-vor-Zeremonie · Ein-Job-pro-Artefakt · Subtrahieren-erstklassig.
-- `workflow.md` 3a: universelle Schnitt-Regel-DoD (jeder Slice-Type).
-- `workflow.md` DISTILL: Session-End-Schnitt-Check.
-- `memory/feedback_operating_agreement.md` (beide Seiten) + MEMORY.md-Pointer.
+**NÄCHSTE Schritte = TEIL A execution (peek-then-delete, git=Archiv):**
+- K1 safe-deletes: dead root `session-handoff.md` (03-28), `docs/TODO.md`, `docs/WORKFLOW.md`.
+- K2 Wissens-Heimat: `wiki/` + `memory/semantisch/` + `disease-register` → `docs/knowledge/`; versionierte Dubletten auf je 1.
+- K1 notes-fold + delete (14 Plan-Docs) · K3/K4/K7 archive.
 
-**Bewusst NÄCHSTER Slice (die große Subtraktion — Schnitt-Regel auf sich selbst):** `workflow.md` 521→schlank · `log.md` (946 KB)/`decisions.md` (341 KB) archivieren · FIX-Pass-2 (5 Hooks) · Auditor-Agents 4→1-2. **Alter Apparat fällt erst, wenn neuer Kern ihn nachweislich ersetzt.**
-
-## ➡️ DANACH: Heilungs-Welle 1 = DB-Security-Triage (§3, read-only, ich selbst)
-28 anon-ausführbare SECURITY-DEFINER-RPCs + PII-Leak D-12 live prüfen (leakt JETZT oder latent?) → REVOKE-Batch-Plan für Anil. Danach Score-SSOT → Money-Path → RLS/Index → Dead-Feature-GC → D113-Klasse (`42P10`!) → Architektur → Konsistenz. Reihenfolge: `disease-register.md` §6.
-
+## ➡️ DANACH: TEIL B (Code/DB) — W0 DB-Security-Migration zuerst (§3, Anil-Go offen)
 Stand: `memory/session-handoff.md`.
