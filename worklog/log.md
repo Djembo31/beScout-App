@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 439 | 2026-06-28 | chore(docs): K1 Meta-Cleanup — tote Tracker-Dubletten + verwaiste notes (TEIL A)
+- Stage-Chain: SPEC (inline active.md, Ops-Lane Doc) → IMPACT (inline, 11 Doc-Deletions, 0 Code) → BUILD (selbst) → REVIEW self-review (Ops, Referenz-Integrität Grep-verifiziert) → PROVE (`proofs/439-k1-cleanup.txt`) → LOG.
+- **Gelöscht (11 Files, 853 Z.):** 3 tote Tracker-Dubletten (root `session-handoff.md` = Session 265 · `docs/TODO.md` = self-markiert „stale, nicht verwenden" · `docs/WORKFLOW.md` = Feb-9 Antigravity-Setup) + 8 verwaiste `worklog/notes/` (290/291/292 Slice-Notizen · 326-preflight · 365-e2e-findings · E0-wissens-inventur „Trefferliste" · workflow-ballast/-efficiency „ALLE 3 TRACKS ERLEDIGT").
+- **Schnitt-Regel §0:** Inbound-Referenz-Grep VOR jeder Löschung (memory/docs-knowledge/.claude/src/scripts/MASTERPLAN/TODO). Alle 11 hatten 0 lebende Refs. Post-Delete Re-Grep: 0 dangling. `audit:dup` grün (disease-register intakt).
+- **🚩 Plan-Korrektur (faktenbasierter Fund, gemeldet):** K1-Anweisung „14 notes-Docs falten+löschen" war NAIV. Grep belegt die übrigen ~13 sind **lebende Wissens-Anker** (`event-creator-liga-epic`→D104-D108 · `mock2pro-plan/-audit`→D111 · `406b-map`→D112 · `gameweek-recon`→D115 · `358-treasury-epic`→treasury.md). Blind-Löschung bräche kanonische Anker → **nach K2 verschoben** (Migration MIT Referenz-Umbiegung). MASTERPLAN K1+K2 reconciled.
+- **Workflow-Test-Beobachtung:** Ops-Lane korrekt gewählt (inline-Spec, self-review, Smoke-Proof); Spec-Quality-Gate korrekt für worklog/-Edits ausgenommen; `audit:dup` lief wie geplant. Kein Hook-Fehlverhalten.
+- Files: 11 Deletions + active/log/MASTERPLAN + proof.
+
 ## 438 | 2026-06-28 | chore(agents): Auditor-Agents 4→2 — generischer Linsen-Auditor + qa-visual (Werkzeug-Elite Teil 2)
 - Stage-Chain: SPEC (inline active.md, Anil-Entscheid voll-merge) → IMPACT (inline, 3 Agent-Removals) → BUILD (selbst) → REVIEW self-review (Ops) → PROVE (`proofs/438-auditor-merge.txt`) → LOG.
 - **CEO-Entscheid (AskUserQuestion):** voll mergen 4→2 (gegen meinen Keep-Vorschlag). Constraint: Checklisten-Wissen verlustfrei.

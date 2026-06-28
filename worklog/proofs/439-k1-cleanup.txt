@@ -1,0 +1,60 @@
+Slice 439 — K1 Meta-Cleanup (TEIL A) — PROOF
+=============================================
+Datum: 2026-06-28
+Typ: Doc (Ops-Lane, money-neutral, nicht user-facing)
+
+ZIEL: tote Tracker-Dubletten + verwaiste worklog/notes-Artefakte entfernen
+      (MASTERPLAN K1, Stand-SSOT-Regel Slice 430 / §0 Anti-Akkretion).
+
+────────────────────────────────────────────────────────────
+1) GELÖSCHT (11 Dateien, 853 Zeilen) — git diff --cached --stat
+────────────────────────────────────────────────────────────
+ docs/TODO.md                                     |  56 ---  (self-markiert "Historisch/stale, nicht verwenden", Stand 03.03.2026)
+ docs/WORKFLOW.md                                 | 179 ---  (Feb-9 Antigravity-Setup, npm statt pnpm, pre-SHIP-Loop)
+ session-handoff.md (root)                        |  29 ---  (Session 265, Refactoring R4, Dublette zu memory/session-handoff.md)
+ worklog/notes/290-home-portfolio-floor-parity.md |   7 ---  (Slice-290-Implementierungsnotiz, Wert in log.md)
+ worklog/notes/291-unified-trading-geogate.md     |   9 ---  (Slice-291-Notiz)
+ worklog/notes/292-fantasy-club-page-contract.md  |   9 ---  (Slice-292-Notiz)
+ worklog/notes/326-preflight-hermes-review.md     |  88 ---  (Preflight clubs.league→UUID, ⛔ blockiert auf API-Key, überholt)
+ worklog/notes/365-e2e-findings.md                |  48 ---  (E2E-Findings 358-365, alle DONE)
+ worklog/notes/E0-welle2-wissens-inventur.md      | 297 ---  (Triage-"Trefferliste" für docs/knowledge-Migration, verbraucht)
+ worklog/notes/workflow-ballast-audit.md          |  90 ---  (Read-only-Befund für Reset 431-438, verbraucht → disease-register)
+ worklog/notes/workflow-efficiency-analysis.md    |  41 ---  (self-markiert "ALLE 3 TRACKS ERLEDIGT Slice 352")
+ 11 files changed, 853 deletions(-)
+
+────────────────────────────────────────────────────────────
+2) SCHNITT-REGEL §0 — Inbound-Referenz-Grep VOR Löschung (Pflicht)
+────────────────────────────────────────────────────────────
+Methode: rg der Basenames über memory/ docs/knowledge/ .claude/ src/ scripts/
+         MASTERPLAN.md TODO.md (= lebende Orte; log.md=History ausgeschlossen).
+Ergebnis: die 11 gelöschten Dateien hatten 0 lebende Inbound-Refs
+          (nur log.md-History + die Lösch-Anweisung selbst in MASTERPLAN K1).
+Post-Delete Re-Grep: 0 dangling refs (nur die Lösch-Spec MASTERPLAN:32 + active.md:21).
+
+────────────────────────────────────────────────────────────
+3) PLAN-KORREKTUR (faktenbasierter Fund — gemeldet)
+────────────────────────────────────────────────────────────
+K1-Anweisung "die ~14 notes-Plan-Docs falten+löschen" war NAIV.
+Der Grep belegt: die übrigen ~13 notes sind LEBENDE Wissens-Anker:
+  - event-creator-liga-epic.md  → decisions D104/D105/D107/D108 + INDEX
+  - mock2pro-plan.md / -audit.md → decisions D111 + INDEX + TODO
+  - 406b-orderbook-offers-map.md → decisions D112 + INDEX
+  - gameweek-engine-recon.md     → decisions D115 + INDEX
+  - 358-platform-treasury-epic.md→ decisions + docs/knowledge/treasury.md
+  - 357-preflight / 365-drift / 366-e4 / 401-audit / 348-roadmap / E0-quality
+→ Blind-Löschung bräche kanonische Anker (decisions.md/INDEX.md/treasury.md).
+→ Diese gehören nach K2 (Migration in docs/knowledge MIT Referenz-Umbiegung),
+  NICHT K1. MASTERPLAN K1+K2 entsprechend reconciled.
+
+────────────────────────────────────────────────────────────
+4) audit:dup:check (disease-register-Dependency intakt?)
+────────────────────────────────────────────────────────────
+═══ Duplikations-Ratchet (Slice 434) ═══
+Registry-Einträge:   9
+src-Files gescannt:  728  (lib: 177)
+Geheilt-Regression:  0
+Discovery-Cluster:   2  (tracked 2 / untracked 0)
+✅ Keine Geheilt-Regression, kein untracked Duplikations-Verdacht.
+
+ERGEBNIS: AC-1..AC-4 PASS. K1 sicher-tote Hälfte erledigt; referenzierte
+Plan-Docs sauber nach K2 verschoben statt brechend gelöscht.
