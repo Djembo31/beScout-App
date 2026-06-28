@@ -1,38 +1,29 @@
 # Active Slice
 
 ```
-status: idle
-slice: 431
-title: Workflow-Reset Phase 1 — Ballast-Schnitt (Hooks subtrahieren + 2 Priority-Fixes)
+status: in-progress
+slice: 432
+title: Workflow-Reset Phase 2 — Elite-Workflow-Kern verankern (Anti-Akkretion + Operating-Agreement)
 size: S
-type: Hook/Doc (Ops-Lane, money-neutral)
-stage: LOG (DONE)
-spec: inline (unten) + worklog/notes/workflow-ballast-audit.md
-proof: worklog/proofs/431-ballast-cut.txt (38→32 Hooks, JSON valid, 0 dangling, bash -n OK)
-review: self-review PASS (Ops-Lane, kein Money/Security)
+type: Doc/Memory (Ops-Lane, money-neutral)
+stage: BUILD
+spec: inline (unten) + worklog/notes/workflow-ideal-prep.md + worklog/notes/disease-register.md
+proof: worklog/proofs/432-*.txt
+review: self-review (Ops-Lane, kein Money/Security)
 ```
 
-## 431 — Ballast-Schnitt (Scope B, Anil approved „sichere Schnitte autonom")
-**Problem:** Meta-Akkretion gemessen — 38 Hooks (April: 28), 8 davon kaputt/Dublette/Theater. Audit: `worklog/notes/workflow-ballast-audit.md`.
-**Plan (dieser Slice = Hook-Hälfte + Skill-Archiv):**
-- CUT 6 Hooks (de-register + gelöscht, git history = Archiv): test-reminder, ship-stage-timer, ship-build-goal-suggest (kaputt), ship-task-enforcement (Dublette), ship-deferred-reeval-reminder (Dublette), quality-gate-v2 (no-op).
-- DEDUP: ship-kanban-sync nur 1× (SessionStart), Stop-Verdrahtung raus.
-- FIX 2 (Priority): crash-recovery (unbegrenztes handoff-Append → dedizierte Backup-Datei), session-handoff-auto (volle tsc bei jedem Stop raus).
-- ARCHIVE Skills: 5 Beta (Beta abgebrochen D111) + 3 dormant (metrics/improve/optimize, null Nutzungs-Spur).
-**Deferred (FIX-Pass 2, eigener Slice):** pre-commit-guard (unconditional-run), run_tests_on_change (volle Suite blockierend), auto-lint (debounce), pattern-check (offset-bug), effort-gate-Asymmetrie. **Judgment-Cut (Anil-Frage offen):** Auditor-Agents 4→1-2.
+## 432 — Elite-Workflow-Kern (Anil approved „passt", 2026-06-28)
+**Fundament:** Voll-Audit (Run `wf_82fc04e4-733`, 61 Agents, ~7,6 Mio Token, alle Befunde live-verifiziert) → 5 Wurzel-Ursachen, Master = **R1 „kein Subtraktions-Schritt im Ritual"**. Register (lebend): `worklog/notes/disease-register.md` (34 neue + 32 bekannte Krankheiten). Optimierungs-Historie: ~50 der 115 Decisions = PROCESS, fast alle additiv → frühere Versuche scheiterten, weil sie selbst Akkretion waren.
 
-## ➡️ DANACH (Workflow-Reset Phasen)
-Phase 2 Anti-Akkretion-Gegengewicht (Regel+Ritual+Signal) · Phase 3 schlanker workflow.md/CLAUDE.md-Kern · Phase 4 Operating-Agreement (wie Anil mich nutzt). Einstieg-Diagnose: `worklog/notes/workflow-ideal-prep.md`. Feature pausiert (428b DROP, Welle 3).
+**Dieser Slice (Engine festschreiben, subtraktiv-ehrlich):**
+- `workflow.md` `§0 Elite-Prinzipien` (4 Kern-Regeln, stehen ÜBER der Loop): Schnitt-Regel · Realität-vor-Zeremonie · Ein-Job-pro-Artefakt · Subtrahieren-erstklassig.
+- `workflow.md` 3a: universelle Schnitt-Regel-DoD (jeder Slice-Type).
+- `workflow.md` DISTILL: Session-End-Schnitt-Check.
+- `memory/feedback_operating_agreement.md` (beide Seiten) + MEMORY.md-Pointer.
 
-## Zuletzt
-- **430** (2026-06-28) — Prozess-Elite-Optimierung P1+P2+P5 (Doc/Hook, self-review PASS).
-- **429** (2026-06-28) — finalize entkoppeln „Score≠Advance" (M, PASS). GW-Fork 3/3.
+**Bewusst NÄCHSTER Slice (die große Subtraktion — Schnitt-Regel auf sich selbst):** `workflow.md` 521→schlank · `log.md` (946 KB)/`decisions.md` (341 KB) archivieren · FIX-Pass-2 (5 Hooks) · Auditor-Agents 4→1-2. **Alter Apparat fällt erst, wenn neuer Kern ihn nachweislich ersetzt.**
 
-## ➡️ NÄCHSTE SESSION = WORKFLOW-IDEAL / ANTI-AKKRETION durchplanen (Anil, ZUERST vor Mock→Pro)
-Einstieg: `worklog/notes/workflow-ideal-prep.md` (Diagnose + 7 Entscheidungs-Punkte fertig).
-DANACH Feature: 428b DROP (post-Deploy) · 427 Live-Screenshot · Ranking-Konsolidierung · Welle 3.
+## ➡️ DANACH: Heilungs-Welle 1 = DB-Security-Triage (§3, read-only, ich selbst)
+28 anon-ausführbare SECURITY-DEFINER-RPCs + PII-Leak D-12 live prüfen (leakt JETZT oder latent?) → REVOKE-Batch-Plan für Anil. Danach Score-SSOT → Money-Path → RLS/Index → Dead-Feature-GC → D113-Klasse (`42P10`!) → Architektur → Konsistenz. Reihenfolge: `disease-register.md` §6.
+
 Stand: `memory/session-handoff.md`.
-
-## Zuletzt
-- **430** (2026-06-28) — Prozess-Elite-Optimierung P1+P2+P5 (Doc/Hook, self-review PASS).
-- **429** (2026-06-28) — finalize entkoppeln „Score≠Advance" (M, PASS). GW-Fork 3/3.

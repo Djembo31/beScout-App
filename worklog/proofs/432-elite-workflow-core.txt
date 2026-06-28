@@ -1,0 +1,17 @@
+=== Slice 432 PROVE — Elite-Workflow-Kern verankert (2026-06-28) ===
+
+--- [1] workflow.md: §0 + Schnitt-Regel-DoD + DISTILL-Check (3 Edits) ---
+28:## §0 — Elite-Prinzipien (Anti-Akkretion) — Slice 432
+32:1. **Die Schnitt-Regel (härteste Regel).** Ein Slice ist NICHT fertig, bis der alte Weg weg ist ODER die Duplikation als bewusste Entscheidung protokolliert ist (D-Eintrag, wie D112 orders/offers). Ein **ungetrackter zweiter Weg = unfertiger Slice.** Gilt für RPC, Service, Component, Tabelle, Spalte, Hook, Tracker, Doc. → DoD-Pflicht (3a), Detektor im `wiring-check`.
+183:**Universelle DoD — die Schnitt-Regel (§0, Slice 432):** ZUSÄTZLICH zur Type-Done oben gilt für JEDEN Slice-Type: **kein ungetrackter zweiter Weg.** Ersetzt/erweitert der Slice einen bestehenden Pfad (RPC, Service, Component, Tabelle, Spalte, Hook), ist der alte Pfad im selben Slice gelöscht ODER die bewusste Zwei als D-Eintrag protokolliert. Noch offene Duplikation → Zeile in `worklog/notes/disease-register.md` (sonst gilt sie als unfertig, nicht als „später"). Detektor: `wiring-check` (erweitert).
+387:- **Schnitt-Check (Pflicht, §0/Slice 432):** „Habe ich diese Session einen zweiten Weg erzeugt (neue RPC/Service/Component/Spalte neben einer alten)?" → wenn ja: alten Weg schließen ODER als D-Eintrag/`disease-register.md`-Zeile protokollieren, BEVOR die Session endet.
+
+--- [2] Operating-Agreement Memory (Auto-Memory, nicht im Repo) ---
+2666 /c/Users/Anil/.claude/projects/C--bescout-app/memory/feedback_operating_agreement.md
+MEMORY.md Pointer-Count: 1
+
+--- [3] disease-register.md (lebendes Schuld-Register) ---
+Zeilen: 133 | D-Einträge: 32
+
+--- [4] Anti-Akkretion-Selbsttest: erzeugt dieser Slice Mega-Zeilen >1500? ---
+(leer = sauber)
