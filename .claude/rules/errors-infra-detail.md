@@ -172,15 +172,14 @@ if (nextGw <= league.maxGameweeks) {
     .limit(1);
 
   if (nextGwHasFixtures && nextGwHasFixtures.length > 0) {
-    // Same advance_gameweek dual-write logic wie Phase B Z.1598-1616
-    for (const club of clubsToProcess) {
-      await supabaseAdmin.from('clubs').update({ active_gameweek: nextGw }).eq('id', club.id);
-    }
+    // Slice 428: leagues.active_gameweek = SSOT — leagues-only advance (clubs-Dual-Write entfernt).
     await supabaseAdmin.from('leagues').update({ active_gameweek: nextGw }).eq('id', league.id);
     await logStep(activeGw, 'advance_after_skip', 'success', { from: activeGw, to: nextGw, branch: 'already_complete' });
   }
 }
 ```
+
+> **Update (Slice 428, GW-Per-Liga-Fork D115):** `active_gameweek` lebt nur noch auf `leagues` (war Dual-Write clubs+leagues). Der Cron + `set_active_gameweek`-RPC schreiben **leagues-only**; `clubs.active_gameweek` ist frozen → DROP in 428b. Das obige Symptom (Z.137 „clubs.active_gameweek") ist die historische Beschreibung des Drift-Bugs VOR der Konsolidierung.
 
 **Detection-Query (täglich post-Cron):**
 

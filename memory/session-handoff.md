@@ -1,24 +1,16 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-27 23:26)
+# Session Handoff — Auto (2026-06-28 11:37)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 2 Files
 ```
+ M memory/session-handoff.md
 ?? worklog/audits/orphan-components-2026-06-27.md
 ```
 
-## Session Commits: 10
-- a7b3170d docs(handoff): Session-Close 425/426 — Tracker reconcile + Wissen verdrahten + Stale glätten
-- d2749cc8 refactor(fantasy): Slice 426 — Orphan-Cleanup alte Lineup-Builder-UI (S280) [Dead-Code]
-- 05248dff fix(fantasy): Slice 425 — Welle-2 Display-Truth A/B/C [Display-only, money-neutral]
-- 34ded658 docs(distill): D114 Synergie-Entscheid + Session-Close-Hygiene (Welle 2 KOMPLETT 419-424, Tracker/Stale geglättet)
-- d801c533 fix(fantasy): Slice 424 — Synergie-Vorschau == Server (flat +5%/≥2-Verein + clubId + count) [W2-Cleanup]
-- 428e70fb fix(fantasy): Slice 423 — Picker-Club-Identität durchgängig auf UUID (Filter + Synergie) [W2-Cleanup]
-- 12e3477f docs(log): Slice 422 DONE — Live-verified Bostan→Konyaspor + BAY-Kollision (proof finalize, *.png force-add)
-- 7e81487e fix(fantasy): Slice 422 — FantasyPlayerRow Club-Logo+Name aus UUID statt Freitext/Short [W2-Cleanup]
-- d44f79d5 docs(proof): Slice 421 — Live-Screenshot Bundesliga GW34 Next-Button [disabled] (force-add, *.png-ignore)
-- 2d2736e9 docs(log): Slice 421 DONE — Live-verified Bundesliga GW34-Cap + Admin-38-Smell-Anker
+## Session Commits: 1
+- 4a8e1013 docs(s7): Wildcard-Earn + Club-Missionen-Dimension GEPARKT (Anil) + Monthly-Liga Stale-Fix
 
 <!-- auto:handoff-end -->
 
