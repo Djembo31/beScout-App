@@ -97,8 +97,13 @@ lighthouse-report.json
 worklog/proofs/*-trace*.json
 !worklog/proofs/*-trace*.json.gz
 
-# Misc root artifacts
+# Misc root artifacts (QA-Output + lokale Dumps — self-renewing, Slice 440)
 /=
+/qa-*-snapshot.md
+/qa-*.log
+/after-join-state.md
+/supabase_dump*.txt
+/vitest-output.txt
 
 # AI Bot session logs (generated per run)
 /e2e/bots/journals/

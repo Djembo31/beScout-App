@@ -1,0 +1,49 @@
+Slice 440 — K4 root-Entrümpelung (TEIL A) — PROOF
+==================================================
+Datum: 2026-06-29
+Typ: Doc (Ops-Lane, money-neutral, nicht user-facing)
+
+ZIEL: root-Verschmutzung entfernen (MASTERPLAN K4) + self-renewing-Prävention.
+
+────────────────────────────────────────────────────────────
+1) GELÖSCHT (16 Dateien, 4612 Zeilen)
+────────────────────────────────────────────────────────────
+ Current                            |    0  (0-Byte Heredoc-Artefakt, Mar-15)
+ Date<U+F03A>                       |    0  (0-Byte, Unicode-: aus kaputtem Heredoc)
+ Scope<U+F03A>                      |    0  (0-Byte, dito)
+ after-join-state.md                |  610  (QA-State-Dump)
+ clean_orphan.py                    |   12  (one-off Debug-Script, las fantasy/page.tsx)
+ qa-box-idle-snapshot.md            |  102  (QA-Snapshot)
+ qa-community-console-errors-2.log  |  590  (QA-Console-Log)
+ qa-community-console-errors.log    |  660  (QA-Console-Log)
+ qa-desktop-snapshot.md             |  108
+ qa-fantasy-snapshot.md             |   63
+ qa-home-snapshot.md                |  254
+ qa-missions-snapshot.md            |  116
+ qa-revealed-snapshot.md            |  132
+ supabase_dump.txt                  |    0  (DB-Dump-Output)
+ supabase_dump_err.txt              |    4
+ vitest-output.txt                  | 1961  (Test-Output-Dump)
+ 16 files changed, 4612 deletions(-)
+
+────────────────────────────────────────────────────────────
+2) BEHALTEN (faktenbasiert, NICHT Müll)
+────────────────────────────────────────────────────────────
+ .audit-mutation-race-baseline   → legit, gelesen von scripts/audit-mutation-race.sh (Slice 151d)
+ .env.local.example              → env-Template
+ AGENTS.md                       → echte AI-Agent-Config (wie CLAUDE.md)
+ bencium-claude-code-design-skill/ → Plugin-Dir mit .claude-plugin/ → K2 (Skill/Plugin-Konsolidierung)
+
+────────────────────────────────────────────────────────────
+3) AC-VERIFIKATION
+────────────────────────────────────────────────────────────
+AC-1 (16 Müll weg):     ✅ git ls-files root = nur Config + legit baseline + bencium
+AC-2 (.gitignore greift): ✅ git check-ignore qa-*-snapshot.md/qa-*.log/after-join-state.md/
+                              supabase_dump*.txt/vitest-output.txt → alle matchen
+AC-3 (0 dangling):       ✅ rg lebende Orte (memory/.claude/src/scripts/docs-knowledge) = 0
+AC-4 (legit unberührt):  ✅ .audit-mutation-race-baseline + AGENTS.md + bencium/ intakt
+
+ROOT-CAUSE-PRÄVENTION: .gitignore-Block "Misc root artifacts" um QA-Output +
+lokale Dumps erweitert → self-renewing-Müll kommt nicht zurück.
+
+ERGEBNIS: AC-1..AC-4 PASS. K4 erledigt; bencium-Plugin sauber an K2 übergeben.

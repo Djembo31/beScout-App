@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 440 | 2026-06-29 | chore(docs): K4 root-Entrümpelung — 16 Müll-Dateien (−4612 Z.) + gitignore-Prävention (TEIL A)
+- Stage-Chain: SPEC (inline active.md, Ops-Lane Doc) → IMPACT (inline, 16 root-Deletions + .gitignore) → BUILD (selbst) → REVIEW self-review (Ops, 0 dangling Grep-verifiziert) → PROVE (`proofs/440-k4-root-cleanup.txt`) → LOG.
+- **Gelöscht (16 Files, −4612 Z.):** 3× 0-Byte Heredoc-Reste (`Current`, `Date:`/`Scope:` mit Unicode-U+F03A) · `clean_orphan.py` (one-off Debug) · 7× `qa-*-snapshot.md`/`after-join-state.md` · 2× `qa-*.log` · `supabase_dump.txt`/`_err.txt` · `vitest-output.txt` (1961 Z.).
+- **Behalten (faktenbasiert):** `.audit-mutation-race-baseline` (von `audit-mutation-race.sh` gelesen, S151d) · `AGENTS.md` (Config) · `bencium-…-skill/`-Plugin-Dir → K2.
+- **Root-Cause-Prävention:** `.gitignore`-Block „Misc root artifacts" um `/qa-*-snapshot.md` `/qa-*.log` `/after-join-state.md` `/supabase_dump*.txt` `/vitest-output.txt` erweitert → `git check-ignore` bestätigt alle greifen (self-renewing-Müll kommt nicht zurück).
+- **Unicode-Lehre:** `git rm Date*` schlägt fehl (bash-Glob ≠ U+F03A-Byte); ANSI-C-Quoting `$'Date\357\200\272'` löst es. → `errors-infra.md`-Kandidat.
+- **🚩 K2-Übergabe:** `bencium-claude-code-design-skill/` (root-Plugin) + `.agents/skills/`-Stale-Tree (438) = Skill-„von-allem-zwei" → K2 Skill-Heimat-Konsolidierung. MASTERPLAN K2/K4 reconciled.
+- Files: 16 Deletions + .gitignore + active/log/MASTERPLAN + proof.
+
 ## 439 | 2026-06-28 | chore(docs): K1 Meta-Cleanup — tote Tracker-Dubletten + verwaiste notes (TEIL A)
 - Stage-Chain: SPEC (inline active.md, Ops-Lane Doc) → IMPACT (inline, 11 Doc-Deletions, 0 Code) → BUILD (selbst) → REVIEW self-review (Ops, Referenz-Integrität Grep-verifiziert) → PROVE (`proofs/439-k1-cleanup.txt`) → LOG.
 - **Gelöscht (11 Files, 853 Z.):** 3 tote Tracker-Dubletten (root `session-handoff.md` = Session 265 · `docs/TODO.md` = self-markiert „stale, nicht verwenden" · `docs/WORKFLOW.md` = Feb-9 Antigravity-Setup) + 8 verwaiste `worklog/notes/` (290/291/292 Slice-Notizen · 326-preflight · 365-e2e-findings · E0-wissens-inventur „Trefferliste" · workflow-ballast/-efficiency „ALLE 3 TRACKS ERLEDIGT").
