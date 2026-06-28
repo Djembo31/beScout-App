@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 443 | 2026-06-29 | chore(tooling): K2.2b — 4 verbrauchte Multi-Liga-Backfill-Scripts + Daten + test.rtf (−11.817 Z.)
+- Stage-Chain: SPEC (inline active.md, Ops-Lane) → IMPACT (inline, 10 Files, 0 Verdrahtung) → BUILD (selbst) → REVIEW self-review (Ops) → PROVE (`proofs/443-k2b-backfill-gc.txt`) → LOG.
+- **CTO-Entscheid (Anil delegiert „sagen mir nichts"):** faktenbasiert verbraucht — alle 4 Scripts 2026-04-15, `multi-league`-Einmal-Migration, **0 Verdrahtung** (GHA/Vercel/package.json/Hook/Cron), seit 2.5 Mon nie berührt, Multi-Liga-Expansion längst live.
+- **Gelöscht (10, −11.817 Z.):** `backfill-tff-players`/`backfill-scoring-historical`/`seed-multi-league-events`/`fix-tff-logos` (Scripts) + `debug-backfill-payload-BL1-gw4.json` (220K) + 4× `rollback_*_20260415.json` + `docs/test.rtf`. Holt 435-Scripts-GC nach (damals wegen Daten-Refs verschont).
+- **§3:** keine Money/Scoring-LOGIK berührt — verbrauchte one-off Artefakte (Daten längst in Prod), selbst verifiziert. **Schnitt-Regel §0:** self-contained, 0 dangling (Re-Grep).
+- **🚩 K2.2c offen:** `beta-*`-Docs (12) — Beta abgebrochen (D111) aber in auditor/errors-infra/beta-metrics referenziert → eigenes Urteil.
+- Files: 10 Deletions + active/log/MASTERPLAN + proof.
+
 ## 442 | 2026-06-29 | chore(docs): K2.1 Skill-Trees + K2.2 semantisch/ — 89 Einträge weg (K2-Epic Welle 1)
 - Stage-Chain: SPEC (inline active.md, Ops-Lane Doc) → IMPACT (inline, 89 Deletions, Verify-vor-Löschen) → BUILD (selbst) → REVIEW self-review (Ops, Verify-Grep) → PROVE (`proofs/442-k2-skilltree-memory-gc.txt`) → LOG.
 - **K2-Epic-Recon (2026-06-29):** Wissens-Akkretion ist 3×3 — 3 Skill-Trees (`.claude/skills` 18 kanonisch · `.agents/skills` 85 stale · `bencium`-Repo) + 3 Heimaten (`docs/knowledge` · `wiki/` 21 · `memory/` 1.3MB). 6-Wellen-Plan in MASTERPLAN K2 verankert.

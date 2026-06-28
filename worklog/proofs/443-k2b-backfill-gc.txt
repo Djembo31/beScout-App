@@ -1,0 +1,37 @@
+Slice 443 — K2.2b verbrauchte Backfill-Artefakte GC — PROOF
+===========================================================
+Datum: 2026-06-29
+Typ: Tool/Doc (Ops-Lane, money-neutral) · CTO-Entscheid (Anil delegiert)
+
+ENTSCHEIDUNG (faktenbasiert, nicht geraten):
+Die 4 Scripts sind verbraucht — Beleg:
+- alle 2026-04-15, alle "multi-league"-Einmal-Migration (TFF-player-backfill,
+  historical-scoring-backfill, seed-18-events, fix-9-TFF-logos)
+- 0 Verdrahtung (kein GHA/Vercel/package.json/Hook/Cron) → rein manuell one-off
+- seit 2.5 Monaten nie wieder berührt; Multi-Liga-Expansion ist längst live
+- die rollback-jsons sind ihre Rollback-Daten (alle 20260415), debug-payload
+  ihr Scoring-Backfill-Debug-Dump → alles verbrauchte Artefakte
+→ holt nach, was 435-Scripts-GC bei diesen 4 ausließ (Daten-Ref-Vorsicht).
+
+GELÖSCHT (10 Files, 11.817 Zeilen):
+  scripts/backfill-tff-players.mjs
+  scripts/backfill-scoring-historical.mjs
+  scripts/seed-multi-league-events.mjs
+  scripts/fix-tff-logos.mjs
+  memory/debug-backfill-payload-BL1-gw4.json   (220 K)
+  memory/rollback_tff_players_20260415.json    (64 K)
+  memory/rollback_fantasy_events_multi_league_20260415.json
+  memory/rollback_scoring_backfill_20260415.json
+  memory/rollback_tff_logos_20260415.json
+  docs/test.rtf                                (Müll)
+
+§3-HINWEIS: keine Money/Scoring-LOGIK berührt — nur verbrauchte one-off
+Artefakte (Daten längst in Prod). Selbst verifiziert, git=Archiv.
+
+AC-VERIFIKATION:
+AC-1 (4 Scripts weg):  ✅
+AC-2 (5 Daten weg):    ✅
+AC-3 (test.rtf weg):   ✅
+AC-4 (0 dangling):     ✅ rg = self-contained, kein lebender Reader
+
+ERGEBNIS: AC-1..AC-4 PASS. K2.2b erledigt; memory/ + scripts/ entschlackt.
