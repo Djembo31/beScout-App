@@ -1,0 +1,34 @@
+SLICE 437 — workflow.md Ballast-Review (Slim 539→420)
+Proof (Ops-Lane, Doc, money-neutral, self-review) — Anil-approved Sektions-Vorschlag
+Datum: 2026-06-28
+
+=== ERGEBNIS ===
+Zeilen:  539 → 420   (−119, −25% wie projiziert)
+Zeichen: 33047 → 29809 (−3238)
+
+=== CUT (3, Anil-approved) ===
+- Gates-Hook-Tabelle (8-Zeilen hardcodierte Hook-Liste) → Pointer auf settings.json SSOT
+  + Kern-Gates-Nennung. (§7 Anti-Drift: hardcodierte Liste = Drift-Quelle, war Doc-Level-Dup.)
+- Stale "Vor Slice 326 zuerst ..."-Preflight-Anker → gelöscht (wir sind bei 437).
+- Beta-READY-Maschinerie (5 Z. inkl. /auto-beta-ready-Orchestrator) → 1 Satz "pausiert, Beta abgebrochen D111".
+
+=== SLIM (6, Anil-approved) ===
+- /goal-Sektion 29→4 Z. — Bonus: Stale-Ref `ship-build-goal-suggest.sh` (in Slice 431 GELÖSCHT) mitgeheilt.
+- claude-agents 37→3 Z. (Vollständiges Playbook lebt im `ship-agents`-Skill).
+- Arbeitsweise-Verification-Tabelle → Pointer auf PROVE-Tabelle (war exakte Dublette).
+- Agent-Dispatch After-Action (5→3) + 3-Gesetze verdichtet.
+- DISTILL Pflicht-Sektionen+Beispiel+Anti-Patterns 23→3 Z. (Was-extrahieren-Tabelle = Kern, behalten).
+- PRE-REVIEW-MEMO 14→3 Z.
+- Bonus: Session-Lifecycle "(lint, test-reminder)" [beide Hooks in 431/436 tot] → "(vitest-reminder, file-size)".
+
+=== KEEP verifiziert (grep [1] je Anker — 0 Verlust bug-fangender Substanz) ===
+§0 Elite-Prinzipien · Die Schnitt-Regel · "fing real 419b/428" (Money/Sec-Rigor-Klausel) ·
+Resume-Preflight D81 · §3b REVIEW · §4 PROVE · Universelle DoD (Schnitt-Regel) · Notbremse · Tooling-Register-SSOT.
+Kern-Header intakt: Der Loop · PROVE · LOG · Gates · DISTILL · Was-extrahieren · Arbeitsweise · Agent-Dispatch · Session-Lifecycle.
+
+=== SELF-REVIEW (Ops-Lane, Anil pre-approved Scope) ===
+- Money/Security-Rigor (Prep §6 = tabu): UNANGETASTET — Reviewer-Pflicht §3b · Live-functiondef §0.2/D87 ·
+  Zero-Sum · PATCH-AUDIT · DoD-Migration-Block alle 1:1 erhalten.
+- Alle neuen Pointer zeigen auf EXISTIERENDE SSOTs: settings.json · ship-agents-Skill · PROVE-Tabelle · decisions.md.
+- Keine ### Subsection verwaist; Markdown kohärent (35 Header). 3 Stale-Refs geheilt → Doc beschreibt nur noch existierende Hooks/Skills.
+- DISTILL: kein neuer D<n> (reine Execution von D116-Workflow-Reset / MASTERPLAN-K5).

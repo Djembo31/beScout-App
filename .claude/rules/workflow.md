@@ -15,11 +15,7 @@ Jeder Slice durchlaeuft alle 6 Stufen. Was nicht zutrifft wird explizit als `ski
 
 **REVIEW** ist Pflicht nach BUILD bei feat/fix/refactor-Slices. Cold-Context-Reviewer-Agent fängt Blindspots die Primary-Claude nicht sieht (Self-Assessment-Gap 2026-04-22). Hook `ship-cto-review-gate` blockt Commits ohne `worklog/reviews/<slice>-review.md`.
 
-**Beta-READY-Phase (Slice 214 D50 Wave 2):** SHIP-Loop ist Per-Slice. Beta-Launch-READY ist Per-Release. Beide haben separate Phase-Tracker:
-- Per-Slice: `worklog/active.md` (status/stage/spec/proof/review).
-- Per-Release: `worklog/beta-phase.md` (phase A/B/C/D/READY + last_signoff + findings_open).
-- "Beta-fertig" / "launch-ready" sind nur erlaubt wenn `worklog/beta-phase.md.last_signoff == PASS`. Hook `ship-phase-gate.sh` warnt sonst.
-- Master-Orchestrator: `/auto-beta-ready` Skill.
+**Per-Slice vs. Per-Release:** SHIP-Loop ist Per-Slice (`worklog/active.md`). Beta-Launch-READY wäre Per-Release (`worklog/beta-phase.md` + `ship-phase-gate.sh`) — **derzeit pausiert** (Beta abgebrochen D111); „launch-ready" nur bei `last_signoff == PASS`.
 
 **DISTILL** ist kein Slice-Stage, sondern ein **Session-End-Protokoll** — siehe Section am Ende.
 
@@ -83,8 +79,6 @@ Pflichtchecks vor SPEC/BUILD:
 - Bei String→UUID/Source-of-Truth-Migrationen: unknown/nullable Mapping-Pfade fail-closed machen oder als bewusstes Edge im Spec aufnehmen; kein neuer soft-null Drift.
 - Bei L-Slice mit DROP: Pre-Drop-grep muss `src/`, `scripts/`, `messages/`, `.claude/rules/`, `worklog/` abdecken; erst DROP, wenn Runtime-Reader/Writer komplett umgestellt sind.
 
-**Aktueller Anker:** Vor Slice 326 zuerst `worklog/notes/326-preflight-hermes-review.md` lesen.
-
 | Größe | Kriterium | Mindest-Pflicht-Sektionen | Code-Reading | Edge-Cases | ACs |
 |-------|-----------|---------------------------|--------------|------------|-----|
 | XS | 1 File, Pattern-bekannt | 1, 3, 4, 6, 8, 10 (6 von 13) | ≥ 3 Items (Pattern-Source + 1 Reference + 1 Rule) | ≥ 3 | ≥ 3 |
@@ -116,20 +110,9 @@ Pflichtchecks vor SPEC/BUILD:
 - "Self-Verification = `tsc clean`" → reicht nicht, braucht Slice-spezifisch grep/sql/screenshot.
 - "Open-Questions weglassen" → Agent autonomisiert über Money-Path-Decisions.
 
-### 1b. PRE-REVIEW-MEMO Pattern (Slice 211 D50, optional aber empfohlen)
+### 1b. PRE-REVIEW-MEMO (Slice 211 D50, optional)
 
-**Artefakt:** `worklog/reviews/NNN-pre-review.md` (vom Agent oder mir geschrieben VOR Reviewer-Dispatch).
-
-**Inhalt (~10-15 Zeilen):**
-- Self-Audit gegen die in Spec definierten ACs (welche grün, welche teils, welche nicht)
-- Self-Audit Edge-Cases (welche getestet, welche nicht)
-- Self-Verification-Commands gelaufen + Output-Snippet
-- Open-Blocks (was ich nicht klären konnte, wo Reviewer schauen muss)
-- Bekannte Risiken (z.B. "Ich habe Catmull-Rom durch Linear ersetzt — Spec-Drift, dokumentiert in active.md")
-
-**Wirkung:** Reduziert Reviewer-Arbeit ~60% laut Slice 207-Erfahrung — Reviewer kann sich auf Blindspots konzentrieren statt komplettes Audit zu wiederholen.
-
-**Wann Pflicht?** Bei L-Slices mit parallel-Dispatch ≥ 3 Worktrees. Bei XS/S optional.
+Bei L-Slices mit ≥3 parallel-Worktrees: vor Reviewer-Dispatch ein `worklog/reviews/NNN-pre-review.md` (~10 Z.) — Self-Audit gegen ACs + Edge-Cases + gelaufene Verify-Commands + offene Blocks + bekannte Risiken/Spec-Drift. Reduziert Reviewer-Arbeit ~60% (Slice 207: Reviewer fokussiert Blindspots statt Voll-Audit). Bei XS/S optional.
 
 ### 2. IMPACT — Was wird mitbetroffen?
 
@@ -265,16 +248,7 @@ Agent({
 
 ## Gates (architektonisch via Hooks)
 
-| Hook | Trigger | Wirkung |
-|------|---------|---------|
-| `ship-session-start.sh` | SessionStart | 5-Zeilen-Briefing: Branch, Slice, Stage, tsc, uncommitted |
-| `ship-spec-gate.sh` | PreToolUse Edit auf kritischen Pfaden | Blockt ohne aktiven Slice (Exit 2) |
-| `ship-post-service.sh` | PostToolUse Edit auf `src/lib/services/` | Triggert vitest, Output im Kontext |
-| `ship-proof-gate.sh` | PreToolUse Bash `git commit` | Blockt `fix(`/`feat(`-Commits ohne Proof |
-| `ship-status-gate.sh` | UserPromptSubmit mit "fertig\|status\|stand" | Injiziert git log + active.md |
-| `ship-no-audit-slice.sh` | Stop | Markiert Audit-only Slices (kein git diff) als `invalid` |
-| `ship-meta-plan-block.sh` | PreToolUse Write auf `memory/project_*.md` | Blockt neue Meta-Plaene |
-| `ship-cto-review-gate.sh` | PreToolUse Bash `git commit` | Blockt `feat(/fix(/refactor(`-Commits ohne `worklog/reviews/<slice>-review.md` |
+Aktive Hooks + Trigger leben in `.claude/settings.json` (SSOT — **keine Kopie hier**, sonst driftet die Liste, §7). Wiring-Check: `pnpm audit:wiring:check`. Kern-Gates die echte Bugs fangen: `ship-spec-gate` (kein Edit auf kritischem Pfad ohne Slice, Exit 2) · `ship-proof-gate` + `ship-cto-review-gate` (kein `feat/fix/refactor`-Commit ohne Proof + Review) · `ship-tool-wiring-gate` (Build-without-Wire) · `ship-meta-plan-block` (Meta-Plan-Stapel) · `safety-guard` (rm -rf / DROP / force-push).
 
 ## Rollenverteilung
 
@@ -305,75 +279,17 @@ Nicht missbrauchen. Wenn der Anti-Pattern-Count in einer Woche > 2 ist: Retrospe
 
 ---
 
-## Autonomer BUILD via `/goal` (seit Claude Code v2.1.139)
+## Autonomer BUILD via `/goal`
 
-BUILD-Stage kann **autonom** laufen statt jeden Step zu prompten. Voraussetzung: verifizierbare End-Bedingung.
+BUILD kann autonom laufen statt jeden Step zu prompten — Voraussetzung: **verifizierbare, binäre End-Bedingung** (alle ACs erfüllt UND `tsc --noEmit` grün UND `vitest run` grün UND Proof existiert UND `active.md` stage=PROVE). Die SHIP-Hooks (spec-/proof-/review-/wiring-/verify-Gate) wirken während des Runs weiter; `continueOnBlock: true` feedet Rejects zurück → Claude korrigiert statt zu stoppen.
 
-### Pattern
-
-Hook `ship-build-goal-suggest.sh` emittiert beim BUILD-Stage-Übergang einen Vorschlag:
-
-```text
-/goal slice NNN BUILD complete:
-  alle ACs aus worklog/specs/NNN-*.md erfüllt
-  UND pnpm exec tsc --noEmit grün
-  UND CI=true pnpm exec vitest run grün
-  UND worklog/proofs/NNN-*.md existiert
-  UND active.md stage=PROVE
-```
-
-Claude läuft Red→Green→Refactor→Proof autonom. Fast-Model checkt nach jedem Turn ob Bedingung hält. Goal löst sich auf wenn ja.
-
-### Wann NICHT
-
-- ACs vage oder qualitativ statt binary
-- Cross-Domain → `/parallel-dispatch` besser
-- Anil-Entscheidung mid-BUILD nötig
-- Emergency-Fix
-
-### Sicherheits-Net
-
-Die SHIP-Hooks (`spec-gate`, `cto-review-gate`, `proof-gate`, `tool-wiring-gate`, `verify-completeness-gate`) wirken **während** des autonomen Runs weiter und verhindern Drift. `continueOnBlock: true` auf PostToolUse-Hooks (seit 2026-05-28) feedet Hook-Reject zurück, sodass Claude direkt korrigiert statt zu stoppen.
+**Wann NICHT:** ACs vage/qualitativ · Cross-Domain (→ `/parallel-dispatch`) · Anil-Entscheidung mid-BUILD nötig · Emergency.
 
 ---
 
-## Multi-Slice parallel via `claude agents` (seit v2.1.139)
+## Multi-Slice parallel via `claude agents`
 
-Für 2-3 **unabhängige** Slices parallel. Jeder Slice in eigenem Worktree mit eigener Claude Code Session.
-
-### Dispatch
-
-```bash
-# Worktree pro Slice
-git worktree add ../bescout-282 -b slice-282-i18n
-git worktree add ../bescout-283 -b slice-283-bug-fix
-
-# Pro Worktree: claude agents mit /goal
-claude agents --add-dir ../bescout-282 --effort xhigh \
-  "/goal slice 282 BUILD complete: ..."
-```
-
-### Dashboard
-
-```bash
-claude agents
-```
-
-Zeigt alle Sessions: RUNNING / BLOCKED ON YOU / DONE. Attach mit Pfeil-Rechts, Liste mit Pfeil-Links.
-
-### Hard Limit
-
-Max 4 parallele Slices. Mehr = Anil verliert Überblick. Bei dependencies (Slice B braucht Slice A's Service) **nicht** parallel — sequentiell.
-
-### Unterschied zu `/parallel-dispatch`
-
-| | `/parallel-dispatch` | `claude agents` |
-|---|---|---|
-| Scope | Sub-Agents in EINER Session | EIGENE Sessions parallel |
-| Tool | `Agent` (Task) | `claude agents` CLI |
-| Worktree | Optional | Pflicht |
-
-Vollständiges Playbook: Skill `ship-agents`.
+Für 2-3 **unabhängige** Slices parallel, je eigenes Worktree + eigene Claude-Session (`claude agents --add-dir ../wt -b branch "/goal ..."`; Dashboard `claude agents` zeigt RUNNING/BLOCKED/DONE). Max **4** parallel. Bei Dependencies (Slice B braucht A's Service) → sequentiell. Abgrenzung: `/parallel-dispatch` = Sub-Agents in EINER Session; `claude agents` = eigene Sessions, Worktree Pflicht. **Vollständiges Playbook: Skill `ship-agents`.**
 
 ---
 
@@ -405,29 +321,9 @@ Vollständiges Playbook: Skill `ship-agents`.
 
 **Wissens-Index-Pflicht (E0 W2):** Jedes neue durable Wissen MUSS einen `INDEX.md`-Eintrag mit `consult_when`-Auslöser bekommen — sonst gilt es als verloren (kein Routing = niemand findet es). Beim Update: `updated`-Datum + ggf. `status: superseded` + Nachfolger verlinken. Reine Code-Patterns bleiben in `.claude/rules/` (path-scoped Autoload), brauchen KEINEN INDEX-Eintrag.
 
-### Pflicht-Sektionen im decisions.md-Entry
+### Entry-Format + Anti-Patterns
 
-Siehe Template in `memory/decisions.md` am Ende. Mindestens:
-- ID (D<n>, aufsteigend, nie wiederverwendet)
-- Category (PRODUCT | ARCHITECTURE | PROCESS)
-- Datum + Status (Aktiv/Trial/Verworfen/Superseded)
-- Entscheidung, Begründung, Auswirkungen, **Alternativen erwogen**, optional Re-Visit-Trigger
-
-### Beispiel-Ausführung
-
-Am Ende einer Session:
-1. Chat rückwärts scannen: Welche Ausarbeitungen gab es?
-2. Für jede: passt in PRODUCT / ARCHITECTURE / PROCESS?
-3. Nächste freie `D<n>`-ID nehmen
-4. Entry in `memory/decisions.md` einfügen (nicht anhängen — chronologisch aufsteigend nach ID)
-5. Commit: `docs(decision): D<n> — <title>` (Plural bei mehreren: `docs(decisions): D<a>-D<b> — ...`)
-
-### Anti-Patterns
-
-1. **„Ist doch in der Chat-History"** — nein, die ist nach 24h weg.
-2. **„Schreibe ich später rein"** — später heißt nie. Am Session-End jetzt.
-3. **Alles in 1 Entry stopfen** — jede Decision eigenes D<n>, sonst untrennbar.
-4. **Alternativen weglassen** — die „warum nicht anders"-Info ist der halbe Wert.
+Pro Entry (Template am Ende von `memory/decisions.md`): `D<n>` (aufsteigend, nie wiederverwendet) · Category (PRODUCT/ARCHITECTURE/PROCESS) · Datum+Status · Entscheidung/Begründung/Auswirkungen/**Alternativen erwogen** · optional Re-Visit-Trigger. Einfügen chronologisch nach ID (nicht anhängen). Commit `docs(decision): D<n> — <title>`. **Anti-Patterns:** alles in 1 Entry stopfen (jede Decision eigenes `D<n>`) · Alternativen weglassen (das „warum nicht anders" ist der halbe Wert) · „schreibe ich später" (Chat-History nach 24h weg → jetzt).
 
 ---
 
@@ -443,16 +339,8 @@ Spec-Driven. Code lesen, nicht annehmen. Fertig heisst fertig — keine Restarbe
 - Library-Frage → `context7` MCP (Training-Cutoff driftet).
 - „required → optional" = Data-Contract-Change → ERST alle Consumer greppen.
 
-### Verification (Beweis je Change-Typ — siehe PROVE-Stage)
-| Aenderung | Beweis |
-|-----------|--------|
-| Jede | `tsc --noEmit` clean (Voraussetzung, kein Proof) |
-| Logik/Service | Betroffene Tests gruen |
-| UI | Playwright gegen bescout.net (nach Deploy) — NICHT localhost |
-| DB/RPC | SELECT mit echten Daten |
-| i18n | DE + TR verifiziert |
-
-Playwright laeuft gegen Prod, nicht localhost:
+### Verification
+Beweis je Change-Typ = die **PROVE-Stage-Tabelle oben** (nicht doppeln). Kern-Regel: Playwright IMMER gegen Prod, NIE localhost:
 ```bash
 PLAYWRIGHT_BASE_URL=https://bescout.net npx playwright test      # Full Suite
 QA_BASE_URL=https://bescout.net npx tsx e2e/qa-polish.ts --path=/ --slug=home
@@ -505,16 +393,9 @@ NIEMALS „editiere Zeile 45 in File X" (Micromanagement). IMMER Ziel + Autonom-
 ### After-Action (nach JEDEM Agent-Ergebnis)
 1. Output verifizieren: `git diff --stat` im Worktree — kein Vertrauen auf Behauptungen.
 2. Review-Agent (PFLICHT) → `worklog/reviews/NNN-review.md` persistieren.
-3. Neues Pattern → LEARNINGS.md / common-errors.md.
-4. Merge → tsc + vitest auf merged Code.
-5. UI → Playwright gegen bescout.net nach Deploy.
+3. Neues Pattern → common-errors.md · Merge → tsc+vitest · UI → Playwright gegen bescout.net nach Deploy.
 
-Vollstaendiges Playbook: `/parallel-dispatch` Skill. Multi-Session-Parallelitaet: `/ship-agents`.
-
-### 3 Gesetze (Agent-Architektur)
-1. Cache-Prefix-Sharing: `SHARED-PREFIX.md` = gemeinsamer Prefix aller Agents.
-2. Nie leere Tool-Arrays: jeder Agent hat explizite Tools.
-3. Human-Curated Context Only: Agents schreiben Drafts, Menschen promoten.
+**3 Agent-Gesetze:** Cache-Prefix-Sharing (`SHARED-PREFIX.md`) · nie leere Tool-Arrays · Human-Curated-Context (Agents draften, Menschen promoten). Vollständiges Playbook: `/parallel-dispatch` + `/ship-agents`.
 
 ---
 
@@ -524,7 +405,7 @@ Vollstaendiges Playbook: `/parallel-dispatch` Skill. Multi-Session-Parallelitaet
 SessionStart → ship-session-start Briefing (Branch, Slice, Stage, tsc, uncommitted)
   ↓  Pending Agent-Worktrees? → MERGE ZUERST
   ↓  memory/session-handoff.md lesen (Resume-Preflight, D81)
-Waehrend → PostToolUse-Hooks (lint, test-reminder, gates)
+Waehrend → PostToolUse-Hooks (vitest-reminder, file-size, gates)
 Stop → session-handoff-auto (Worktrees + Changes + Commits)
 StopFailure → crash-recovery (Diff-Backup + Handoff-Append)
 ```

@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 437 | 2026-06-28 | chore(workflow): workflow.md Ballast-Review — Slim 539→420 (Werkzeug-Elite Teil 2)
+- Stage-Chain: SPEC (inline active.md, Anil-approved Sektions-Vorschlag) → IMPACT skipped (Doc-Slim) → BUILD (selbst, 10 Edits) → REVIEW self-review (Ops, Money/Sec-Rigor tabu) → PROVE (`proofs/437-workflow-slim.txt`) → LOG.
+- **CUT (3):** Gates-Hook-Tabelle (hardcodierte Liste = Doc-Level-Dup zu settings.json) → SSOT-Pointer · Stale „Slice 326"-Anker · Beta-READY-Maschinerie (Beta abgebrochen D111) → 1 Satz.
+- **SLIM (6):** /goal 29→4 Z. · claude-agents 37→3 (Playbook im `ship-agents`-Skill) · Arbeitsweise-Verification-Tabelle → Pointer auf PROVE (war Dup) · Agent-Dispatch verdichtet · DISTILL-Beispiele 23→3 · PRE-REVIEW-MEMO 14→3.
+- **Bonus:** 3 Stale-Refs geheilt — `ship-build-goal-suggest.sh` (in 431 gelöscht), `auto-beta-ready`, `lint`/`test-reminder` (tote Hooks). Doc beschreibt jetzt nur noch existierende Hooks/Skills.
+- KEEP-verifiziert (grep [1] je Anker): §0 · Schnitt-Regel · Money/Sec-Rigor (419b/428) · D81 · §3b REVIEW · §4 PROVE · DoD · Notbremse · SSOT-Register. **0 Verlust bug-fangender Substanz.**
+- Netto: 539→420 Z. (−25%), 33→30 KB. Files: `.claude/rules/workflow.md` (M) + active/log/MASTERPLAN/TODO/handoff + proof.
+
 ## 436 | 2026-06-28 | chore(tooling): Hook FIX-Pass-2 — 4 Hook-Konsolidierungen (Werkzeug-Elite Teil 2)
 - Stage-Chain: SPEC (inline active.md, Ops-Lane) → IMPACT (inline, S234: 4 Hook-Removals) → BUILD (selbst) → REVIEW self-review (Ops, money-neutral) → PROVE (`proofs/436-hook-fix-pass2.txt`) → LOG.
 - Grounding (keine stale TODO): Pass-1 = `workflow-ballast-audit.md`; 431 fixte 2 Priority + cut 6; FIX-Pass-2 = die 5 Reste, heute am echten Source verifiziert.
