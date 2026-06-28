@@ -1,11 +1,14 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-28 22:01)
+# Session Handoff — Auto (2026-06-28 23:17)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
-## Session Commits: 9
+## Session Commits: 10
+- e1fc5257 chore(agents): Slice 438 — Auditor-Agents 4->2 (generischer Linsen-Auditor + qa-visual)
+- 043ab43e chore(workflow): Slice 437 — workflow.md Ballast-Review (Slim 539->420, -25%)
+- ba657a00 chore(tooling): Slice 436 — Hook FIX-Pass-2 (4 Konsolidierungen, 32->28 wired)
 - 31744ad5 docs(handoff): Session-Close-Checkpoint 2026-06-28 (Slices 434+435, Tree clean)
 - f5890847 chore(gitignore): self-renewing Audit-Reports (dup + orphan-components) ignorieren
 - c8a0e327 docs(handoff): Slice 435 Scripts-GC Checkpoint + auto-block
@@ -13,8 +16,6 @@
 - e4bb1559 docs(log): Slice 434 LOG + Tracker-Reconcile (handoff/MASTERPLAN/TODO) + active idle
 - 4b5e2cbb feat(tooling): Slice 434 — Duplikations-Ratchet (audit:dup, §0-Schnitt-Regel maschinell)
 - bb8444bf docs(distill): D116 Elite-Workflow-Reset + Slice 432/433 LOG + Checkpoint-Handoff
-- b423682a docs(plan): Slice 433 — eine Plan-Quelle (MASTERPLAN als Plan-SSOT)
-- 507a7954 chore(workflow): Slice 432 — Elite-Workflow-Kern (§0 Anti-Akkretion + Schnitt-Regel-DoD + Operating-Agreement)
 
 <!-- auto:handoff-end -->
 
@@ -22,21 +23,15 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-> **🟢 CHECKPOINT 2026-06-28 — WERKZEUG-ELITE TEIL 2 PRAKTISCH KOMPLETT (Scripts-GC 435 · Hook-FIX 436 · workflow.md-Slim 437 · Auditor-Merge 438). Offen nur der zeit-gegatete `audit:dup` BLOCK-Flip (passiv, FP=0-Bake). Nächste Session = Mock→Pro **D-01** (42P10-Spieltag-Bug, latent HIGH, §3) ODER TEIL A Meta-Cleanup (inkl. neu gefundenem `.agents/`-Stale-Skill-Tree) ODER W0 DB-Security. main==origin (Commits s. Auto-Block oben).**
+> **🟢 SESSION-CLOSE 2026-06-28 (Abend) — WERKZEUG-ELITE TEIL 2 KOMPLETT.** Diese Session: **Slices 436-438** — Hook-FIX-Pass-2 (32→28 Hooks, compliance/i18n-Enforcement-Lücke geschlossen) · workflow.md-Slim (539→420, −25%) · Auditor-Merge (4→2, 15→13 Agents, **Registry-live-bestätigt:** `auditor` da, 3 alte weg). Damit ist der **gesamte Workflow-Optimierungs-Track durch** — offen nur der zeit-gegatete `audit:dup` WARN→BLOCK-Flip (passiv, FP=0-Bake, kein Slice nötig). **Tree clean, main==origin.**
 >
-> **🆕 Slice 434 (D117) — Duplikations-Ratchet `audit:dup` (Reviewer PASS):** Schließt die §0-„Detektor"-Lücke (keiner der 14 `audit:*` fand aktive Duplikation; §0 zeigte auf nicht-existenten wiring-check-Detektor = Zeremonie-Verstoß). Register-Ratchet (`scripts/duplication-check.ts`): Geheilt-Guard (code+db) + Discovery (Synonym-Twins format/calc) + Stale-INFO; Baseline = `dup-registry`-Block IM `disease-register.md`; pre-commit WARN-first. **Dogfood fand sofort echten, audit-übersehenen Twin `timeAgo`/`formatTimeAgo` → D-33.** Reviewer-Rework: db-Guard (Money-Path) + Synonym-Gruppen-FP + Cluster-Tests (24). **➡️ Werkzeug-Elite Teil 2 PRAKTISCH KOMPLETT:** ✅ Scripts-GC (435) + ✅ Hook-FIX-Pass-2 (436: 32→28) + ✅ workflow.md-Slim (437: 539→420) + ✅ Auditor-Merge (438: 4→2, CEO voll-merge, 15→13 Agents, 3 Checklisten 1:1 in 1 generischen Linsen-Auditor); offen nur zeit-gegateter `audit:dup` BLOCK-Flip nach FP=0. **Nebenbefund 438:** `.agents/skills/` = 2. stale Skill-Tree neben `.claude/skills/` (von-allem-zwei → TEIL A K2). (`wiring-check` scannt nur `.ts/.sh` — `.js/.mjs` blieben unsichtbar = Akkretions-Ursache.)
+> **Engine-Fundament (Vorsessions — Detail in `log.md`/`MASTERPLAN.md`, nicht hier duplizieren):** Voll-Audit `wf_82fc04e4-733` (5 Wurzeln, Master R1 „anhängen-nie-konsolidieren", 29/32 offene Krankheiten in `disease-register.md`) → §0 Anti-Akkretions-Engine (432/D116) · MASTERPLAN = EINE Plan-Quelle (433) · `audit:dup`-Detektor + Krankheits-Register (434/D117). W0-Security-Triage fertig (kein aktiver anon-Leak; 3 §3-Items warten auf Go).
 >
-> **Diese Session geliefert (Anil: „Elite-Workflow + BeScout gesund, Sorare-Niveau"):**
-> - **Voll-Audit** (Run `wf_82fc04e4-733`, 61 Agents, live gegen DB) → 5 Wurzel-Ursachen, Master = **R1 „immer anhängen, nie konsolidieren"**. 34 neue + 32 bekannte Krankheiten. Evidenz: `worklog/notes/disease-register.md` (29/32 offen).
-> - **Engine (Slice 432, D116):** `workflow.md` **§0** = 4 Anti-Akkretions-Regeln (Schnitt-Regel · Realität-vor-Zeremonie · Ein-Job-pro-Artefakt · Subtrahieren-erstklassig) + `memory/feedback_operating_agreement`.
-> - **Eine-Plan-Quelle (Slice 433, D116):** `MASTERPLAN.md` = DER Plan (Tracker-Architektur 1-SSOT/Ebene · TEIL A Meta-Cleanup K1-K7 · TEIL B Code/DB W0-W7). Ersetzt ~14 Plan-Docs.
-> - **W0-Security-Triage** fertig (read-only): **kein aktiver anon-Leak**; 3 Items (D-12 DROP · 2 Recon admin-only · anon-REVOKE-Hygiene). Migration wartet auf **Anil-§3-Go**.
->
-> **➡️ NÄCHSTE SESSION — zwei Wege (Anil-Wahl), EINSTIEG `MASTERPLAN.md`:**
-> - **(A) TEIL A execution** (Meta-Cleanup, peek-then-delete, git=Archiv): K1 dead root `session-handoff.md` + `docs/TODO.md` + `docs/WORKFLOW.md` löschen → K2 EINE Wissens-Heimat (`wiki`+`memory/semantisch`+`disease-register`→`docs/knowledge`; versionierte Dubletten v3/v4/v8 auf je 1) → K1 14 notes falten → K3/K4/K7 archive. **Schnitt-Check:** `disease-register` IST der getrackte „2. Weg" → in K2 nach `docs/knowledge` auflösen.
-> - **(B) TEIL B W0:** DB-Security-Migration schreiben+force-rollback-smoke+anwenden (§3-Go nötig).
-> **Krankheit auf 3 Ebenen:** Prozess ✅ · Pläne ✅ · Code ⬜ (29 offen = die eigentliche Arbeit).
-> **⚠️ Feature-Arbeit (paused, Detail unten ↓):** 428b DROP (post-Deploy) · Welle 3 · Ranking — erst NACH Mock→Pro-Konsolidierung.
+> **➡️ NÄCHSTE (frische) SESSION — CEO-Wahl, EINSTIEG `MASTERPLAN.md`:**
+> - **(1) Mock→Pro Code-Heilung [CTO-Empfehlung]:** **D-01 zuerst** — latenter `42P10`-Spieltag-Bug (`cron_process_gameweek` + `admin_resync_gw_scores` schreiben alte `ON CONFLICT(player_id,gameweek)`-Shape gg. die in 419 gedroppte UNIQUE → bricht Scoring beim ersten echten Spieltag, Off-Season maskiert). §3/Money = selbst, Live-`functiondef` VOR Spec (D87), force-rollback, Reviewer. Danach W2 Ranking-Konsolidierung (`scout_scores`↔`user_stats`) · W3 Events/Aufstellung. **Die 29 offenen Krankheiten = die eigentliche Arbeit.**
+> - **(2) TEIL A Meta-Cleanup:** K1-K7 (peek-then-delete, git=Archiv). NEU: `.agents/`-Stale-Skill-Tree (438-Fund) + **diese Handoff-Historie selbst** (viele alte STAND-Blöcke unten ↓ = Akkretion, gehört konsolidiert). Schnitt-Check: `disease-register` → `docs/knowledge` (K2).
+> - **(3) W0 DB-Security [§3]:** Migration schreiben + force-rollback + anwenden (Anil-§3-Go nötig; D-12 DROP + anon-REVOKE-Hygiene).
+> **Krankheit auf 3 Ebenen: Prozess ✅ · Pläne ✅ · Code ⬜ (29 offen).** Feature-Arbeit paused (428b DROP post-Deploy · Welle 3 · Ranking) — erst nach Konsolidierung.
 >
 > ---
 >
