@@ -8,6 +8,27 @@
 
 ---
 
+## 0. Maschinen-Baseline (`audit:dup`) — SSOT
+
+> **Slice 434.** Dieser gefencte Block ist die **Maschinen-Wahrheit** für den Duplikations-Ratchet (`scripts/duplication-check.ts`). Die Prosa-Tabellen unten (§3) bleiben das **menschliche Narrativ** — der Block hier ist autoritativ für das Tool. Neuer Duplikations-Fund → hier eine Zeile (konsolidieren ODER bewusst-zwei). Ein ungetrackter Zwilling im Code, der hier fehlt = §0-Verstoß (das Tool meldet ihn).
+
+```dup-registry
+# Format je Zeile:  status | id | kind | symbols(comma) | note
+# status: ungetrackt (heilen) | bewusste-zwei (erlaubt, wie D112) | geheilt (zurück = Regression)
+# kind:   code (src/-Symbol, Regressions-grepbar) | db (DB-Objekt, Live-DB-Verify = v2) | concept (semantisch)
+geheilt | S406 | db | treasury_balance_cents | Counter-Orphan → Ledger, DROP Slice 406
+geheilt | S368f | db | initial_listing_price | gedroppt Slice 368f
+geheilt | S421 | code | GameweekSelector | Orphan-Component entfernt Slice 421
+ungetrackt | D-23 | code | formatScout, fmtScout | 2 Geld-Formatter (0-dez vs 2-dez) → 1 kanonischer formatBalance (W5)
+ungetrackt | D-33 | code | timeAgo, formatTimeAgo | 2 Relativzeit-Formatter (utils.ts:35/47); timeAgo hartcodiert EN „just now/ago" (i18n-Leak) → 1 kanonischer (W5/Design). TOOL-FUND Slice 434.
+ungetrackt | D-15 | concept | getMyAdPayouts, getMyPayouts | Ad-Payout-Subset-Twin (Dead-Feature-GC, W5)
+ungetrackt | D-17 | db | scout_scores, user_stats | divergenter Dual-Write zweier Ranking-Quellen (W2/CEO)
+ungetrackt | D-10 | concept | scoutMissions, missions | 2. Mission-System tot neben lebendem (Dead-Feature-GC)
+bewusste-zwei | D112 | concept | orders, offers | echte 2 Produkte (Orderbuch Fork B) — NICHT anfassen
+```
+
+---
+
 ## 1. Die 5 Wurzel-Ursachen (wenige Ursachen, viele Symptome)
 
 | # | Wurzel | Kern |

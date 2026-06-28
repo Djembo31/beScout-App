@@ -1,0 +1,37 @@
+# Slice 434 — Duplikations-Ratchet AC-Audit  (2026-06-28T19:16:55Z)  [post-Review-Rework]
+
+## AC-01: audit:dup:check clean (exit 0)
+═══ Duplikations-Ratchet (Slice 434) ═══
+Registry-Einträge:   9
+src-Files gescannt:  728  (lib: 177)
+Geheilt-Regression:  0
+Discovery-Cluster:   2  (tracked 2 / untracked 0)
+Report:              worklog/audits/dup-2026-06-28.md
+
+✅ Keine Geheilt-Regression, kein untracked Duplikations-Verdacht.
+AC-01_exit=0
+
+## AC-02: Geheilt-Regressions-Guard feuert — CODE + DB (Reviewer-434 #1 behoben)
+# (a) kind=code Fixture 'timeAgo' → gefangen an AdminWithdrawalTab/NotificationDropdown/FollowingFeedRail.
+# (b) kind=db   Fixture 'locked_balance' → gefangen an:
+#     src/app/api/cron/expire-orders/route.ts, useCancelUserEvent.ts, events.mutations.ts
+# → db-Symbole (treasury_balance_cents etc.) sind jetzt WIRKLICH geschützt. Fixtures entfernt, AC-01 wieder clean.
+
+## AC-03: Discovery-Cluster tracked (kein FP) + #2 komplementär-FP-Fix (unit-bewiesen)
+## ✅ Discovery-Cluster (bereits im Register = getrackt)
+
+- `scout`: formatScout, fmtScout
+- `timeago`: timeAgo, formatTimeAgo
+# calcFee/formatFee clustern NICHT (calc≠fmt) — vitest 'FP-Fix #2'. timeAgo/formatTimeAgo schon.
+
+## AC-05: audit:wiring:check (kein Orphan-Drift; __tests__-Skip + 2 KNOWN_ORPHANS)
+Hooks scanned:        32
+Scripts scanned:      26
+Real drift:           0
+✅ No drift orphans found. All tools wired.
+
+## AC-06: vitest 24/24 → worklog/proofs/434-vitest.txt
+
+## AC-07: §0 zeigt auf audit:dup statt nicht-existenten wiring-check-Detektor
+  'wiring-check (erweitert)' (muss 0): 0
+  'audit:dup' in workflow.md (muss >=2): 2

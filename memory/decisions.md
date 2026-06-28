@@ -4337,3 +4337,24 @@ Slice 431 (Ballast-Schnitt: Hooks 38→32, Skills 26→18) · 432 (§0 + Operati
 - **Nur Status-SSOT (wie 430):** unzureichend — die Plan-Ebene driftete genauso; SSOT muss Pläne mit abdecken.
 
 **Re-Visit-Trigger:** Wenn trotz Schnitt-Regel neue ungetrackte Duplikate entstehen → Detektor härten (`wiring-check` erweitern) bzw. DoD-Gate von WARN auf BLOCK.
+
+## D117 — PROCESS: Anti-Akkretion Signal-Bein — `audit:dup` Register-Ratchet (§0-Detektor maschinell)
+
+**Datum:** 2026-06-28 · **Status:** 🟢 Aktiv · **Category:** PROCESS · **Kontext:** D116 verankerte Regel + Ritual der Schnitt-Regel als TEXT; das Erfolgs-Kriterium (`workflow-ideal-prep.md` §7) verlangt drei Teile: Regel + Ritual + **Signal**. Faktencheck (Slice 434): §0 behauptete zweimal „Detektor im wiring-check" — der existierte NICHT (keiner der 14 `audit:*`-Checks fand aktive Duplikation; die Orphan-Detektoren feuern erst, wenn ein Zwilling schon tot ist). = Realität-vor-Zeremonie-Verstoß (§0.2) in der frischen §0 selbst.
+
+### Entscheidung (Anil-Wahl: Keystone-Detektor zuerst · WARN-first→BLOCK)
+1. **`audit:dup` (`scripts/duplication-check.ts`) = Register-Ratchet** nach erprobtem Muster (boundary S4 / test-confidence S5). Drei Prüfungen: Geheilt-Regressions-Guard (code+db, `src/`-only) · Discovery (Synonym-Stamm-Kollision `format`/`calc` in `src/lib`) · Ratchet-Gate (untracked ODER Geheilt-Regression → exit 1). Plus Stale-INFO.
+2. **Baseline = EINE Quelle:** gefencter ` ```dup-registry``` `-Block IM bestehenden `disease-register.md` (kein zweites File — das wäre selbst „von allem zwei"). Prosa = Narrativ, Block = Maschine. Status je Eintrag: ungetrackt | bewusste-zwei (erlaubt, D112) | geheilt (zurück = Regression).
+3. **WARN-first → BLOCK:** pre-commit Step 7b `|| true` (non-blocking) bis FP=0 gegen die Register-Fälle bewiesen, dann 1-Zeilen-Flip auf hart (S350-Lehre: neue Baseline erst beweisen).
+4. **§0 korrigiert** auf `audit:dup` statt nicht-existentem wiring-check-Detektor (Zeremonie-Lücke geschlossen).
+
+### Auswirkung
+Die Schnitt-Regel ist jetzt maschinell: ein ungetrackter Code-Twin lässt sich nicht mehr „sauber" lassen — tracken ODER konsolidieren. **Dogfooding-Beweis:** erster Lauf fand einen echten, vom 61-Agent-Audit übersehenen Twin (`timeAgo`/`formatTimeAgo`, i18n-Leak) → D-33 registriert. Reviewer-Rework härtete db-Guard (Money-Path) + Synonym-Gruppen-FP. Tooling-Hygiene (22 Wegwerf-Skripte, 5 K5-Hooks, Auditor 4→1-2) = getrennter Folge-Slice.
+
+### Alternativen erwogen
+- **wiring-check erweitern (wie D116-Re-Visit-Trigger andeutete):** verworfen — wiring-check ist Orphan-Detektion (Null-Caller); Duplikation ist eine andere Achse → eigenes Tool statt Überladen (Ein-Job-pro-Artefakt §0.3).
+- **Sofort-BLOCK:** verworfen (Anil) — neuer FP-unverifizierter Detektor ab Tag 1 = CI-Rot-Risiko (S350).
+- **Volle semantische Clone-Detektion:** verworfen — AI-hart + FP-laut; ein Ratchet braucht keinen perfekten Detektor, nur „neuer ungetrackter Fund".
+- **Zweite Baseline-`.json`:** verworfen — das Register IST die Baseline.
+
+**Re-Visit-Trigger:** FP im WARN-Betrieb → Synonym-Gruppen justieren; Register-FP=0 stabil → WARN→BLOCK-Flip; v2-Axes (DB-Overloads, Component-Role, Column-Concept) wenn neue Twin-Klassen durchrutschen.

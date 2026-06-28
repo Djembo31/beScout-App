@@ -9,6 +9,7 @@
 # 5. audit:boundary:check — S4 Source-of-Truth Ratchet (~2s, exit 1 bei neuem Bridge-/Direct-Supabase-Import)
 # 6. audit:test-confidence:check — S5 Test-Confidence Ratchet (~2s, exit 1 bei neuem Placeholder/Skip)
 # 7. audit:knowledge:check — E0-W2gov Wissens-Integrität (~2s, exit 1 NUR bei HARD: broken-link/orphan/no-frontmatter; Staleness=SOFT→nightly)
+# 7b. audit:dup:check — Slice 434 Duplikations-Ratchet (WARN-first, non-blocking via `|| true` bis FP=0; dann BLOCK-Flip)
 # 8. lint-staged — ESLint + auto-fix auf staged files (Config: .lintstagedrc.json)
 #
 # Bewusst ausgeschlossen: audit:orphan (66s, gehoert pre-push), audit:silent-fail (CI),
@@ -60,6 +61,9 @@ pnpm run audit:test-confidence:check
 
 echo "[pre-commit] audit:knowledge:check..."
 pnpm run audit:knowledge:check
+
+echo "[pre-commit] audit:dup:check (Slice 434 Duplikations-Ratchet, WARN-first/non-blocking)..."
+pnpm run audit:dup:check || true
 
 echo "[pre-commit] lint-staged..."
 npx lint-staged

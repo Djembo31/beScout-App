@@ -28,7 +28,8 @@
 
 ## 🔵 decisions — warum (ADRs)
 
-- [Decisions-Log D1–D116](../../memory/decisions.md) — consult_when: warum-Entscheidung, ADR-Historie, Scope/Architektur/Prozess-Begründung, „warum nicht anders". **Jüngste Decisions (Kurzform; voller Text + Alternativen in `decisions.md`):**
+- [Decisions-Log D1–D117](../../memory/decisions.md) — consult_when: warum-Entscheidung, ADR-Historie, Scope/Architektur/Prozess-Begründung, „warum nicht anders". **Jüngste Decisions (Kurzform; voller Text + Alternativen in `decisions.md`):**
+  - **D117** Anti-Akkretion Signal-Bein: `audit:dup` Register-Ratchet (§0-Detektor maschinell — Geheilt-Regression code+db, Discovery `format`/`calc`-Synonym-Twins, WARN-first→BLOCK); Baseline = `dup-registry`-Block in `disease-register.md` (kein zweites File); Dogfood-Fund D-33 (`timeAgo`/`formatTimeAgo`). Slice 434.
   - **D116** Elite-Workflow-Reset (Anti-Akkretion): Schnitt-Regel (kein ungetrackter 2. Weg = unfertig) + 4 §0-Prinzipien + SSOT pro Ebene (auch Pläne: `MASTERPLAN`=1 Plan) + Operating-Agreement; Audit `wf_82fc04e4-733`; Slices 431/432/433; Register `worklog/notes/disease-register.md`.
   - **D115** Gameweek-Lifecycle = Per-Liga (GW-Fork 427-429): `leagues.active_gameweek`=SSOT (`clubs.active_gameweek` frozen→428b DROP via Expand/Contract), Status-Views liga-gefiltert `1..max_gameweeks` (427), `set_active_gameweek` leagues-only+Guard>max (428), `finalizeGameweek` entkoppelt „Score≠Advance" (429); Recon `worklog/notes/gameweek-engine-recon.md`.
   - **D114** Synergie-Mechanik (Gleicher-Verein +5 %/≥2-Verein, money-wirksam in `score_event`) BEHALTEN + Client-Vorschau exakt an Server angleichen (424); Alt „ganz entfernen" verworfen.

@@ -36,6 +36,8 @@
     "audit:mutation-race:check": "bash scripts/audit-mutation-race.sh --strict",
     "audit:wiring": "npx tsx scripts/wiring-check.ts",
     "audit:wiring:check": "npx tsx scripts/wiring-check.ts --check",
+    "audit:dup": "npx tsx scripts/duplication-check.ts",
+    "audit:dup:check": "npx tsx scripts/duplication-check.ts --check",
     "audit:cron-health": "npx tsx scripts/cron-health-check.ts",
     "audit:cron-health:check": "npx tsx scripts/cron-health-check.ts --check",
     "audit:knowledge": "npx tsx scripts/audit-knowledge.ts",

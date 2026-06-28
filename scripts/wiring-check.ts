@@ -87,6 +87,8 @@ const KNOWN_ORPHANS: Record<string, string> = {
   'npm:audit:tracker-drift': 'Called in .husky/pre-commit (Slice 430 Anti-Drift-Guard, WARN-only/non-blocking); .husky/ wird von wiring-check nicht gescannt (nur .github + .claude/hooks).',
   'npm:rotate-secret': 'Slice 255 manual-tool für Secret-Rotation, manueller Trigger gewollt (3-Location-Sync).',
   'npm:audit': 'Aggregated audit-runner, not nightly',
+  'npm:audit:dup': 'Slice 434 manual report-tool (Duplikations-Ratchet) — schreibt worklog/audits/dup-<date>.md; :check ist der verkabelte Gate-Pfad.',
+  'npm:audit:dup:check': 'Called in .husky/pre-commit (Slice 434, WARN-first/non-blocking); .husky/ wird von wiring-check nicht gescannt.',
 };
 
 type Orphan = {
@@ -103,10 +105,12 @@ function listFiles(dir: string, ext?: string[]): string[] {
     const full = resolve(dir, entry);
     const st = statSync(full);
     if (st.isDirectory()) {
-      // Skip archived/ subdirectory
-      if (entry === 'archived') continue;
+      // Skip archived/ + __tests__/ — Tests sind keine wireable Tools (Slice 434)
+      if (entry === 'archived' || entry === '__tests__') continue;
       files.push(...listFiles(full, ext));
     } else if (st.isFile()) {
+      // *.test.* sind via vitest gewired, nicht via Trigger → kein Orphan-Drift (Slice 434)
+      if (/\.test\.[cm]?[jt]sx?$/.test(entry)) continue;
       if (!ext || ext.some((e) => full.endsWith(e))) files.push(full);
     }
   }
