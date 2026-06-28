@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 438 | 2026-06-28 | chore(agents): Auditor-Agents 4→2 — generischer Linsen-Auditor + qa-visual (Werkzeug-Elite Teil 2)
+- Stage-Chain: SPEC (inline active.md, Anil-Entscheid voll-merge) → IMPACT (inline, 3 Agent-Removals) → BUILD (selbst) → REVIEW self-review (Ops) → PROVE (`proofs/438-auditor-merge.txt`) → LOG.
+- **CEO-Entscheid (AskUserQuestion):** voll mergen 4→2 (gegen meinen Keep-Vorschlag). Constraint: Checklisten-Wissen verlustfrei.
+- **Merge:** `brand-coherence-auditor` + `ux-coherence-auditor` + `tester-persona-walker` → 1 generischer `auditor.md` mit 3 Linsen via Dispatch-Prompt (brand-coherence/ux-states/persona-journey), alle Checklisten+Output+Severity 1:1. `qa-visual` bleibt separat (Screenshot-Diff). 15→13 Agents.
+- **Tool-Disziplin:** auditor Write/Edit nur für persona-journey-Output (worklog/audits/), strikt gescoped; brand/ux read-only. Defense-in-depth via spec-gate + safety-guard.
+- **Consumer-Check:** 0 Live-Skill-Refs in `.claude/skills/` (grep). Refs nur archiviert (431)/Historie/`.agents/`-stale. workflow.md = Agent-Tool-SSOT (kein hardcoded Repoint).
+- **🚩 Nebenbefund (gemeldet, nicht gefixt):** `.agents/skills/` = 2. stale Skill-Tree (~40 Skills) neben `.claude/skills/` = Doc-„von-allem-zwei" → TEIL A K2.
+- Files: `.claude/agents/auditor.md` (A) · brand-coherence/ux-coherence/tester-persona-walker (D) · active/log/MASTERPLAN/TODO/handoff + proof.
+
 ## 437 | 2026-06-28 | chore(workflow): workflow.md Ballast-Review — Slim 539→420 (Werkzeug-Elite Teil 2)
 - Stage-Chain: SPEC (inline active.md, Anil-approved Sektions-Vorschlag) → IMPACT skipped (Doc-Slim) → BUILD (selbst, 10 Edits) → REVIEW self-review (Ops, Money/Sec-Rigor tabu) → PROVE (`proofs/437-workflow-slim.txt`) → LOG.
 - **CUT (3):** Gates-Hook-Tabelle (hardcodierte Liste = Doc-Level-Dup zu settings.json) → SSOT-Pointer · Stale „Slice 326"-Anker · Beta-READY-Maschinerie (Beta abgebrochen D111) → 1 Satz.

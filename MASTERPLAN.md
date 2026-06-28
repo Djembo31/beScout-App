@@ -33,7 +33,7 @@ Beta abgebrochen (zu viele Fehler, nichts lief sauber zusammen). Ganze Codebase 
 - **K2 — EINE Wissens-Heimat:** `docs/knowledge/` = SSOT. `wiki/` (21) + `memory/semantisch/` (3, D89-tot) + wertvolle `docs/`-root-Docs reinmigrieren; **versionierte Dubletten** (`…Context_Pack_v8`, `SYSTEM-DESIGN-v2`, `…report-v3`, `…gamification-v4-FINAL`) auf je 1 aktuelle ziehen, Rest löschen. `disease-register` → hierher (= verifizierte Evidenz). Memory-Modell klären (Projekt-Vault vs Auto-Memory: 1 Modell).
 - **K3 — `docs/plans/` (147 Dateien):** Specs offener Wellen behalten, Rest archivieren/löschen.
 - **K4 — root entrümpeln:** 6× `qa-*-snapshot.md` + `after-join-state.md` + `test.rtf` → `worklog/` oder gitignore.
-- **K5 — Workflow Phase 3 (Engine zu Ende schlanken):** ✅ FIX-Pass-2 (Slice 436: 4 Hooks konsolidiert, 32→28) · ✅ `workflow.md` 539→420 (Slice 437: 3 CUTs + 6 SLIMs, 3 Stale-Refs geheilt, 0 Verlust Substanz) · ⬜ Auditor-Agents 4→1-2 (CTO-Befund: eher behalten — bewusste Linsen, CEO-Entscheid) · ⬜ `audit:dup` WARN→BLOCK nach FP=0-Bake.
+- **K5 — Workflow Phase 3 (Engine zu Ende schlanken):** ✅ FIX-Pass-2 (436: 32→28 Hooks) · ✅ `workflow.md` 539→420 (437) · ✅ Auditor-Agents 4→2 (438: generischer Linsen-Auditor + qa-visual, CEO-Entscheid voll-merge, 15→13 Agents) · ⬜ `audit:dup` WARN→BLOCK nach FP=0-Bake (zeit-gegatet, läuft passiv). **→ K5 / Werkzeug-Elite Teil 2 bis auf den passiven BLOCK-Flip KOMPLETT.**
 - **K6 — `src/types/index.ts` (2329 Z. Mono-File)** nach Domäne splitten. *(LOW, kann später.)*
 - **K7 — History/Decisions archivieren:** `log.md` < Slice 400 + `decisions.md` < D100 → `_archive/` (Lade-/Token-Last raus).
 
@@ -63,4 +63,4 @@ Beta abgebrochen (zu viele Fehler, nichts lief sauber zusammen). Ganze Codebase 
 - **E3** Plattform-Treasury KOMPLETT — REIN 5/5 (357-365) + RAUS 3/3 (376-378), real durchflossen (402).
 - **E5** Event-/Creator-/Liga-Modell bis Slice 400 (Liga-Bindung · Saison-Payout · Regelsatz komplett · User-Events e2e).
 - **Mock→Pro** Welle 1 (Trading 403-418) + Welle 2 (Spieltag/Scoring 419-429) e2e.
-- **Workflow-Reset** Phase 1 (Ballast-Schnitt 431) + Phase 2 (Anti-Akkretions-Engine + Operating-Agreement 432) + Phase 3 Signal-Detektor `audit:dup` (434, D117 — §0-Schnitt-Regel maschinell, WARN-first; Dogfood-Fund D-33). *(Werkzeug-Elite Teil 2: Scripts-GC 435 + Hook-FIX-Pass-2 436 + workflow.md-Slim 437 [539→420] DONE; offen: Auditor 4→1-2 · `audit:dup` BLOCK-Flip.)*
+- **Workflow-Reset** Phase 1 (Ballast-Schnitt 431) + Phase 2 (Anti-Akkretions-Engine + Operating-Agreement 432) + Phase 3 Signal-Detektor `audit:dup` (434, D117 — §0-Schnitt-Regel maschinell, WARN-first; Dogfood-Fund D-33). *(Werkzeug-Elite Teil 2: Scripts-GC 435 + Hook-FIX 436 + workflow.md-Slim 437 + Auditor-Merge 438 [4→2] DONE; offen nur der zeit-gegatete `audit:dup` BLOCK-Flip nach FP=0-Bake.)*

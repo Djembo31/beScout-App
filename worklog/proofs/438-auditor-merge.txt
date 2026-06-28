@@ -1,0 +1,40 @@
+SLICE 438 — Auditor-Agents 4→2 (generischer linsen-parametrierter Auditor + qa-visual)
+Proof (Ops-Lane, Agent, money-neutral, self-review) — Anil-Entscheid "voll mergen 4→2"
+Datum: 2026-06-28
+
+=== ENTSCHEID + CONSTRAINT ===
+Anil (AskUserQuestion): voll mergen 4→2 = 1 generischer Auditor (Linse via Prompt) + qa-visual separat.
+Harter Constraint (Anil): Checklisten-Wissen verlustfrei in den generischen Prompt.
+
+=== ERGEBNIS ===
+NEU .claude/agents/auditor.md — 1 generischer Auditor, 3 Linsen via Dispatch-Prompt:
+  LINSE A brand-coherence (READ-ONLY): 6-Punkt DNA-Checkliste (Color/Position/Typo/Component/Spacing/Icon)
+          + Methode + Output + Severity — 1:1 aus brand-coherence-auditor.
+  LINSE B ux-states (READ-ONLY): 7-Punkt State-Checkliste (Loading/Empty/Error/Modal/Optimistic/Touch/Form)
+          + Methode + Output + Severity — 1:1 aus ux-coherence-auditor.
+  LINSE C persona-journey (Write NUR worklog/audits/): Pattern v3 + 3 Personas M/K/T (Profil/Journey/Friction)
+          + Methode + Output + Severity — 1:1 aus tester-persona-walker.
+GELÖSCHT (git rm): brand-coherence-auditor.md · ux-coherence-auditor.md · tester-persona-walker.md.
+UNANGETASTET: qa-visual.md (Screenshot-Diff Mobile/Desktop = andere Mechanik, bleibt separat).
+Agents: 15 → 13 (die 4 Auditoren → 2: auditor + qa-visual).
+
+=== IMPACT / Consumer-Check ===
+- 0 Live-Skill-Refs in .claude/skills/ (canonical live) auf die 3 Agents ✅ (grep verifiziert).
+- Refs nur in: archivierte Skills (431 beta-dormant) + Historie (log/decisions/notes) + stale .agents/-Tree (Nebenbefund).
+- workflow.md listet Agent-Typen NICHT hardcoded (Agent-Tool = SSOT) → kein Doc-Repoint nötig.
+- Backward-Compat dokumentiert: un-archivierte Skills → auditor mit Linse {brand-coherence|ux-states|persona-journey}.
+
+=== TOOL-DISZIPLIN (read-only-Garantie trotz Write/Edit-Superset) ===
+- auditor hat Write/Edit (nötig für persona-journey-Output-File, Pattern v3); Prompt scoped STRIKT auf worklog/audits/<date>/*.md.
+- brand-coherence + ux-states im Prompt als READ-ONLY deklariert (Findings als Text-Return, Primary persistiert).
+- Defense-in-depth: spec-gate blockt Edit auf kritischen Pfaden ohne Slice + safety-guard wirken zusätzlich.
+
+=== SELF-REVIEW (Ops-Lane) ===
+- Alle 3 Checklisten + Output-Formate + Severity-Regeln verlustfrei (Anil-Constraint erfüllt).
+- Frontmatter spiegelt bestehende Agents (name/description/tools/model/maxTurns) → lädt im Agent-Tool.
+- qa-visual unberührt. Kein Live-Consumer broken.
+
+=== 🚩 NEBENBEFUND (Smell, NICHT in diesem Slice gefixt — an Anil gemeldet) ===
+.agents/skills/ = ZWEITER stale Skill-Tree (~40 Skills, Stand 2026-05-19) neben .claude/skills/ (live).
+Enthält Dubletten der in 431 aus .claude archivierten Skills (persona-walk/sweep-page/audit-beta-readiness/improve/metrics/optimize).
+= Doc-Level "von allem zwei". Kandidat für TEIL A Meta-Cleanup (K2 Wissens-Heimat).
