@@ -1,0 +1,51 @@
+Slice 430 — Prozess-Elite-Optimierung (P1 Stand-Konsolidierung + P2 Mega-Zeilen + P5 Anti-Drift-Guard)
+Proof — 2026-06-28
+
+=== P5 GUARD — BEFORE (Ist-Zustand vor Fix) ===
+$ node scripts/tracker-drift-check.mjs
+[tracker-drift] ⚠️  15 Mega-Zeile(n) > 1500 Zeichen (NON-BLOCKING):
+   • MASTERPLAN.md:16 — 4003 Zeichen
+   • MASTERPLAN.md:36 — 2455 Zeichen
+   • MASTERPLAN.md:42 — 4579 Zeichen
+   • TODO.md:8 — 7336 Zeichen
+   • TODO.md:30 — 1893 Zeichen
+   • TODO.md:36 — 4065 Zeichen
+   • docs/knowledge/INDEX.md:31 — 5473 Zeichen
+   • memory/session-handoff.md:47 — 1982 Zeichen
+   • memory/session-handoff.md:49 — 1950 Zeichen
+   • memory/session-handoff.md:51 — 2231 Zeichen
+   • memory/session-handoff.md:53 — 2161 Zeichen
+   • memory/session-handoff.md:55 — 2307 Zeichen
+   • memory/session-handoff.md:57 — 1891 Zeichen
+   • memory/session-handoff.md:63 — 1702 Zeichen
+   • memory/session-handoff.md:115 — 4312 Zeichen
+
+=== P5 GUARD — AFTER (nach P1+P2-Fixes) ===
+$ node scripts/tracker-drift-check.mjs
+[tracker-drift] OK — keine Mega-Zeilen > 1500 Zeichen in 4 Trackern.
+→ 15 → 0 Mega-Zeilen. Längste verbliebene Zeile in jedem Tracker < 1500.
+
+=== P1 Stand-Konsolidierung (Dedup der laufenden Prosa) ===
+- MASTERPLAN.md: Wellen-Narrative (Z.16) → 7-Wellen-Status-TABELLE (1 Zeile/Welle) + Pointer auf handoff.
+  „📍 Stand in einem Satz"-Prosa-Block (dupliziert) → kurzer Ein-Satz-Fixpunkt + „Stand lebt in handoff".
+  E3/E5-Epic-Mega-Zeilen → Bullet-Listen.
+- TODO.md: 7.336-Zeichen-P0-Narrative → actionable P0-Bullets (Prozess-Opt ZUERST · Post-Deploy · NÄCHSTER).
+  Erledigte e2e/E4/E3-History → 1 Pointer-Bullet (→ log.md + handoff). E5-P1-Mega-Zeile → Backlog-Bullets.
+- INDEX.md: D1-D115-Einzeiler (5.473 Zeichen) → Bullet-Liste, eine Decision/Zeile. Range „D1–D115" erhalten.
+- Auto-MEMORY.md: PROGRAMM-STAND-Mega-Zeile → Kurz-Stand + Pointer auf handoff (Anil-Entscheid).
+- session-handoff.md: gestapelte Top-Anker-STAND-Blöcke (Abend 1-10, alle DONE+gepusht) → log.md-Pointer.
+  NORDSTERN-Wellen-Fortschritts-Megaeinzeiler → Wellen-Reihenfolge + Pointer (durable Rationale bleibt).
+
+=== P5 WIRING (kein Orphan-Block) ===
+$ pnpm run audit:wiring:check
+Total orphans: 20 · Real drift: 0 · Known (allowlisted): 20
+✅ No drift orphans found. All tools wired.
+(npm:audit:tracker-drift in KNOWN_ORPHANS, .mjs nicht script-gescannt, .husky/-only → kein false-orphan.)
+
+=== Gates clean ===
+$ pnpm run audit:knowledge:check   → HARD: 0 (3 SOFT pre-existing verify-drift, nightly, blockt nicht)
+$ npx tsc --noEmit                 → exit 0
+
+=== Scope ===
+P1+P2+P5 (Anil: Kern + Guard). P3 (log/decisions archivieren) + P4 (Lean-Lane) bewusst deferred.
+SHIP-Loop-Rigorosität für money-nah UNANGETASTET (fängt echte Bugs — Slice-430-Scope = nur Tracker-Artefakte).

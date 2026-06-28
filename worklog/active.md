@@ -2,23 +2,26 @@
 
 ```
 status: idle
-slice: 429
-title: GW-Lifecycle-Per-Liga-Fork (427-429) KOMPLETT — DONE
-size: M
+slice: 430
+title: Prozess-Elite-Optimierung — Stand-Konsolidierung + Mega-Zeilen + Anti-Drift-Guard
+size: S
+type: Doc/Hook (Ops-Lane, money-neutral)
 stage: LOG (DONE)
-spec: worklog/specs/429-finalize-decouple-advance.md
-proof: worklog/proofs/429-vitest.txt
-review: worklog/reviews/429-review.md (PASS)
+spec: inline + worklog/notes/process-elite-prep.md
+proof: worklog/proofs/430-tracker-drift.txt
+review: worklog/reviews/430-review.md (self-review PASS, Ops-Lane)
 ```
 
-## ⏭️ NÄCHSTE SESSION = PROZESS-ELITE-OPTIMIERUNG (Anil-Auftrag 2026-06-28)
+## 430 DONE — P1+P2+P5 (Kern + Guard)
+- **P1** handoff = einzige Stand-Quelle · MASTERPLAN Wellen-Tabelle · TODO actionable Bullets · MEMORY Kurz-Stand+Pointer.
+- **P2** INDEX/MASTERPLAN/TODO/handoff Mega-Zeilen → Bullets (Guard 15 → 0).
+- **P5** `tracker-drift-check.mjs` (WARN, .husky non-blocking) + workflow.md Stand-SSOT-Regel.
+- P3 (Archiv log/decisions) + P4 (Lean-Lane) deferred (Anil).
 
-**Feature-Arbeit PAUSIERT.** Erst Workflow/Tracker-Overhead lösen → Elite-Niveau.
-**Einstieg: `worklog/notes/process-elite-prep.md`** (Befund gemessen + Plan P1-P5 + 5 Entscheidungspunkte).
-Danach erst zurück zu Feature: 428b DROP (post-Deploy) · Ranking-Konsolidierung · Welle 3.
-Voller Stand: `memory/session-handoff.md` Top-Anker.
+## ➡️ NÄCHSTE: zurück zu Feature (Prozess-Opt durch)
+428b DROP (post-Deploy) · 427 Live-Screenshot · Ranking-Konsolidierung scout_scores↔user_stats · Welle 3.
+Stand: `memory/session-handoff.md`.
 
 ## Zuletzt
+- **430** (2026-06-28) — Prozess-Elite-Optimierung P1+P2+P5 (Doc/Hook, self-review PASS).
 - **429** (2026-06-28) — finalize entkoppeln „Score≠Advance" (M, PASS). GW-Fork 3/3.
-- **428** (2026-06-28) — active_gameweek leagues=SSOT Expand-Phase (L, PASS).
-- **427** (2026-06-27) — Gameweek-Status per-Liga (M, PASS).

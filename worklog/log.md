@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 430 | 2026-06-28 | docs(process): Prozess-Elite-Optimierung — Stand-Konsolidierung + Mega-Zeilen + Anti-Drift-Guard (P1+P2+P5)
+- Stage-Chain: SPEC (inline + `notes/process-elite-prep.md`, S) → IMPACT (skipped: Doc/Hook, kein Code-Consumer) → BUILD (selbst) → REVIEW self-review **PASS** (`reviews/430-review.md`, Ops-Lane money-neutral) → PROVE (`proofs/430-tracker-drift.txt`) → LOG. **Anil-Auftrag 2026-06-28: Prozess vor Feature.** 4 Entscheide bestätigt: Kern+Guard (P1+P2+P5) · History nicht archivieren · Disziplin+Hook · Auto-MEMORY Kurz-Stand+Pointer.
+- **Problem (gemessen):** laufender „Stand" 4-5× dupliziert als Mega-Zeilen (TODO 7.336 / INDEX 5.473 / MASTERPLAN 4.579 / handoff 4.312 je EINE Zeile) → Drift (3× glätten/Session) + Token + Edit-Friktion = D111-„von-allem-fünf" auf Meta-Ebene.
+- **P1 Stand-Konsolidierung:** `session-handoff.md` = einzige laufende Stand-Quelle (gestapelte Abend-1-10-STAND-Blöcke → log.md-Pointer; GW-Fork-Canonical bleibt) · MASTERPLAN Prosa-Stand → 7-Wellen-Status-Tabelle + Pointer · TODO 7.336-Zeichen-Narrative → actionable P0/P1/P2-Bullets (History→log.md) · Auto-MEMORY Mega-Zeile → Kurz-Stand+Pointer.
+- **P2 Mega-Zeilen:** INDEX D1-D115-Einzeiler → Bullet-Liste (1 Decision/Zeile, Range erhalten); alle Tracker-Mega-Zeilen gebrochen → Guard **15 → 0**.
+- **P5 Anti-Drift-Guard:** `scripts/tracker-drift-check.mjs` (WARN, exit 0) flaggt Mega-Zeilen > 1500 Zeichen in 4 Trackern · package.json `audit:tracker-drift` + KNOWN_ORPHANS (npm:) + `.husky/pre-commit` non-blocking · `workflow.md` „Stand-SSOT-Regel (Slice 430)" verankert.
+- **Proof:** Guard before 15 / after 0 · audit:wiring:check 0 real-drift · audit:knowledge:check HARD 0 · tsc 0. Info-Verlust = 0 (History vollständig in log.md/decisions; actionable Reste erhalten).
+- **Scope-Out:** P3 (log/decisions archivieren) + P4 (Lean-Lane ausweiten) deferred (Anil). SHIP-Loop-Rigorosität für money-nah UNANGETASTET.
+- **Files:** MASTERPLAN.md · TODO.md · docs/knowledge/INDEX.md · memory/session-handoff.md · ~/.claude MEMORY.md · scripts/tracker-drift-check.mjs (NEU) · package.json · scripts/wiring-check.ts · .husky/pre-commit · .claude/rules/workflow.md.
+
 ## 429 | 2026-06-28 | refactor(fantasy): finalizeGameweek entkoppeln — Score ≠ Advance (GW-Fork 3/3, B) [Money-neutral]
 - Stage-Chain: SPEC (`specs/429-…`, M) → IMPACT (skipped: Removal eines Advance-Calls) → BUILD (selbst) → REVIEW reviewer-Agent **PASS** (`reviews/429-review.md`, 3 NIT — #2/#3 gefixt) → PROVE (`proofs/429-vitest.txt`) → LOG. **CEO-Entscheid Anil 2026-06-28: Entkoppeln (Score ≠ Advance).**
 - **Teil 3/3 GW-Fork** (Recon `gameweek-engine-recon.md`). Riss 2 = finalize club-scoped, advance liga-weit. **Bug:** seit 428 rückte der manuelle `finalizeGameweek` (1 Club gescored) via `setActiveGameweek` die GANZE Liga vor → überspringt un-gescorte Events anderer Liga-Clubs (Bundesliga 2 Clubs live) = verwaiste, un-gemintete Rewards.
