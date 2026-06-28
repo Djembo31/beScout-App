@@ -1,20 +1,18 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-28 14:59)
+# Session Handoff — Auto (2026-06-28 20:13)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 2 Files
 ```
+ M memory/session-handoff.md
 ?? worklog/audits/orphan-components-2026-06-27.md
 ```
 
-## Session Commits: 6
-- 67b14551 docs(handoff): Auto-Block refresh nach Workflow-Ideal-Prep
-- b56dbb9b docs(prep): Workflow-Ideal / Anti-Akkretion vorbereitet — nächste Session ZUERST, vor Mock→Pro
-- 538fc266 docs(process): Slice 430 — Prozess-Elite-Optimierung P1+P2+P5 (Stand-SSOT + Mega-Zeilen + Anti-Drift-Guard)
-- 91c71de2 docs(prep): Prozess-Elite-Optimierung vorbereitet — naechste Session ZUERST, Feature pausiert
-- 587fd8af docs(reconcile): Stale glaetten nach GW-Fork — MASTERPLAN/errors-infra-detail + Handoff-Auto-Block
-- 4a8e1013 docs(s7): Wildcard-Earn + Club-Missionen-Dimension GEPARKT (Anil) + Monthly-Liga Stale-Fix
+## Session Commits: 3
+- b423682a docs(plan): Slice 433 — eine Plan-Quelle (MASTERPLAN als Plan-SSOT)
+- 507a7954 chore(workflow): Slice 432 — Elite-Workflow-Kern (§0 Anti-Akkretion + Schnitt-Regel-DoD + Operating-Agreement)
+- 8039ead5 docs(handoff): Workflow-Reset Phase 1 verankert — Phase 2 als nächstes
 
 <!-- auto:handoff-end -->
 
@@ -22,15 +20,19 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-> **🟥🟥 LÄUFT: WORKFLOW-IDEAL / ANTI-AKKRETION — chirurgischer Reset (Anil-Scope B, 2026-06-28). ZUERST, VOR Mock→Pro. FEATURE PAUSIERT (428b DROP, Welle 3, Ranking).**
-> Anil-Auftrag: „endlich unseren Workflow/Arbeitsweise ideal am Laufen haben" + „analysiere wie ich dich nutze" + Great-Reset-Appetit. **Scope-Entscheid = B (chirurgisch):** Ballast schneiden + Anti-Akkretions-Gegengewicht, Money/Security-Rigor UNANGETASTET.
-> **Kern-Befund (neu diese Session):** dieselbe Akkretions-Krankheit befällt eine **3. Ebene — den Workflow selbst** (Hooks 28→38, nie was entfernt). Plus Analyse „wie Anil mich nutzt": frühere Workflow-Fixes waren selbst additiv = Akkretion; Prozess als Ersatz für Verifikation. Regel-Kandidat bleibt: *kein ungetrackter zweiter Weg*.
-> **6-Phasen-Plan:** 0 Inventur ✅ · **1 Ballast-Schnitt ✅ (Slice 431, `ecce4532`)** · 2 Gegengewicht (Regel+Ritual+Signal) ⏳KERN · 3 schlanker workflow.md/CLAUDE.md-Kern ⏳ · 4 Operating-Agreement (wie Anil mich nutzt) ⏳ · FIX-Pass-2 + Auditor-Agent-Cut ⏳mechanisch.
-> **➡️ NÄCHSTE SESSION = PHASE 2 designen** (Anti-Akkretions-Gegengewicht) + Phase 4 (Operating-Agreement). **Anil pausierte 2026-06-28 zum Verdauen nach Phase 1.**
-> **EINSTIEG:** `worklog/notes/workflow-ideal-prep.md` (Diagnose + §4 = die 7 Entscheidungs-Punkte für Phase 2) + `worklog/notes/workflow-ballast-audit.md` (voller Hook/Skill/Agent-Verdict + FIX-Pass-2-Liste).
-> **Phase 1 geliefert (Slice 431):** 6 Hooks gelöscht (test-reminder, ship-stage-timer, **ship-build-goal-suggest=seit Monaten kaputt**, ship-task-enforcement, ship-deferred-reeval-reminder, quality-gate-v2) + kanban-dedup · 2 Priority-Fixes (**crash-recovery** unbegrenztes handoff-Append→dedizierte Datei = die Krankheit IN einem Anti-Drift-Hook; **session-handoff-auto** tsc-bei-jedem-Stop raus) · Skills 26→18 (5 Beta + metrics/improve/optimize geparkt). Hooks **39→32 wired**, wiring-check grün.
-> **FIX-Pass 2 (queued, eigener Slice):** pre-commit-guard (unconditional-run-Bug) · run_tests_on_change (volle Suite blockierend) · auto-lint · pattern-check (offset-bug) · effort-gate-Asymmetrie · **+ `.husky/pre-commit` Perf (tsc+5 Audits >2min/Commit — diese Session live geblockt)**. **Judgment offen:** Auditor-Agents 4→1-2 (brand/ux-coherence/tester-persona/qa-visual). **DISTILL pending:** Scope-B + „Workflow hat selbst die Krankheit"-Insight → decisions.md wenn Phase 2-4 landen.
-> ⚠️ **Erst NACH diesem Thema** zurück zur Feature-Arbeit (Stand dazu unten ↓).
+> **🟢 CHECKPOINT 2026-06-28 — WORKFLOW-RESET + EINE-PLAN-QUELLE STEHEN. Nächste Session = TEIL A execution ODER W0-Security. Alles committed (`b423682a`), main==origin.**
+>
+> **Diese Session geliefert (Anil: „Elite-Workflow + BeScout gesund, Sorare-Niveau"):**
+> - **Voll-Audit** (Run `wf_82fc04e4-733`, 61 Agents, live gegen DB) → 5 Wurzel-Ursachen, Master = **R1 „immer anhängen, nie konsolidieren"**. 34 neue + 32 bekannte Krankheiten. Evidenz: `worklog/notes/disease-register.md` (29/32 offen).
+> - **Engine (Slice 432, D116):** `workflow.md` **§0** = 4 Anti-Akkretions-Regeln (Schnitt-Regel · Realität-vor-Zeremonie · Ein-Job-pro-Artefakt · Subtrahieren-erstklassig) + `memory/feedback_operating_agreement`.
+> - **Eine-Plan-Quelle (Slice 433, D116):** `MASTERPLAN.md` = DER Plan (Tracker-Architektur 1-SSOT/Ebene · TEIL A Meta-Cleanup K1-K7 · TEIL B Code/DB W0-W7). Ersetzt ~14 Plan-Docs.
+> - **W0-Security-Triage** fertig (read-only): **kein aktiver anon-Leak**; 3 Items (D-12 DROP · 2 Recon admin-only · anon-REVOKE-Hygiene). Migration wartet auf **Anil-§3-Go**.
+>
+> **➡️ NÄCHSTE SESSION — zwei Wege (Anil-Wahl), EINSTIEG `MASTERPLAN.md`:**
+> - **(A) TEIL A execution** (Meta-Cleanup, peek-then-delete, git=Archiv): K1 dead root `session-handoff.md` + `docs/TODO.md` + `docs/WORKFLOW.md` löschen → K2 EINE Wissens-Heimat (`wiki`+`memory/semantisch`+`disease-register`→`docs/knowledge`; versionierte Dubletten v3/v4/v8 auf je 1) → K1 14 notes falten → K3/K4/K7 archive. **Schnitt-Check:** `disease-register` IST der getrackte „2. Weg" → in K2 nach `docs/knowledge` auflösen.
+> - **(B) TEIL B W0:** DB-Security-Migration schreiben+force-rollback-smoke+anwenden (§3-Go nötig).
+> **Krankheit auf 3 Ebenen:** Prozess ✅ · Pläne ✅ · Code ⬜ (29 offen = die eigentliche Arbeit).
+> **⚠️ Feature-Arbeit (paused, Detail unten ↓):** 428b DROP (post-Deploy) · Welle 3 · Ranking — erst NACH Mock→Pro-Konsolidierung.
 >
 > ---
 >

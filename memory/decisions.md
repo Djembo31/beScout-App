@@ -4314,3 +4314,26 @@ Der Gameweek wurde inkohärent gescoped: `sync_fixture_scores(gw)` global pro GW
 427 money-neutral, 428 money-nah (PATCH-AUDIT byte-treu, ACL erhalten, Force-Rollback Round-Trip), 429 money-neutral (Removal eines Advance-Writes). Alle Reviewer-PASS, committed+gepusht (aeaaae4e/3d95d9f9/7ad622a4). Wissen: errors-frontend (427-Cap), errors-db (428 SSOT-Expand/Contract-Kandidat), `.claude/rules/fantasy.md` Spieltag-Lifecycle (GW per-Liga + advance pfad-abhängig). **Offen (Post-Deploy):** 428b `DROP COLUMN` (nach Deploy-Verify) + 427 AC-06 Live-Screenshot (AdminGameweeksTab BL = 1..34).
 
 **Re-Visit-Trigger:** Falls jemals per-Club-divergierende Gameweeks fachlich gewollt werden (heute nie gültig) → Per-Liga-Annahme neu prüfen. Ranking-Konsolidierung `scout_scores`↔`user_stats` bleibt offener Folge-Fork.
+
+## D116 — PROCESS: Elite-Workflow-Reset — Anti-Akkretion (Schnitt-Regel + SSOT pro Ebene + eine Plan-Quelle)
+
+**Datum:** 2026-06-28 · **Status:** 🟢 Aktiv · **Category:** PROCESS · **Kontext:** Anil-Auftrag „endlich elite arbeiten, BeScout auf Sorare-Niveau, der Workflow muss endlich funzen". Voll-Audit (Run `wf_82fc04e4-733`, 61 Agents, ~7,6 Mio Token, alle Befunde live gegen DB `skzjfhvgccaeplydsunz` verifiziert).
+
+### Befund
+Die Akkretions-Krankheit „immer anhängen, nie konsolidieren" (D111) befällt **drei Ebenen**: **Code** (34 neue + 32 bekannte Krankheiten, „von allem zwei" — 3 Kauf-RPCs, 5 Score-Tabellen, 2 Voting-/2 Mission-Systeme) · **Pläne/Docs** (~14 Plan-Docs für EINEN Plan, 5 Wissens-Heimaten, versionierte Dubletten v3/v4/v8, 2× handoff/TODO) · **Prozess** (Hooks 28→38, nie was entfernt; ~50 der 115 ADRs = PROCESS-Zusätze, fast alle additiv → die Workflow-„Fixes" waren SELBST Akkretion; ein Retro maß „~30 % Aktivierung" und die Antwort war, 6 Skills hinzuzufügen). **Master-Ursache R1: dem Ritual fehlte der Subtraktions-Schritt.**
+
+### Entscheidung
+1. **Schnitt-Regel (harte DoD):** Slice nicht fertig, bis alter Weg weg ODER Duplikation als bewusste Entscheidung protokolliert (wie D112). Ungetrackter zweiter Weg = unfertig. (`workflow.md` §0)
+2. **Vier Elite-Prinzipien über der Loop:** Schnitt-Regel · Realität-vor-Zeremonie (Proof = live DB/RPC/Render, nicht tsc/Spec-Sektionen — 3 statische „gesund"-Behauptungen fielen am Realitäts-Check) · Ein-Job-pro-Artefakt (SSOT) · Subtrahieren-erstklassig.
+3. **SSOT pro Ebene — auch für PLÄNE (nicht nur Status; D-Lücke aus Slice 430):** 1 Status (`session-handoff.md`) · **1 Plan (`MASTERPLAN.md`)** · 1 Historie (`log.md`) · 1 Decisions (`decisions.md`) · 1 Wissens-Heimat (`docs/knowledge/`). **Referenz-Ketten nur in der Wissens-Heimat, NIE zwischen operativen Trackern.** Neuer Bedarf → bestehende Quelle erweitern, NIE zweite anlegen.
+4. **Operating-Agreement** (`memory/feedback_operating_agreement`): wie Anil + Claude arbeiten (Claude: subtrahieren als Default, Realität-vor-Behauptung, knapper Handoff; Anil: Ziel+Autonom-Zone briefen, Realitäts-Beweis verlangen, Money/Security-Entscheide).
+
+### Auswirkung
+Slice 431 (Ballast-Schnitt: Hooks 38→32, Skills 26→18) · 432 (§0 + Operating-Agreement) · 433 (`MASTERPLAN` = eine Plan-Quelle). Lebendes Krankheits-/Schuld-Register `worklog/notes/disease-register.md` (→ `docs/knowledge` in K2). Ausführung = `MASTERPLAN.md` TEIL A (Meta-Cleanup K1-K7) + TEIL B (Code/DB-Heilung W0-W7). **Money/Security-Rigorosität UNANGETASTET** (Reviewer, Live-functiondef D87, Zero-Sum) — fing real 419b/428.
+
+### Alternativen erwogen
+- **Weiche Leitlinie statt harter DoD:** verworfen — weiche Regeln waren genau das, was nie griff (die ~50 additiven PROCESS-ADRs sind der Beweis).
+- **Voller Great-Reset (CLAUDE.md/workflow.md von Null):** verworfen — CLAUDE.md ist gesund (103 Z., aktiv kuratiert); chirurgisch-subtraktiv ist der richtige Schnitt, kein Neubau (deckt sich mit D111 „Fundament solide").
+- **Nur Status-SSOT (wie 430):** unzureichend — die Plan-Ebene driftete genauso; SSOT muss Pläne mit abdecken.
+
+**Re-Visit-Trigger:** Wenn trotz Schnitt-Regel neue ungetrackte Duplikate entstehen → Detektor härten (`wiring-check` erweitern) bzw. DoD-Gate von WARN auf BLOCK.

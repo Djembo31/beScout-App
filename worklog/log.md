@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 433 | 2026-06-28 | docs(plan): Plan-Konsolidierung — eine Plan-Quelle (MASTERPLAN als Plan-SSOT)
+- Stage-Chain: SPEC (inline active.md + MASTERPLAN) → IMPACT skipped (Doc) → BUILD (selbst) → REVIEW self-review (Ops-Lane) → PROVE (`proofs/433-one-plan.txt`) → LOG. Commit `b423682a`. D116.
+- Behebt Plan-/Doc-Akkretion (Ist-Stand-Scan): ~14 Plan-Docs für EINEN Plan · 5 Wissens-Heimaten · versionierte Dubletten (v3/v4-FINAL/v8) · 2× handoff/TODO · docs/plans 147 · 1615 Artefakte.
+- `MASTERPLAN.md` = DIE eine Plan-Quelle: Tracker-Architektur (1 SSOT/Ebene) + TEIL A Meta-Cleanup (K1-K7) + TEIL B Code/DB (W0-W7) + Querschnitt. disease-register-Essenz + Mock2Pro + Inventur reingefaltet. Ausführung (TEIL A peek-then-delete) = nächste Session.
+
+## 432 | 2026-06-28 | chore(workflow): Elite-Workflow-Kern — §0 Anti-Akkretion + Schnitt-Regel-DoD + Operating-Agreement
+- Stage-Chain: SPEC (inline + disease-register) → IMPACT skipped → BUILD (selbst) → REVIEW self-review (Ops-Lane) → PROVE (`proofs/432-elite-workflow-core.txt`) → LOG. Commit `507a7954`. D116.
+- Fundament: Voll-Audit (Run `wf_82fc04e4-733`, 61 Agents, live-verifiziert) → 5 Wurzel-Ursachen, Master R1 „kein Subtraktions-Schritt". 34 neue + 32 bekannte Krankheiten → `worklog/notes/disease-register.md` (29/32 offen).
+- `workflow.md` §0 (4 Elite-Prinzipien, stehen ÜBER der Loop) + universelle Schnitt-Regel-DoD + DISTILL-Schnitt-Check · `memory/feedback_operating_agreement` + MEMORY.md-Pointer. Skills/Hooks-Schnitt (431) davor.
+
 ## 431 | 2026-06-28 | chore(workflow): Workflow-Reset Phase 1 — Ballast-Schnitt (Hooks subtrahieren + 2 Priority-Fixes)
 - Stage-Chain: SPEC (inline `active.md` + `notes/workflow-ballast-audit.md`, S) → IMPACT (skipped: Hook/Doc, money-neutral) → BUILD (selbst) → REVIEW self-review **PASS** (Ops-Lane) → PROVE (`proofs/431-ballast-cut.txt`) → LOG. **Anil-Scope B (chirurgischer Reset), „sichere Schnitte autonom".** Teil des großen Workflow-Ideal/Anti-Akkretion-Auftrags (Phase 1 von 4).
 - **Gemessene Meta-Akkretion:** Hooks 28 (April) → 38 (heute), niemand entfernte je etwas. Audit `worklog/notes/workflow-ballast-audit.md` klassifizierte alle 38 Hooks + 26 Skills + 15 Agents KEEP/FIX/CUT.
