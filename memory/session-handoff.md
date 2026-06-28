@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-28 11:37)
+# Session Handoff — Auto (2026-06-28 11:46)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -9,7 +9,8 @@
 ?? worklog/audits/orphan-components-2026-06-27.md
 ```
 
-## Session Commits: 1
+## Session Commits: 2
+- 587fd8af docs(reconcile): Stale glaetten nach GW-Fork — MASTERPLAN/errors-infra-detail + Handoff-Auto-Block
 - 4a8e1013 docs(s7): Wildcard-Earn + Club-Missionen-Dimension GEPARKT (Anil) + Monthly-Liga Stale-Fix
 
 <!-- auto:handoff-end -->
@@ -18,7 +19,14 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-> **🟢🟢🟢 STAND 2026-06-28 (SESSION-CLOSE, fresh-session-ready) — GW-LIFECYCLE-PER-LIGA-FORK KOMPLETT: Slices 427+428+429 DONE, committed+gepusht (`7ad622a4`), `main`==`origin/main`, `active.md`=idle. D115. Decision-Log D1–D115.**
+> **🟥🟥 NÄCHSTE SESSION = PROZESS-ELITE-OPTIMIERUNG ZUERST (Anil-Auftrag 2026-06-28). FEATURE-ARBEIT PAUSIERT (428b DROP, Welle 3, Ranking warten).**
+> Bevor weiter an BeScout-Features gebaut wird: erst den Workflow/Tracker-Overhead lösen + auf Elite-Niveau bringen. **EINSTIEG = `worklog/notes/process-elite-prep.md`** (komplettes Briefing: gemessener Befund + Ziel-Zustand + Plan P1-P5 + 5 Entscheidungspunkte für Anil — read-only-Analyse fertig, frische Session startet direkt mit Entscheidungen).
+> **Kern-Befund (gemessen):** „Aktueller Stand" ist in **4-5 Dateien** dupliziert als **Mega-Zeilen** (TODO 7.532 / INDEX 5.602 / MASTERPLAN 4.706 / handoff 4.402 Zeichen je EINE Zeile) → Drift (3 Stale-Stellen diese Session) + Token-Kosten + Edit-Friktion. = „von allem fünf" auf Meta-Ebene. Ziel: EINE Stand-Quelle (handoff), Rest referenziert/Status-Tabelle; Mega-Zeilen → Bullets; History archivieren; Lean-Lane für Trivial-Slices. **NICHT anfassen:** SHIP-Loop-Rigorosität für money-nah (fängt echte Bugs — diese Session bewiesen).
+> ⚠️ **Erst NACH der Prozess-Optimierung** zurück zur Feature-Arbeit (Stand dazu unten ↓).
+>
+> ---
+>
+> **🟢🟢🟢 (Feature-Stand, PAUSIERT) — GW-LIFECYCLE-PER-LIGA-FORK KOMPLETT: Slices 427+428+429 DONE, committed+gepusht (`7ad622a4`), `main`==`origin/main`, `active.md`=idle. D115. Decision-Log D1–D115.**
 > CEO-Entscheid Anil (diese Session, 4 Forks): **„GW = Per-Liga-Konzept, alle 3"** + Sequenz **Expand/Contract** + finalize **„Score≠Advance"**. Recon-Artefakt: `worklog/notes/gameweek-engine-recon.md` (Live-`pg_get_functiondef` D87; Money-Pfad `score_event` war schon liga-korrekt → die Schuld war Integrität/Klarheit, kein Geld-Bug).
 > - **427 (C, M, Reviewer PASS, `aeaaae4e`):** `getFullGameweekStatus(leagueId)` + `useClubEventsData(clubId, leagueId)` liga-gefiltert + Loop `1..max_gameweeks` statt `1..38`. Fixt Phantom-GW 35-38 bei 34-Wochen-Ligen (BL/2BL/SL) + **latenten 1000-Cap** (`.select()` ohne range, 2438 Fixtures global; per-Liga 380<1000). Events-Liga-Filter via Club-in-Liga (`events.league_id` ist 209/210 NULL). Display-only/money-neutral. 6 neue Tests.
 > - **428 (A, L, Reviewer PASS, `3d95d9f9`, Money-NAH — Expand-Phase):** `leagues.active_gameweek` = SSOT. `set_active_gameweek`-RPC **leagues-only** (kein `UPDATE clubs`) + Guard `>38`→`>COALESCE(max_gameweeks,38)` + `no_league`-RAISE; PATCH-AUDIT byte-treu (auth/club_admins-Guards + SECURITY DEFINER erhalten), ACL `{authenticated,service_role}`, **Force-Rollback Round-Trip: leagues=12, clubs frozen=38**. Cron `gameweek-sync` `get_active_gw` liest leagues + beide Advance-Stellen leagues-only (clubsToProcess={id}=alle Liga-Clubs). `getActiveGameweek`→resolve club→league (non-throw erhalten). Obsoleter `gameweek-drift.js`-Audit gelöscht + package.json + nightly-audit.yml entdrahtet. Migration `20260628120000`. **🚩 OFFEN: 428b** = `ALTER TABLE clubs DROP COLUMN active_gameweek` — **bewusst deferred (Anil Expand/Contract), erst NACH verifiziertem Vercel-Deploy** (DB-Migration wirkt sofort, deployter Cron-Code lag't → Drop-vor-Deploy bräche den nächsten Cron-Lauf). Spalte aktuell frozen+unread (kein Runtime-Reader, Reviewer-verifiziert). 428b-Restscope: DROP + DbClub-Type + 3 club.ts-Selects + 2 Seed-Scripts (`verify-squads`/`import-league` insert `active_gameweek:1`) + schema-contracts.test:265.
