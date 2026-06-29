@@ -1,0 +1,62 @@
+Slice 461 — D-12 Dead-RPC GC: DROP get_club_dashboard_stats(text) v1
+Proof — 2026-06-29 · DB skzjfhvgccaeplydsunz · CEO-approved (Anil "mach D-12", §3)
+Migration: 20260629220000_slice_461_drop_dashboard_stats_v1.sql (apply_migration → {success:true})
+
+================================================================================
+TRIAGE (live, read-only, pre-drop)
+================================================================================
+Family before DROP:
+  get_club_dashboard_stats(p_club_name text)   secdef=t  acl={...,anon=X,authenticated=X,service_role=X}  anon_exec=TRUE  -> v1, TARGET (dead)
+  get_club_dashboard_stats_v2(p_club_id uuid)  secdef=t  anon_exec=TRUE  auth_exec=TRUE  -> v2, LIVE (keep)
+
+v1 = DEAD:
+  - 0 DB-caller: pg_proc.prosrc ~ 'get_club_dashboard_stats' = [] (empty), 0 pg_cron job.
+  - 0 app-caller: grep src/+supabase/+scripts/ = only _v2 (club.ts:503, club.test.ts) + docs.
+  - Independent prior audit: worklog/audits/2026-06-14/string-to-uuid-map.md:45
+    "Dead-RPC: get_club_dashboard_stats(text) — 0 Caller (club.ts:499 nutzt _v2(uuid)). Drop-Kandidat."
+v1 EXPOSURE (body): SECDEF + anon-granted; reads players WHERE club=p_club_name (dead freetext path),
+  holdings + user_stats directly (RLS-bypass); returns per-fan {user_id, handle, total_score, holdings_count}
+  -> anon visitor can enumerate any club by name + read per-user holdings_count (financial signal).
+DEPENDENCY: pg_depend refobjid=v1 -> 0 dependents -> DROP without CASCADE.
+
+================================================================================
+PRE-DROP force-rollback smoke (DO block, RAISE rolls back)
+================================================================================
+DO $$ ... EXECUTE 'DROP FUNCTION IF EXISTS public.get_club_dashboard_stats(text)'; ... RAISE 'SMOKE >>> ...' END $$;
+  => "SMOKE >>> v1_before=1 v1_after=0 v2_survivor=1 (DROP ok in tx, rolled back)"
+  => PASS (DROP works in tx, v2 survives, no persistence)
+
+================================================================================
+FIX
+================================================================================
+DROP FUNCTION IF EXISTS public.get_club_dashboard_stats(text);   -- reine Subtraktion (§0)
+
+================================================================================
+AFTER (live, post-apply)
+================================================================================
+AC-01 [HAPPY] v1 (text) gone:
+  pg_proc LIKE 'get_club_dashboard_stats%' -> ONLY get_club_dashboard_stats_v2(p_club_id uuid)
+  => PASS (v1/text removed)
+
+AC-02 [REGRESSION] v2 (uuid) intact:
+  get_club_dashboard_stats_v2(p_club_id uuid)  n=1  auth_exec=TRUE  anon_exec=TRUE
+  => PASS
+
+AC-03 [REGRESSION] v2 live path callable post-DROP (force-rollback DO block):
+  v := get_club_dashboard_stats_v2(<clubs LIMIT 1>);  =>  "AC03 >>> v2 ok, total_fans=2 (call succeeded, rolled back)"
+  => PASS
+
+AC-04 [REGRESSION] tsc + db-invariants:
+  $ npx tsc --noEmit                                        -> exit 0
+  $ npx vitest run src/lib/__tests__/db-invariants.test.ts  -> 3 failed (INV-19, INV-32, INV-33)
+     = UNCHANGED pre-existing trio, NO new failure, no get_club_dashboard reference in any failure
+  => PASS
+
+AC-05 [REGRESSION] club service tests (v2 path):
+  $ npx vitest run src/lib/services/__tests__/club.test.ts  -> 79 passed (79)
+  => PASS
+
+================================================================================
+VERDICT: all 5 ACs PASS. v1 (anon-PII-leaking dead RPC) dropped; v2 live path
+intact; exposure + v1/v2 duplicate closed in one cut. 0 functional regression.
+================================================================================

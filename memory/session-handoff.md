@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 22:45)
+# Session Handoff — Auto (2026-06-29 23:05)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -7,12 +7,13 @@
 ```
  M memory/session-handoff.md
  M worklog/active.md
-?? supabase/migrations/20260629210000_slice_460_inv31_revoke.sql
-?? worklog/proofs/460-inv31-revoke.txt
-?? worklog/specs/460-inv31-secdef-revoke.md
+?? supabase/migrations/20260629220000_slice_461_drop_dashboard_stats_v1.sql
+?? worklog/proofs/461-d12-drop.txt
+?? worklog/specs/461-d12-dashboard-stats-v1-drop.md
 ```
 
-## Session Commits: 6
+## Session Commits: 7
+- 055c839e fix(security): Slice 460 — INV-31 REVOKE no_guard SECDEF-RPCs (calculate_fan_rank + refund_wildcards_on_leave) (live)
 - b121ee9a fix(invariants): Slice 459 — INV-XS Doppel-Fix (success_fee + events-Snapshot)
 - 06ab5d62 chore(db): Slice 458 — Dead-Feature-GC-Batch D-13 (season_reset_scores) + D-10 (2. Mission-System) (live)
 - b1432588 chore(db): Slice 457 — D-11 Dead-Scoring-Modell GC (bescout_scores+score_events+award_score_points gedroppt, live)
@@ -26,6 +27,15 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 18) — D-12 Dead-RPC GC live (Slice 461): DROP get_club_dashboard_stats(text) v1.**
+> - **CEO Anil:** „mach D-12". §3/§0-Subtraktion. Faktenbasierte Live-Recon VOR DROP (read-only): 3-Wege-Caller-Enum + pg_depend.
+> - **Fix (live, Migration `20260629220000`):** `DROP FUNCTION IF EXISTS public.get_club_dashboard_stats(text)` — toter v1 (by-name, 0 Caller app/DB/cron, SECDEF + anon-granted, gab RLS-umgehend per-User user_id/holdings_count, per club_name enumerierbar). Live-Pfad `get_club_dashboard_stats_v2(uuid)` (`club.ts:503`) unberührt. `pg_depend`=0 → kein CASCADE; plain DROP ging live durch = Dependent-Beweis.
+> - **⚠️ EHRLICHER SCOPE (Reviewer-Catch):** DROP entfernt toten v1-Pfad + by-name-Enumeration + anon-SECDEF-Surface −1 — **NICHT** die Kern-PII-Exposure: **v2 ist ebenfalls anon-granted + identische Shape** inkl. user_id/holdings_count (Audit `007:132-133`) → **D-35** (v2-anon-Grant-Entscheid: Club-Dashboard öffentlich gewollt? sonst REVOKE anon). Kein „anon-Leak geschlossen".
+> - **Proof:** pre-drop force-rollback (v1 1→0, v2-Survivor=1) + post-apply (v1 weg, v2 lebt, v2-Call ok) + db-invariants unverändert 3 (keine neue) + tsc 0 + club.test.ts 79/79. Reviewer **PASS**. Proof `461-d12-drop.txt`. Knowledge errors-db **S461**. Disease-Register: D-12→geheilt, **D-35** neu. MASTERPLAN W0 reconciled.
+> - **⏭️ NÄCHSTES (TEIL B, CEO-Wahl):** **W0-Rest** (**D-35** v2-anon-Grant · 2 audit-RPCs admin-only · anon-REVOKE-Hygiene-Batch [9 Trigger + ~10 Kalkulatoren + 3 Leaderboard-RPCs] · 81 permissive Policies + 26 unused + 51 FK-Index) · **W5** Konsistenz (D-23/24/25/26) · **Dead-GC-Rest** D-14/15/16 (Money/CEO) · **INV-19/32/33** P2 (1 XS-Slice).
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 17) — INV-31 Security-Fix GEHEILT live (Slice 460): REVOKE no_guard SECDEF-RPCs.**
 > - **CEO Anil:** „INV-31 jetzt, REVOKE-only" (§3). Faktenbasierte Live-Triage VOR Bau (read-only DB): die einzige live-rote *Security*-Invariante.
 > - **Fix (live, Migration `20260629210000`):** `REVOKE EXECUTE … FROM authenticated, anon, PUBLIC` auf `calculate_fan_rank(uuid,uuid)` + `refund_wildcards_on_leave(uuid,uuid)` — 2 no_guard SECDEF-RPCs (identity-spoof-Klasse). REVOKE-only, kein Body-Rewrite (null S156-Risiko am 5k-Body). Beide ohne legitimen direkten authenticated-Caller (Cron/Batch/Trigger = service_role/SECDEF-Owner; Client-Service `recalculateFanRank` tot; `refund_wildcards_on_leave` = toter Orphan 0 Caller). Schließt: `calculate_fan_rank` Info-Leak (Holdings-Count/Abo-Tier via fremde p_user_id) + `refund_wildcards_on_leave` Self-Repeat-Wildcard-Farm (cross-user war schon durch inneren earn_wildcards-Guard blockiert).

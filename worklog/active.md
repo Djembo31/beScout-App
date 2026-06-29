@@ -2,22 +2,19 @@
 
 ```
 status: idle
-slice: 460
-title: INV-31 Security-Fix — REVOKE no_guard SECDEF-RPCs (calculate_fan_rank + refund_wildcards_on_leave) — DONE
+slice: 461
+title: D-12 Dead-RPC GC — DROP get_club_dashboard_stats(text) v1 — DONE
 size: XS
-type: Migration (Security, §3)
+type: Migration (Security/Dead-GC, §3)
 stage: LOG (done)
-spec: worklog/specs/460-inv31-secdef-revoke.md
-impact: skipped (reines Grant-REVOKE, 0 Code-Consumer, kein Schema/Service/Type-Change)
-proof: worklog/proofs/460-inv31-revoke.txt
-review: worklog/reviews/460-review.md (PASS)
+spec: worklog/specs/461-d12-dashboard-stats-v1-drop.md
+impact: skipped (0 Consumer, reiner DROP einer toten RPC)
+proof: worklog/proofs/461-d12-drop.txt
+review: worklog/reviews/461-review.md (PASS)
 ```
 
-## Plan (CEO-approved Anil 2026-06-29 — „INV-31 jetzt, REVOKE-only", §3)
-REVOKE EXECUTE FROM authenticated, anon, PUBLIC auf `calculate_fan_rank(uuid,uuid)` + `refund_wildcards_on_leave(uuid,uuid)`. Beide no_guard SECDEF, kein legitimer direkter authenticated-Caller (Cron+Batch+Trigger = service_role/Owner-Kontext; Client-Service tot; refund = toter Orphan). Schließt Fan-Rank-Info-Leak + Wildcard-Self-Farm, grünt INV-31. Kein Body-Rewrite (null PATCH-AUDIT-Risiko).
-
 ## Letzter Slice DONE
-459 (INV-XS Doppel-Fix) — db-invariants 6→4 failed (INV-18+22 grün), tsc 0, self-review PASS.
+461 (D-12 Dead-RPC DROP) — get_club_dashboard_stats(text) v1 weg (toter v1-Pfad + by-name-Enumeration; v2-anon-Exposure bleibt → D-35), Reviewer PASS, live.
 
-## Offen (TEIL B, CEO-Wahl) — nach 460
-- **W0-Rest** DB-Security (27 anon-SECDEF + D-12 DROP + audit-RPC-REVOKEs + Hygiene-Batch). · **W5** Konsistenz-Batch (D-23/24/25/26). · **Dead-GC-Rest** D-14/15/16 (Money/CEO). · **Rest-INV** INV-19/32/33 (P2 Test-Ehrlichkeit/Seed). · K6/K7 (TEIL-A LOW).
+## Offen (TEIL B, CEO-Wahl) — nach 461
+- **W0-Rest** (**D-35** v2-anon-Grant-Entscheid · audit-RPCs admin-only · anon-REVOKE-Hygiene-Batch · Policy/Index-Konsolidierung). · **W5** Konsistenz-Batch (D-23/24/25/26). · **Dead-GC-Rest** D-14/15/16 (Money/CEO). · **INV-19/32/33** P2 Test-Ehrlichkeit (1 XS-Slice). · K6/K7 (TEIL-A LOW).
