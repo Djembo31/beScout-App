@@ -1,7 +1,7 @@
 ---
 title: BeScout Go-To-Market — Dream-Scout, Personas, 90-Tage-Plan, ARR & Exit
 created: 2026-04-24
-updated: 2026-06-28
+updated: 2026-06-29
 status: active
 tags: [gtm, markt, personas, zielgruppe, dream-scout, club-targeting, arr, exit, beachhead]
 consult_when: GTM, Launch-Plan/Funnel, Zielgruppe Dream-Scout, Demand-Pools, Personas/User-Journeys (Maria/Ömer/Yusuf/Lisa/Klaus), FM-Community-Beachhead, Club-Targeting (Bundesliga/Süper-Lig/EU-Top-5 Plan A-D), Pitch-Struktur, ARR-Benchmarks, Exit-Szenarien, Valuation
@@ -75,6 +75,14 @@ Erfüllt alle Eigenschaften: **Intensität** (10–30h/Woche, Sessions bis 3 Uhr
 ### Club-Pitch (5 Slides)
 
 1. „Hier lässt ihr Geld liegen" (konkrete €-Zahl) → 2. „Eure 30M Follower bringen 0 €" → 3. „Mit BeScout: €300K/Jahr, hier ist wie" (7 Streams) → 4. „Phase 1 = regulierungs-safe, hier ist Gutachten" → 5. „3-Monats-Pilot, gemeinsamer Launch, kein Risiko".
+
+### Das Amazon-Modell & FOMO-Flywheel (warum Clubs zwingend mitmachen)
+
+**Analogie:** BeScout ist „Amazon für Vereine" — jeder Club hat seinen eigenen Store (Scout Cards, Events, Abos), die Plattform (Markt, Score, Fantasy) ist gemeinsam. Seller sehen, dass Konkurrenten auf Amazon Umsatz machen; wer fehlt, verliert Marktanteil. Bei BeScout verliert der abwesende Verein **Fan-Engagement** an Clubs, die aktiv sind.
+
+**FOMO-Flywheel (7 Schritte):** (1) Erste Clubs starten, Fans engagieren sich. (2) **Fan-Daten fließen** — der Club weiß zum ersten Mal *wer* seine aktivsten Fans sind (echtes CRM, nicht Social-Likes). (3) Engagement-Metriken steigen → vorzeigbar für Sponsoren. (4) Werbeflächen auf der Club-Page refinanzieren die Paketkosten. (5) Nachbar-Club sieht den Erfolg („deren Fans sind drauf, unsere nicht"). (6) FOMO kickt — der abwesende Verein verliert Engagement. (7) Netzwerkeffekt: mehr Clubs = bessere Fantasy = mehr User = mehr Wert für alle. **Der Club, der als letzter beitritt, hat die schlechteste Position.**
+
+**Early-Adopter-Dreifach-Bonus (Pitch-Hebel):** früher Einstieg = (a) günstigerer Credit-Kurs als spätere Marktpreise, (b) 1:1-Migration aller Balances bei $SCOUT-Launch (Phase 2), (c) Marktpreis-Delta zugunsten der Pilot-Clubs. *„Früh einsteigen = mehr Handlungsspielraum, wenn $SCOUT live geht."* (Internes/Investor-Framing; user-facing gilt ausschließlich Utility-Wording → `.claude/rules/business.md`.)
 
 ### 90-Tage-Erfolgs-Kriterien
 

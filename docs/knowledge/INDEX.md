@@ -68,6 +68,7 @@
 - [Pattern: Tier-based Config](lessons/tier-based-config.md) — consult_when: Tier/Stufen-Konfiguration, Paket-abhängige Limits, tier-based config
 - [Pattern: Slot-Composition](lessons/slot-composition.md) — consult_when: Slot-/Komponenten-Komposition, flexible UI-Slots
 - [Pattern: DB+i18n Schema-Extension](lessons/db-i18n-schema-extension.md) — consult_when: neue DB-Spalte mit i18n, Schema-Erweiterung mehrsprachig, DB+i18n
+- [Gamification Design-Prinzipien](lessons/gamification-design-principles.md) — consult_when: Gamification-Design-Entscheidung, 5 Design-Regeln (Skill>Grind, Verlust>Gewinn, Sofort>Später, Können>Markt, Fairness), Verhaltensökonomie (Verlustaversion/Consumption Capital), Ticket-/Cosmetics-Balancing, Mystery-Box-Lootbox-Legal, Newbie-Protection/Season-Reset/dynamische-Titel (entworfen, nicht gebaut)
 
 ## 🟣 research — externe Recherche & Markt
 
@@ -77,6 +78,7 @@
 - [Early-Adopter-Feedback](../../wiki/early-feedback-freundeskreis.md) — consult_when: Demand-Signal, Freundeskreis-Validierung, Zielgruppen-Reaktion
 - [Agent-Systems Best-Practices](../../memory/research-agent-systems-best-practices.md) — consult_when: Multi-Agent-Architektur, Orchestrierung, Agent-Design
 - [Claude-Code Elite-Setup (Distillat)](research/claude-code-setup.md) — consult_when: Claude-Code-Fähigkeiten, Setup-Prinzipien, Karpathy-Minimalismus (D84)
+- [Skalierungs-Architektur](research/scaling.md) — consult_when: Skalierung, Performance-Grenze, Supabase-Limit (~50K User / 500 Realtime-conn), Trading-Engine/Scoring-Worker auslagern, Redis/Queue/WebSocket-Migration, Kosten-Projektion, Service-Interfaces, JETZT-vs-Overengineering
 - [Rollback-Runbook](../../memory/beta-rollback-runbook.md) — consult_when: Vercel-Rollback, Deploy-Notfall, Pipeline-Wiederherstellung
 - [Sentry-Alerts-Runbook](../../memory/beta-sentry-alerts-runbook.md) — consult_when: Sentry-Alert-Rules, Error-Monitoring-Setup
 

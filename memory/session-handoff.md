@@ -1,21 +1,24 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 02:12)
+# Session Handoff — Auto (2026-06-29 12:22)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 10 Files
+```
+D  docs/SCALE.md
+D  docs/SYSTEM-DESIGN-v2.md
+D  docs/bescout-gamification-v4-FINAL.md
+ M docs/knowledge/INDEX.md
+ M docs/knowledge/research/gtm-strategy.md
+ M memory/session-handoff.md
+ M worklog/active.md
+?? docs/knowledge/lessons/gamification-design-principles.md
+?? docs/knowledge/research/scaling.md
+?? worklog/proofs/448-welleD-gamification-scaling.txt
+```
 
-## Session Commits: 10
-- 01931afd docs(handoff): Session-Close 2026-06-29 (Teil 2) — K2.3 Welle A+B + Recon-Anker C/D/E
-- abbaa141 fix(tooling): Slice 446 — knowledge:check TZ-Bug (UTC->Lokal)
-- 5c8a154d docs(knowledge): Slice 445 — K2.3 Welle B: Vision/GTM-Harvest
-- 92f57a92 chore(docs): Slice 444 — K2.3 Welle A: 7 superseded docs/-root Files GC
-- 335e1f69 docs(handoff): Session-Close 2026-06-29 — TEIL A Meta-Cleanup Welle 1 (Slices 439-443)
-- cf207c34 chore(tooling): Slice 443 — K2.2b verbrauchte Multi-Liga-Backfill-Artefakte GC (-11817 Z.)
-- feedbb99 chore(docs): Slice 442 — K2.1 Skill-Trees + K2.2 semantisch/ (89 Einträge weg)
-- 0d3e2906 chore(docs): Slice 441 — K3 docs/plans (147→5, -142 historische Specs, git=Archiv)
-- 34bfd4b0 chore(docs): Slice 440 — K4 root-Entrümpelung (16 Müll-Files, -4612 Z.) + gitignore-Prävention
-- bea7831a docs(tracker): Slice 439 Reconcile — TODO P0 auf K1-DONE + TEIL-A-Stand gestrafft
+## Session Commits: 1
+- 4dde72f4 docs(handoff): Welle C done — Resume-Anker auf 444-447 + offene Folge-Punkte
 
 <!-- auto:handoff-end -->
 
@@ -23,20 +26,12 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-> **🟢 SESSION-CLOSE 2026-06-29 (Teil 3) — K2.3 docs-root-Konsolidierung Welle A+B+C + TZ-Hook-Fix (Slices 444-447, `main`==`origin` `e797e460`).**
-> 4-Agent-Recon (read-only, live-verifiziert) klassifizierte **alle 18 `docs/`-root-Files** → Plan-Scope-Korrektur: **3 Krankheiten** statt der „4 Dubletten" im alten Plan: (a) **invertierte Wahrheit** (kanon. `domain/vision.md` war ÄLTER als die „veralteten" Root-Docs, un-routbar), (b) **heimatlose Cluster** (Legal/Sales/Scaling/Gamification-Design = 0 kanon. Heimat → blind löschen = Wissensverlust), (c) **„FINAL"-Lügen** (gamification-v4/SYSTEM-DESIGN-v2 „SSOT"-Header aber überholt). CEO (Anil): **Wellen, voll nach `knowledge/` kanonisieren.**
-> - **444 (A):** 7 superseded gelöscht (briefing/Context_Pack_v8/final-report-v3/STATUS/ROADMAP/SECURITY-AUDIT/ARCHITECTURE), 0 Wert, 0 dangling.
-> - **445 (B):** Vision/GTM-Harvest — `domain/vision.md`⬆️ kanonisch (Juni-Vision, Wording geheilt) + 🆕`research/gtm-strategy.md` (Personas/90-Tage-Plan/Club-Targeting/ARR). 9 Refs umgebogen, `VISION.md`+`strategy-2026-04-24` gelöscht. Behebt „invertierte Wahrheit".
-> - **446:** `knowledge:check` TZ-Bug (UTC→Lokal) — blockte knowledge-Edits lokal 00:00–02:00 (Pattern errors-infra S446).
-> - **447 (C):** Legal/Sales-Kanonisierung — 🆕`decisions/legal-classification.md` (Securities/E-Geld/Glücksspiel + CSF-Vertrag + Lizenz-Matrix aus `.docx` + 10 Anwalts-Fragen) + 🆕`research/sales-playbook.md` (Pakete/Preise + 9 Objection-Skripte + Ziel-Clubs). 4 Quell-Docs weg, CONCEPT-DPC-Refs umgebogen, Reviewer PASS. **Money-Catch:** „500-Cap"-Annahme → kanonisch 10.000 SC korrigiert (Agent-flagged).
-> - **docs/ root: 18 → 5 Files.**
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 4) — K2.3 docs-root-Konsolidierung Welle D (Slice 448).** Gamification/Scaling-Harvest: 3 Quell-Docs (`gamification-v4-FINAL` + `SYSTEM-DESIGN-v2` + `SCALE`) → 🆕`lessons/gamification-design-principles.md` (5 Design-Regeln + Verhaltensökonomie + Ticket-/Cosmetics-Balancing + Mystery-Box-Legal + „entworfen-nicht-gebaut") + 🆕`research/scaling.md` (Schwellen/Migrations-Pfad/Service-Interfaces/Kosten) + Amazon-FOMO-Pitch→`gtm-strategy.md` + 2 INDEX. 3 Quell-Docs `git rm`, **docs/ root 5 → 2** (nur noch Welle-E-Files), 0 lebende dangling, knowledge:check HARD 0. Reviewer PASS — **Soll-Ist-Caveat geheilt**: Design-Regel „Engagement→Tickets, nie Credits" widersprach der gebauten Engine (mintet noch Credits via `claim_mission_reward`/Streak/`claim_score_road`) → ehrlich markiert + Pointer reward-ranking §3 (D-30/31/32-Klasse „Soll als Ist getarnt" vermieden). Wellen A-C (444-447) Detail → `log.md`.
 >
-> **⏭️ OFFEN K2.3 (Wellen D/E) — Recon-Treibstoff liegt vor: `worklog/notes/k2.3-docs-consolidation-recon.md`** (pro Quell-Doc: einzigartiger Inhalt + Ziel-File → KEIN Re-Recon nötig; **Welle C = Vorbild für den Agent-Draft→Primary-Promote+Heal-Flow**):
-> - **D** Gamification/Scaling: gamification-v4 + SYSTEM-DESIGN-v2 + SCALE → 🆕`lessons/gamification-design-principles.md` (5 Regeln + Verhaltensökonomie) + 🆕`research/scaling.md`; Amazon-Pitch → gtm-strategy ergänzen. Evtl. `D<n>` für die 5 Design-Regeln.
-> - **E** Frontend: COMPONENTS + player-card-system gegen `beScout-frontend`-Skill dedup (COMPONENTS driftet trotz 27.6.-Datum).
-> **DANN K2.4 wiki/ · K2.5 Anker-Ref-Umbiegung · K2.6 Memory-Modell [CEO].**
-> **🟡 Offene CEO-/Folge-Punkte aus Welle C:** (1) `success_fee_platform_bps` (BeScout-CSF-Schnitt 0-30 %) — dokumentiert legal-classification §5.3; treasury.md realisiert ihn NICHT (CSF 100 % Holder) → CEO-Entscheid offen, nicht dringend. (2) Smell `product-map.md:55` Polls 70/30 vs kanonisch 80/20 (`polls.md`/356) → XS-Fix-Slice.
-> **Parallel offen (CEO-Wahl, NICHT TEIL A):** Mock→Pro **D-01** (latenter `42P10`-Scoring-Bug, §3) · W0 DB-Security.
+> **⏭️ OFFEN K2.3 = nur noch Welle E (Frontend-Dedup):** die letzten 2 docs/-root-Files `COMPONENTS.md` + `bescout-player-card-system.md` gegen `beScout-frontend`-Skill-Registry deduplizieren (COMPONENTS driftet trotz 27.6.-Datum: BSD/Modal→Dialog/variant-Enum) + `verified-against`-Guard. Recon-Treibstoff: `worklog/notes/k2.3-docs-consolidation-recon.md §Welle-E`.
+> **DANN K2.4 wiki/→knowledge · K2.5 Anker-Ref-Umbiegung · K2.6 Memory-Modell [CEO].**
+> **🟡 Offene CEO-/Folge-Punkte (klein, nicht dringend):** (1) `success_fee_platform_bps` (BeScout-CSF-Schnitt 0-30 %, legal-classification §5.3; treasury.md realisiert ihn NICHT, CSF 100 % Holder) → CEO-Entscheid. (2) Smell `product-map.md:55` Polls 70/30 vs kanonisch 80/20 (`polls.md`/356) → XS-Slice. (3) Soll-Ist-Gap „Engagement-Rewards minten Credits statt Tickets-only" (jetzt in gamification-design-principles markiert, Phase-1-tolerierbar D99).
+> **Parallel offen (CEO-Wahl, NICHT TEIL A) — diese Session gemeldet, volle Liste `worklog/notes/disease-register.md`:** Mock→Pro **D-01** (latenter `42P10`-Scoring-Bug, bricht 1. echten Spieltag) · **D-02** (Bench-Karten-Geld-Leak) · **D-17** (scout_scores↔user_stats divergent sichtbar) · W0 DB-Security (28 anon-SECDEF).
 >
 > ---
 >

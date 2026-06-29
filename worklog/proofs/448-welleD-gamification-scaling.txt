@@ -1,0 +1,44 @@
+=== Slice 448 — K2.3 Welle D: Gamification/Scaling-Harvest — PROOF ===
+Datum: 2026-06-29
+
+## 1. knowledge:check (HARD pre-commit Gate) — GRÜN
+$ pnpm audit:knowledge:check
+HARD: 0 · SOFT: 5
+Content-Files: 21 → 23  (+gamification-design-principles, +scaling)
+INDEX-Links:   40 → 42  (+2 consult_when-Zeilen)
+Die 5 SOFT-Findings = pre-existing verify-drift (cross-domain-map/fantasy/missions/reward-ranking/treasury)
+auf NICHT von diesem Slice berührte domain-Files (Datums-Heuristik, nightly-tracked, blockiert nicht).
+
+## 2. docs/ root .md — 5 → 2
+Vorher (nach Welle C):  SCALE · SYSTEM-DESIGN-v2 · bescout-gamification-v4-FINAL · COMPONENTS · bescout-player-card-system
+Gelöscht Welle D (git rm): SCALE.md · SYSTEM-DESIGN-v2.md · bescout-gamification-v4-FINAL.md
+Verbleibend (→ Welle E):   COMPONENTS.md · bescout-player-card-system.md
+$ ls docs/*.md → docs/COMPONENTS.md, docs/bescout-player-card-system.md  (= 2 ✓)
+
+## 3. Dangling-Check (lebende Schichten: src/ scripts/ messages/ .claude/ docs/) — 0 echte
+$ grep -rn "gamification-v4|SYSTEM-DESIGN-v2|SCALE\.md" {src,scripts,messages,.claude,docs}/**
+→ 2 Treffer, beide = Provenienz-Notiz IN den neuen Files selbst
+  ("konsolidiert aus docs/SCALE.md → git-History" etc.) = bewusst, kein toter Link.
+Plan-Datei-Refs (memory/session-handoff.md, MASTERPLAN.md) → im LOG dieses Slices nachgezogen (K2.5-Schicht).
+
+## 4. Harvest-Entscheidungen (Recon-Anker §Welle-D befolgt)
+MIGRIERT (einzigartig, sonst verloren):
+  - gamification-design-principles.md: 5 Design-Regeln · Verhaltensökonomie (Consumption Capital/Verlustaversion)
+    · Ticket-Balancing (Quellen/Senken) · Cosmetics-Rarity + 8 Social-Currency-Flächen · Mystery-Box-Lootbox-Legal
+    · "entworfen, nicht gebaut": dyn. Titel-System / Newbie Protection / Season-Reset-Politik / Live-Gamification
+  - scaling.md: Schwellen (Supabase ~50K, Realtime 500-conn) · Migrations-Pfad (Redis/BullMQ/Ably/Rust)
+    · Kosten-Projektion · Service-Interfaces (Trading/Scoring/Wallet) · JETZT-vs-Overengineering
+  - gtm-strategy.md: Amazon-"Seller Central"-Modell · FOMO-Flywheel (7 Schritte) · Early-Adopter-Dreifach-Bonus
+
+NICHT migriert (überholt):
+  - Predictions-Engine (entfernt Slice 338) · BSD-Echtgeld-Shop (widerspricht D99) · CSF-Multiplikator 1.0-1.5× (348)
+  - feste Score-Tabellen +10/+40 (fixture-gebunden D113 + GW-per-Liga D115) · bCredits-Naming
+
+NICHT migriert (schon kanonisch → verwiesen, §0 kein Duplikat):
+  - 3-Dim-Elo/Ränge/Mastery/Streaks/Achievements → reward-ranking.md / fantasy.md / equipment-realtime.md / missions.md
+  - Money-Kreislauf/Geldfluss-Diagramme → treasury.md
+
+WORDING geheilt: BSD/bCredits → Credits · DPC → Scout Card · Asset/Invest-Sprache nur intern (gtm-Register, markiert).
+
+## 5. Stage-Chain
+SPEC (inline) → IMPACT (inline) → BUILD → REVIEW (worklog/reviews/448-review.md) → PROVE (dieses File) → LOG

@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 448 | 2026-06-29 | docs(knowledge): K2.3 Welle D — Gamification/Scaling-Harvest
+- Stage-Chain: SPEC (inline) → IMPACT (inline) → BUILD → REVIEW (reviewer-Agent PASS) → PROVE (`proofs/448-welleD-gamification-scaling.txt`) → LOG.
+- 🆕 `lessons/gamification-design-principles.md` (5 Design-Regeln [Skill>Grind/Verlust>Gewinn/Sofort>Später/Können>Markt/Fairness] + Verhaltensökonomie [Consumption Capital, Verlustaversion] + Ticket-/Cosmetics-Balancing + Mystery-Box-Lootbox-Legal + „entworfen-nicht-gebaut": dyn.Titel/Newbie/Season-Reset/Live-Gam) + 🆕 `research/scaling.md` (Schwellen [Supabase ~50K/500-conn] + Migrations-Pfad [Redis/BullMQ/Ably/Rust] + Service-Interfaces + Kosten). 2 INDEX-Einträge.
+- ✏️ `gtm-strategy.md`: Amazon-„Seller Central"-Modell + FOMO-Flywheel (7 Schritte) + Early-Adopter-Dreifach-Bonus (Pitch-Gold, intern gefenced).
+- **3 Quell-Docs `git rm`** (`bescout-gamification-v4-FINAL` 1343 Z. + `SYSTEM-DESIGN-v2` 920 Z. + `SCALE` 491 Z.) → **docs/ root 5 → 2** (nur noch Welle-E: COMPONENTS + player-card). 0 lebende dangling (nur bewusste git-History-Provenienz), knowledge:check HARD 0.
+- **NICHT migriert (überholt):** Predictions-Engine (338) · BSD-Echtgeld-Shop (D99) · CSF-Multiplikator (348) · feste Score-Tabellen +10/+40 (fixture-gebunden D113 + GW-per-Liga D115). **Schon kanonisch → verwiesen statt dupliziert (§0):** 3-Dim-Elo/Ränge/Mastery/Streaks → reward-ranking/fantasy/equipment-realtime/missions.
+- **Wording geheilt:** BSD/bCredits→Credits, DPC→Scout Card, Asset-Sprache intern gefenced.
+- **Reviewer PASS** (1 LOW geheilt, 3 begründet belassen). Heilung: Soll-Ist-Caveat — „Engagement→Tickets, nie Credits" ist Soll, gebaute Engine mintet noch Credits (claim_mission_reward/Streak/claim_score_road) → ehrlich markiert + Pointer reward-ranking §3 (D-30/31/32-Klasse „Soll als Ist getarnt" vermieden).
+
 ## 447 | 2026-06-29 | docs(knowledge): K2.3 Welle C — Legal/Sales-Kanonisierung
 - Stage-Chain: SPEC (inline) → BUILD (Agent-Draft + Primary-Promote/Heal) → REVIEW (reviewer-Agent PASS) → PROVE (`proofs/447-welleC-legal-sales.txt`) → LOG.
 - 🆕 `decisions/legal-classification.md` (Howey/WpPG/SPK + E-Geld + Glücksspiel-3-Elemente + CSF-Rechtsvertrag §1-6 + Lizenz-Matrix [Malta/CASP/MGA/KVKK, aus `.docx`] + 10 Anwalts-Fragen) + 🆕 `research/sales-playbook.md` (Setup-Fees €2.5-10K + Monatspreise + 9 Objection-Skripte + Sponsor-Refinanzierung + Ziel-Clubs + Supply-Strategie). 2 INDEX-Einträge.
