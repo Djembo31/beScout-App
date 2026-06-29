@@ -1,26 +1,26 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 23:56)
+# Session Handoff — Auto (2026-06-30 00:21)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 5 Files
+## Uncommitted Changes: 6 Files
 ```
  M memory/session-handoff.md
  M worklog/active.md
-?? supabase/migrations/20260629240000_slice_463_sibling_platform_admin_guard.sql
-?? worklog/proofs/463-d36-sibling-guard.txt
-?? worklog/specs/463-d36-sibling-platform-admin-guard.md
+ M worklog/notes/disease-register.md
+?? supabase/migrations/20260630120000_slice_464_soletop_role_platform_admins.sql
+?? worklog/proofs/464-d37-soletop-role.txt
+?? worklog/specs/464-d37-soletop-role-platform-admins.md
 ```
 
-## Session Commits: 8
+## Session Commits: 7
+- 2bebeab1 fix(security): Slice 463 — D-36 Stats-Siblings Platform-Admin-Guard auf platform_admins (live)
 - 3214a86f fix(security): Slice 462 — D-35 get_club_dashboard_stats_v2 Admin-Guard + REVOKE anon (live)
 - c9534936 chore(db): Slice 461 — D-12 Dead-RPC GC: DROP get_club_dashboard_stats(text) v1 (live)
 - 055c839e fix(security): Slice 460 — INV-31 REVOKE no_guard SECDEF-RPCs (calculate_fan_rank + refund_wildcards_on_leave) (live)
 - b121ee9a fix(invariants): Slice 459 — INV-XS Doppel-Fix (success_fee + events-Snapshot)
 - 06ab5d62 chore(db): Slice 458 — Dead-Feature-GC-Batch D-13 (season_reset_scores) + D-10 (2. Mission-System) (live)
 - b1432588 chore(db): Slice 457 — D-11 Dead-Scoring-Modell GC (bescout_scores+score_events+award_score_points gedroppt, live)
-- c47b8933 docs(plan): MASTERPLAN W3 reconcile — Bench-Lock (455 D-02 + 456 D-02b) erledigt
-- 06e2f429 fix(fantasy): Slice 456 — D-02b holdings Row-Lock gegen cross-event Concurrency-Race (live)
 
 <!-- auto:handoff-end -->
 
@@ -28,6 +28,15 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-30 (Teil 21) — D-37 tote Money/Minting-Admin-RPCs repariert live (Slice 464). Autonom-Modus.**
+> - **CEO Anil:** „mach autonom weiter bis Token ausgeschöpft" → W0-Security-Thread autonom durchziehen (§3 Money selbst, Reviewer-Pflicht, force-rollback).
+> - **Fix (live, Migration `20260630120000`):** 3 live-verdrahtete Admin-RPCs gateten auf `profiles.top_role='Admin'` = 0 Profile global (SOLE-gate) → **effektiv TOT** (always-reject): `grant_founding_pass` (MONEY), `admin_grant_wildcards` (MINTING), `cancel_event_entries`. Guard je RPC auf kanonische `platform_admins` (wie D-36/v2). Money-Bodies byte-true (CASE-Tiers/Kill-Switch 90000000/wallet/transactions/wildcard-INSERT), Spoof-Guard erhalten, unused DECLAREs raus.
+> - **Proof:** 3-Rollen-force-rollback (non-admin reject ×3 / platform-admin past-guard ×3 / **voller Founding-Pass-Mint ok=true bcredits=250000 in Tx ROLLED BACK**) + PATCH-AUDIT-Anker + INV-31 grün + tier-invariant grün + tsc 0 + db-invariants unverändert 3. Reviewer **PASS** (§3 Money streng, byte-diff gg. Vorgänger verifiziert, „permissive-only, Kill-Switch intakt"). Permissive-only: RPCs lehnten vorher JEDEN ab → Fix kann nur restaurieren.
+> - **Knowledge:** errors-db **S463-Erw.** (SOLE-gate-Swap=permissive-only; Vollständigkeits-Audit NACH Fix Pflicht). Disease-Register: D-37→geheilt, **D-37b** neu. MASTERPLAN W0.
+> - **⏭️ NÄCHSTES (autonom geplant): Slice 465 (D-37b)** — Rest der `top_role='Admin'`-Familie: `get_sponsor_stats_summary` (SOLE-gate read-only, tot) + `set_club_fan_rank_thresholds` (Sekundär-Branch) auf `platform_admins` → Familie vollständig zu (kein Money, read/config). Danach W0-Rest (Recon-RPCs admin-only · anon-Hygiene · 87 search_path_mutable · 81 Policies + Index) · W5 (D-23/24/25/26) · Dead-GC D-14/15/16 · INV-19/32/33 P2.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-30 (Teil 20) — D-36 Stats-Siblings auf platform_admins live (Slice 463) + 🔴 D-37 Money/Minting-Lockout-Verdacht aufgedeckt.**
 > - **CEO Anil:** „mach d36". §3 Konsistenz, Fortsetzung S462.
 > - **Fix (live, Migration `20260629240000`):** `rpc_get_club_trading_fees` + `rpc_get_club_fan_stats` prüften Platform-Admin per dead `top_role='Admin'` (0 Match) → seit S462 sichtbar inkonsistent (v2 erlaubt Platform-Admin, Sibling RAISEt). Beide je 1 Guard-Zeile auf kanonische `platform_admins` (wie v2/get_club_balance/UI). Body byte-treu, club_admins-Branch unverändert → rein permissiv. 3-Rollen-Smoke bewies reparierten Branch (platform-admin ohne club-Row jetzt ok). Reviewer **CONCERNS** = nur Scope-Out, Slice selbst mergeable.

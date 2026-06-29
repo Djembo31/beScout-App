@@ -1,0 +1,52 @@
+Slice 464 — D-37: SOLE-gate top_role-RPCs reparieren (platform_admins)
+Proof — 2026-06-30 · DB skzjfhvgccaeplydsunz · CEO autonom-Go (Anil, §3 Money — selbst)
+Migration: 20260630120000_slice_464_soletop_role_platform_admins.sql (apply_migration → {success:true})
+
+================================================================================
+BEFORE (verifiziert read-only) — 3 live-wired Admin-RPCs SOLE-gated auf totem top_role
+================================================================================
+grant_founding_pass (foundingPasses.ts:40, MONEY), admin_grant_wildcards (wildcards.ts:72, MINTING),
+cancel_event_entries (events.mutations.ts:624):
+  - alle auth_exec=true, gateten auf profiles.top_role='Admin'
+  - profiles.top_role ∈ {Scout,Manager,Trader,Fan,null} = 0 'Admin' global
+  - kein club_admins-Fallback, kein service_role-Bypass auf Role-Check
+  → always-reject = effektiv TOT (fail-closed, kein Leak, aber Capability kaputt)
+
+================================================================================
+FIX — Guard-Swap top_role → platform_admins (kanonisch, D-36/v2/get_club_balance); Body byte-treu
+================================================================================
+  grant_founding_pass:    SELECT top_role INTO v_admin_role...; IF v_admin_role IS DISTINCT FROM 'Admin' THEN RAISE
+                          → IF NOT EXISTS(platform_admins WHERE user_id=auth.uid()) THEN RAISE  (+ v_admin_role DECLARE raus)
+  admin_grant_wildcards:  auth_uid_mismatch-Spoof-Guard BLEIBT; top_role-Check → platform_admins  (+ v_role DECLARE raus)
+  cancel_event_entries:   NOT EXISTS(profiles ... top_role='Admin') → NOT EXISTS(platform_admins WHERE user_id=auth.uid())
+  Money/Minting-Bodies (CASE-Tiers, Kill-Switch, wallet/transactions/wildcard-INSERT) UNANGETASTET.
+
+================================================================================
+AFTER (live, post-apply)
+================================================================================
+AC-04 [PATCH-AUDIT anchors] alle 3:
+  uses_platform_admins=TRUE, still_top_role=FALSE; admin_grant_wildcards spoof_guard(auth_uid_mismatch)=TRUE  => PASS
+
+AC-01/02/03 [3-Rollen force-rollback, JWT-sub S369, RAISE-rollback]:
+  SMOKE >>> gfp_non=rej  agw_non=rej  cee_non=unauthorized
+            gfp_pa=PAST(invalidtier)  agw_pa=PAST(amt0)  cee_pa=PAST
+            gfp_pa_MINT ok=true,bcredits=250000
+  - AC-01 non-admin: alle 3 rejected (gfp 'Nicht berechtigt' / agw 'admin_role_required' / cee 'unauthorized')  => PASS
+  - AC-02 platform-admin guard-only: alle 3 kommen PAST den Admin-Guard (invalid tier/amt0/non-existent event
+    → spätere Validierung statt Admin-Reject = reparierter Branch)  => PASS
+  - AC-03 platform-admin full money mint (fan tier): ok=true, bcredits_granted=250000 (founding-pass-Row +
+    wallet-credit + transaction end-to-end), alles in Tx ROLLED BACK  => PASS
+
+AC-04 [REGRESSION] tsc + tests:
+  $ npx tsc --noEmit  -> exit 0
+  $ vitest foundingPasses.test + event-entries.test + foundingPasses-tiers.invariant.test  -> 3 files passed
+    (tier-invariant grün = CASE-Werte 250000/1000000/3500000/10000000 byte-treu)
+  $ vitest db-invariants  -> 3 failed (INV-19/32/33 pre-existing, UNCHANGED, no new)
+  => PASS
+
+================================================================================
+VERDICT: all ACs PASS. 3 SOLE-gate Admin-RPCs von totem top_role auf platform_admins
+repariert — Founding-Pass-Vergabe (Money) + Admin-Wildcard-Mint + Event-Cancel restauriert
+für Platform-Admins. Money-Bodies byte-treu (tier-invariant grün, voller Mint bewiesen).
+Da die RPCs vorher JEDEN ablehnten, kann der Fix nur restaurieren. anon bleibt draußen.
+================================================================================
