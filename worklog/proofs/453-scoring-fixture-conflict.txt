@@ -1,0 +1,49 @@
+PROOF — Slice 453: D-01 Scoring-Funktionen aufs Fixture-Modell (42P10-Landmine)
+Datum: 2026-06-29 | Type: Migration | Scope: Money/§3 | DB: skzjfhvgccaeplydsunz (D87 Live)
+
+═══ BEFORE — Landmine real (Live-Call der aktuellen kaputten Funktion) ═══
+SELECT admin_resync_gw_scores(26);
+→ ERROR 42P10: there is no unique or exclusion constraint matching the ON CONFLICT specification
+   CONTEXT: INSERT INTO player_gameweek_scores (player_id, gameweek, score) ... ON CONFLICT (player_id, gameweek) ...
+   (= genau der stale INSERT; crasht beim 1. echten Spieltag, Off-Season maskiert)
+
+═══ WRITER-COMPLETENESS (Reviewer-Finding #1 aufgelöst — robuste Enumeration) ═══
+Alle Funktionen mit `INSERT INTO player_gameweek_scores` (pg_proc.prosrc, nicht File-Grep):
+  proname                  | inserts | fixture_bound | stale_gw | delegates_sync
+  admin_resync_gw_scores   |   t     |     f→FIX     |   t→FIX  |   f      ← gefixt
+  cron_process_gameweek    |   t     |     f→FIX     |   t→FIX  |   f      ← gefixt
+  sync_fixture_scores      |   t     |     t         |   f      |   f      ← korrekt (419), unangetastet
+→ GENAU 3 Writer, alle 2 stale von dieser Migration abgedeckt. Kein versteckter 4.
+admin_import_gameweek_stats: KEIN inline-INSERT — Step 4 = `v_synced := sync_fixture_scores(p_gameweek)`
+   = DELEGIERT an die korrekte Fn → auto-safe via 419 (Reviewer-Concern bestätigt aufgelöst).
+
+═══ AFTER — Fix-Logik force-rollback bewiesen (GW26, alle 7 Ligen, RAISE EXCEPTION = Rollback) ═══
+DO-Block: DELETE GW26 → fresh INSERT (korrigiert, fixture-bound) → RE-INSERT (Idempotenz) → Integritäts-Check → RAISE.
+→ SMOKE-OK gw=26 deleted=2805 fresh_insert=2805 reinsert=2805 rows_after=2805 null_fk=0
+   - fresh_insert=2805: kein 42P10, kein NOT-NULL (fixture_id/league_id befüllt) ✅
+   - reinsert=2805 = rows_after=2805: idempotent (alles ON CONFLICT DO UPDATE, kein Dup-Row) ✅
+   - null_fk=0: keine NULL fixture_id/league_id ✅
+   - alles via Exception zurückgerollt (Live-DB unverändert) ✅
+
+═══ APPLY (CEO Anil approved) + POST-APPLY-VERIFIKATION ═══
+mcp__supabase__apply_migration slice_453_scoring_fixture_conflict → {"success":true}
+
+PATCH-AUDIT (AC4) — pg_get_functiondef Re-Pull beider Fns:
+  proname                  | fixture_now | stale_still_there | secdef_kept | searchpath_kept
+  admin_resync_gw_scores   |    true     |      false        |    true     |     true
+  cron_process_gameweek    |    true     |      false        |    true     |     true
+→ ON CONFLICT (player_id, fixture_id) jetzt aktiv, stale GW-Conflict weg, SECDEF + search_path erhalten ✅
+
+LIVE-BEWEIS (die Funktion die vorher 42P10 warf, jetzt gegen leeren GW99):
+  SELECT admin_resync_gw_scores(99) → {"success":true,"synced_count":0}
+→ kein 42P10, kein NOT-NULL, kein Write (0 Fixtures) — Landmine entschärft, live ✅
+
+═══ Reviewer ═══
+worklog/reviews/453-review.md — CONCERNS (Finding #1 = Writer-Completeness, hiermit aufgelöst;
+Finding #2 = PATCH-AUDIT-Diff in Proof = oben TODO; Finding #3 = LOW, kein neues Risiko).
+Visible Diff: „clean, proof-backed mirror of the canonical writer, mergeable" (Reviewer wörtlich).
+
+═══ Residual (Schnitt-Regel §0, getrackt) ═══
+3-Wege-Scoring-Write-Duplikation (cron Step4 / admin_resync / sync_fixture_scores = identischer INSERT 3×).
+419 heilte nur 1/3 → DIESER Bug ist der Beweis des Forward-Drifts. Konsolidierung (1 Helper) = W2 Score-SSOT,
+NICHT jetzt (sync_fixture_scores = korrekt+verdrahtet, nicht anfassen = Caution). → dup-registry.

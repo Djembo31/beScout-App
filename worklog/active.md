@@ -2,26 +2,23 @@
 
 ```
 status: idle
-slice: 452
-title: K2.6 Memory-Modell „Split nach Job" + K2.2c beta-Docs (moderat) — DONE
-size: XS
-type: Doc
+slice: 453
+title: D-01 — Scoring-Funktionen aufs Fixture-Modell migrieren (42P10-Landmine) — DONE (live applied)
+size: S
+type: Migration
 stage: LOG (DONE)
-spec: inline (Ops/Tooling-Spur, kein Money/Security/user-facing)
-proof: worklog/proofs/452-memory-split.txt
-review: worklog/reviews/452-review.md (self-review PASS, Ops-Spur)
+spec: worklog/specs/453-d01-scoring-fixture-conflict.md
+proof: worklog/proofs/453-scoring-fixture-conflict.txt
+review: worklog/reviews/453-review.md (CONCERNS → Finding#1 via Writer-Enum aufgelöst, Finding#2 Proof-Diff, #3 LOW)
 ```
 
-## Ergebnis (K2.6 + K2.2c — Drift-Stop, 2 Memory-Heimaten → 1 Modell)
-CEO-Entscheid Anil: „Split + stale Dups weg" (moderat).
-- **A Harness-Dedup:** 6 stale Mai-Stubs gelöscht (decisions/session-handoff/patterns/project_bescout_liga/beta-test-results/beta-testplan); echtes Auto-Memory intakt. Harness `MEMORY.md` → ehrlich + Pointer-basiert (stale April-Project-Sektion + 5 pre-existing dangling + wiki/-Ref geheilt).
-- **B Obsidian-Lack:** `memory/_HOME.md` + `.obsidian/` weg (cortex-index war ohnehin tot).
-- **C beta-Docs:** 8 verwaiste Beta-Test-Ops weg. KEEP verifiziert: `beta-rollback-runbook`+`beta-sentry-alerts-runbook` (INDEX-geroutet) + **`beta-exit-criteria` RESTAURIERT** (Input des verdrahteten `beta:metrics`-Scripts — Verifikation fing meine Fehl-Klassifizierung). gitignored PII-Liste leave.
-- **Consumer geheilt:** auditor.md + backlog.md dangling geschlossen; decisions.md (append-only D5) unangetastet.
-- Gates: knowledge:check HARD 0 · 0 dangling live · alle AC1-AC7 ✅.
+## Ergebnis (D-01 geheilt, live)
+Money/§3. `cron_process_gameweek` Step 4 + `admin_resync_gw_scores` schrieben altes GW-Modell `ON CONFLICT (player_id, gameweek)` gegen die von 419 gedroppte UNIQUE → 42P10 + NOT-NULL beim 1. echten Spieltag. Beide auf die korrekte `sync_fixture_scores` gespiegelt (fixture-bound), Rest byte-treu.
+- BEFORE live: `admin_resync_gw_scores(26)` → 42P10. AFTER force-rollback GW26: 2805 fresh/idempotent, 0 null-FK. Apply (CEO Anil) → post-apply pg_get_functiondef fixture_now=t/stale=f/secdef+search_path erhalten; `admin_resync_gw_scores(99)` → success/0. vitest 81/81.
+- **Reviewer-Catch (wertvoll):** Writer-Enumeration (statt Conflict-Grep) bewies Completeness — genau 3 Writer, `admin_import_gameweek_stats` delegiert an sync_fixture_scores (safe).
 
-## Residuals (getrackt → session-handoff)
-beta-metrics Dead-Tooling (wired, Beta abgebrochen) [CEO] · backlog.md stale April-Relikt (GC-Kandidat) · autodream dormant + wiki-* (retire-Urteil) · memory/errors.md-Merge.
+## Residual (Schnitt-Regel §0, getrackt → dup-registry)
+3-Wege-Scoring-Write-Duplikation (cron Step4 / admin_resync / sync_fixture_scores = identischer INSERT 3×) → W2 Score-SSOT (1 Helper). 419 heilte 1/3, 453 die 2 stale — alle 3 noch dupliziert.
 
-## Nächstes (TEIL A Rest)
-**K6** types/index.ts (2329 Z.) splitten [LOW] · **K7** log.md<400 + decisions.md<D100 archivieren [LOW]. → dann TEIL B (D-01 Scoring-Landmine etc.).
+## Nächstes (TEIL B, CEO-Wahl)
+D-17 Ranking-Konsolidierung · D-02 Bench-Geld-Leak · W0 DB-Security · oder W2 Score-SSOT-Helper (Residual). K6/K7 (TEIL-A-Rest, LOW) weiter offen.

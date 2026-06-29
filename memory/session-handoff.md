@@ -1,17 +1,22 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 14:58)
+# Session Handoff — Auto (2026-06-29 15:53)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 3 Files
+```
+ M worklog/active.md
+?? supabase/migrations/20260629140000_slice_453_scoring_fixture_conflict.sql
+?? worklog/specs/453-d01-scoring-fixture-conflict.md
+```
 
 ## Session Commits: 6
+- 939a2f84 docs(cleanup): Slice 452 — K2.6 Memory-Split + K2.2c beta-Docs (K2-Epic komplett)
 - 5c9a9520 docs(cleanup): Slice 451 — K2.5 Plan-Anker Ref-Umbiegung (6 geloescht, 348->mock2pro-plan Drift-Rewire)
 - 7b6bdb68 docs(knowledge): Slice 450 — K2.4 wiki/ -> docs/knowledge/ Harvest-Konsolidierung (wiki/ 21->0)
 - 6dbd7179 docs(handoff): Session-Close 2026-06-29 — K2.3 KOMPLETT (A-E, Slices 444-449), naechste K2.4
 - 8ebc4faf chore(docs): Slice 449 — K2.3 Welle E: Frontend-Doc-Dedup (COMPONENTS + player-card-system geloescht)
 - aca5151f docs(knowledge): Slice 448 — K2.3 Welle D: Gamification/Scaling-Harvest
-- 4dde72f4 docs(handoff): Welle C done — Resume-Anker auf 444-447 + offene Folge-Punkte
 
 <!-- auto:handoff-end -->
 
@@ -19,6 +24,17 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 9) — D-01 Scoring-Landmine GEHEILT live (Slice 453). TEIL B gestartet.**
+> - **CEO-Wahl Anil:** nach K2-Epic → „Jetzt TEIL B, D-01" (TEIL-A-Rest K6 types-split→W6 / K7 Archiv→später Sweep, beide LOW). Live-Apply explizit freigegeben (§3).
+> - **Bug (D87 Live, DB skzjfhvgccaeplydsunz):** `cron_process_gameweek` Step4 + `admin_resync_gw_scores` schrieben altes GW-Modell `(player_id,gameweek,score) ON CONFLICT (player_id,gameweek)` gegen die von 419/D113 gedroppte UNIQUE (jetzt `(player_id,fixture_id)`; fixture_id+league_id NOT NULL) → **42P10 + NOT-NULL beim 1. echten Spieltag** (Off-Season maskiert). BEFORE live bewiesen: `admin_resync_gw_scores(26)`→42P10.
+> - **Fix (live applied, Migration `20260629140000`):** beide INSERTs exakt auf die korrekte, verdrahtete `sync_fixture_scores` gespiegelt (+fixture_id +league_id, ON CONFLICT (player_id,fixture_id) DO UPDATE, +player_id-Guard). Rest byte-treu (PATCH-AUDIT). `sync_fixture_scores` UNANGETASTET.
+> - **Proof:** force-rollback GW26 (alle 7 Ligen) 2805 fresh/idempotent/0-null-FK; post-apply pg_get_functiondef fixture_now=t/stale=f/secdef+search_path erhalten; live `admin_resync_gw_scores(99)`→success/synced_count=0; vitest 81/81. Proof `proofs/453-*.txt`, Review `reviews/453-review.md`.
+> - **Reviewer-Catch (Cold-Context = wertvoll):** mein Conflict-ILIKE-Grep „genau 2 stale" war strukturell unvollständig → **Writer-Enumeration** (`pg_proc.prosrc ~ 'INSERT INTO player_gameweek_scores'`) bewies 3 Writer; `admin_import_gameweek_stats` delegiert an `sync_fixture_scores` (safe). Lehre → errors-db.md **S453** (Writer-Enum statt File-/Conflict-Grep bei UNIQUE-Flip).
+> - **🟡 Residual (§0 getrackt → dup-registry D-01b):** 3-Wege-Score-Write-Dup (cron Step4 / admin_resync / sync_fixture_scores = identischer INSERT 3×; auth-Kontext-Diff blockt naive Delegation) → **W2 Score-SSOT 1 Helper**.
+> - **⏭️ NÄCHSTES (TEIL B, CEO-Wahl):** D-17 Ranking-Konsolidierung (scout_scores↔user_stats, L) · D-02 Bench-Geld-Leak (M) · W0 DB-Security · W2 Score-SSOT-Helper (453-Residual). TEIL-A-Rest K6/K7 (LOW) weiter offen.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 8) — K2.6 Memory-Modell + K2.2c beta-Docs KOMPLETT (Slice 452) → K2-EPIC „die EINE Wissens-Heimat" KOMPLETT.**
 > - **CEO-Entscheid Anil:** Richtung = „TEIL A erst zu Ende" (vor TEIL B); K2.6-Modell = „Split nach Job + stale Dups weg" (moderat).
 > - **Smoking-Gun (verifiziert):** Harness Auto-Memory (`~/.claude/projects/.../memory/`, machine-local, NICHT git) trug **stale Mai-Stubs** der live+versionierten in-repo-Files: `decisions.md` 332 Z./0 D-Einträge vs in-repo **4360/D117** · `session-handoff` Stand **2026-05-06** vs heute · `patterns` 840 vs 1685 · `ceo-approval-matrix` fehlte. = Drift-Falle R1/R4 auf Meta-Ebene.

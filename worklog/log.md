@@ -2,6 +2,19 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 453 | 2026-06-29 | fix(scoring): D-01 — Scoring-Funktionen aufs Fixture-Modell (42P10-Landmine, live)
+- Stage-Chain: SPEC → IMPACT (skipped, Caller-grep) → BUILD → REVIEW (Cold-Context CONCERNS→aufgelöst) → PROVE (force-rollback + post-apply) → LOG. **Money/§3, CEO-Apply Anil.**
+- **Problem (D87 Live):** `cron_process_gameweek` Step4 + `admin_resync_gw_scores` schrieben `(player_id,gameweek,score) ON CONFLICT (player_id,gameweek)` gegen die von 419/D113 gedroppte UNIQUE (jetzt `(player_id,fixture_id)`, fixture_id+league_id NOT NULL) → 42P10 + NOT-NULL beim 1. echten Spieltag. BEFORE live: `admin_resync_gw_scores(26)`→42P10.
+- **Fix:** beide INSERTs exakt auf die korrekte, verdrahtete `sync_fixture_scores` gespiegelt (+fixture_id +league_id, ON CONFLICT (player_id,fixture_id) DO UPDATE score/league/gameweek, +player_id-Guard). Rest byte-treu (PATCH-AUDIT). Migration `20260629140000`.
+- **Proof:** force-rollback GW26 2805 fresh/idempotent/0-null-FK; post-apply pg_get_functiondef fixture_now=t/stale=f/secdef+search_path erhalten; live `admin_resync_gw_scores(99)`→success/0; vitest 81/81.
+- **Reviewer-Catch (wertvoll):** Conflict-Grep „genau 2" unvollständig → Writer-Enumeration (`INSERT INTO`-pg_proc) bewies 3 Writer, `admin_import_gameweek_stats` delegiert an sync_fixture_scores (safe). → errors-db.md **S453** (Writer-Enum-Completeness).
+- **Residual (§0):** 3-Wege-Score-Write-Dup → dup-registry **D-01b**, W2 Score-SSOT-Helper.
+
+## 452 | 2026-06-29 | docs(cleanup): K2.6 Memory-Split + K2.2c beta-Docs (K2-Epic komplett)
+- Stage-Chain: SPEC (inline) → BUILD → PROVE (`proofs/452-memory-split.txt`) → self-review (Ops) → LOG. Commit `939a2f84`.
+- **K2.6 [CEO Anil „Split nach Job", moderat]:** Harness Auto-Memory trug stale Mai-Stubs (decisions 332/0-D vs in-repo 4360/D117; handoff Mai vs heute) = Drift R1/R4. 6 stale Harness-Stubs + Obsidian-Lack (`_HOME`/`.obsidian`) + 8 verwaiste beta-* gelöscht; Harness-`MEMORY.md` Pointer-basiert (+5 pre-existing dangling + stale April-Sektion geheilt). **KEEP verifiziert:** 2 INDEX-Runbooks + `beta-exit-criteria` (Input des verdrahteten `beta:metrics`-Scripts — Verifikation fing die Fehl-Klassifizierung). Consumer (auditor/backlog) geheilt; decisions.md append-only unangetastet. knowledge:check HARD 0, 0 dangling. **→ K2-Epic „die EINE Wissens-Heimat" KOMPLETT (K2.1-K2.6).**
+- **Residuals (handoff):** beta-metrics Dead-Tool [CEO] · backlog.md April-Relikt · autodream dormant · errors.md-Merge.
+
 ## 451 | 2026-06-29 | docs(cleanup): K2.5 — Plan-Anker + disease-register Ref-Umbiegung
 - Stage-Chain: SPEC (inline) → IMPACT (inline, kanonische Schicht) → BUILD (Recon + Rewire/Delete) → REVIEW (Cold-Context) → PROVE (`proofs/451-k2.5-anchor-redirect.txt`) → LOG.
 - **Recon-Befund (`worklog/notes/k2.5-anchor-redirect-recon.md`): K2.5 niedriger-Risiko als befürchtet** — durable Wissen ist schon kanonisch (decisions D104-D117 WARUM + treasury/fantasy WIE). 23 Anker: 0 K-pure · 9 W (Evidenz, bleiben) · 13 S · 1 T. Die Canon→Note-Pointer sind großteils legitime Evidenz-Pointer, kein Drift.

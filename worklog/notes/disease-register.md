@@ -25,6 +25,7 @@ ungetrackt | D-15 | concept | getMyAdPayouts, getMyPayouts | Ad-Payout-Subset-Tw
 ungetrackt | D-17 | db | scout_scores, user_stats | divergenter Dual-Write zweier Ranking-Quellen (W2/CEO)
 ungetrackt | D-10 | concept | scoutMissions, missions | 2. Mission-System tot neben lebendem (Dead-Feature-GC)
 bewusste-zwei | D112 | concept | orders, offers | echte 2 Produkte (Orderbuch Fork B) — NICHT anfassen
+ungetrackt | D-01b | concept | cron_process_gameweek, admin_resync_gw_scores, sync_fixture_scores | 3x identischer player_gameweek_scores-INSERT; S453 heilte die 2 stale auf fixture-bound (419 heilte 1/3) - alle 3 noch dupliziert -> W2 Score-SSOT 1 Helper (auth-Kontext-Diff cron/admin/club_admin blockt naive Delegation)
 ```
 
 ---
@@ -81,7 +82,7 @@ Legende Scope: **CTO** = autonom heilbar · **Money/CEO** = §3, selbst + CEO-Ap
 ### 🔴 HIGH-Severity (zuerst)
 | ID | Befund | Klasse | Aufw. | Scope | Status |
 |----|--------|--------|-------|-------|--------|
-| D-01 | **D113 NICHT restlos geheilt:** `cron_process_gameweek` (Step 4, jeder Sync) + `admin_resync_gw_scores` schreiben weiter alte Shape `ON CONFLICT(player_id,gameweek)` auf die von 419 GEDROPPTE UNIQUE → **`42P10` beim ersten echten Spieltag.** Maskiert durch Off-Season. | datenmodell | S | Money/CEO | 🔴 offen |
+| D-01 | **D113 NICHT restlos geheilt:** `cron_process_gameweek` (Step 4, jeder Sync) + `admin_resync_gw_scores` schreiben weiter alte Shape `ON CONFLICT(player_id,gameweek)` auf die von 419 GEDROPPTE UNIQUE → **`42P10` beim ersten echten Spieltag.** Maskiert durch Off-Season. | datenmodell | S | Money/CEO | ✅ **geheilt S453** (live applied; beide auf fixture-bound gespiegelt; Writer-Enum bewies Completeness; Rest-Dup→§0-Registry D-01b) |
 | D-02 | **Bench-Karten umgehen `holding_locks` komplett** — `rpc_save_lineup` lockt nur 12 Starter, Bank nie → 1 Karte als Bench in N gleichzeitigen Events, punktet überall via Auto-Sub (echtes Wallet-Credit). | datenmodell | M | Money/CEO | 🟠 offen (bekannt 3.1) |
 | D-03 | **Client-only/CSR-Architektur** — 0 Server-Prefetch/Hydration, 404 `use client`, Auth blockt kritischen Render-Pfad (5-13s Skeleton). | architektur | XL | CEO | 🟠 offen (bekannt #3) |
 | D-04 | **`lineups` ohne DB-UNIQUE gegen Doppel-Spieler** — Integrität lebt 100 % im 25k-Zeichen-RPC; `bench_*` haben NICHT MAL einen FK. | architektur/datenmodell | L | CEO | 🟠 offen (D111) |
