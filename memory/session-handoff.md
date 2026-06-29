@@ -1,19 +1,18 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-30 00:21)
+# Session Handoff — Auto (2026-06-30 00:35)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 6 Files
+## Uncommitted Changes: 4 Files
 ```
- M memory/session-handoff.md
  M worklog/active.md
- M worklog/notes/disease-register.md
-?? supabase/migrations/20260630120000_slice_464_soletop_role_platform_admins.sql
-?? worklog/proofs/464-d37-soletop-role.txt
-?? worklog/specs/464-d37-soletop-role-platform-admins.md
+?? supabase/migrations/20260630130000_slice_465_top_role_family_close.sql
+?? worklog/proofs/465-d37b-family-close.txt
+?? worklog/specs/465-d37b-top-role-family-close.md
 ```
 
-## Session Commits: 7
+## Session Commits: 8
+- 54765397 fix(security): Slice 464 — D-37 SOLE-gate top_role-RPCs auf platform_admins (live)
 - 2bebeab1 fix(security): Slice 463 — D-36 Stats-Siblings Platform-Admin-Guard auf platform_admins (live)
 - 3214a86f fix(security): Slice 462 — D-35 get_club_dashboard_stats_v2 Admin-Guard + REVOKE anon (live)
 - c9534936 chore(db): Slice 461 — D-12 Dead-RPC GC: DROP get_club_dashboard_stats(text) v1 (live)
@@ -28,6 +27,15 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-30 (Teil 22) — D-37b: top_role='Admin'-Familie KOMPLETT eliminiert live (Slice 465). Autonom-Modus.**
+> - **CEO Anil:** „mach autonom weiter bis Token ausgeschöpft" → W0-Security-Thread autonom.
+> - **Fix (live, Migration `20260630130000`):** letzte 2 `top_role='Admin'`-RPCs — `get_sponsor_stats_summary` (SOLE-gate read-only, +vestigial anon-granted → +REVOKE anon) + `set_club_fan_rank_thresholds` (Sekundär: club_admins funktionierte, Platform-Override tot) auf kanonische `platform_admins`. Bodies byte-true; club_admins-Branch unverändert; get_sponsor `public.`-qualifiziert (search_path='').
+> - **Proof:** `family_remaining=0` (top_role='Admin'-Dead-Source-Familie RESTLOS, 7 RPCs über D-36/37/37b) + 3-Rollen-Smoke (non-admin reject / platform-admin past / club-admin past) + **Recompute-Happy-Path** (Club 37 fan_rankings → recalculated=37, SECDEF-Owner-Recompute trotz 460-REVOKE bewiesen, rolled back) + tsc 0 + db-invariants unverändert 3. Reviewer **PASS**. Knowledge errors-db **S465** (Guard-only-Smoke reicht nicht für Write-Pfad → Happy-Path-force-rollback Pflicht). Disease-Register: D-37b geheilt, **D-38** neu (sponsorStats Silent-Fail).
+> - **🟢 W0-Security-Faden 460-465 = großer Block zu:** INV-31 (no_guard REVOKE) · D-12 (Dead-RPC DROP) · D-35 (v2-PII-Guard+anon) · D-36/37/37b (top_role→platform_admins, 7 RPCs). Alle platform-admin-Drift + anon-PII-Exposure + tote/no_guard SECDEF geschlossen, jeweils Reviewer-PASS + force-rollback.
+> - **⏭️ NÄCHSTES (autonom, W0-Rest):** **466** = 2 Security-Map-Recon-RPCs (`get_security_definer_user_param_audit`+`get_rls_policy_matrix`, anon+auth-granted → leaken Security-Landkarte → admin-only). **⚠️ KRITISCHE VORPRÜFUNG:** db-invariants-Tests rufen `get_security_definer_user_param_audit` (INV-31) + ggf. `get_rls_policy_matrix` (INV-32) — VOR REVOKE die Test-Client-Rolle prüfen (service_role? → REVOKE anon+auth safe; authenticated? → bräche die Invarianten-Tests). Danach: anon-Hygiene-Batch · 87 search_path_mutable · 81 Policies+Index · D-38 · W5 (D-23/24/25/26) · Dead-GC D-14/15/16 · INV-19/32/33 P2.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-30 (Teil 21) — D-37 tote Money/Minting-Admin-RPCs repariert live (Slice 464). Autonom-Modus.**
 > - **CEO Anil:** „mach autonom weiter bis Token ausgeschöpft" → W0-Security-Thread autonom durchziehen (§3 Money selbst, Reviewer-Pflicht, force-rollback).
 > - **Fix (live, Migration `20260630120000`):** 3 live-verdrahtete Admin-RPCs gateten auf `profiles.top_role='Admin'` = 0 Profile global (SOLE-gate) → **effektiv TOT** (always-reject): `grant_founding_pass` (MONEY), `admin_grant_wildcards` (MINTING), `cancel_event_entries`. Guard je RPC auf kanonische `platform_admins` (wie D-36/v2). Money-Bodies byte-true (CASE-Tiers/Kill-Switch 90000000/wallet/transactions/wildcard-INSERT), Spoof-Guard erhalten, unused DECLAREs raus.

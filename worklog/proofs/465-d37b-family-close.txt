@@ -1,0 +1,52 @@
+Slice 465 — D-37b: top_role='Admin'-Familie vollständig schließen (platform_admins)
+Proof — 2026-06-30 · DB skzjfhvgccaeplydsunz · CEO autonom-Go (Anil, §3 — kein Money)
+Migration: 20260630130000_slice_465_top_role_family_close.sql (apply_migration → {success:true})
+
+================================================================================
+BEFORE (verifiziert read-only) — letzte 2 top_role='Admin'-RPCs
+================================================================================
+get_sponsor_stats_summary (RETURNS TABLE, read-only Sponsor-Stats):
+  SOLE-gate 'IF NOT EXISTS(profiles ... top_role=Admin) THEN RAISE Not authorized' = tot (0 Match)
+  + anon_exec=TRUE (vestigial). SET search_path TO ''.
+set_club_fan_rank_thresholds (config-write + fan_rankings-recompute):
+  Sekundär 'NOT EXISTS(profiles top_role=Admin) AND NOT EXISTS(club_admins owner/admin)' →
+  club_admins funktioniert, Platform-Override tot (= S347-Fall). anon_exec=false.
+
+================================================================================
+FIX — top_role → platform_admins (kanonisch); Bodies byte-true
+================================================================================
+get_sponsor_stats_summary:    NOT EXISTS(public.profiles ... top_role='Admin') → NOT EXISTS(public.platform_admins WHERE user_id=auth.uid())
+                              (qualifiziert public. wg. search_path=''); RETURN QUERY-Body unverändert; + REVOKE anon.
+set_club_fan_rank_thresholds: erstes NOT EXISTS(public.profiles ... top_role) → NOT EXISTS(public.platform_admins WHERE user_id=v_uid);
+                              club_admins-Branch + Validierung + UPSERT + recompute-Loop byte-true.
+
+================================================================================
+AFTER (live, post-apply)
+================================================================================
+AC-01/02 [anchors + grants]:
+  get_sponsor: platform_admins=TRUE, top_role=FALSE, anon_exec=FALSE (REVOKEd)
+  set_thresholds: platform_admins=TRUE, top_role=FALSE, club_admins-Branch intakt=TRUE
+  family_remaining (pg_proc top_role='Admin') = 0   ← FAMILIE VOLLSTÄNDIG ELIMINIERT
+  => PASS
+
+AC-03/04/05 [3-Rollen force-rollback, JWT-sub S369, RAISE-rollback]:
+  SMOKE >>> gss_non=rej  sct_non=not_club_admin
+            gss_pa=PAST(rows=0)  sct_pa=PAST(invalid)
+            sct_ca=PAST(invalid)
+  - AC-03 non-admin: get_sponsor RAISE 'Not authorized', set_thresholds 'not_club_admin'  => PASS
+  - AC-04 platform-admin: get_sponsor PAST (rows=0, kein 'Not authorized'); set_thresholds PAST
+    (invalid_thresholds via platform_admins-Branch = reparierter Override, NICHT not_club_admin)  => PASS
+  - AC-05 club-admin (Sekundär-Branch Regression): set_thresholds PAST(invalid) via club_admins  => PASS
+
+AC-06 [REGRESSION] tsc + tests:
+  $ npx tsc --noEmit  -> exit 0
+  $ vitest db-invariants  -> 3 failed (INV-19/32/33 pre-existing, UNCHANGED)
+  $ vitest fanRanking.test + fanRanking-v2.test  -> 2 files passed
+  => PASS
+
+================================================================================
+VERDICT: all ACs PASS. Letzte 2 top_role='Admin'-RPCs auf platform_admins — die gesamte
+Dead-Source-Familie (D-36+D-37+D-37b, 7 RPCs gesamt) ist eliminiert (family_remaining=0).
+get_sponsor: vestigial anon entzogen + Override repariert. set_thresholds: Platform-Override
+repariert, club_admins-Branch unverändert. Permissive-only, Bodies byte-true.
+================================================================================
