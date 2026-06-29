@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 23:34)
+# Session Handoff — Auto (2026-06-29 23:56)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -7,12 +7,13 @@
 ```
  M memory/session-handoff.md
  M worklog/active.md
-?? supabase/migrations/20260629230000_slice_462_dashboard_v2_admin_guard.sql
-?? worklog/proofs/462-d35-admin-guard.txt
-?? worklog/specs/462-d35-dashboard-v2-admin-guard.md
+?? supabase/migrations/20260629240000_slice_463_sibling_platform_admin_guard.sql
+?? worklog/proofs/463-d36-sibling-guard.txt
+?? worklog/specs/463-d36-sibling-platform-admin-guard.md
 ```
 
-## Session Commits: 7
+## Session Commits: 8
+- 3214a86f fix(security): Slice 462 — D-35 get_club_dashboard_stats_v2 Admin-Guard + REVOKE anon (live)
 - c9534936 chore(db): Slice 461 — D-12 Dead-RPC GC: DROP get_club_dashboard_stats(text) v1 (live)
 - 055c839e fix(security): Slice 460 — INV-31 REVOKE no_guard SECDEF-RPCs (calculate_fan_rank + refund_wildcards_on_leave) (live)
 - b121ee9a fix(invariants): Slice 459 — INV-XS Doppel-Fix (success_fee + events-Snapshot)
@@ -27,6 +28,15 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-30 (Teil 20) — D-36 Stats-Siblings auf platform_admins live (Slice 463) + 🔴 D-37 Money/Minting-Lockout-Verdacht aufgedeckt.**
+> - **CEO Anil:** „mach d36". §3 Konsistenz, Fortsetzung S462.
+> - **Fix (live, Migration `20260629240000`):** `rpc_get_club_trading_fees` + `rpc_get_club_fan_stats` prüften Platform-Admin per dead `top_role='Admin'` (0 Match) → seit S462 sichtbar inkonsistent (v2 erlaubt Platform-Admin, Sibling RAISEt). Beide je 1 Guard-Zeile auf kanonische `platform_admins` (wie v2/get_club_balance/UI). Body byte-treu, club_admins-Branch unverändert → rein permissiv. 3-Rollen-Smoke bewies reparierten Branch (platform-admin ohne club-Row jetzt ok). Reviewer **CONCERNS** = nur Scope-Out, Slice selbst mergeable.
+> - **🔴 D-37 (Reviewer-Catch, PRIORISIERT, §3 Money) — der eigentliche Fund:** 3 RPCs nutzen `top_role='Admin'` als **ALLEINIGES** Gate (kein club_admins-Fallback) → bei 0-Match komplett **TOT/unzugänglich**: **`grant_founding_pass`** (`20260614170000:33`, MONEY/Kill-Switch), **`admin_grant_wildcards`** (`20260428120500:321`, MINTING), **`cancel_event_entries`** (`20260321:451`). Anders als D-36 = **Total-Lockout-Risiko**. **Erst verifizieren:** ist `profiles.top_role='Admin'`=0 global (= live tot)? Speziell `grant_founding_pass`: wie werden Founding-Pässe heute vergeben — anderer Pfad (RPC orphan) ODER tot (Feature kaputt)? Fix-Richtung `platform_admins`.
+> - **Proof:** post-apply uses_platform_admins=true/still_top_role=false beide + `remaining_toprole_in_family=0` + 3-Rollen-Smoke + Body-Anker + tsc 0 + club.test 79/79. Proof `463-d36-sibling-guard.txt`. Knowledge errors-db **S463** (Gate-Topologie: SOLE-gate=Lockout vs Sekundär=Override-Verlust). Disease-Register: D-36→geheilt, **D-37** neu (🔴).
+> - **⏭️ NÄCHSTES (CTO-Empfehlung): D-37 verifizieren** (1 Query: ist top_role='Admin'=0 global + sind die 3 RPCs live callable?) → bei Bestätigung Heal-Slice auf `platform_admins`. Danach W0-Rest (Recon-RPCs admin-only · anon-Hygiene · Policy/Index) · W5 (D-23/24/25/26) · Dead-GC D-14/15/16 · INV-19/32/33 P2.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 19) — D-35 v2 Admin-Guard live (Slice 462): get_club_dashboard_stats_v2 club_admin/platform_admin + REVOKE anon.**
 > - **CEO Anil:** „Komplett: REVOKE anon + Admin-Guard". §3. Faktenbasierte Live-Recon VOR Bau (read-only).
 > - **Fix (live, Migration `20260629230000`):** v2 war ohne Guard + anon-granted → jeder anon/authenticated las Club-IPO-Umsatz + Top-Fan-PII (user_id/holdings_count) fremder Clubs. Guard byte-exakt aus kanonischer Familie `get_club_balance` (`v_caller IS NULL→auth_required` + `club_admins(p_club_id)` OR `platform_admins`, sonst RAISE) + `REVOKE anon, PUBLIC`. Body byte-treu (PATCH-AUDIT).

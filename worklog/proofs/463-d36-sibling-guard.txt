@@ -1,0 +1,60 @@
+Slice 463 — D-36: Stats-Siblings Platform-Admin-Guard auf platform_admins
+Proof — 2026-06-29 · DB skzjfhvgccaeplydsunz · CEO-approved (Anil "mach d36", §3)
+Migration: 20260629240000_slice_463_sibling_platform_admin_guard.sql (apply_migration → {success:true})
+
+================================================================================
+BEFORE (live, D87) — beide nutzten dead top_role-Branch
+================================================================================
+rpc_get_club_trading_fees, rpc_get_club_fan_stats:
+  anon_exec=false, auth_exec=true, svc_exec=true
+  uses_top_role=TRUE, uses_platform_admins=FALSE
+  Guard-Zeile: SELECT EXISTS(... profiles WHERE id=v_caller AND top_role='Admin') INTO v_is_platform_admin;
+  → top_role='Admin' matcht 0 Rows (profiles top_role ∈ {Scout,Manager,Trader,Fan,null}) = dead branch
+  → Platform-Admin ohne club_admins-Row für fremde Clubs ausgesperrt (fail-closed, kein Leak).
+  Konsumenten: getClubTradingFees (club.ts:443→AdminRevenueTab), getClubFanAnalytics (club.ts:805/813).
+
+================================================================================
+FIX — 1 Zeile je Funktion (Rest byte-true aus live functiondef)
+================================================================================
+  - SELECT EXISTS(SELECT 1 FROM public.profiles WHERE id = v_caller AND top_role = 'Admin') INTO v_is_platform_admin;
+  + SELECT EXISTS(SELECT 1 FROM public.platform_admins WHERE user_id = v_caller) INTO v_is_platform_admin;
+(kanonisch = get_club_balance + 21 RPCs; = UI-Quelle isPlatformAdmin/supabaseMiddleware. club_admins-Branch unverändert.)
+
+================================================================================
+AFTER (live, post-apply)
+================================================================================
+AC-01 [HAPPY] Quelle umgestellt (beide):
+  uses_platform_admins=TRUE, still_top_role=FALSE, club_admin_branch_intact=TRUE  => PASS
+
+AC-02/03/04 [3-Rollen-Smoke, JWT-sub-Impersonation S369, beide RPCs]:
+  SMOKE >>> nonadmin[fees=rej stats=rej] | clubadmin[fees=ok stats=ok] | platadmin[fees=ok stats=ok]
+    - nonadmin (b3ae70b8)                                  -> rejected (AC-02) ✓
+    - club-admin (dcb5af5e, eigener Club 2bf30014)          -> ok (AC-04, club_admins-Branch) ✓
+    - platform-admin (ff152a24, NICHT club_admin v. 6bfe7d27) -> ok (AC-03, REPARIERTER platform_admins-Branch;
+                                                                war vor dem Fix RAISE) ✓
+  => PASS
+
+AC-05 [REGRESSION/PATCH-AUDIT] Body byte-treu + tsc + tests:
+  fees_body_intact (totalClubFee/SUM(club_fee)/tradeCount)=TRUE
+  stats_body_intact (activeFans7d/volume_cents/topFans)=TRUE
+  remaining_toprole_in_family (rpc_get_club*)=0   ← Familie vollständig auf platform_admins
+  $ npx tsc --noEmit            -> exit 0
+  $ npx vitest run club.test.ts -> 79 passed (79)
+  => PASS
+
+================================================================================
+VERDICT: all ACs PASS. Beide Stats-Siblings nutzen jetzt die kanonische platform_admins-Quelle;
+toter Platform-Admin-Override repariert; v2/Sibling-Inkonsistenz (S462) aufgelöst. 0 Regression
+(club-admin-Branch byte-treu, rein permissiver Fix).
+
+NOTE (ehrlich, Scope-Out → D-37, Reviewer-verifiziert per Migrations-Read):
+Andere RPCs nutzen `top_role='Admin'` noch — klassifiziert nach Gate-Topologie:
+  SOLE-gate (top_role='Admin' EINZIGE Schranke → bei 0-Match komplett TOT/unzugänglich):
+    - grant_founding_pass (20260614170000:33)   = MONEY (Founding-Pass + Kill-Switch)
+    - admin_grant_wildcards (20260428120500:321) = MINTING (Wildcard-Grant)
+    - cancel_event_entries (20260321:451)        = Admin-Op
+  Sekundär-Branch (club_admins OR top_role → Club-Admins funktionieren, nur Platform-Override tot, wie D-36):
+    - set_club_fan_rank_thresholds (slice_347:347)
+  False-Positive (gated NICHT auf top_role — friert die Spalte): prevent_profile_sensitive_update
+→ D-37 (priorisiert, Money/Minting). NICHT Scope 463 (= die 2 club-stats Siblings aus D-36).
+================================================================================
