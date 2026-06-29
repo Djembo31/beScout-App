@@ -152,7 +152,11 @@ function main(): void {
   }
 
   const indexContent = readFileSync(INDEX_FILE, 'utf8');
-  const today = new Date().toISOString().slice(0, 10);
+  // Lokale Datums-Berechnung (NICHT toISOString() = UTC): sonst blockt Check 8 jeden
+  // knowledge-Edit zwischen lokal 00:00–02:00 (+0200), weil UTC dann noch "gestern" ist
+  // → `updated-not-today` False-Positive. git/log/CLAUDE nutzen alle Lokalzeit (Slice 446).
+  const _now = new Date();
+  const today = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`;
 
   // --- Check 1 (HARD): INDEX-Links zeigen auf existente Datei/Dir ---
   const links = parseIndexLinks(indexContent);

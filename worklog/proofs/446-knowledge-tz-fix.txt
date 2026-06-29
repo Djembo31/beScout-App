@@ -1,0 +1,28 @@
+SLICE 446 — knowledge:check TZ-Bug Fix (UTC→Lokal)
+Datum: 2026-06-29 (lokal; UTC war noch 2026-06-28 → genau der Bug)
+
+=== Problem ===
+scripts/audit-knowledge.ts:155
+  VORHER: const today = new Date().toISOString().slice(0, 10);   // = UTC
+Check 8 (HARD, pre-commit): if (fm?.updated !== today) → BLOCK 'updated-not-today'.
+Im Fenster lokal 00:00–02:00 (+0200) ist UTC noch "gestern" → jeder knowledge-Edit
+mit korrektem Lokal-Datum wird geblockt. Live getroffen in Slice 445
+(musste updated:2026-06-28 erzwingen, obwohl lokal/git/log alle 2026-06-29 zeigten).
+
+=== Fix ===
+  const _now = new Date();
+  const today = `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}`;
+getFullYear/getMonth/getDate sind lokale Getter → konsistent mit git/log/CLAUDE.
+
+=== Verify ===
+$ npx tsx scripts/audit-knowledge.ts
+  Report: C:\bescout-app\worklog\audits\knowledge-2026-06-29.md   ← lokal (vorher -28)
+  HARD: 0 · SOFT: 3 (verify-drift, nightly-tracked, kein Block)
+
+=== Scope-Disziplin (Smell gemeldet, nicht alles gefixt) ===
+grep toISOString().slice(0,10) in scripts/ = 14 Vorkommen. 13 davon sind
+Report-DATEINAMEN (audit-stale-${date}.md etc.) = kosmetisch, kein Datums-VERGLEICH
+→ bewusst NICHT angefasst. Nur die eine Block-Vergleichs-Stelle (audit-knowledge:155)
+ist verhaltensrelevant. Pattern → errors-infra.md S446.
+
+REVIEW: self-review (Ops-Lane, Tooling-Fix, kein Money/Security/user-facing).

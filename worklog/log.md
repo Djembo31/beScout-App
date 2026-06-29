@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 446 | 2026-06-29 | fix(tooling): knowledge:check TZ-Bug (UTC→Lokal) — Mitternacht-False-Positive
+- Stage-Chain: SPEC (inline active.md, Ops-Lane) → BUILD → REVIEW self-review (Ops) → PROVE (`proofs/446-knowledge-tz-fix.txt`) → LOG.
+- **Bug (live in Slice 445 getroffen):** `audit-knowledge.ts:155` berechnete „heute" via `toISOString()` = UTC. Check 8 (HARD pre-commit, `updated !== today`) blockt damit jeden `docs/knowledge/`-Edit im Fenster lokal 00:00–02:00 (+0200), weil UTC noch „gestern" ist. git/log/CLAUDE nutzen Lokalzeit → Inkonsistenz.
+- **Fix:** lokale Berechnung via `getFullYear/getMonth/getDate`. Verify: Report `knowledge-2026-06-29.md` (lokal, vorher -28), HARD 0.
+- **Scope-Disziplin (Smell gemeldet, nicht alles gefixt):** 13 weitere `toISOString().slice(0,10)` in scripts/ = Report-Dateinamen (kosmetisch, kein Vergleich) → bewusst nicht angefasst. Pattern → errors-infra.md S446.
+- Files: audit-knowledge.ts + errors-infra.md + active/log + proof.
+
 ## 445 | 2026-06-29 | docs(knowledge): K2.3 Welle B — Vision/GTM-Harvest (invertierte Wahrheit behoben)
 - Stage-Chain: SPEC (inline active.md) → IMPACT (inline, 2 knowledge-Files + 9 Refs + 2 Deletions) → BUILD (selbst, Kuratierung) → REVIEW self-review (interne Doku) → PROVE (`proofs/445-welleB-vision-gtm-harvest.txt`) → LOG.
 - **Behebt die „invertierte Wahrheit":** kanon. `domain/vision.md` war Stand-April-12 ÄLTER als die „veralteten" Root-Docs Stand-April-24 (un-routbar) — der aktuellste Strategie-Layer lebte un-kanonisch in `docs/VISION.md`+`docs/strategy-2026-04-24.md`.
