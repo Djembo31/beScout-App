@@ -1619,7 +1619,6 @@ describe('DB Invariants', () => {
       // Leaderboard / Scores (public by design)
       airdrop_scores: 'Airdrop-Leaderboard, public',
       arena_seasons: 'Arena-Seasons, public',
-      bescout_scores: 'BeScout-Score-Leaderboard, public',
       fan_rankings: 'Fan-Rankings pro Club, public',
       monthly_liga_snapshots: 'Monthly-Liga-Snapshots, public history',
       monthly_liga_winners: 'Monthly-Winners, public',
@@ -1690,7 +1689,6 @@ describe('DB Invariants', () => {
       'liquidation_payouts',
       'platform_admins',
       'research_unlocks',
-      'score_events',
       'score_history',
       'score_road_claims',
       'sponsor_impressions',

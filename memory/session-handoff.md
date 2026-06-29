@@ -1,23 +1,28 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 19:48)
+# Session Handoff — Auto (2026-06-29 20:59)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 5 Files
+## Uncommitted Changes: 9 Files
 ```
+ M .claude/rules/gamification.md
  M memory/session-handoff.md
+ M src/lib/__tests__/db-invariants.test.ts
  M worklog/active.md
-?? supabase/migrations/20260629180000_slice_456_holdings_row_lock.sql
-?? worklog/proofs/456-holdings-row-lock.txt
-?? worklog/specs/456-d02b-holdings-row-lock.md
+ M worklog/notes/disease-register.md
+?? supabase/migrations/20260629190000_slice_457_dead_scoring_gc.sql
+?? worklog/proofs/457-dead-scoring-gc.txt
+?? worklog/reviews/457-review.md
+?? worklog/specs/457-d11-dead-scoring-gc.md
 ```
 
-## Session Commits: 5
+## Session Commits: 6
+- c47b8933 docs(plan): MASTERPLAN W3 reconcile — Bench-Lock (455 D-02 + 456 D-02b) erledigt
+- 06e2f429 fix(fantasy): Slice 456 — D-02b holdings Row-Lock gegen cross-event Concurrency-Race (live)
 - 92b007de fix(fantasy): Slice 455 — D-02 Bench-Karten in holding_locks (Geld-Leck, live)
 - 94f36201 docs(spec): Slice 455 D-02 Bench-Lock — Recon+Fix-Design komplett (Build vertagt, Checkpoint)
 - edfb8600 docs(register): D-17 dup-registry geheilt->bewusste-zwei (Projektion legitim, Symbole bleiben)
 - e291aee8 fix(ranking): Slice 454 — D-17 Ranking-SSOT (user_stats = Projektion von scout_scores, live)
-- aee0aa95 fix(scoring): Slice 453 — D-01 Scoring-Funktionen aufs Fixture-Modell (42P10-Landmine, live)
 
 <!-- auto:handoff-end -->
 
@@ -25,6 +30,16 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 14) — D-11 Dead-Scoring-Modell GEHEILT live (Slice 457) + D-17 final bewusste-zwei.**
+> - **CEO Anil:** W2-Wahl „Path-2 + D-11 GC" → nach Recon-Beratung **„Projektion behalten"** (Path-2 verworfen) + D-11-GC freigegeben.
+> - **Fix (live, Migration `20260629190000`):** reine Subtraktion (§0) — totes 3./4./5. Scoring-Modell gedroppt: `bescout_scores` (0 Rows) + `score_events` (0 Rows) + `award_score_points()` (0 Caller, schreibt nur in die 2 toten Tabellen, ACL ohne anon). D87-Recon bewies tot: pg_proc-Writer-Enum (S453) + repo-weiter Grep (nur Cron-Step-Label-Strings = FP) + keine Views/inbound-FK/Trigger. Keine CASCADE nötig. Schnitt-Regel-Scrub: gamification.md + 2× db-invariants.test.ts (EXPECTED_PUBLIC/SENSITIVE).
+> - **Path-2 (user_stats-Score-Spalten droppen) = CEO VERWORFEN:** Korrektheit ist seit S454 da (drift-sichere Projektion via Trigger, register-gesegnet bewusste-zwei wie players-Aggregat). Voll-Drop hätte Level/Rank/`profiles.level`/Notification-Maschine umgebaut für 0 Korrektheits-Gewinn → Risiko ohne Nutzen. **D-17 = final bewusste-zwei, kein offenes Residual mehr.**
+> - **Proof:** pre-apply force-rollback-Smoke (DROP fehlerfrei, 3 Objekte im Tx weg, scout_scores/user_stats/score_history Survivor-Gegenprobe da, RAISE-Rollback); post-apply AC1 beide NULL + AC2 fn_count=0 + AC3 lebende Tabellen da; tsc 0. **vitest: mein Change 0 Regression** (0 Erwähnung der gedroppten Objekte in der gesamten Suite; die 5-6 Live-DB-Invariant-Failures = pre-existing W0-Security/Daten-Drift/Flakiness — INV-32 nutzt meine editierte Map + bestätigt sie korrekt). Proof `457-dead-scoring-gc.txt`, Review `457-review.md` (Reviewer „ein Senior merged das so").
+> - **🟡 Beim vitest-Lauf aufgefallen (pre-existing, NICHT Scoring, getrennt zu behandeln):** INV-31 `calculate_fan_rank`/`refund_wildcards_on_leave` no_guard (= W0-Security) · INV-18 events-Snapshot-Drift (cancelled/user) · INV-22 `success_fee` fehlt in `ALL_CREDIT_TX_TYPES` (UI-raw-string-Risiko) · INV-33 Dev-Account-wallet-drift −30000 · INV-19 club/platform_treasury_ledger Cron-Only-RLS. → eigene XS-Slices.
+> - **⏭️ NÄCHSTES (TEIL B, CEO-Wahl):** **W0** DB-Security-Batch (28 anon-SECDEF + INV-31-no_guard-RPCs) · **W5** Konsistenz-Batch (D-23 Geld-Formatter/D-24 Wording/D-25 Auth-i18n/D-26 Club-Logos, klein+hoch-sichtbar) · K6/K7 (TEIL-A LOW). **Dead-Feature-GC-Geschwister offen:** D-10 (scout_missions), D-13 (season_reset_scores), D-14/15/16 (Ad-Revenue/Creator-Fund).
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 13) — D-02b Concurrency-Race GEHEILT live (Slice 456) + D-20 CEO-Entscheid.**
 > - **CEO Anil:** „d-02b machen" + „D-20 behalten".
 > - **Fix (live, Migration `20260629180000`):** `rpc_save_lineup` Verfügbarkeits-Check (Starter+Bench) las `holdings` ohne `FOR UPDATE` → cross-event Over-Commit-Race (2 concurrent Saves, gleiche Karte, verschiedene Events → beide locken). 1 additiver Block C: upfront `FOR UPDATE` auf alle beteiligten holdings-Rows (`unnest(v_all_slots || v_bench_uids)`, `ORDER BY player_id` = deadlock-frei) VOR den Checks. Single-Writer-Rendezvous (rpc_save_lineup einziger Lock-Writer) → serialisiert; READ COMMITTED re-read → korrekter Reject. Byte-true Patch via `replace()`, self-verify, idempotent (D-02b-Marker-Guard). Reviewer **PASS** („a senior would merge this").

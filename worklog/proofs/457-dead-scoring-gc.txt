@@ -1,0 +1,73 @@
+Slice 457 — D-11: Dead-Scoring-Modell GC — PROOF
+DB: skzjfhvgccaeplydsunz · 2026-06-29 · Migration 20260629190000_slice_457_dead_scoring_gc.sql
+
+================================================================
+1) RECON (D87 Live, VOR Migration)
+================================================================
+- bescout_scores: exists=true, rows=0
+- score_events:   exists=true, rows=0
+- award_score_points(uuid,text,integer,text,uuid,text): exists=true
+    prosrc refs: bescout_scores=true, score_events=true (schreibt NUR in die 2 toten Tabellen)
+    ACL: {postgres=X/postgres, service_role=X/postgres}  (kein anon/authenticated)
+- Caller-Enum (pg_proc.prosrc ~* 'award_score_points'): nur die Funktion selbst → 0 echte Caller
+- src/scripts/.claude-Grep: 0 echte Reader
+    (False-Positives: gameweek-sync/route.ts nutzt 'score_events' als Cron-STEP-LABEL ≠ Tabelle;
+     2 Test-Listen-Einträge in db-invariants.test.ts)
+- DROP-Footprint: keine Views, keine inbound FK, keine Trigger auf den Tabellen
+    (outbound FK je → profiles droppen automatisch mit der Tabelle)
+
+================================================================
+2) PRE-APPLY FORCE-ROLLBACK-SMOKE (DO-Block + RAISE EXCEPTION → Rollback)
+================================================================
+SMOKE >>> before(bs=bescout_scores, se=score_events)
+       |  after(bs=<NULL>, se=<NULL>, fn_count=0)
+       |  survivors(scout_scores=scout_scores, user_stats=user_stats, score_history=score_history)
+→ DROP läuft fehlerfrei durch (keine versteckte Dependency), 3 Objekte im Tx weg,
+  3 lebende Gegenproben unberührt. RAISE rollte alles zurück (real unverändert).
+
+================================================================
+3) APPLY (mcp__supabase__apply_migration) → {"success": true}
+   DROP FUNCTION IF EXISTS public.award_score_points(uuid,text,integer,text,uuid,text);
+   DROP TABLE IF EXISTS public.score_events;
+   DROP TABLE IF EXISTS public.bescout_scores;
+
+================================================================
+4) POST-APPLY VERIFY (AC1/AC2/AC3)
+================================================================
+  bescout_scores  = null   ← AC1 ✅ (gedroppt)
+  score_events    = null   ← AC1 ✅ (gedroppt)
+  award_fn_count  = 0      ← AC2 ✅ (Funktion weg)
+  scout_scores    = scout_scores    ← AC3 ✅ (lebt)
+  user_stats      = user_stats      ← AC3 ✅ (lebt)
+  score_history   = score_history   ← AC3 ✅ (lebt)
+
+================================================================
+5) CODE/DOC-SCRUB (Schnitt-Regel — kein zurückgelassener Verweis)
+================================================================
+- gamification.md:59  award_score_points aus REVOKE-Doku entfernt           ← AC5 ✅
+- db-invariants.test.ts  bescout_scores aus EXPECTED_PUBLIC entfernt         ← AC4
+- db-invariants.test.ts  score_events aus EXPECTED_SENSITIVE entfernt        ← AC4
+  (Test-Logik bricht ohnehin nicht — iteriert Live-Matrix, Case C silent;
+   Code-Kommentar Z.1737 verlangt Code-Review-Scrub gedroppter Tabellen)
+
+================================================================
+6) GATES
+================================================================
+- npx tsc --noEmit → EXIT 0  ← AC4 ✅
+- npx vitest run → MEIN CHANGE = 0 REGRESSION (bewiesen):
+    * tsc 0; 0 Erwähnung von bescout_scores/score_events/award_score_points in der GESAMTEN
+      vitest-Ausgabe inkl. aller Failures (grep → ZERO mentions).
+    * Full-Suite zeigt 5-6 Live-DB-Invariant-Failures (nicht-deterministisch: 4 vs 5 Files über
+      2 Runs = Live-Prod-Daten bewegen sich) — ALLE pre-existing, KEINE betrifft Scoring:
+        - INV-18 events.status[cancelled]/type[user] Snapshot-Drift (S330/S359-Klasse)
+        - INV-19 club/platform_treasury_ledger RLS-an/0-Policy (Cron-Only-Pattern, database.md)
+        - INV-22 success_fee fehlt in ALL_CREDIT_TX_TYPES (bekannter tx-type-Drift)
+        - INV-31 calculate_fan_rank/refund_wildcards_on_leave no_guard (= offene W0-Security-Welle)
+        - INV-32 club_fan_rank_thresholds/liga_reward_config qual=true (andere Tabellen;
+                 meine gedroppten tauchen NICHT auf = mein Map-Edit verifiziert korrekt+konsistent)
+        - INV-33 Dev-Account wallet/tx drift -30000 (bekannte Reconciliation-Schuld)
+        - club-most-owned E1 = Full-Suite-Flakiness (isoliert 6/6 PASS)
+    * INV-32 ist der Schlüssel-Beweis: er nutzt die von mir editierte EXPECTED_PUBLIC/SENSITIVE-Map;
+      hätte mein Edit eine lebende Tabelle entfernt, erschiene sie als Violation — tut sie nicht.
+  → Mein Slice (DROP toter Objekte + Doc/Test-Scrub) ist regressions-frei. Die offenen Live-DB-
+    Invariant-Schulden sind getrennte, größtenteils getrackte Themen (W0 Security etc.).

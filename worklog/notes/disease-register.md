@@ -22,7 +22,7 @@ geheilt | S421 | code | GameweekSelector | Orphan-Component entfernt Slice 421
 ungetrackt | D-23 | code | formatScout, fmtScout | 2 Geld-Formatter (0-dez vs 2-dez) → 1 kanonischer formatBalance (W5)
 ungetrackt | D-33 | code | timeAgo, formatTimeAgo | 2 Relativzeit-Formatter (utils.ts:35/47); timeAgo hartcodiert EN „just now/ago" (i18n-Leak) → 1 kanonischer (W5/Design). TOOL-FUND Slice 434.
 ungetrackt | D-15 | concept | getMyAdPayouts, getMyPayouts | Ad-Payout-Subset-Twin (Dead-Feature-GC, W5)
-bewusste-zwei | D-17 | db | scout_scores, user_stats | S454: Divergenz GEHEILT — user_stats-Scores = kept-fresh Projektion von scout_scores (Trigger trg_scout_scores_project_user_stats, 70->0 live). Beide Tabellen bleiben bewusst (user_stats hat eigene Aktivitaets-Stats; scout_scores = kanonische Geld-Quelle) = legitimer Denorm-mit-Trigger wie players-Aggregat. Optionaler Path2-Spalten-Drop = physische statt projizierte SSOT (Residual, nicht Pflicht)
+bewusste-zwei | D-17 | db | scout_scores, user_stats | S454: Divergenz GEHEILT — user_stats-Scores = kept-fresh Projektion von scout_scores (Trigger trg_scout_scores_project_user_stats, 70->0 live). Beide Tabellen bleiben bewusst (user_stats hat eigene Aktivitaets-Stats; scout_scores = kanonische Geld-Quelle) = legitimer Denorm-mit-Trigger wie players-Aggregat. Path2-Spalten-Drop = CEO Anil 2026-06-29 VERWORFEN (Projektion behalten: drift-sicher seit S454, register-gesegnet; Voll-Drop = Risiko an Level/Rank/Notif fuer 0 Korrektheits-Gewinn). D-17 = final bewusste-zwei, kein offenes Residual.
 ungetrackt | D-10 | concept | scoutMissions, missions | 2. Mission-System tot neben lebendem (Dead-Feature-GC)
 bewusste-zwei | D112 | concept | orders, offers | echte 2 Produkte (Orderbuch Fork B) — NICHT anfassen
 ungetrackt | D-01b | concept | cron_process_gameweek, admin_resync_gw_scores, sync_fixture_scores | 3x identischer player_gameweek_scores-INSERT; S453 heilte die 2 stale auf fixture-bound (419 heilte 1/3) - alle 3 noch dupliziert -> W2 Score-SSOT 1 Helper (auth-Kontext-Diff cron/admin/club_admin blockt naive Delegation)
@@ -101,7 +101,7 @@ Legende Scope: **CTO** = autonom heilbar · **Money/CEO** = §3, selbst + CEO-Ap
 | ID | Befund | Klasse | Aufw. | Scope | Status |
 |----|--------|--------|-------|-------|--------|
 | D-10 | **Komplettes 2. Mission-System (Scout Missions):** `scoutMissions.ts` + 2 Hooks + 2 SECDEF-RPCs + 5-Row-Tabelle, **0 Render, in KEINEM Tracker.** Lehrbuch-„unbewusste Zwei" neben lebendem `missions.ts` (4372 Rows). | tote-fläche | S | Sec/CEO (DROP) | 🟠 offen |
-| D-11 | **`bescout_scores` + `award_score_points` + `score_events`** = totes 3./4./5. Scoring-Modell (0 Rows, 0 Caller), in `reward-ranking.md` („3 Welten") nie erfasst. | tote-fläche | S | Sec/CEO | 🟠 offen |
+| D-11 | **`bescout_scores` + `award_score_points` + `score_events`** = totes 3./4./5. Scoring-Modell (0 Rows, 0 Caller), in `reward-ranking.md` („3 Welten") nie erfasst. | tote-fläche | S | Sec/CEO | ✅ **geheilt S457** (live DROP, Migration `20260629190000`; Caller-Enum + repo-Grep + force-rollback-Smoke bewiesen 0 echte Reader/Writer; Doc/Test-Scrub komplett; Reviewer CONCERNS-nur-Bookkeeping → hier abgehakt) |
 | D-12 | **`get_club_dashboard_stats` v1 (by name)** — tot, aber `SECURITY DEFINER` + an `anon` granted + liefert Per-User-PII unter RLS-Umgehung. v2 (by UUID) ist der Live-Pfad. | tote-fläche | XS | **Sec/CEO** | 🔴 offen (§3) |
 | D-13 | **`season_reset_scores`** — verwaiste Reset-RPC (0 Caller, kein Cron). `soft_reset_season` IST verkabelt (AdminLigaTab). | ungetr.-dup | XS | Sec/CEO | 🟠 offen |
 | D-14 | **Ad-Revenue-Share-Kette tot:** `logSponsorImpression` 0 Caller → `sponsor_impressions` nie befüllt → `calculate_ad_revenue_share` liest Geister-Tabelle; Admin-Button = stille No-Op. Live-Pfad schreibt `sponsor_stats` (ohne author-context). | ungetr.-dup | S | Money/CEO | 🟠 offen (bekannt 7.5) |
@@ -142,13 +142,13 @@ Legende Scope: **CTO** = autonom heilbar · **Money/CEO** = §3, selbst + CEO-Ap
 
 ## 4. Bewusste Zwei + Geheilt (NICHT als Krankheit behandeln)
 - **Gesund (bewusste-zwei, protokolliert):** `orders`/`offers` (D112) · `fan_rankings`/`airdrop_scores`/`score_history` (eigene Grains, kein Parallel-Aggregat) · `score_event` Default-40 (Slice 419 bewusst) · `players`-Aggregat-Denorm als Read-Cache (Pattern legitim — krank ist nur der trigger-lose Drift, s. D-19).
-- **Geheilt (Beleg dass das Muster schließbar ist):** `treasury_balance_cents`→Ledger (406) · 2× Lineup-Builder (426) · GameweekSelector (421) · `initial_listing_price` (368f) · `buy_from_ipo`-Idempotenz (403) · Tracker-Stand (430) · Hooks/Skills (431) · D-01 Scoring-fixture-bound (453) · D-17 Ranking-SSOT (454) · D-02 Bench-Lock (455) · D-02b Concurrency-Lock (456).
+- **Geheilt (Beleg dass das Muster schließbar ist):** `treasury_balance_cents`→Ledger (406) · 2× Lineup-Builder (426) · GameweekSelector (421) · `initial_listing_price` (368f) · `buy_from_ipo`-Idempotenz (403) · Tracker-Stand (430) · Hooks/Skills (431) · D-01 Scoring-fixture-bound (453) · D-17 Ranking-SSOT (454) · D-02 Bench-Lock (455) · D-02b Concurrency-Lock (456) · D-11 Dead-Scoring-GC (457: bescout_scores+score_events+award_score_points gedroppt).
 
 ---
 
 ## 5. Noch fehlende Linsen (potenziell unentdeckte Krankheit)
 1. **Volle RLS + Grant-Matrix pro Tabelle + SECDEF-Grant-Audit** (Teil gelaufen → 28 anon-SECDEF; vollständig noch offen).
-2. **Migration-vs-Live-DB-Reconciliation** — Orphan-Live-Objekte (D-07, D-12, `award_score_points` ohne Migration) deuten auf Registry-Drift; nie systematisch gemessen.
+2. **Migration-vs-Live-DB-Reconciliation** — Orphan-Live-Objekte (D-07, D-12) deuten auf Registry-Drift; nie systematisch gemessen. (`award_score_points`-Orphan = gelöst S457.)
 3. **Runtime-Usage (PostHog/Sentry)** — „tot" ist nur statisch belegt; reale Nutzung würde „tot" vs „niedrig-genutzt" trennen. (PostHog Projekt 160677 verbunden.)
 4. Test-Coverage/Dead-Test · Dependency/Bundle · Type-Truth (types/index.ts 2329 Z. vs DB-Typen) · Edge-Function/Cron-vs-vercel.json · Realtime-Channels · Storage-Buckets · CSS/Tailwind-Token-Drift · Query-Wasserfall/N+1 (Network-Trace).
 

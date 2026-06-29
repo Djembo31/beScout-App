@@ -56,7 +56,7 @@ paths:
 - Milestones: 3d=5, 7d=15, 14d=50, 30d=150 $SCOUT
 
 ## RPCs (REVOKED — nur via DB-Triggers)
-- `award_dimension_score`, `award_score_points`, `award_mastery_xp` — REVOKED from PUBLIC
+- `award_dimension_score`, `award_mastery_xp` — REVOKED from PUBLIC
 - `refresh_user_stats`, `update_mission_progress` — REVOKED, Wrapper nutzen
 - Wrapper: `refresh_my_stats()`, `refresh_my_airdrop_score()`, `track_my_mission_progress()`
 
