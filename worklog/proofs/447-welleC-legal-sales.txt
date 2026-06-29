@@ -1,0 +1,46 @@
+SLICE 447 — K2.3 Welle C: Legal/Sales-Kanonisierung
+Datum: 2026-06-29
+
+=== AC-1: 2 neue knowledge-Files ===
+docs/knowledge/decisions/legal-classification.md (created 2026-02-18, updated 2026-06-29)
+  §Terminologie · §Phasen-Modell · §1 Was · §2 Securities (Howey/WpPG/SPK + 5 Pro + 3 Gegen)
+  · §3 E-Geld · §4 Glücksspiel-3-Elemente (TR MASAK/BTK + DE GGL/DFS) · §5 CSF-Vertrag §1-6
+  + §5.2 Einordnung + §5.3 success_fee_platform_bps OFFEN · §6 $SCOUT/MiCA · §6.1 Lizenz-Matrix
+  (Malta/AML-KYC/KVKK/MiCA/CASP/MGA/E-Money, aus .docx) · §7 Jurisdiktions-Matrix · §8 Legal-Infra · §9 10 Anwalts-Fragen
+docs/knowledge/research/sales-playbook.md (created 2026-02-23, updated 2026-06-29)
+  §1 Refinanzierung · §2 3 Pakete (Setup €2.5/5/10K + Monat €750/1.5/3K) · §3 Region-Matrix
+  · §4 Sponsor-break-even · §5 Supply/Cap-Strategie · §6 Free-Varianten-Wording · §7 TR-Compliance
+  · §8 9 Objection-Skripte · §9 Phase-Verfügbarkeit · §10 Founding-Partner · §11 B2B-Vertrag · §12 Ziel-Clubs · §13 Upsell
+
+=== AC-2: 2 INDEX-Einträge (decisions + research bucket) ===
+
+=== AC-3: 4 Quell-Docs gelöscht (git=Archiv) ===
+git rm docs/legal-brief.md "docs/Sales Angebote.md" docs/CONCEPT-DPC-ECONOMY.md docs/BeScout_Licensing_Roadmap_v1.docx
+docs/ root: 18 → 5 (.md; nur Welle-D/E-Files: SCALE/COMPONENTS/SYSTEM-DESIGN-v2/gamification-v4/player-card)
+
+=== AC-4: CONCEPT-DPC-Refs umgebogen, 0 dangling ===
+- .claude/rules/trading.md: CONCEPT-DPC aus Money-Details-Liste entfernt (treasury.md bleibt Kanon)
+- treasury.md:15 (Quellen): „der frühere CONCEPT-DPC (v1.0 → git-History; Legal: legal-classification.md)"
+- treasury.md:121 (E4-Notiz): „[git-History]" markiert
+- decisions.md:3852 (D99-Kontext): „der frühere ... [git-History]" markiert
+git grep un-markierte lebende Refs = 0.
+
+=== AC-5: Money-Korrektur (faktenbasiert) ===
+CTO-Direktive „max 300 → 500 Cards" war FALSCH. Agent flaggte Spannung gegen treasury.md.
+Korrigiert auf kanonisch: max 10.000 SC = 10 % MV (1 SC = MV/100.000, D83/D100).
+grep „500/300 Cards" in beiden Files = 0 (Reviewer-bestätigt). CSF-Mechanik nur Pointer.
+
+=== AC-6: Compliance-Wording geheilt ===
+BSD→Credits, DPC→Scout Card, IPO→Erstverkauf; Asset-/Invest-Register als „intern" markiert;
+Sakaryaspor-Pilot→7 Ligen (D1); Phasen 1/2/3 (D99); Tranchen 40/30/30 superseded (D83);
+Polls-Split nicht restated (defer business.md).
+
+=== REVIEW: reviewer-Agent PASS (worklog/reviews/447-review.md) ===
+4× LOW: (1) calculate_success_fee-Pseudocode bewusst git-History · (2) verified-against weggelassen
+(Legal-Register) · (3) CSF-Formel im Vertrag akzeptabel · (4) OUT-OF-SCOPE Smell product-map.md:55
+Polls 70/30 vs 80/20 → eigener Mini-Slice (gemeldet, nicht reingezogen).
+
+=== success_fee_platform_bps: OFFENE CEO-Frage (dokumentiert, nicht entschieden) ===
+Konzept (ADR-019) sah 0-30 % Plattform-CSF-Schnitt; treasury.md realisiert ihn NICHT (CSF 100 % Holder).
+
+Schnitt-Regel §0: alle 4 Quell-Docs weg, 0 dangling, Modell-Konsolidierung statt Append.

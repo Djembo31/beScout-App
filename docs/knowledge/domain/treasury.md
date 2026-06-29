@@ -1,7 +1,7 @@
 ---
 title: Treasury & CSF — Money/Reward-Modell (Kanon)
 created: 2026-06-15
-updated: 2026-06-27
+updated: 2026-06-29
 status: active
 tags: [treasury, csf, money, ipo, scout-cards, fan-rewards, fee-split]
 consult_when: Treasury, CSF, IPO/Erstverkauf, Escrow, Fan-Rewards, Geld-Flows, Credits/cents-Einheit, Fee-Splits-Mechanik, Liquidation, Club-Treasury, Ledger
@@ -12,7 +12,7 @@ verified-against: .claude/rules/trading.md @ 2026-06-27
 
 > **Kanon (WIE):** das konsolidierte Geld-/Reward-Modell — Scout Card → IPO → CSF → Club-Treasury → Fan-Rewards. **WARUM-Entscheidung:** `memory/decisions.md` **D83**. **Code-Regel (schlank):** `.claude/rules/trading.md`. Diese Datei ist die ausführliche Wahrheit; trading.md hält die knappen Pre-Edit-Regeln + zeigt hierher.
 >
-> **Quellen:** `docs/CONCEPT-DPC-ECONOMY.md` (v1.0 Original-Konzept), Code-Verifikation (`liquidate_player` Slice 108/178e), `domain/reward-ranking.md`. Strategie-Sessions 2026-06-15/16.
+> **Quellen:** der frühere `docs/CONCEPT-DPC-ECONOMY.md` (v1.0 → git-History; Legal-Teil: `decisions/legal-classification.md`), Code-Verifikation (`liquidate_player` Slice 108/178e), `domain/reward-ranking.md`. Strategie-Sessions 2026-06-15/16.
 
 ## Bau-Stand (2026-06-17) — RAUS-Kanäle komplett
 - **329** Club-Treasury-Fundament (echtes Konto: Saldo + append-only Ledger) ✅
@@ -118,7 +118,7 @@ Der IPO-Preis ist **kein starrer `MV/1000`-Automatismus**, sondern eine **Verein
 
 **Tokenisierung (Anil 2026-06-15):** 100.000 SC = 100 % des Spielerwerts → 1 SC = MV/100.000. Verein erstellt max **10.000 SC = 10 %**. Bei IPO-Vollverkauf nimmt der Club ~10 % des MV ein. Liquidiert werden **nur die im Umlauf befindlichen** SC (Holdings), nicht der unverkaufte Pool.
 
-**Einheit + ICO-Peg (D99-kanonisch, code-verifiziert):** Zwei „Cent" sauber trennen — **DB-Speicher = „cents" (BIGINT)**, **Anzeige = „Credits" = cents/100 → 1 Credit = 100 DB-cents**; der **ICO-Wert** (Phase 2, **nicht heute**, user-facing nie €) ist **1 Credit = 0,01 € (= 1 Euro-Cent)**. Bestätigt durch `trading.md` + Live-Code (`MV/10` cents → `centsToBsd` → `MV/1000 Credits`; Osimhen 75.000 Credits = 750 €) + ICO-Seed-Preis (€0,01). In Pilot/Beta sind Credits **wertloses Spielgeld** (D99) — Phase 1 Closed Economy rechnet nirgends Credits→EUR. (`CONCEPT-DPC-ECONOMY.md` alter „10.000 BSD = 1 EUR"-Faktor wird im E4-Glattzug geheilt.)
+**Einheit + ICO-Peg (D99-kanonisch, code-verifiziert):** Zwei „Cent" sauber trennen — **DB-Speicher = „cents" (BIGINT)**, **Anzeige = „Credits" = cents/100 → 1 Credit = 100 DB-cents**; der **ICO-Wert** (Phase 2, **nicht heute**, user-facing nie €) ist **1 Credit = 0,01 € (= 1 Euro-Cent)**. Bestätigt durch `trading.md` + Live-Code (`MV/10` cents → `centsToBsd` → `MV/1000 Credits`; Osimhen 75.000 Credits = 750 €) + ICO-Seed-Preis (€0,01). In Pilot/Beta sind Credits **wertloses Spielgeld** (D99) — Phase 1 Closed Economy rechnet nirgends Credits→EUR. (der frühere `CONCEPT-DPC-ECONOMY.md` [git-History] alter „10.000 BSD = 1 EUR"-Faktor wird im E4-Glattzug geheilt.)
 
 **ICO-Plan (Kontext):** Pre-ICO/Seed €0,01 · Main ICO €0,03 · 1 Mrd Supply · Pilot-Credits → Token-Migration. **Offene Phase-3-Frage:** Token-Preis steigt (1→3 Cent→Markt), Card-Preis fix in $SCOUT → EUR-Gegenwert schwankt mit Coin. Card fix-in-$SCOUT (Asset-Verhalten) oder EUR-Anker? — nicht jetzt.
 

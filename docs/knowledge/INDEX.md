@@ -54,6 +54,7 @@
 - [$SCOUT-Launch / Legal-Phasen](../../wiki/scout-launch-strategie.md) — consult_when: Founding Pass, Licensing-Phasen, CASP/MiCA-Roadmap, Token-Launch (vertraulich)
 - [Notion Source-of-Truth-Split](../../memory/reference_notion_integration.md) — consult_when: wo lebt Wahrheit (git/Obsidian/Notion), Sync-Regeln (D4)
 - [Mogul-Mutationsplan (VERTRAULICH)](decisions/mogul-mutationsplan.md) — consult_when: persönlicher Founder-Fahrplan, strategischer Lebenskontext, Warum-jede-Session-zählt (Detail nur bei direkter Anil-Frage)
+- [Legal-Klassifizierung (Securities/E-Geld/Glücksspiel/MiCA + Anwalts-Fragen)](decisions/legal-classification.md) — consult_when: Legal-Einordnung (Howey/WpPG/SPK · E-Geld ZAG · Glücksspiel MASAK/GGL), CSF-Rechtsvertrag, success_fee_platform_bps, Lizenz-Roadmap (Malta/CASP/MGA/KVKK + Kosten), MiCA/CASP/$SCOUT, Jurisdiktions-Matrix, fehlende Legal-Infra (AGB/DSGVO/KVKK), Anwalts-Fragen vor Launch
 
 ## 🟠 lessons — Bug-Klassen & Anti-Patterns
 
@@ -71,6 +72,7 @@
 ## 🟣 research — externe Recherche & Markt
 
 - [Go-To-Market & Markt-These](research/gtm-strategy.md) — consult_when: GTM, Launch-Plan/Funnel, Zielgruppe Dream-Scout, Demand-Pools, Personas (Maria/Ömer/Yusuf/Lisa/Klaus), FM-Community-Beachhead, Club-Targeting (Bundesliga/Süper-Lig/EU-Top-5 Plan A-D), ARR-Benchmarks, Exit-Szenarien, Pitch-Struktur
+- [Sales-Playbook (Club-B2B)](research/sales-playbook.md) — consult_when: Club-Sales/B2B-Pitch, Pakete (Başlangıç/Profesyonel/Şampiyon) + Setup-Fees/Monatspreise, Objection-Handling-Skripte, Sponsor-Refinanzierung (break-even), Ziel-Clubs, Free-Varianten-Wording, Erstverkauf-Supply/Cap-Strategie, Founding-Partner, B2B-Vertrag
 - [Wettbewerber-Matrix](../../wiki/vergleich-competitors.md) — consult_when: Wettbewerb, Positionierung, Markt-Vergleich (Detail: comunio/kickbase/sorare/socios-chiliz/fancraze/hattrick/onefootball in `wiki/`)
 - [Early-Adopter-Feedback](../../wiki/early-feedback-freundeskreis.md) — consult_when: Demand-Signal, Freundeskreis-Validierung, Zielgruppen-Reaktion
 - [Agent-Systems Best-Practices](../../memory/research-agent-systems-best-practices.md) — consult_when: Multi-Agent-Architektur, Orchestrierung, Agent-Design

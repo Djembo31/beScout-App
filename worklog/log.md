@@ -2,6 +2,17 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 447 | 2026-06-29 | docs(knowledge): K2.3 Welle C — Legal/Sales-Kanonisierung
+- Stage-Chain: SPEC (inline) → BUILD (Agent-Draft + Primary-Promote/Heal) → REVIEW (reviewer-Agent PASS) → PROVE (`proofs/447-welleC-legal-sales.txt`) → LOG.
+- 🆕 `decisions/legal-classification.md` (Howey/WpPG/SPK + E-Geld + Glücksspiel-3-Elemente + CSF-Rechtsvertrag §1-6 + Lizenz-Matrix [Malta/CASP/MGA/KVKK, aus `.docx`] + 10 Anwalts-Fragen) + 🆕 `research/sales-playbook.md` (Setup-Fees €2.5-10K + Monatspreise + 9 Objection-Skripte + Sponsor-Refinanzierung + Ziel-Clubs + Supply-Strategie). 2 INDEX-Einträge.
+- **4 Quell-Docs gelöscht** (legal-brief + Sales Angebote + CONCEPT-DPC-ECONOMY + Licensing_Roadmap.docx). CONCEPT-DPC-Refs umgebogen (trading.md raus, treasury.md/decisions.md → git-History-markiert), 0 dangling.
+- **Money-Korrektur (faktenbasiert):** CTO-„300→500 Cards"-Direktive war FALSCH — Draft-Agent flaggte die Spannung, gegen treasury.md/D83/D100 korrigiert auf **max 10.000 SC = 10 % MV** (1 SC = MV/100.000). CSF-Mechanik nur Pointer (nicht dupliziert). Lehre: Agent-flagged-Spannung > stiller Auto-Resolve.
+- **Wording geheilt:** BSD→Credits, DPC→Scout Card, IPO→Erstverkauf, Asset-Register „intern", Sakaryaspor→7 Ligen (D1), Phasen 1/2/3 (D99), Tranchen 40/30/30 superseded (D83).
+- **success_fee_platform_bps = offene CEO-Frage** (legal §5.3): Konzept sah 0-30 % Plattform-CSF-Schnitt, treasury.md realisiert ihn NICHT (CSF 100 % an Holder).
+- **Reviewer PASS** (4× LOW, alle akzeptiert/gemeldet). **Out-of-scope Smell gemeldet:** `product-map.md:55` Polls 70/30 vs kanonisch 80/20 (`polls.md`/356) → eigener Mini-Slice.
+- **docs/ root: 18 → 5** (nur Welle-D/E-Files). Offen: Welle D Gamification/Scaling · E Frontend.
+- Files: 2 knowledge neu + INDEX + 3 Ref-Files + 4 Deletions + active/log/MASTERPLAN + proof + review.
+
 ## 446 | 2026-06-29 | fix(tooling): knowledge:check TZ-Bug (UTC→Lokal) — Mitternacht-False-Positive
 - Stage-Chain: SPEC (inline active.md, Ops-Lane) → BUILD → REVIEW self-review (Ops) → PROVE (`proofs/446-knowledge-tz-fix.txt`) → LOG.
 - **Bug (live in Slice 445 getroffen):** `audit-knowledge.ts:155` berechnete „heute" via `toISOString()` = UTC. Check 8 (HARD pre-commit, `updated !== today`) blockt damit jeden `docs/knowledge/`-Edit im Fenster lokal 00:00–02:00 (+0200), weil UTC noch „gestern" ist. git/log/CLAUDE nutzen Lokalzeit → Inkonsistenz.

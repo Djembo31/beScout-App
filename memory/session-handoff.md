@@ -1,21 +1,21 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 00:54)
+# Session Handoff — Auto (2026-06-29 02:12)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
 ## Working Tree: Clean
 
 ## Session Commits: 10
+- 01931afd docs(handoff): Session-Close 2026-06-29 (Teil 2) — K2.3 Welle A+B + Recon-Anker C/D/E
+- abbaa141 fix(tooling): Slice 446 — knowledge:check TZ-Bug (UTC->Lokal)
+- 5c8a154d docs(knowledge): Slice 445 — K2.3 Welle B: Vision/GTM-Harvest
+- 92f57a92 chore(docs): Slice 444 — K2.3 Welle A: 7 superseded docs/-root Files GC
 - 335e1f69 docs(handoff): Session-Close 2026-06-29 — TEIL A Meta-Cleanup Welle 1 (Slices 439-443)
 - cf207c34 chore(tooling): Slice 443 — K2.2b verbrauchte Multi-Liga-Backfill-Artefakte GC (-11817 Z.)
 - feedbb99 chore(docs): Slice 442 — K2.1 Skill-Trees + K2.2 semantisch/ (89 Einträge weg)
 - 0d3e2906 chore(docs): Slice 441 — K3 docs/plans (147→5, -142 historische Specs, git=Archiv)
 - 34bfd4b0 chore(docs): Slice 440 — K4 root-Entrümpelung (16 Müll-Files, -4612 Z.) + gitignore-Prävention
 - bea7831a docs(tracker): Slice 439 Reconcile — TODO P0 auf K1-DONE + TEIL-A-Stand gestrafft
-- 3de34b73 chore(docs): Slice 439 — K1 Meta-Cleanup (11 tote Tracker/notes, -853 Z.) + K2-Rescope
-- 7d9be255 docs(handoff): Session-Close-Checkpoint 2026-06-28 Abend (Slices 436-438, Werkzeug-Elite Teil 2 komplett)
-- e1fc5257 chore(agents): Slice 438 — Auditor-Agents 4->2 (generischer Linsen-Auditor + qa-visual)
-- 043ab43e chore(workflow): Slice 437 — workflow.md Ballast-Review (Slim 539->420, -25%)
 
 <!-- auto:handoff-end -->
 

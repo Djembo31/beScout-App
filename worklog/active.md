@@ -2,32 +2,29 @@
 
 ```
 status: idle
-slice: 446
-title: knowledge:check TZ-Bug Fix (UTC→Lokal) — DONE
-size: XS
-type: Hook
+slice: 447
+title: K2.3 Welle C — Legal/Sales-Kanonisierung — DONE
+size: M
+type: Doc
 stage: LOG (DONE)
-spec: inline (Ops-Lane; Hook-Fix, kein Money/Security/user-facing)
-impact: inline (1 Zeile audit-knowledge.ts; 13 weitere toISOString-Vorkommen = Report-Dateinamen, kosmetisch, nicht angefasst)
-proof: worklog/proofs/446-knowledge-tz-fix.txt
-review: self-review (Ops-Lane)
+spec: inline (K2-Epic Welle C; Recon-Anker k2.3-docs-consolidation-recon.md)
+impact: inline (2 knowledge-Files neu, 4 Quell-Docs weg, CONCEPT-DPC-Refs umgebogen)
+proof: worklog/proofs/447-welleC-legal-sales.txt
+review: worklog/reviews/447-review.md (reviewer-Agent PASS, 4 LOW)
 ```
 
-## Spec (inline, Ops-Lane)
+## Ergebnis (K2.3 Welle C)
 
-**Problem (Evidence: Slice 445 Live-Block):** `scripts/audit-knowledge.ts:155` berechnete „heute" via `new Date().toISOString().slice(0,10)` = **UTC**. Check 8 (HARD pre-commit, `fm.updated !== today`) vergleicht gegen ein lokal gesetztes `updated:`. Folge: jeder `docs/knowledge/`-Edit im Fenster **lokal 00:00–02:00 (+0200)** wird fälschlich geblockt (`updated-not-today`), weil UTC noch „gestern" ist. Traf Slice 445 (musste `updated:2026-06-28` erzwingen obwohl lokal der 29. war). git/log/CLAUDE nutzen alle Lokalzeit.
-
-**Fix:** lokale Berechnung `${y}-${M}-${D}` via `getFullYear/getMonth/getDate` (alle lokal).
-
-**Scope-Disziplin:** Nur der eine HARD-Block-Vergleich gefixt. Die 13 weiteren `toISOString().slice(0,10)` in `scripts/` sind **Report-Dateinamen** (kosmetisch, kein Block) → bewusst nicht angefasst.
-
-**Acceptance:** AC-1 `today` = Lokaldatum · AC-2 Report-File `knowledge-2026-06-29.md` (lokal, vorher -28) · AC-3 HARD 0.
-**Proof:** `worklog/proofs/446-knowledge-tz-fix.txt`. **Review:** self-review (Ops).
-**Stage-Chain:** SPEC(inline) → BUILD → REVIEW(self) → PROVE → LOG.
+- 🆕 `decisions/legal-classification.md` (Securities/E-Geld/Glücksspiel + CSF-Vertrag + Lizenz-Matrix aus .docx + 10 Anwalts-Fragen) + 🆕 `research/sales-playbook.md` (Pakete/Preise + 9 Objection-Skripte + Ziel-Clubs). 2 INDEX-Einträge.
+- 4 Quell-Docs gelöscht (legal-brief + Sales Angebote + CONCEPT-DPC + Licensing.docx). CONCEPT-DPC-Refs umgebogen (trading/treasury/decisions → git-History), 0 dangling.
+- **Money-Korrektur:** „500-Cap"-Annahme (CTO-Direktive) → kanonisch max 10.000 SC = 10 % MV (Agent geflaggt, gegen treasury.md korrigiert).
+- **success_fee_platform_bps = offene CEO-Frage** (legal §5.3).
+- Reviewer PASS. **Gemeldeter out-of-scope Smell:** `product-map.md:55` Polls 70/30 vs kanonisch 80/20 → eigener Mini-Slice.
+- **docs/ root: 18 → 5.**
 
 ## Zuletzt
 
+- **Slice 446** (2026-06-29) — knowledge:check TZ-Bug Fix (XS).
 - **Slice 445** (2026-06-29) — K2.3 Welle B: Vision/GTM-Harvest (M).
-- **Slice 444** (2026-06-29) — K2.3 Welle A: 7 superseded docs/-root GC (S).
 
-Nächstes (K2.3): Welle C Legal/Sales-Kanonisierung · D Gamification/Scaling-Harvest · E Frontend-Dedup.
+Nächstes (K2.3): Welle D Gamification/Scaling-Harvest · E Frontend-Dedup. Recon-Treibstoff: `worklog/notes/k2.3-docs-consolidation-recon.md`.
