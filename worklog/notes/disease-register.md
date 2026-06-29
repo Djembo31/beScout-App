@@ -22,7 +22,7 @@ geheilt | S421 | code | GameweekSelector | Orphan-Component entfernt Slice 421
 ungetrackt | D-23 | code | formatScout, fmtScout | 2 Geld-Formatter (0-dez vs 2-dez) → 1 kanonischer formatBalance (W5)
 ungetrackt | D-33 | code | timeAgo, formatTimeAgo | 2 Relativzeit-Formatter (utils.ts:35/47); timeAgo hartcodiert EN „just now/ago" (i18n-Leak) → 1 kanonischer (W5/Design). TOOL-FUND Slice 434.
 ungetrackt | D-15 | concept | getMyAdPayouts, getMyPayouts | Ad-Payout-Subset-Twin (Dead-Feature-GC, W5)
-geheilt | D-17 | db | scout_scores, user_stats | S454: user_stats-Scores = kept-fresh Projektion von scout_scores (Trigger trg_scout_scores_project_user_stats), Divergenz 70->0 live. Residual: Path2 Score-Spalten-Drop
+bewusste-zwei | D-17 | db | scout_scores, user_stats | S454: Divergenz GEHEILT — user_stats-Scores = kept-fresh Projektion von scout_scores (Trigger trg_scout_scores_project_user_stats, 70->0 live). Beide Tabellen bleiben bewusst (user_stats hat eigene Aktivitaets-Stats; scout_scores = kanonische Geld-Quelle) = legitimer Denorm-mit-Trigger wie players-Aggregat. Optionaler Path2-Spalten-Drop = physische statt projizierte SSOT (Residual, nicht Pflicht)
 ungetrackt | D-10 | concept | scoutMissions, missions | 2. Mission-System tot neben lebendem (Dead-Feature-GC)
 bewusste-zwei | D112 | concept | orders, offers | echte 2 Produkte (Orderbuch Fork B) — NICHT anfassen
 ungetrackt | D-01b | concept | cron_process_gameweek, admin_resync_gw_scores, sync_fixture_scores | 3x identischer player_gameweek_scores-INSERT; S453 heilte die 2 stale auf fixture-bound (419 heilte 1/3) - alle 3 noch dupliziert -> W2 Score-SSOT 1 Helper (auth-Kontext-Diff cron/admin/club_admin blockt naive Delegation)
