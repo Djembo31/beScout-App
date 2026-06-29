@@ -1,0 +1,60 @@
+Slice 462 — D-35: get_club_dashboard_stats_v2 Admin-Guard + REVOKE anon
+Proof — 2026-06-29 · DB skzjfhvgccaeplydsunz · CEO-approved (Anil "Komplett", §3)
+Migration: 20260629230000_slice_462_dashboard_v2_admin_guard.sql (apply_migration → {success:true})
+
+================================================================================
+RECON (live, read-only) — Platform-Admin-Quelle korrekt gewählt
+================================================================================
+v2 BEFORE: SECDEF, kein Guard, acl {postgres,anon,authenticated,service_role} (anon_exec=TRUE).
+  Konsumenten: NUR AdminOverviewTab.tsx:49 + AdminRevenueTab.tsx:28 (admin-gated). 0 public page.
+  Returns: ipo_revenue_cents (Club-Finanz) + top_fans[user_id, handle, total_score, holdings_count] (Per-User-PII).
+
+ZWEI Platform-Admin-Muster im Code (Recon-Fund):
+  - KANONISCH (22 RPCs: get_club_balance, get_club_treasury_ledger, adjust_user_wallet, ...): platform_admins-Tabelle (3 Rows real).
+  - 2 Stats-Siblings (rpc_get_club_trading_fees/fan_stats): profiles.top_role='Admin' = 0 Match (dead branch).
+  → v2 spiegelt get_club_balance (platform_admins), NICHT die Siblings — sonst würden echte Platform-Admins
+    (alle 3 via platform_admins, NICHT top_role) für fremde Clubs ausgesperrt = Regression.
+  🚩 Smell (Scope-Out, → W0-Konsistenz): die 2 Siblings tragen den dead top_role-Branch (Platform-Admin-Override tot).
+
+================================================================================
+PRE-APPLY force-rollback smoke (neue Version in Tx, 3 Rollen via JWT-sub-Impersonation S369, RAISE-Rollback)
+================================================================================
+  SMOKE >>> nonadmin=[rejected(not_authorized: Kein Club-Admin oder Platform-Admin)]
+            clubadmin=[ok]
+            platadmin=[ok] (pa_is_clubadmin_of_target=f)
+  => PASS — nonadmin rejected; club-admin (eigener Club) ok; platform-admin (NICHT club_admin des Ziels)
+            ok ÜBER platform_admins-Branch (beweist kanonische Wahl korrekt). Alles rolled back.
+
+================================================================================
+FIX
+================================================================================
+CREATE OR REPLACE v2 mit Guard (byte-exakt aus get_club_balance) am BEGIN:
+  IF v_caller IS NULL THEN RAISE 'auth_required'; END IF;
+  v_is_club_admin     := EXISTS(club_admins WHERE club_id=p_club_id AND user_id=v_caller);
+  v_is_platform_admin := EXISTS(platform_admins WHERE user_id=v_caller);
+  IF NOT (v_is_club_admin OR v_is_platform_admin) THEN RAISE 'not_authorized'; END IF;
+  -- [Rest des v2-Bodies byte-identisch]
++ REVOKE EXECUTE FROM anon, PUBLIC; GRANT EXECUTE TO authenticated;
+
+================================================================================
+AFTER (live, post-apply)
+================================================================================
+AC-01 [SECURITY] anon EXECUTE: anon_exec=FALSE                                  => PASS
+AC-02 [REGRESSION] auth_exec=TRUE, svc_exec=TRUE; acl={postgres,authenticated,service_role}  => PASS
+AC-06a [PATCH-AUDIT] has_guard(platform_admins)=TRUE; body_total_fans_intact(favorite_club_id)=TRUE;
+       body_topfans_intact(holdings_count)=TRUE  => Body-Logik unverändert, nur Guard additiv  => PASS
+
+AC-03/04/05 [LIVE role re-confirm, post-apply]:
+  LIVE >>> nonadmin=rejected  clubadmin=ok  platadmin=ok
+  => PASS (non-admin reject, club-admin allow, platform-admin allow via platform_admins)
+
+AC-06b [REGRESSION] tsc + tests:
+  $ npx tsc --noEmit                                          -> exit 0
+  $ npx vitest run src/lib/services/__tests__/club.test.ts    -> 79 passed (79)
+  $ npx vitest run src/lib/__tests__/db-invariants.test.ts    -> 3 failed (INV-19/32/33 pre-existing, UNCHANGED, no new)
+  => PASS
+
+================================================================================
+VERDICT: all ACs PASS. v2 anon-Exposure + authenticated-non-admin-Exposure geschlossen
+(club_admin OR platform_admin Guard). D-35 vollständig zu. 0 Regression für legit Admin-Caller.
+================================================================================

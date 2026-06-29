@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 23:05)
+# Session Handoff — Auto (2026-06-29 23:34)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -7,19 +7,19 @@
 ```
  M memory/session-handoff.md
  M worklog/active.md
-?? supabase/migrations/20260629220000_slice_461_drop_dashboard_stats_v1.sql
-?? worklog/proofs/461-d12-drop.txt
-?? worklog/specs/461-d12-dashboard-stats-v1-drop.md
+?? supabase/migrations/20260629230000_slice_462_dashboard_v2_admin_guard.sql
+?? worklog/proofs/462-d35-admin-guard.txt
+?? worklog/specs/462-d35-dashboard-v2-admin-guard.md
 ```
 
 ## Session Commits: 7
+- c9534936 chore(db): Slice 461 — D-12 Dead-RPC GC: DROP get_club_dashboard_stats(text) v1 (live)
 - 055c839e fix(security): Slice 460 — INV-31 REVOKE no_guard SECDEF-RPCs (calculate_fan_rank + refund_wildcards_on_leave) (live)
 - b121ee9a fix(invariants): Slice 459 — INV-XS Doppel-Fix (success_fee + events-Snapshot)
 - 06ab5d62 chore(db): Slice 458 — Dead-Feature-GC-Batch D-13 (season_reset_scores) + D-10 (2. Mission-System) (live)
 - b1432588 chore(db): Slice 457 — D-11 Dead-Scoring-Modell GC (bescout_scores+score_events+award_score_points gedroppt, live)
 - c47b8933 docs(plan): MASTERPLAN W3 reconcile — Bench-Lock (455 D-02 + 456 D-02b) erledigt
 - 06e2f429 fix(fantasy): Slice 456 — D-02b holdings Row-Lock gegen cross-event Concurrency-Race (live)
-- 92b007de fix(fantasy): Slice 455 — D-02 Bench-Karten in holding_locks (Geld-Leck, live)
 
 <!-- auto:handoff-end -->
 
@@ -27,6 +27,16 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 19) — D-35 v2 Admin-Guard live (Slice 462): get_club_dashboard_stats_v2 club_admin/platform_admin + REVOKE anon.**
+> - **CEO Anil:** „Komplett: REVOKE anon + Admin-Guard". §3. Faktenbasierte Live-Recon VOR Bau (read-only).
+> - **Fix (live, Migration `20260629230000`):** v2 war ohne Guard + anon-granted → jeder anon/authenticated las Club-IPO-Umsatz + Top-Fan-PII (user_id/holdings_count) fremder Clubs. Guard byte-exakt aus kanonischer Familie `get_club_balance` (`v_caller IS NULL→auth_required` + `club_admins(p_club_id)` OR `platform_admins`, sonst RAISE) + `REVOKE anon, PUBLIC`. Body byte-treu (PATCH-AUDIT).
+> - **Recon-Fund (verhinderte Regression):** zwei Platform-Admin-Muster — kanonisch = `platform_admins`-Tabelle (22 RPCs), die 2 Stats-Siblings nutzen dead `top_role='Admin'` (0 Match). v2 spiegelt die kanonische → echte Platform-Admins bleiben berechtigt (blinde Sibling-Kopie hätte sie ausgesperrt). UI leitet Platform-Admin ebenfalls aus platform_admins ab (kein S347-Drift, Reviewer-verifiziert).
+> - **Proof:** pre-apply force-rollback 3 Rollen (nonadmin reject / club-admin ok / platform-admin ok via platform_admins, pa_is_clubadmin=false) + post-apply (anon=FALSE, auth/service=TRUE, Guard+Body intakt) + Live-Re-Confirm + tsc 0 + club.test 79/79 + db-invariants unverändert 3. Reviewer **PASS**. Proof `462-d35-admin-guard.txt`. Knowledge errors-db **S462**. Disease-Register: D-35→geheilt, **D-36** neu.
+> - **🚩 D-36 (Reviewer „priorisieren"):** die 2 Stats-Siblings (`rpc_get_club_trading_fees`/`rpc_get_club_fan_stats`) tragen den dead `top_role`-Branch → seit 462 sichtbar inkonsistent im Revenue-Tab (v2 erlaubt Platform-Admin, Sibling RAISEt). Fix = beide auf `platform_admins` (wie v2/get_club_balance).
+> - **⏭️ NÄCHSTES (TEIL B, CEO-Wahl):** **W0-Rest** (**D-36** Sibling-Guard-Konsistenz [klein, Reviewer-priorisiert] · 2 Recon-RPCs admin-only · anon-REVOKE-Hygiene-Batch · 81 permissive Policies + 26 unused + 51 FK-Index) · **W5** Konsistenz (D-23/24/25/26) · **Dead-GC-Rest** D-14/15/16 (Money/CEO) · **INV-19/32/33** P2 (1 XS-Slice).
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 18) — D-12 Dead-RPC GC live (Slice 461): DROP get_club_dashboard_stats(text) v1.**
 > - **CEO Anil:** „mach D-12". §3/§0-Subtraktion. Faktenbasierte Live-Recon VOR DROP (read-only): 3-Wege-Caller-Enum + pg_depend.
 > - **Fix (live, Migration `20260629220000`):** `DROP FUNCTION IF EXISTS public.get_club_dashboard_stats(text)` — toter v1 (by-name, 0 Caller app/DB/cron, SECDEF + anon-granted, gab RLS-umgehend per-User user_id/holdings_count, per club_name enumerierbar). Live-Pfad `get_club_dashboard_stats_v2(uuid)` (`club.ts:503`) unberührt. `pg_depend`=0 → kein CASCADE; plain DROP ging live durch = Dependent-Beweis.
