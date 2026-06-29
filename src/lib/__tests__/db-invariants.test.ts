@@ -1078,10 +1078,6 @@ describe('DB Invariants', () => {
       remove_club_admin: ['success', 'error'],
       request_club_withdrawal: ['success', 'error'],
 
-      // Scout missions
-      submit_scout_mission: ['success', 'error', 'reward_cents'],
-      claim_scout_mission_reward: ['success', 'error', 'reward_cents', 'new_balance'],
-
       // Equipment/Cosmetics
       equip_to_slot: ['ok', 'error'],
       unequip_from_slot: ['ok', 'error', 'slot_key'],
@@ -1661,13 +1657,11 @@ describe('DB Invariants', () => {
       'user_founding_passes',
       'user_mentorship_progress',
       'user_missions',
-      'user_scout_missions',
       'user_streaks',
       'user_daily_challenges',
       'tips',
       'scout_subscriptions',
       'scout_assignments',
-      'scout_mission_definitions',
       'mentorships',
       'mystery_box_results',
       'welcome_bonus_claims',

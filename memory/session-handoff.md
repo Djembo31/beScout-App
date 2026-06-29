@@ -1,28 +1,28 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 20:59)
+# Session Handoff — Auto (2026-06-29 21:58)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 9 Files
+## Uncommitted Changes: 10 Files
 ```
- M .claude/rules/gamification.md
  M memory/session-handoff.md
  M src/lib/__tests__/db-invariants.test.ts
+ M src/lib/queries/index.ts
+ M src/lib/queries/keys.ts
+ M src/lib/queries/misc.ts
+D  src/lib/services/scoutMissions.ts
  M worklog/active.md
- M worklog/notes/disease-register.md
-?? supabase/migrations/20260629190000_slice_457_dead_scoring_gc.sql
-?? worklog/proofs/457-dead-scoring-gc.txt
-?? worklog/reviews/457-review.md
-?? worklog/specs/457-d11-dead-scoring-gc.md
+?? supabase/migrations/20260629200000_slice_458_dead_feature_gc.sql
+?? worklog/proofs/458-dead-feature-gc.txt
+?? worklog/specs/458-d13-d10-dead-feature-gc.md
 ```
 
-## Session Commits: 6
+## Session Commits: 5
+- b1432588 chore(db): Slice 457 — D-11 Dead-Scoring-Modell GC (bescout_scores+score_events+award_score_points gedroppt, live)
 - c47b8933 docs(plan): MASTERPLAN W3 reconcile — Bench-Lock (455 D-02 + 456 D-02b) erledigt
 - 06e2f429 fix(fantasy): Slice 456 — D-02b holdings Row-Lock gegen cross-event Concurrency-Race (live)
 - 92b007de fix(fantasy): Slice 455 — D-02 Bench-Karten in holding_locks (Geld-Leck, live)
 - 94f36201 docs(spec): Slice 455 D-02 Bench-Lock — Recon+Fix-Design komplett (Build vertagt, Checkpoint)
-- edfb8600 docs(register): D-17 dup-registry geheilt->bewusste-zwei (Projektion legitim, Symbole bleiben)
-- e291aee8 fix(ranking): Slice 454 — D-17 Ranking-SSOT (user_stats = Projektion von scout_scores, live)
 
 <!-- auto:handoff-end -->
 
@@ -30,6 +30,15 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 15) — Dead-Feature-GC-Batch GEHEILT live (Slice 458): D-13 + D-10.**
+> - **CEO Anil:** Dead-GC-Batch-Wahl (nach D-11/457) → D-13 (season_reset_scores) + D-10 (2. Mission-System), EINE gebündelte Verifikation.
+> - **Fix (live, Migration `20260629200000`):** reine Subtraktion (§0) — 5 DROPs: `season_reset_scores()` (D-13, verwaiste Reset-RPC, 4-Wege-Caller-Check pg_proc+pg_cron+src+ACL alle negativ, lebender Zwilling `soft_reset_season` bleibt) + `claim_scout_mission_reward`/`submit_scout_mission` + `user_scout_missions`(0)/`scout_mission_definitions`(5) (D-10, 0 Render). Frontend-Cleanup: `scoutMissions.ts` gelöscht + misc/index/keys/db-invariants gescrubbt. **`qk.missions.scout` BEHALTEN** (geteilt mit lebendem `useMissionHints`), nur `.progress` raus. Lebendes `mission_definitions`(30)/`user_missions`(4397) distinkt + unberührt.
+> - **Reviewer-Catch (wertvoll):** tote i18n-Keys (6×: scoutMissions/scoutMissionReward/RewardBody DE+TR) blieben zurück — in keinem src/-grep sichtbar. Im Slice nachgezogen; VOR Entfernen DB-Check `notifications`=0 (toter RPC emittierte nie → keine dynamische Auflösung). **Lehre → errors-infra S457/S458:** Dead-Feature-GC hat i18n + DB-Objekte als eigene Streich-Achsen (i18n-grep messages/ + Notif-Key-DB-Check + Caller-Enum inkl. pg_cron + ACL + force-rollback-Smoke + Survivor-Gegenprobe).
+> - **Proof:** force-rollback-Smoke (5 DROPs fehlerfrei, Survivor da); post-apply AC1/AC2; tsc 0; **db-invariants identische Failure-Menge vor/nach (6 INV pre-existing, 0 scout_mission)** = 0 Regression; grep src/+messages/ = 0 Refs; JSON valide DE/TR 63/63. Proof `458-dead-feature-gc.txt`, Review `458-review.md` (Reviewer „ein Senior merged das"). Disease-Register **D-13 + D-10 → geheilt** (dup-registry D-10-Zeile entfernt).
+> - **⏭️ NÄCHSTES (TEIL B, CEO-Wahl):** **W0** DB-Security-Batch (28 anon-SECDEF + INV-31-no_guard calculate_fan_rank/refund_wildcards_on_leave) · **W5** Konsistenz-Batch (D-23 Geld-Formatter/D-24 Wording/D-25 Auth-i18n/D-26 Club-Logos) · **Dead-GC-Rest** D-14/15/16 (Ad-Revenue/Creator-Fund, Money/CEO) · **INV-XS** success_fee/events-Snapshot · K6/K7 (TEIL-A LOW).
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 14) — D-11 Dead-Scoring-Modell GEHEILT live (Slice 457) + D-17 final bewusste-zwei.**
 > - **CEO Anil:** W2-Wahl „Path-2 + D-11 GC" → nach Recon-Beratung **„Projektion behalten"** (Path-2 verworfen) + D-11-GC freigegeben.
 > - **Fix (live, Migration `20260629190000`):** reine Subtraktion (§0) — totes 3./4./5. Scoring-Modell gedroppt: `bescout_scores` (0 Rows) + `score_events` (0 Rows) + `award_score_points()` (0 Caller, schreibt nur in die 2 toten Tabellen, ACL ohne anon). D87-Recon bewies tot: pg_proc-Writer-Enum (S453) + repo-weiter Grep (nur Cron-Step-Label-Strings = FP) + keine Views/inbound-FK/Trigger. Keine CASCADE nötig. Schnitt-Regel-Scrub: gamification.md + 2× db-invariants.test.ts (EXPECTED_PUBLIC/SENSITIVE).

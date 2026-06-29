@@ -1,0 +1,89 @@
+Slice 458 — Dead-Feature-GC-Batch: D-13 (season_reset_scores) + D-10 (2. Mission-System) — PROOF
+DB: skzjfhvgccaeplydsunz · 2026-06-29 · Migration 20260629200000_slice_458_dead_feature_gc.sql
+
+================================================================
+1) RECON (D87 Live, VOR Migration)
+================================================================
+D-13 season_reset_scores():
+  - Body mutiert scout_scores (trader soft/manager→500/analyst kein reset) → war geld-nah
+  - 0 statische Caller (callers_in_other_fns=0, caller_fn-Query=[]) · 0 pg_cron (cron.job=[])
+  - 0 src/-Caller (nur worklog/audits-Reports) · ACL {postgres,service_role} (kein Client/anon)
+  - lebender Zwilling soft_reset_season(text,date,date) = verkabelt (AdminLigaTab) · keine Trigger/View
+D-10 Scout-Mission-System:
+  - scout_mission_definitions=5 Rows, user_scout_missions=0 Rows
+  - claim_scout_mission_reward(uuid,uuid,integer) + submit_scout_mission(uuid,uuid,uuid,integer)
+    an authenticated granted, 0 Caller/Trigger/View
+  - Service scoutMissions.ts (4 Fns) → Hooks useScoutMissions/useMissionProgress (misc.ts) →
+    Re-Export (index.ts) → 0 Component-Consumer (grep src/components/app/features = leer)
+  - qk.missions.scout GETEILT mit lebendem useMissionHints (missions.ts:56) → BLEIBT
+  - qk.missions.progress exklusiv → raus
+  - distinkt von lebendem mission_definitions(30)/user_missions(4397) — scout_ Präfix
+
+================================================================
+2) PRE-APPLY FORCE-ROLLBACK-SMOKE (DO-Block + RAISE → Rollback)
+================================================================
+SMOKE >>> before(smd=5, usm=0)
+       |  after(smd=<NULL>, usm=<NULL>, dead_fn_count=0)
+       |  survivors(soft_reset_season=1, scout_scores=scout_scores, ...)
+→ alle 5 DROPs fehlerfrei (keine Dependency), Survivor unberührt, RAISE-Rollback (real unverändert).
+
+================================================================
+3) APPLY (mcp__supabase__apply_migration) → {"success": true}
+   DROP FUNCTION season_reset_scores()
+   DROP FUNCTION claim_scout_mission_reward(uuid,uuid,integer)
+   DROP FUNCTION submit_scout_mission(uuid,uuid,uuid,integer)
+   DROP TABLE user_scout_missions
+   DROP TABLE scout_mission_definitions
+
+================================================================
+4) POST-APPLY VERIFY (AC1/AC2)
+================================================================
+  scout_mission_definitions = null   ← AC1 ✅
+  user_scout_missions        = null   ← AC1 ✅
+  dead_fns (3 RPCs)          = 0      ← AC1 ✅
+  mission_definitions = mission_definitions  ← AC2 ✅ (lebendes System unberührt, 30 Rows)
+  user_missions       = user_missions        ← AC2 ✅ (4397 Rows)
+  soft_reset_season_alive = 1                ← AC2 ✅ (lebender Zwilling)
+
+================================================================
+5) FRONTEND-CLEANUP D-10 (Schnitt-Regel — kein zurückgelassener Verweis)
+================================================================
+  - DELETE src/lib/services/scoutMissions.ts (git rm; Types leben nur hier, alle tot)  ← AC3
+  - misc.ts: Import + useScoutMissions + useMissionProgress raus
+  - index.ts: useScoutMissions, useMissionProgress aus Re-Export raus
+  - keys.ts: qk.missions.progress raus (qk.missions.scout BLEIBT)                      ← AC4
+  - db-invariants.test.ts: user_scout_missions + scout_mission_definitions (EXPECTED_SENSITIVE)
+    + submit/claim_scout_mission (RPC-Shape-Map) raus                                  ← AC5
+  - kein Test-File für scoutMissions (nichts weiteres zu löschen)
+  Render-Beweis: grep "scoutMission|useScoutMissions|useMissionProgress|scout_mission|season_reset_scores"
+    src/ → ZERO refs                                                                   ← AC3 ✅
+
+================================================================
+6) GATES
+================================================================
+  - npx tsc --noEmit → EXIT 0 (kein versteckter Consumer)                             ← AC4 ✅
+  - db-invariants.test.ts (mein einzig editiertes Test-File) isoliert:
+      BEFORE Slice: 6 failed (INV-18/19/22/31/32/33)
+      AFTER  Slice: 6 failed (INV-18/19/22/31/32/33) — diff = IDENTICAL
+      → 0 neue Failures durch meinen Edit; 0 Erwähnung scout_mission/season_reset.
+      Die 6 INV-Failures = pre-existing Live-DB-Schulden (W0-Security/Daten-Drift), NICHT dieser Slice.
+  - andere Test-Files unberührt (nur db-invariants editiert + totes Service-File gelöscht).
+
+================================================================
+7) i18n-CLEANUP (Reviewer-Catch S458 — Dead-Feature-GC vergisst i18n-Achse)
+================================================================
+  Reviewer fand 6 tote i18n-Keys (in keinem src/-grep sichtbar):
+    de.json/tr.json:350      scoutMissions (Label „Scout Aufträge"/„İzci Görevleri")
+    de.json/tr.json:5106-5107 scoutMissionReward + scoutMissionRewardBody (Notif des toten RPC)
+  VOR Entfernen DB-Check (Notification-Pfad = Vorsicht):
+    SELECT ... FROM notifications WHERE i18n_key IN (...) OR type ~* 'scout_mission' → []  (0 Rows)
+    → toter RPC emittierte nie (user_scout_missions=0) → keine dynamische Auflösung → sicher.
+  6 Keys entfernt (3×DE + 3×TR). node JSON.parse → valide; grep scoutMission messages/ → 0;
+  top-level Parität de=63 tr=63.
+
+================================================================
+8) REVIEWER (Cold-Context) — CONCERNS → behoben
+================================================================
+  „Ein Senior merged das" — Core chirurgisch, geteilter qk.missions.scout korrekt erhalten,
+  db-invariants präzise, 0 Consumer übersehen. Einziges Finding = tote i18n-Keys (Finding#1) →
+  im Slice nachgezogen (Sektion 7). Review `458-review.md`.

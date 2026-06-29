@@ -202,7 +202,6 @@ export const qk = {
   // ── Missions ──
   missions: {
     scout: ['missions', 'scout'] as const,
-    progress: (uid: string, gw: number) => ['missions', uid, gw] as const,
   },
 
   // ── Polls ──

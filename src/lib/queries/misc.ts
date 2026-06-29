@@ -6,7 +6,6 @@ import { getTransactions, getHoldingQty, getPlayerHolderCount, getTradePlayersBy
 import { getWatcherCount } from '@/lib/services/watchlist';
 import { getLeaderboard } from '@/lib/services/social';
 import { getPosts } from '@/lib/services/posts';
-import { getScoutMissions, getUserMissionProgress } from '@/lib/services/scoutMissions';
 import { getClubBySlug, getClubStanding } from '@/lib/services/club';
 import { getMySubscription } from '@/lib/services/clubSubscriptions';
 import { getPlayerGameweekScores, getPlayerMatchTimeline } from '@/lib/services/scoring';
@@ -134,23 +133,6 @@ export function usePosts(params: {
     queryFn: () => getPosts(queryParams),
     staleTime: TWO_MIN,
     ...(active === false && { enabled: false }),
-  });
-}
-
-export function useScoutMissions() {
-  return useQuery({
-    queryKey: qk.missions.scout,
-    queryFn: getScoutMissions,
-    staleTime: FIVE_MIN,
-  });
-}
-
-export function useMissionProgress(userId: string | undefined, gameweek: number) {
-  return useQuery({
-    queryKey: qk.missions.progress(userId!, gameweek),
-    queryFn: () => getUserMissionProgress(userId!, gameweek),
-    enabled: !!userId && gameweek > 0,
-    staleTime: FIVE_MIN,
   });
 }
 
