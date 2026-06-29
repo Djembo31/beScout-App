@@ -2,25 +2,26 @@
 
 ```
 status: idle
-slice: 451
-title: K2.5 — Plan-Anker + disease-register Ref-Umbiegung — DONE
-size: L
+slice: 452
+title: K2.6 Memory-Modell „Split nach Job" + K2.2c beta-Docs (moderat) — DONE
+size: XS
 type: Doc
 stage: LOG (DONE)
-spec: inline (Recon worklog/notes/k2.5-anchor-redirect-recon.md)
-impact: kanonische Schicht berührt (workflow.md-Regel + treasury/bescout-liga) — Ref-Umbiegung only, money-neutral, append-only decisions.md UNANGETASTET
-proof: worklog/proofs/451-k2.5-anchor-redirect.txt
-review: worklog/reviews/451-review.md (PASS — 0 live dangling, append-only geschützt, 3 NIT/INFO)
+spec: inline (Ops/Tooling-Spur, kein Money/Security/user-facing)
+proof: worklog/proofs/452-memory-split.txt
+review: worklog/reviews/452-review.md (self-review PASS, Ops-Spur)
 ```
 
-## Ergebnis (K2.5 — Anker-Ref-Umbiegung)
+## Ergebnis (K2.6 + K2.2c — Drift-Stop, 2 Memory-Heimaten → 1 Modell)
+CEO-Entscheid Anil: „Split + stale Dups weg" (moderat).
+- **A Harness-Dedup:** 6 stale Mai-Stubs gelöscht (decisions/session-handoff/patterns/project_bescout_liga/beta-test-results/beta-testplan); echtes Auto-Memory intakt. Harness `MEMORY.md` → ehrlich + Pointer-basiert (stale April-Project-Sektion + 5 pre-existing dangling + wiki/-Ref geheilt).
+- **B Obsidian-Lack:** `memory/_HOME.md` + `.obsidian/` weg (cortex-index war ohnehin tot).
+- **C beta-Docs:** 8 verwaiste Beta-Test-Ops weg. KEEP verifiziert: `beta-rollback-runbook`+`beta-sentry-alerts-runbook` (INDEX-geroutet) + **`beta-exit-criteria` RESTAURIERT** (Input des verdrahteten `beta:metrics`-Scripts — Verifikation fing meine Fehl-Klassifizierung). gitignored PII-Liste leave.
+- **Consumer geheilt:** auditor.md + backlog.md dangling geschlossen; decisions.md (append-only D5) unangetastet.
+- Gates: knowledge:check HARD 0 · 0 dangling live · alle AC1-AC7 ✅.
 
-Recon-Befund: niedriger-Risiko — durable Wissen schon kanonisch (decisions D104-D117 + treasury/fantasy). 23 Anker: 0 K · 9 W (bleiben als Evidenz) · 13 S · 1 T.
-- **6 gelöscht** (git=Archiv): process-elite-prep · k2.3/k2.4-recon · 348-pro-stand · transactions-spec · bescout-liga-spec. docs/plans 5→3 (jarvis-cortex×2 → K2.6-defer, scout-card-spec = D100-Evidenz bleibt).
-- **Echter Drift gefixt:** 348-pro-stand→mock2pro-plan an 4 Live-Stellen (workflow.md:245-Regel · treasury:207 · .husky:35 · TODO:13) + bescout-liga Spec-Row + 2 Provenance-Kommentare.
-- **disease-register = CEO-B: bleibt** tool-gekoppelt in worklog/notes (Move verworfen). MASTERPLAN:64 annotiert.
-- **append-only decisions.md UNANGETASTET** — ADR-Evidenz-Files (357/365/scout-card/workflow-ideal/E0-welle2) behalten → 6 D-Pointer valid.
-- Gates: knowledge:check HARD 0 · audit:dup 0 Reg · grep 0 live dangling.
+## Residuals (getrackt → session-handoff)
+beta-metrics Dead-Tooling (wired, Beta abgebrochen) [CEO] · backlog.md stale April-Relikt (GC-Kandidat) · autodream dormant + wiki-* (retire-Urteil) · memory/errors.md-Merge.
 
-## Nächstes
-**K2.6** Memory-Modell [CEO] (Prior-Art E0-welle2 + jarvis-cortex×2 warten dafür) · **K2.2c** beta-Docs. Plan-SSOT: MASTERPLAN K2.
+## Nächstes (TEIL A Rest)
+**K6** types/index.ts (2329 Z.) splitten [LOW] · **K7** log.md<400 + decisions.md<D100 archivieren [LOW]. → dann TEIL B (D-01 Scoring-Landmine etc.).

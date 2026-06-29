@@ -13,15 +13,10 @@
 - [session-handoff.md](session-handoff.md) — Letzte Session + naechste Schritte
 - Aktueller Slice/Sprint-Stand: `worklog/active.md` (SSOT) — current-sprint.md retired E0-W3b.
 
-## Beta-Launch Operations (aktiv 2026-04-21)
-- [beta-exit-criteria.md](beta-exit-criteria.md) — 36 KPIs + 3-Ausgangs-Logik (Go/Extend/Abort)
-- [beta-cost-budget.md](beta-cost-budget.md) — Supabase + Vercel + Sentry Usage vs Free-Tier
-- [beta-rollback-runbook.md](beta-rollback-runbook.md) — Rollback-Prozedur + Pre-Beta-Drill-Anleitung
-- [beta-sentry-alerts-runbook.md](beta-sentry-alerts-runbook.md) — 3 Alert-Rules Setup-Anleitung
-- [beta-tr-locale-findings.md](beta-tr-locale-findings.md) — TR-Audit Delta 36→12 + Deutsch-Türke-Review-Vorarbeit
-- [beta-testplan.md](beta-testplan.md) — Phase 3b: 8 Tasks + Moderator-Script für 3 Zoom-Calls
-- [beta-test-results.md](beta-test-results.md) — Phase 3b: strukturiertes Template pro Tester + Aggregation
-- [beta-testing-runbook.md](beta-testing-runbook.md) — Phase 3b: Operative Zoom-Anleitung (Pre/During/Post-Call)
+## Operative Runbooks (post-Beta, INDEX-geroutet — Beta ABGEBROCHEN D111)
+> Beta-Test-Ops-Docs (exit-criteria/cost-budget/tr-locale/testplan/results/testing-runbook) entfernt Slice 452 (K2.2c). 2 generische Runbooks behalten:
+- [beta-rollback-runbook.md](beta-rollback-runbook.md) — Vercel-Rollback-Prozedur / Deploy-Notfall (INDEX research)
+- [beta-sentry-alerts-runbook.md](beta-sentry-alerts-runbook.md) — Sentry-Alert-Rules Setup (INDEX research)
 
 ## Feature Specs
 - [features/fantasy.md](features/fantasy.md) — Fantasy System (12 Flows)

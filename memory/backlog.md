@@ -13,7 +13,7 @@ type: project
 
 | # | Item | Quelle | ETA |
 |---|------|--------|-----|
-| A1 | 3 Beta-Tester organisieren (1 TR-sprachig, 1 Non-Football, 1 Power-User) | `memory/beta-testplan.md` | 1-2 Tage extern |
+| A1 | ~~3 Beta-Tester organisieren~~ — OBSOLET (Beta abgebrochen D111) | — | — |
 | A2 | 1 Deutsch-Türke für TR-Locale-Review (Strings ready) | `qa-screenshots/synthetic/profile-c-tr-locale/tr-strings.txt` | 30 min extern |
 | A3 | Notion-Kanban-Scope — Slice 144/144d/f/g/h/148 nach "Erledigt" draggen (MCP-Integration hat keinen Page-Scope, Anil manuell) | SessionStart-Hook | 2 min |
 | A4 | Gençlerbirliği Logo: korrekte api_football_id oder alternative Logo-URL liefern | Slice 148 Follow-up | 5 min (Recherche) |
@@ -93,7 +93,7 @@ Quelle: `memory/project_missing_revenue_streams.md`
 - `memory/beta-exit-criteria.md` — 36 Kriterien, Go/Extend/Abort-Logik
 - `memory/beta-rollback-runbook.md` — Vercel-Rollback-Prozeduren
 - `memory/beta-sentry-alerts-runbook.md` — 3-4 Alert-Rules Click-Path
-- `memory/beta-testing-runbook.md` + `beta-testplan.md` + `beta-test-results.md` — Tester-Calls
+- ~~beta-testing-runbook / beta-testplan / beta-test-results~~ — entfernt Slice 452 (Beta abgebrochen D111)
 
 ---
 

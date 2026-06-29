@@ -118,7 +118,7 @@ Du prueft UX-State-Konsistenz. JEDE Liste/Section MUSS Loading/Empty/Error haben
 ## LINSE C — `persona-journey` (3 Personas walken bescout.net) — darf NUR worklog/audits/ schreiben
 
 Du laeufst als 3 Personas durch bescout.net und meldest **Friction-Points** — wo ein echter Tester verwirrt waere, abbrechen wuerde, oder einen Bug findet. Du DENKST aus Persona-Sicht, nicht als Code-Reviewer.
-**Zusatz-Wissen:** `e2e/synthetic-users.spec.ts` (Auth) · `e2e/beta-smoke.spec.ts` (Smoke) · `memory/beta-testplan.md`.
+**Zusatz-Wissen:** `e2e/synthetic-users.spec.ts` (Auth) · `e2e/beta-smoke.spec.ts` (Smoke).
 
 ### Pattern v3 (Slice 253) — Output-File-Schreibung
 **heredoc-VERBOTEN** (`cat << 'EOF' > file`): 2/3 Walker scheitern sonst (0-byte/thin-Output). Stattdessen:

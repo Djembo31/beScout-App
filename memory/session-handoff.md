@@ -1,31 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 14:44)
+# Session Handoff — Auto (2026-06-29 14:58)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 18 Files
-```
- M .claude/rules/workflow.md
- M .husky/pre-commit
- M MASTERPLAN.md
- M TODO.md
- M docs/knowledge/domain/bescout-liga.md
- M docs/knowledge/domain/treasury.md
-D  docs/plans/2026-04-08-transactions-history-spec.md
-D  docs/plans/2026-04-10-bescout-liga-spec.md
- M memory/session-handoff.md
- M scripts/tracker-drift-check.mjs
- M worklog/active.md
- M worklog/log.md
-D  worklog/notes/348-pro-stand-roadmap.md
-D  worklog/notes/k2.3-docs-consolidation-recon.md
-D  worklog/notes/k2.4-wiki-consolidation-recon.md
-D  worklog/notes/process-elite-prep.md
-?? worklog/notes/k2.5-anchor-redirect-recon.md
-?? worklog/proofs/451-k2.5-anchor-redirect.txt
-```
+## Working Tree: Clean
 
-## Session Commits: 5
+## Session Commits: 6
+- 5c9a9520 docs(cleanup): Slice 451 — K2.5 Plan-Anker Ref-Umbiegung (6 geloescht, 348->mock2pro-plan Drift-Rewire)
 - 7b6bdb68 docs(knowledge): Slice 450 — K2.4 wiki/ -> docs/knowledge/ Harvest-Konsolidierung (wiki/ 21->0)
 - 6dbd7179 docs(handoff): Session-Close 2026-06-29 — K2.3 KOMPLETT (A-E, Slices 444-449), naechste K2.4
 - 8ebc4faf chore(docs): Slice 449 — K2.3 Welle E: Frontend-Doc-Dedup (COMPONENTS + player-card-system geloescht)
@@ -38,6 +19,18 @@ D  worklog/notes/process-elite-prep.md
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 8) — K2.6 Memory-Modell + K2.2c beta-Docs KOMPLETT (Slice 452) → K2-EPIC „die EINE Wissens-Heimat" KOMPLETT.**
+> - **CEO-Entscheid Anil:** Richtung = „TEIL A erst zu Ende" (vor TEIL B); K2.6-Modell = „Split nach Job + stale Dups weg" (moderat).
+> - **Smoking-Gun (verifiziert):** Harness Auto-Memory (`~/.claude/projects/.../memory/`, machine-local, NICHT git) trug **stale Mai-Stubs** der live+versionierten in-repo-Files: `decisions.md` 332 Z./0 D-Einträge vs in-repo **4360/D117** · `session-handoff` Stand **2026-05-06** vs heute · `patterns` 840 vs 1685 · `ceo-approval-matrix` fehlte. = Drift-Falle R1/R4 auf Meta-Ebene.
+> - **Modell (jetzt SSOT):** Harness Auto-Memory = **dünne Auto-Lade-Schicht** (Identität/Feedback/Status-Pointer) · in-repo `memory/` = **versionierte SSOT** (decisions D117/session-handoff/patterns/ceo-matrix/learnings, von CLAUDE.md 15×/8× referenziert) · `docs/knowledge/` = durables Domänen-Wissen.
+> - **Ausgeführt:** (A) 6 stale Harness-Stubs `rm` (decisions/session-handoff/patterns/project_bescout_liga/beta-test-results/beta-testplan), echtes Auto-Memory intakt; Harness-`MEMORY.md` neu = ehrlich + Pointer-basiert (stale April-„Project"-Sektion [Slice 170!] → SSOT-Pointer, 5 pre-existing dangling + tote wiki/-Ref geheilt). (B) `memory/_HOME.md` + `.obsidian/` git-rm (Obsidian-Browse-Lack tot, cortex-index existierte ohnehin nicht). (C) 8 verwaiste beta-Test-Ops git-rm.
+> - **KEEP verifiziert (NICHT pauschal — Verifikation fing es):** `beta-rollback-runbook`+`beta-sentry-alerts-runbook` (INDEX-geroutet aktiv) + **`beta-exit-criteria` RESTAURIERT** (= Input des VERDRAHTETEN `beta:metrics`-Scripts package.json:48; „alle non-INDEX = cruft"-Klassifizierung war falsch). gitignored PII `beta-tester-list` stehen gelassen (kein git-Recovery).
+> - **Consumer geheilt (Schnitt-Regel):** `auditor.md:121` + `backlog.md` dangling geschlossen; `decisions.md` (append-only D5-Historie, erzählt ironisch GENAU dies) unangetastet. Gates: **knowledge:check HARD 0**, 0 dangling live, AC1-AC7 ✅. Proof `452-memory-split.txt` · Review `452-review.md` (self-review PASS).
+> - **🟡 NEUE Residuals (getrackt, Schnitt-Regel — nicht in moderater Scope):** (1) **beta-metrics Dead-Tooling** (`scripts/beta-metrics.mjs`+`beta:metrics`+`beta-exit-criteria`) = verdrahtet ABER Beta abgebrochen → retire-oder-für-Launch-Metriken-repurposen **[CEO/Cleanup]**. (2) `memory/backlog.md` = stale April-Relikt (Stand 2026-04-22, voll superseded) → GC-Kandidat. (3) `autodream` dormant-Agent + `wiki-*` (nicht verdrahtet, Inputs schon weg) → „retire autodream" = Agent-Registry-Urteil. (4) `memory/errors.md` (harness 889 vs in-repo 158 divergent) → Merge→common-errors.
+> - **⏭️ OFFEN = TEIL-A-Rest (beide LOW):** **K6** `src/types/index.ts` (2329 Z. Mono-File) nach Domäne splitten (Barrel-Pattern, tsc-Zwang) · **K7** `log.md`<Slice 400 + `decisions.md`<D100 → `_archive/` (Lade-Last; Vorsicht audit:knowledge INDEX-Range-Gate). **DANN TEIL B** (CEO-Wahl): D-01 🔴 42P10-Scoring-Landmine · D-17 Ranking-Konsolidierung · W0 DB-Security.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 7) — K2.5 Anker-Ref-Umbiegung KOMPLETT (Slice 451).**
 > - **Recon-Befund: niedriger-Risiko als befürchtet** — durable Wissen ist schon kanonisch (decisions D104-D117 + treasury/fantasy). 23 Anker: 0 K-pure · 9 W (bleiben als Evidenz) · 13 S · 1 T. Map: `worklog/notes/k2.5-anchor-redirect-recon.md` (→ K2.6-GC).
 > - **CEO-Entscheid: disease-register Option B** — bleibt tool-gekoppelt in `worklog/notes` (Move verworfen: operatives Living-Register + audit:knowledge-Gate-Churn). MASTERPLAN:64 annotiert.

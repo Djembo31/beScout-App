@@ -1,0 +1,63 @@
+PROOF — Slice 452: K2.6 Memory-Modell „Split nach Job" + K2.2c beta-Docs (moderat)
+Datum: 2026-06-29 | Type: Doc/Ops | Money/Security: nein | meta-only (0 src/, 0 DB)
+CEO-Entscheid Anil: „Split + stale Dups weg" (moderat).
+
+═══ SMOKING-GUN (Problem-Evidence) — Drift zwischen zwei Memory-Heimaten ═══
+File                    Harness (~/.claude/.../memory, machine-local)   In-Repo (memory/, git)
+decisions.md            332 Z., 0 D-Einträge (Mai-Stub)                  4360 Z., bis D117   ✅canon
+session-handoff.md      103 Z., Stand 2026-05-06 (7 Wo alt)             420 Z., heute       ✅canon
+patterns.md             840 Z.                                          1685 Z.             ✅canon
+ceo-approval-matrix.md  FEHLT                                           EXISTS              ✅canon
+→ Harness trug verwaiste Mai-Stubs (Drift-Falle R1/R4). Load-bearing-Refs: CLAUDE.md/Regeln
+  referenzieren memory/decisions.md 15×, session-handoff 8× (= in-repo ist Canonical).
+
+═══ A — Harness-Dedup (Drift-Stop) ═══
+DELETE 6 stale Harness-Stubs (machine-local rm): decisions.md · session-handoff.md · patterns.md ·
+  project_bescout_liga.md · beta-test-results.md · beta-testplan.md.
+VERIFY harness keep-Stichprobe (echtes Auto-Memory intakt):
+  MEMORY.md present · backend-systems.md present · architecture.md present ·
+  feedback_operating_agreement.md present · user_full_context.md present  ✅
+UPDATE harness MEMORY.md → ehrlich + Pointer-basiert (Stand-SSOT-Regel S430):
+  - stale April-„Project"-Sektion (Slice 170) → SSOT-Pointer auf memory/session-handoff.md
+  - 5 pre-existing dangling (patterns/decisions/pattern_observability_stack/reference_notion/tags) → in-repo-Pointer
+  - stale wiki/-Ref → docs/knowledge (K2.4); Beta-Sektion → 2-Zeilen-Pointer
+
+═══ B — Toter Obsidian-Browse-Lack (in-repo git rm) ═══
+DELETE memory/_HOME.md (0 load-bearing Refs: nur .firecrawl/node_modules) + memory/.obsidian/ (5 Files).
+  (cortex-index.md — die „Routing-SSOT" laut _HOME — existierte ohnehin nicht = Obsidian-Modell tot.)
+
+═══ C — K2.2c beta-Docs (per-File verifiziert, NICHT pauschal) ═══
+DELETE 8 verwaiste Beta-Test-Ops (git rm): beta-testplan · beta-test-results · beta-testing-runbook ·
+  beta-cost-budget · beta-onboarding · beta-tr-locale-findings · beta-tester-list.template · beta-tester-recruitment-templates.
+KEEP (verifiziert load-bearing/aktiv):
+  - beta-rollback-runbook.md   → INDEX.md research-Routing (Vercel-Rollback)   EXISTS ✅
+  - beta-sentry-alerts-runbook.md → INDEX.md research-Routing (Sentry-Alerts)  EXISTS ✅
+  - beta-exit-criteria.md      → RESTAURIERT (git checkout): Input-Spec des VERDRAHTETEN
+                                  Scripts `beta:metrics` (package.json:48). Verifikation fing es:
+                                  „alle non-INDEX-beta = cruft" war falsch.                EXISTS ✅
+  - beta-tester-list.md        → gitignored (PII), NICHT git-rückholbar → stehen gelassen (Residual)
+
+═══ Consumer-Heilung (Schnitt-Regel: dangling von MIR erzeugt → geschlossen) ═══
+- .claude/agents/auditor.md:121 (live Agent-Def) → toter beta-testplan-Ref entfernt
+- memory/backlog.md A1 + Z.96 → obsolete Beta-Prep-Items als OBSOLET (D111) markiert
+- memory/decisions.md:210/241/254 → append-only ADR-Historie (D5 erzählt GENAU dies) → NICHT angefasst (korrekt)
+
+═══ Verifikation (alle AC) ═══
+AC1 6 Harness-Stubs weg, echtes Auto-Memory intakt          ✅
+AC2 harness MEMORY.md 0 Links auf gelöschte Files            ✅ (Pointer/entfernt)
+AC3 _HOME+.obsidian weg; 8 beta-* weg; 3 Keeper da           ✅
+AC4 in-repo memory/MEMORY.md listet keine gelöschten beta-*  ✅
+AC5 0 dangling in load-bearing Docs                          ✅ (decisions.md histor.=OK, backlog-Tombstone=OK, gitignored-PII=nicht-load-bearing)
+AC6 load-bearing memory/-Refs resolven (in-repo unangetastet) ✅
+AC7 INDEX-Runbook-Refs resolven                              ✅
+GATE audit:knowledge:check                                   HARD 0 ✅ (5 SOFT = pre-existing verify-drift, nicht dieser Slice)
+
+═══ Residuals (getrackt, NICHT in moderater Scope — Schnitt-Regel: 2. Weg protokolliert) ═══
+- beta-metrics-Tooling (scripts/beta-metrics.mjs + `beta:metrics` + beta-exit-criteria) = Dead-Beta-Tool
+  (verdrahtet, aber Beta abgebrochen D111) → retire-or-repurpose-für-Launch-Metriken = CEO/Cleanup-Entscheid.
+- memory/backlog.md = stale April-Relikt (Stand 2026-04-22, Slices 144-148, voll superseded von MASTERPLAN/TODO/disease-register) → GC-Kandidat.
+- memory/beta-tester-list.md = gitignored Dead-PII-Relikt → leave (kein git-Recovery).
+- autodream dormant-Agent + wiki-* (nicht verdrahtet, Inputs cortex-index/semantisch schon weg) → „retire autodream" = eigenes Urteil (Agent-Registry+AGENTS.md-Kopplung).
+- memory/errors.md (harness 889 vs in-repo 158, divergent) → Merge→common-errors.md = eigene Welle.
+
+NETTO: 2 duplizierte/tote Memory-Heimaten → 1 Modell mit klaren Jobs. Drift-Quelle (R1/R4) auf Meta-Ebene geschlossen.
