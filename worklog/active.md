@@ -2,23 +2,29 @@
 
 ```
 status: idle
-slice: 449
-title: K2.3 Welle E — Frontend-Doc-Dedup — DONE
-size: S
+slice: 450
+title: K2.4 — wiki/ (21 Files) → docs/knowledge/ Harvest-Kanonisierung — DONE
+size: M
 type: Doc
 stage: LOG (DONE)
-spec: inline (K2-Epic Welle E; Recon-Anker k2.3-docs-consolidation-recon.md §Welle-E)
-impact: inline (2 driftende Doc-Dubletten gelöscht; Registry-Wahrheit = CLAUDE.md §6 + Code)
-proof: worklog/proofs/449-welleE-frontend-dedup.txt
-review: self-review (Ops-Spur: reine Subtraktion, Code-Wahrheit verifiziert, kein Money/Security)
+spec: inline (K2-Epic Welle K2.4; Recon worklog/notes/k2.4-wiki-consolidation-recon.md)
+impact: inline (root wiki/ = orphan-Tree ohne aktive Kopplung; INDEX-SSOT routete IN den Orphan)
+proof: worklog/proofs/450-wiki-consolidation.txt
+review: worklog/reviews/450-review.md (PASS — 0/13 Stale geleakt, 3 NIT/LOW geheilt)
 ```
 
-## Ergebnis (K2.3 Welle E)
+## Ergebnis (K2.4 — wiki/ 21 → 0, Ordner gelöscht)
 
-- `COMPONENTS.md` + `bescout-player-card-system.md` **gelöscht** (kein Harvest). Faktencheck (Code live): driftende Dubletten, keine heimatlosen Quellen — Registry-Wahrheit = CLAUDE.md §6 + Code-Barrel-Exports; Card-System lebt im Code (`PlayerKPIs` + `PlayerDisplay` variant `compact|card`).
-- KEIN Rettungs-File (würde neuen Drift schaffen = die Krankheit, die K2 heilt). git=Archiv.
-- **docs/ root 2 → 0. → K2.3 KOMPLETT (A-E): docs/ root 18 → 0.**
+Wellen A-E (Muster K2.3 harvest→canon-check→delete):
+- **A** 8 Competitor-Files → 🆕`research/competitors.md` (Sorare-first; Canon-Heilung „Fee-Burn"→zirkulär D96, Credits/$SCOUT→D99). INDEX Z.77 umgebogen.
+- **B** early-feedback → `gtm-strategy.md` (Early-Demand-Signal-Subsektion).
+- **C** scout-launch + business-model(Token-Allok) → `legal-classification.md` §6/§6.2 (Malta-vs-Litauen, Outsourcing-Split, CASP „keine-Lizenz"=CONTESTED markiert). Stale (~3K-Malta, Süper-Lig-Shift) NICHT geerntet.
+- **D** 7 Produkt-Dubletten gelöscht (Abdeckung verifiziert: treasury/vision/fantasy/reward-ranking/equipment-realtime).
+- **E** 3 Infra-Files + 4 READMEs + 1 Hook entdrahtet.
+
+**Headline-Korrektheit:** INDEX (Routing-SSOT) zeigte auf 7 root-`wiki/`-Files als Kanon → SSOT routete in den Orphan-Tree. Aufgelöst.
+Gates: knowledge:check HARD 0 · audit:dup 0 Regression · 0 live wiki/-dangling. Reviewer PASS.
 
 ## Nächstes
-
-K2.4 `wiki/` (21) → `docs/knowledge/research`+`domain` (autodream-Kopplung beachten). Dann K2.5 Anker-Ref-Umbiegung · K2.6 Memory-Modell [CEO]. Plan-SSOT: MASTERPLAN K2.
+**K2.5** (18 Plan-Anker + `disease-register` → `knowledge` MIT Ref-Umbiegung — höchstes Risiko) · **K2.6** Memory-Modell [CEO] · **K2.2c** beta-Docs. Plan-SSOT: MASTERPLAN K2.
+Parallel offen (CEO-Wahl, NICHT TEIL A): Mock→Pro D-01 (🔴 42P10) · D-02 · D-17 · W0 DB-Security.

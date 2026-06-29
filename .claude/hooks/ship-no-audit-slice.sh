@@ -25,7 +25,7 @@ esac
 
 # Count code changes (excluding worklog/, memory/, .claude/)
 CHANGES=$(cd "$REPO_ROOT" && git diff --name-only HEAD 2>/dev/null \
-    | grep -v -E '^(worklog/|memory/|\.claude/|wiki/|README\.md|CLAUDE\.md)' \
+    | grep -v -E '^(worklog/|memory/|\.claude/|README\.md|CLAUDE\.md)' \
     | wc -l | tr -d ' ')
 
 if [ "$CHANGES" = "0" ]; then

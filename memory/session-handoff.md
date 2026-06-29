@@ -1,11 +1,34 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 12:54)
+# Session Handoff — Auto (2026-06-29 13:40)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 20 Files
+```
+ M .claude/hooks/ship-no-audit-slice.sh
+ M docs/knowledge/INDEX.md
+ M docs/knowledge/README.md
+ M docs/knowledge/decisions/legal-classification.md
+ M docs/knowledge/domain/README.md
+ M docs/knowledge/research/README.md
+ M docs/knowledge/research/gtm-strategy.md
+ M memory/session-handoff.md
+D  wiki/SCHEMA.md
+D  wiki/bescout-overview.md
+D  wiki/business-model.md
+D  wiki/compliance.md
+D  wiki/comunio.md
+D  wiki/early-feedback-freundeskreis.md
+D  wiki/equipment-system.md
+D  wiki/fancraze.md
+D  wiki/fantasy-tournaments.md
+D  wiki/gamification.md
+D  wiki/hattrick.md
+D  wiki/index.md
+```
 
-## Session Commits: 3
+## Session Commits: 4
+- 6dbd7179 docs(handoff): Session-Close 2026-06-29 — K2.3 KOMPLETT (A-E, Slices 444-449), naechste K2.4
 - 8ebc4faf chore(docs): Slice 449 — K2.3 Welle E: Frontend-Doc-Dedup (COMPONENTS + player-card-system geloescht)
 - aca5151f docs(knowledge): Slice 448 — K2.3 Welle D: Gamification/Scaling-Harvest
 - 4dde72f4 docs(handoff): Welle C done — Resume-Anker auf 444-447 + offene Folge-Punkte
@@ -16,12 +39,20 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 6) — K2.4 wiki/-Konsolidierung KOMPLETT (Slice 450, wiki/ 21→0).**
+> - **Wellen A-E** (Muster K2.3 harvest→canon-check→delete): **A** 8 Competitor-Files → 🆕`research/competitors.md` (Sorare-first; Canon-Heilung „Fee-Burn"→zirkulär D96, Credits/$SCOUT→D99) · **B** early-feedback → `gtm-strategy.md` · **C** scout-launch+business-model → `legal-classification.md` §6/§6.2 (Malta-vs-Litauen, Outsourcing, CASP-„keine-Lizenz"=CONTESTED; stale ~3K-Malta/Süper-Lig-Shift NICHT geerntet) · **D** 7 Produkt-Dubletten gelöscht · **E** 3 Infra + 4 READMEs + 1 Hook entdrahtet.
+> - **Headline-Korrektheit:** `docs/knowledge/INDEX.md` (Routing-SSOT) zeigte auf 7 root-`wiki/`-Files als Kanon → der „SSOT" routete in den Orphan-Tree. Aufgelöst. **autodream-Kopplung verifiziert Non-Issue** (zielt auf `memory/wiki-*`, nicht root-`wiki/`). Reviewer **PASS** (grep-verifiziert 0/13 Stale geleakt; 3 NIT/LOW geheilt). knowledge:check HARD 0 · audit:dup 0 Reg · 0 live dangling. Proof `proofs/450-wiki-consolidation.txt` · Review `reviews/450-review.md`.
+> - **⏭️ OFFEN K2 = K2.5 + K2.6 + K2.2c:** **K2.5** 18 Plan-Anker + `disease-register` → `knowledge` MIT Ref-Umbiegung (decisions/INDEX/treasury/handoff — höchstes Risiko, kanonische Schicht) · **K2.6** Memory-Modell [CEO] · **K2.2c** beta-Docs (12). Plan-SSOT: `MASTERPLAN.md` K2.
+> - **🟡 Folge-Smell (klein):** knowledge:check flaggt 5 domain-Files SOFT verify-drift (treasury/fantasy/missions/reward-ranking/cross-domain-map) → kleiner Re-Verify-Pass, damit behaltenes Wissen ehrlich bleibt. **Parallel offen (CEO-Wahl, NICHT TEIL A):** Mock→Pro **D-01** (🔴 latent 42P10, bricht 1. echten Spieltag) · D-02 · D-17 · W0 DB-Security (Detail: `disease-register.md` + Teil-5 unten).
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 5) — K2.3 docs-root-Konsolidierung KOMPLETT (Wellen D+E, Slices 448+449).**
 > - **448 (D):** Gamification/Scaling-Harvest → 🆕`lessons/gamification-design-principles.md` (5 Design-Regeln + Verhaltensökonomie + Ticket-/Cosmetics-Balancing + Mystery-Box-Legal + „entworfen-nicht-gebaut") + 🆕`research/scaling.md` + Amazon-FOMO→`gtm-strategy` + 2 INDEX. 3 Quell-Docs weg. Reviewer PASS — Soll-Ist-Caveat geheilt (Design „Engagement→Tickets, nie Credits" widerspricht gebauter Engine die noch Credits mintet via `claim_mission_reward`/Streak/`claim_score_road` → markiert + Pointer reward-ranking §3).
 > - **449 (E):** `COMPONENTS` + `player-card-system` **gelöscht (kein Harvest)** — Faktencheck (Code live): driftende Dubletten, KEINE heimatlosen Quellen. Registry-Wahrheit = CLAUDE.md §6 + Code-Barrel-Exports; Card-System lebt im Code (`PlayerKPIs` index.tsx:533 + `PlayerDisplay` variant `compact|card`). git=Archiv, KEIN Rettungs-File (würde neuen Drift schaffen). Self-review (Ops-Spur).
 > - **→ docs/ root 18 → 0. K2.3 KOMPLETT (A-E).** knowledge:check HARD 0, audit:dup 0 Regression über beide Slices.
 >
-> **⏭️ OFFEN K2 = K2.4 + K2.5 + K2.6 (+ K2.2c):** K2.4 `wiki/` (21, inkl. Sorare-Competitor-Analysen) → `docs/knowledge/research`+`domain` (autodream-Agent pflegt `wiki/` → Kopplung beachten) · K2.5 18 Plan-Anker (13 notes + 5 plans) + `disease-register` → `knowledge` MIT Ref-Umbiegung in decisions/INDEX/treasury/handoff (höchstes Risiko, kanonische Schicht) · K2.6 Memory-Modell [CEO] (`memory/`-Vault 1.3MB vs Auto-`MEMORY.md`) · K2.2c `beta-*`-Docs-Urteil (12, referenziert in auditor/errors-infra). Plan-SSOT: `MASTERPLAN.md` K2.
+> **⏭️ OFFEN K2 = K2.4 + K2.5 + K2.6 (+ K2.2c):** K2.4 `wiki/` ✅ DONE (Slice 450 — s. Teil-6 oben) · K2.5 18 Plan-Anker (13 notes + 5 plans) + `disease-register` → `knowledge` MIT Ref-Umbiegung in decisions/INDEX/treasury/handoff (höchstes Risiko, kanonische Schicht) · K2.6 Memory-Modell [CEO] (`memory/`-Vault 1.3MB vs Auto-`MEMORY.md`) · K2.2c `beta-*`-Docs-Urteil (12, referenziert in auditor/errors-infra). Plan-SSOT: `MASTERPLAN.md` K2.
 > **DANN K2.4 wiki/→knowledge · K2.5 Anker-Ref-Umbiegung · K2.6 Memory-Modell [CEO].**
 > **🟡 Offene CEO-/Folge-Punkte (klein, nicht dringend):** (1) `success_fee_platform_bps` (BeScout-CSF-Schnitt 0-30 %, legal-classification §5.3; treasury.md realisiert ihn NICHT, CSF 100 % Holder) → CEO-Entscheid. (2) Smell `product-map.md:55` Polls 70/30 vs kanonisch 80/20 (`polls.md`/356) → XS-Slice. (3) Soll-Ist-Gap „Engagement-Rewards minten Credits statt Tickets-only" (jetzt in gamification-design-principles markiert, Phase-1-tolerierbar D99).
 > **Parallel offen (CEO-Wahl, NICHT TEIL A) — diese Session gemeldet, volle Liste `worklog/notes/disease-register.md`:** Mock→Pro **D-01** (latenter `42P10`-Scoring-Bug, bricht 1. echten Spieltag) · **D-02** (Bench-Karten-Geld-Leak) · **D-17** (scout_scores↔user_stats divergent sichtbar) · W0 DB-Security (28 anon-SECDEF).

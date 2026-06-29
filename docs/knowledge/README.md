@@ -13,7 +13,6 @@
 - **`.claude/rules/*.md`** = path-scoped Autoload-Code-Patterns (laden beim Domain-Edit). Bleiben. `lessons/` enthält **Produkt-/Prozess-Lehren**, nicht reine Code-Patterns. Bei Überlapp: Code-Pattern → rule, übergreifende Lehre → lessons (+ Zeiger).
 - **`memory/decisions.md`** = chronologisches Decisions-Log (D1–D87). Bleibt SSOT; `decisions/` ergänzt thematisch nur, wenn ein Thema eine eigene Seite verdient.
 - **`worklog/`** = Slice-Artefakte (specs/reviews/proofs) + `concepts/` (Arbeits-Konzepte). Reife, durable Konzepte wandern nach `domain/`.
-- **`wiki/`** = Produkt-Wiki (Anil-kuratiert). Bleibt; `research/` zeigt darauf.
 - **`memory/session-handoff.md`** = Tages-Status. KEIN durables Wissen — eigenes „Haus".
 
 ## Front-matter-Pflicht (jede Datei in den 4 Buckets)

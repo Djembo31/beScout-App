@@ -4,7 +4,7 @@ created: 2026-02-18
 updated: 2026-06-29
 status: active
 tags: [legal, compliance, securities, e-geld, gluecksspiel, mica, casp, scout-card, csf, anwalt, jurisdiktion]
-consult_when: Legal-Klassifizierung, Securities/Wertpapier (Howey/WpPG/SPK), E-Geld (ZAG/PSD2/SPK), Glücksspiel-Risiko (MASAK/BTK/GGL/DFS), MiCA/CASP/$SCOUT-Token, Anwalts-Fragen, CSF-Rechtsvertrag (Community Success Fee), success_fee_platform_bps, Jurisdiktions-Matrix, fehlende Legal-Infrastruktur (AGB/Impressum/DSGVO/KVKK/AVV), Datenverarbeitung/Hosting
+consult_when: Legal-Klassifizierung, Securities/Wertpapier (Howey/WpPG/SPK), E-Geld (ZAG/PSD2/SPK), Glücksspiel-Risiko (MASAK/BTK/GGL/DFS), MiCA/CASP/$SCOUT-Token, Anwalts-Fragen, CSF-Rechtsvertrag (Community Success Fee), success_fee_platform_bps, Jurisdiktions-Matrix, fehlende Legal-Infrastruktur (AGB/Impressum/DSGVO/KVKK/AVV), Datenverarbeitung/Hosting, Token-Allokation, Jurisdiktions-Wahl Malta/Litauen, Outsourcing-Split
 ---
 
 > **Kanonische Legal-Klassifizierungs-Heimat** (konsolidiert 2026-06-29 aus den früheren `docs/legal-brief.md` (2026-02-18) + `docs/CONCEPT-DPC-ECONOMY.md` [Legal-/Vertrags-Teil] + `docs/BeScout_Licensing_Roadmap_v1.docx` [Lizenz-Matrix → §6.1] → git-History, Slice 447 K2.3-C).
@@ -187,6 +187,8 @@ Das ursprüngliche Konzept (ADR-019) sah vor, dass **BeScout 0–30 % der CSF al
 | Distribution | Airdrop nach Pilot-Aktivität (Airdrop-Score) |
 | Zeitrahmen | Phase 2, nach gültiger Token-Lizenz (kein Datum garantiert) |
 
+**Token-Allokation (Phase-2-Plan, nicht gebaut):** Migration 13 % · Pre-ICO 8 % · Main ICO 15 % · Team 12 % · Referral 12 % · Liquidity 5 % · Engagement 18 % · Legal 5 % · Reserve 12 % (= 100 %). Planungs-Stand aus dem Launch-Strategie-Entwurf (April 2026); Tokenomics anwaltlich + final vor ICO zu fixieren.
+
 **MiCA Title II — Anforderungen:**
 1. **Crypto-Asset White Paper** (Token-Beschreibung, Rechte/Pflichten, Risikofaktoren, technische Beschreibung). Keine Genehmigung, aber Notification.
 2. **Notification an NCA** (National Competent Authority), mind. 40 Arbeitstage vor Launch. NCA kann Bedenken äußern, kein Genehmigungsverfahren.
@@ -214,6 +216,29 @@ Das ursprüngliche Konzept (ADR-019) sah vor, dass **BeScout 0–30 % der CSF al
 | **E-Money / PSP** (Partnership) | Fiat On-/Off-Ramp für $SCOUT | €5.000–15.000 (Integration) | EUR/USD ↔ $SCOUT-Konversion, SEPA-Auszahlungen | Phase 2+ | GEPLANT |
 
 **Phasen-Mapping** (Quell-Doc nutzte 0/1/3/4 → kanonisch D99 1/2/3): *Gründung* = vor Launch · *Phase 1* = Credits-Welt (jetzt) · *Phase 2* = $SCOUT/CASP/Cash-out · *Phase 3* = MGA/Paid Fantasy. Trigger-Reihenfolge ist Revenue-getrieben, nicht zeit-fix.
+
+---
+
+## 6.2 Jurisdiktions-Wahl + Outsourcing-Split (Launch-Strategie-Harvest)
+
+> Aus dem früheren `wiki/scout-launch-strategie.md` (April 2026, „VERTRAULICH") — nur die noch durablen Planungs-Teile → git-History, Slice 450 K2.4-C. **Stale-bereinigt:** der „Süper Lig statt TFF 1. Lig"-Shift (superseded D1 — alle 7 Ligen launch-ready) und die älteren ~3K-Gründungs-Zahlen sind NICHT übernommen. Kanonische Kosten → §6.1-Matrix.
+
+### Jurisdiktion: Malta vs. Litauen
+
+| Kriterium | Malta | Litauen |
+|---|---|---|
+| Gründungszeit | 4–6 Wochen | 1–2 Wochen |
+| NCA | MFSA (Krypto-freundlich) | Bank of Lithuania |
+| Spätere CASP-Option | direkt möglich | neu beantragen |
+
+**Empfehlung (Entwurf): Malta** — bessere strategische Position für die spätere CASP-Lizenz (§6.1). Kanonische Gründungs-/Lizenz-Kosten → §6.1-Matrix (nicht die älteren Entwurfs-Zahlen).
+
+### Outsourcebar vs. nur Founder
+
+- **Outsourcebar:** Malta-Ltd-Gründung (CSP) · MiCA White Paper (Anwalt) · AGB/Datenschutz (Anwalt) · Token-Smart-Contract (Solidity-Dev) · Exchange-Listing (Agent).
+- **Nur Kemal:** Tokenomics definieren · White-Paper-Content liefern · Airdrop-Strategie · Community aufbauen · Club-Pitches führen · Exchange-Partner auswählen.
+
+> **CONTESTED (nicht gelöst — CEO/Legal):** Der Entwurf behauptete „Kein eigener Exchange, keine CASP-Lizenz nötig — nur Token-Issuance unter MiCA Title II". §6/§6.1 sehen CASP als Phase-2-Trigger (sobald Cash-out/Fiat-On-Ramp / BeScout selbst Custody/Swap). Ob CASP vermeidbar ist, hängt am Exchange-/Custody-Setup → Anwalts-Frage 7 (§9). Hier bewusst offen markiert, nicht entschieden.
 
 ---
 

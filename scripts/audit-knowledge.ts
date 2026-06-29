@@ -251,7 +251,9 @@ function main(): void {
   } catch { /* kein git / nichts staged → skip */ }
 
   for (const sf of staged) {
-    if (!/^docs\/knowledge\/.+\.md$/.test(sf) || sf.endsWith('INDEX.md')) continue;
+    // README.md = Bucket-Navigation (kein Front-matter/verified-against) — wie INDEX.md aus
+    // der updated:-Kopplung ausgenommen, konsistent mit listContentFiles ("README ausgeschlossen").
+    if (!/^docs\/knowledge\/.+\.md$/.test(sf) || sf.endsWith('INDEX.md') || sf.endsWith('README.md')) continue;
     let diff = '';
     try {
       diff = execSync(`git diff --cached -- "${sf}"`, { cwd: PROJECT_ROOT, encoding: 'utf8' });

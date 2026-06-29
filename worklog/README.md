@@ -39,7 +39,7 @@ Details: `.claude/rules/workflow.md`.
 
 ## Was NICHT hier rein gehoert
 
-- Wissen (→ `.claude/rules/`, `memory/`, `wiki/`)
+- Wissen (→ `.claude/rules/`, `docs/knowledge/`, `memory/`)
 - Architektur-Entscheidungen (→ `memory/decisions.md`)
 - Bug-Patterns (→ `.claude/rules/common-errors.md`)
 - Session-Handoff (→ `memory/session-handoff.md`)

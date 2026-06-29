@@ -4,7 +4,7 @@ created: 2026-04-24
 updated: 2026-06-29
 status: active
 tags: [gtm, markt, personas, zielgruppe, dream-scout, club-targeting, arr, exit, beachhead]
-consult_when: GTM, Launch-Plan/Funnel, Zielgruppe Dream-Scout, Demand-Pools, Personas/User-Journeys (Maria/Ömer/Yusuf/Lisa/Klaus), FM-Community-Beachhead, Club-Targeting (Bundesliga/Süper-Lig/EU-Top-5 Plan A-D), Pitch-Struktur, ARR-Benchmarks, Exit-Szenarien, Valuation
+consult_when: GTM, Launch-Plan/Funnel, Zielgruppe Dream-Scout, Demand-Pools, Personas/User-Journeys (Maria/Ömer/Yusuf/Lisa/Klaus), FM-Community-Beachhead, Club-Targeting (Bundesliga/Süper-Lig/EU-Top-5 Plan A-D), Pitch-Struktur, ARR-Benchmarks, Exit-Szenarien, Valuation, Early-Demand-Signal/Freundeskreis-Validierung
 ---
 
 > **Kanonische GTM-/Markt-Heimat** (konsolidiert 2026-06-29 aus dem früheren `docs/strategy-2026-04-24.md` → git-History, Slice 445 K2.3-B).
@@ -44,6 +44,16 @@ Erfüllt alle Eigenschaften: **Intensität** (10–30h/Woche, Sessions bis 3 Uhr
 
 - **Club-Anchored Fans:** Bundesliga-Kernfans + Süper-Lig-Diaspora (Galatasaray/Fenerbahçe/Beşiktaş in DE/EU) + EU-Top-5-Subreddits. Retention über Identität/Zugehörigkeit. €100–150/Jahr pro Kopf, skalierbar über Club-Partnerschaften.
 - **Creator Economy:** YouTube/Twitch/Substack-Creators. BeScout-Profil als Revenue-Amplifier, 10–100× Hebel vs. reine Ad-Revenue (€200/Mo → €2–5K/Mo).
+
+### Early-Demand-Signal (Freundeskreis-Validierung, April 2026)
+
+Erste qualitative Validierung der Kern-These aus Anils engem Freundeskreis (kein repräsentatives Sample, aber richtungsweisend):
+- **Begeisterung für das Konzept** „mit eigenem Fußball-Wissen + Spielern verdienen" — **nicht** für einen bestimmten Verein (keiner ist Sakaryaspor-Fan, alle vereinsunabhängig fußballinteressiert). Bestätigt den Hook „Wissen monetarisieren" statt Club-Loyalität.
+- **Free-First trägt:** würden auch ohne Verdien-Mechanik aktiv sein (Free Features) → stützt die Phase-1-Free-Einstiegsstrategie.
+- **Warten gezielt auf die Verdien-Mechanik** (das „$SCOUT"-/Earning-Element, Phase 2) — der Pull ist Verdienen, nicht Token-Spekulation an sich.
+- **Als Beta-Kohorte verfügbar** — persönliches Netzwerk = erste Test-Gruppe.
+
+**Strategische Erkenntnis (load-bearing):** Sakaryaspor war **Pilot, nicht Zielgruppe** (aus Nähe gewählt, kein organischer Fit). → **Multi-Club von Anfang an denken**, nicht den Single-Club-Pilot perfektionieren. Deckt sich mit der Dream-Scout-These (vereinsunabhängige Leidenschafts-Scouts).
 
 ## User Journeys (5 Personas)
 

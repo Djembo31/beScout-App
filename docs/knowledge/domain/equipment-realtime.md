@@ -1,7 +1,7 @@
 ---
 title: Equipment Inventar v2 + Realtime Following Feed
 created: 2026-04-08
-updated: 2026-06-17
+updated: 2026-06-29
 status: active
 tags: [equipment, mystery-box, realtime, inventory]
 consult_when: Equipment, Mystery-Box, Scoring-Boost, Chips, Equipment-Realtime, Live-Sync
@@ -93,3 +93,7 @@ Drop-Raten aus Migration `20260407120000` analysiert. Anil bestaetigt (A/A/A auf
 - Playwright Live QA bescout.net: alle Features verifiziert
 - Realtime E2E: `qa-realtime-feed.ts` — service-role INSERT → Pill zeigt Count → Click refetcht
 - `ipo.test.ts`: 36 tests passed, `EventDetailModal.test.tsx`: 14 tests passed
+
+## Typen + Ränge — SSOT-Pointer (Slice 450 K2.4)
+
+Die 5 Equipment-Typen (Namen, Position-Eignung) + 4 Ränge (Scoring-Multiplikator, Range ~1.05x–1.25x) sind **DB-kanonisch** in `equipment_definitions` + `equipment_ranks`. Bewusst **nicht hier als Prosa gepflegt** (Drift-Schutz; README-Regel „DB-ableitbar → auf Live-Quelle zeigen, nicht duplizieren"). Die frühere `wiki/equipment-system.md`-Dublette ist nach K2.4 gelöscht (→ git-History); für konkrete Namen/Multiplikator-Werte die DB-Tabellen abfragen.

@@ -6,4 +6,4 @@ Wissen von außerhalb des Codes: Wettbewerber, Markt, Tooling-Fähigkeiten, Ops-
 
 **Gehört NICHT hierher:** interne Produkt-Mechanik (`domain/`) · abgeschlossene Beta-Snapshots (→ `memory/_archive/`).
 
-Front-matter Pflicht (siehe `../README.md`). Wettbewerber-Detail bleibt vorerst in `wiki/`; `research/` zeigt darauf (Migration W2b nach Bedarf).
+Front-matter Pflicht (siehe `../README.md`). Wettbewerber-Detail → `competitors.md` (konsolidiert aus `wiki/` in Slice 450 K2.4).

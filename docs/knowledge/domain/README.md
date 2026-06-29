@@ -6,4 +6,4 @@ Mechanik & Funktionsweise von BeScout-Systemen: **wie** etwas arbeitet, nicht wa
 
 **Gehört NICHT hierher:** Code-Patterns (`.claude/rules/`) · Entscheidungs-Begründungen (`decisions/`) · Tages-Status (`memory/session-handoff.md`).
 
-Front-matter Pflicht (siehe `../README.md`). Migration aus `worklog/concepts/`, `wiki/`, `memory/semantisch/produkt/` erfolgt in E0-W2b.
+Front-matter Pflicht (siehe `../README.md`).

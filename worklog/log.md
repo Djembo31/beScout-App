@@ -2,6 +2,17 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 450 | 2026-06-29 | docs(knowledge): K2.4 — wiki/ (21 Files) → docs/knowledge/ Harvest-Konsolidierung
+- Stage-Chain: SPEC (inline) → IMPACT (inline) → BUILD (5 Wellen A-E) → REVIEW (Cold-Context PASS, `reviews/450-review.md`) → PROVE (`proofs/450-wiki-consolidation.txt`) → LOG.
+- **wiki/ 21 → 0, Ordner gelöscht.** Net +81/−1473 über 31 Files. Recon-Map `worklog/notes/k2.4-wiki-consolidation-recon.md` (A=7 Dublette · B=10 Harvest · C=4 Stale).
+- **Headline-Korrektheit (nicht nur Hygiene):** `docs/knowledge/INDEX.md` (Routing-SSOT) zeigte auf 7 root-`wiki/`-Files als Kanon → der „SSOT" routete in den Orphan-Tree (driftete ~2 Mo., 13 konkrete Canon-Widersprüche im Recon §4). Aufgelöst.
+- **A** 8 Competitor → 🆕`research/competitors.md` (Sorare-first, Matrix+4-Quadranten+Bedrohungen+Tiefe). Canon-Heilung: Sorare-Vergleichsspalte „Fee-Burn (deflationär)"→„zirkuläre Treasury, kein Burn" (D96/D98); „$SCOUT Credits"→D99-ehrlich (Earning=Positionierung, Cash-out Phase 2).
+- **B** early-feedback → `gtm-strategy.md` (Early-Demand-Signal). **C** scout-launch + business-model(Token-Allok) → `legal-classification.md` §6/§6.2 (Malta-vs-Litauen, Outsourcing-Split, CASP-„keine-Lizenz"=CONTESTED nicht gelöst); stale ~3K-Malta + Süper-Lig-Shift NICHT geerntet.
+- **D** 7 Produkt-Dubletten gelöscht (Abdeckung grep-verifiziert: treasury 21 Floor/Liquidation-Hits, vision 4 Identitäts-Hits). **E** SCHEMA/index/log + 4 READMEs + 1 Hook (`ship-no-audit-slice.sh`) entdrahtet.
+- **Reviewer PASS:** grep-verifiziert **0 von 13 Stale-Werten** in geernteten Files; 3 NIT/LOW geheilt (equipment DB-SSOT-Pointer in `equipment-realtime.md` · „Geschäftsmodell"-consult_when zu treasury · autodream-Warnung im Handoff gedroppt).
+- Gates: knowledge:check HARD 0 · audit:dup 0 Regression · 0 live wiki/-dangling. **autodream-Kopplung verifiziert Non-Issue** (zielt auf `memory/wiki-*`, nicht root-`wiki/`).
+- **Folge-Smell (getrackt):** knowledge:check flaggt 5 domain-Files SOFT verify-drift (treasury/fantasy/missions/reward-ranking/cross-domain-map) → kleiner Re-Verify-Pass empfohlen.
+
 ## 449 | 2026-06-29 | chore(docs): K2.3 Welle E — Frontend-Doc-Dedup (COMPONENTS + player-card-system gelöscht)
 - Stage-Chain: SPEC (inline) → IMPACT (inline) → BUILD (git rm) → REVIEW (self-review, Ops-Spur) → PROVE (`proofs/449-welleE-frontend-dedup.txt`) → LOG.
 - **Entscheidung LÖSCHEN, kein Harvest (faktenbasiert, Code live verifiziert):** anders als Wellen A-D sind diese 2 Docs driftende **Dubletten**, keine heimatlosen Quellen.

@@ -1,0 +1,48 @@
+PROOF — Slice 450 (K2.4: wiki/ 21 Files → docs/knowledge/ Harvest-Kanonisierung)
+Datum: 2026-06-29 · Type: Doc (Migration mit Referenz-Umbiegung)
+
+═══ ERGEBNIS ═══
+wiki/ (repo-root, 21 Files, verwaiste 3. Wissens-Heimat) → 0. Ordner GONE.
+Net-Subtraktion: 31 Files changed, +81 / −1473 (git diff HEAD --stat).
+
+Recon-Map (autoritativ, 4-Agent-verifiziert): worklog/notes/k2.4-wiki-consolidation-recon.md
+Klassifikation: A=7 Dublette-Delete · B=10 Harvest · C=4 Stale.
+
+═══ WELLEN (Muster K2.3: harvest → canon-check → delete) ═══
+A  Competitor-Harvest:  8 Files (sorare/kickbase/socios/comunio/onefootball/hattrick/
+   fancraze/vergleich) → NEU research/competitors.md (Sorare-first, ~250 Z.).
+   Canon-Heilung: Sorare-Vergleichsspalte „Fee-Burn (deflationär)" → „zirkuläre
+   Treasury (Fees→Topf→Rewards, kein Burn)" (D96/D98); „$SCOUT Credits" → D99-ehrliches
+   „Credits Phase 1 wertlos / Cash-out Phase 2". INDEX Z.77 → competitors.md.
+B  Demand-Harvest:  early-feedback-freundeskreis → gtm-strategy.md (Early-Demand-Signal-
+   Subsektion) → INDEX Z.78 in gtm-Zeile gefaltet.
+C  Legal/Launch-Harvest:  scout-launch-strategie (Malta-vs-Litauen + Outsourcing-Split,
+   CASP „keine-Lizenz" als CONTESTED markiert NICHT gelöst) + business-model
+   (Token-Allokation Phase 2) → legal-classification.md §6/§6.2. Stale NICHT geerntet:
+   „~3K Malta" (§6.1 = €6.900 Canon), „Süper-Lig-Shift" (superseded D1). INDEX Z.53+Z.54 aufgelöst.
+D  Produkt-Dubletten-Delete:  scout-cards, bescout-overview, compliance, fantasy-tournaments,
+   gamification, equipment-system, product-roadmap (7) — Abdeckung verifiziert
+   (treasury.md 21 Floor/Liquidation/pricing-Hits; vision.md 4 FPL/Value-Prop/Positionierung-Hits).
+   INDEX Z.16/18/19 aufgelöst (treasury + vision consult_when erweitert).
+E  Infra-Delete + Rewire:  SCHEMA, index, log (3) → 4 READMEs + 1 Hook entdrahtet, wiki/ Ordner entfernt.
+
+═══ GATES (alle grün) ═══
+$ pnpm audit:knowledge:check
+  Content-Files: 24 · INDEX-Links: 36 · HARD: 0 · SOFT: 5
+  → HARD 0 (competitors.md 6-Feld-Front-matter valid + INDEX konsistent).
+  → 5 SOFT = pre-existing verify-drift auf NICHT berührten domain-Files
+    (cross-domain-map/fantasy/missions/reward-ranking/treasury) — slice-fremd, nightly, kein Block.
+
+$ pnpm audit:dup
+  Registry 9 · Geheilt-Regression 0 · untracked Verdacht 0 → ✅ keine Regression.
+
+$ grep -rn "wiki/" docs/knowledge/
+  → 0 live Routing-Links. 3 Treffer = Provenienz-Notizen in Backticks
+    („konsolidiert aus `wiki/` → git-History") in competitors/legal/research-README — intentional.
+  → INDEX.md: 0 wiki/-Referenzen (alle 7 aufgelöst).
+
+═══ HEADLINE-BEFUND (Korrektheit, nicht nur Hygiene) ═══
+docs/knowledge/INDEX.md (Routing-SSOT) zeigte vor K2.4 auf 7 root-wiki/-Files als Kanon.
+→ Der „Single Source of Truth" routete in den Orphan-Tree. Jetzt aufgelöst.
+
+REVIEW: worklog/reviews/450-review.md (Cold-Context-Reviewer, Batch über Harvest A+B+C).
