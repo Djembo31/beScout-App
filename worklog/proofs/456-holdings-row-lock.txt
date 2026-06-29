@@ -1,0 +1,58 @@
+Slice 456 — D-02b: holdings Row-Lock gegen cross-event Concurrency-Race — PROOF
+DB: skzjfhvgccaeplydsunz · Datum: 2026-06-29 · Scope: Money/§3 · Reviewer-Catch S455
+
+=====================================================================
+1) RECON (Live-D87, nach S455)
+=====================================================================
+rpc_save_lineup: anchor 'v_min_sc := COALESCE(v_event.min_sc_per_slot, 1);' = 1x (eindeutig),
+FOR UPDATE count = 0 (sauberer Idempotenz-Guard), 455-Bloecke A+B present (insufficient_sc_bench=1).
+Writer-Enum (S455): rpc_save_lineup = EINZIGER holding_locks-INSERT-Writer.
+
+Bug (D-02b): Verfuegbarkeits-Check liest holdings.quantity - SUM(locks WHERE event!=p_event_id) per
+plain SELECT ohne Row-Lock -> 2 concurrent Saves (gleicher User, verschiedene Events, gleiche Karte)
+sehen beide available -> beide locken = Over-Commit. Vererbt; S455 schloss nur den sequentiellen Reuse.
+
+=====================================================================
+2) FIX (Block C, vor v_min_sc :=)
+=====================================================================
+  PERFORM 1 FROM public.holdings
+  WHERE user_id = p_user_id
+    AND player_id IN (SELECT DISTINCT pid FROM unnest(v_all_slots || v_bench_uids) AS u(pid) WHERE pid IS NOT NULL)
+  ORDER BY player_id
+  FOR UPDATE;
+Korrektheit: einziger Writer -> beide Saves nehmen vor dem Read denselben holdings-Row FOR UPDATE ->
+serialisieren; holdings-Row = Rendezvous (Karte, nicht Rolle -> deckt Starter+Bench); ORDER BY player_id
+= deadlock-frei bei Mehr-Karten-Overlap; nicht-besessene Karten: kein Lock, aber Check rejected sie.
+
+=====================================================================
+3) FORCE-ROLLBACK SMOKE (Block C via replace, danach DB unveraendert)
+=====================================================================
+Patch (anchorC matchte, kein RAISE) + Fixture (1-2-2-2, 7+7 disjunkte Starter + 1 geteilte Bench X):
+
+  step                  | result
+  ----------------------+--------------------------------------------------------------
+  1_A_save              | {ok:true, is_new:true}                  <- Block C bricht Happy-Path nicht
+  2_A_lock_count        | 8                                       <- 7 Starter + 1 Bench (identisch S455)
+  3_B_save_sharedbench  | {ok:false, error:insufficient_sc_bench, available:0}  <- A+B+C koexistieren
+  4_for_update_count    | 1                                       <- Block C genau 1x
+
+Echte 2-Session-Concurrency via MCP-Single-Connection nicht testbar -> Korrektheit per Konstruktion
+(einziger Writer + holdings-Rendezvous + geordneter Lock) + Reviewer.
+
+=====================================================================
+4) POST-APPLY (CEO Anil „d-02b machen"; Migration slice_456_holdings_row_lock = success)
+=====================================================================
+pg_get_functiondef-Counts (live, nach Apply):
+  cnt_for_update        = 1   <- Block C genau 1x
+  cnt_d02b_marker       = 1   <- spezifischer Idempotenz-Marker (Reviewer Finding#2)
+  cnt_bench_err_A       = 1   <- 455 Block A unveraendert
+  cnt_bench_insert_B    = 1   <- 455 Block B unveraendert
+  cnt_starter_insert    = 1   <- Starter-Lock unveraendert
+  => 1 additiver Block C, A+B+C koexistieren, Starter byte-treu.
+SECDEF/Grants:
+  prosecdef = true · proconfig = null · acl = postgres|authenticated|service_role · mentions_anon = false
+Index-Beleg (Deadlock-Order): holdings_user_id_player_id_key = UNIQUE(user_id,player_id)
+  -> ORDER BY player_id FOR UPDATE scannt index-geordnet = sortierte Lock-Reihenfolge.
+Reviewer S456 = PASS (Race per Konstruktion geschlossen; Deadlock vernachlaessigbar+self-healing).
+
+ERGEBNIS: AC1 ✅ AC2 ✅ AC3 ✅ AC4 ✅ AC5 ✅. D-02b live geschlossen.

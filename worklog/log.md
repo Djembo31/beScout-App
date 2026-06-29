@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 456 | 2026-06-29 | fix(fantasy): D-02b — holdings Row-Lock gegen cross-event Concurrency-Race (live)
+- Stage-Chain: SPEC → IMPACT (skipped, 1 additiver Lock) → BUILD → PROVE (force-rollback) → REVIEW (Cold-Context PASS) → CEO-Apply → LOG. **Money/§3, CEO Anil „d-02b machen".**
+- **Problem (Reviewer-Catch S455, D-02b):** `rpc_save_lineup` Verfügbarkeits-Check (Starter-Loop + Bench-Block A) liest `holdings.quantity − SUM(holding_locks WHERE event_id != p_event_id)` per **plain SELECT** ohne Row-Lock → 2 gleichzeitige Saves desselben Users auf verschiedene Events mit derselben Karte sehen beide `available` → beide INSERTen einen Lock (verschiedene PK `event_id`) = Over-Commit (TOCTOU). Vererbt vom Starter-Pfad; S455 schloss nur den sequentiellen Reuse.
+- **Fix:** 1 additiver Block C vor `v_min_sc :=` — upfront `FOR UPDATE` auf alle beteiligten holdings-Rows (`unnest(v_all_slots || v_bench_uids)`, `ORDER BY player_id` = deadlock-frei). `rpc_save_lineup` = einziger `holding_locks`-INSERT-Writer (S453-Enum) → beide Racer rendezvousen auf der holdings-Row → serialisieren; READ COMMITTED re-read inkl. committetem Lock → korrekter Reject. Byte-true Patch via `replace()` am Anker, self-verify, idempotent (D-02b-Marker-Guard). Migration `20260629180000`.
+- **Reviewer (PASS):** „a senior would merge this". Race per Konstruktion geschlossen, Deadlock vernachlässigbar+self-healing (LockRows über Sort/IndexScan; cross-RPC strukturell ausgeschlossen). Finding#2 (Guard zu breit) → auf D-02b-Marker verengt. Index `holdings_user_id_player_id_key` (UNIQUE) live = sortierte Lock-Order.
+- **Proof:** force-rollback (Happy-Path 8 Locks unverändert, A+B+C koexistieren, B→`insufficient_sc_bench`, FOR UPDATE=1); post-apply functiondef-Counts (FOR UPDATE=1, D-02b-Marker=1, A=1, B=1, Starter-INSERT=1) + SECDEF/proconfig=null/Grants(anon kein EXECUTE) bewahrt. Proof `456-holdings-row-lock.txt`, Review `456-review.md`.
+- **Knowledge:** errors-db **S456** (TOCTOU auf Child-INSERT → `FOR UPDATE` auf geteilte Parent-Row, Single-Writer-Invariante). Disease-Register **D-02b → geheilt**; **D-20 = BEHALTEN** (CEO Anil 2026-06-29).
+
 ## 455 | 2026-06-29 | fix(fantasy): D-02 — Bench-Karten in holding_locks (Geld-Leck, live)
 - Stage-Chain: SPEC → IMPACT (skipped, nur neuer Reject-Code) → BUILD → REVIEW (Cold-Context CONCERNS → Finding#1 gefixt, #2 getrackt) → PROVE (force-rollback + post-apply) → LOG. **Money/§3, CEO-Apply Anil.**
 - **Problem (D87 Live):** `rpc_save_lineup` (25k-Money-RPC, SECDEF) lockt nur die 12 Starter (`v_all_slots`) in `holding_locks`; die Bank (`v_bench_uids`) wird voll validiert aber NIE gelockt UND nie cross-event geprüft → dieselbe Bench-Karte in N gleichzeitigen Events nutzbar, Auto-Sub punktet überall (echtes Wallet-Credit) = Reward-Leck. **Latent** (holding_locks=0, lineups_with_bench=0 live).

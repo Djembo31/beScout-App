@@ -95,7 +95,7 @@ Legende Scope: **CTO** = autonom heilbar · **Money/CEO** = §3, selbst + CEO-Ap
 | D-07 | **2-arg `deduct_wallet_balance`/`refund_wallet_balance`** (4 Overloads) — schreiben KEIN `transactions`-Ledger (Audit-Trail-Bypass), 0 Caller, supersedet von 5-arg, nie gedroppt. Latenter Overload-Footgun. | ungetr.-dup | XS | 🟠 offen |
 | D-08 | **`getSystemStats` `.limit(5000)`** — `totalBsdCirculation` (wallets-SUM) unterzählt still ab >1000 Usern (heute 128); korrekter RPC-Zwilling `get_treasury_stats` existiert, alter Pfad nie konsolidiert. | money-risiko | S | 🟠 offen |
 | D-09 | `getTreasuryStats`-Fallback `.limit(5000)` über trades (Fee-Summen) — gleiche Cap-Klasse, nur im RPC-Ausfall-Branch. | konsist. | S | 🟡 offen |
-| D-02b | **TOCTOU cross-event Concurrency-Race in `rpc_save_lineup`** — Verfügbarkeits-Check (Starter UND Bench) liest `holdings` per plain SELECT ohne `FOR UPDATE` → 2 gleichzeitige Saves desselben Users auf verschiedene Events mit derselben Karte sehen beide `available` → beide locken (verschiedene PK). **Vererbt** vom Starter-Pfad; S455 macht es nicht schlimmer (schließt den sequentiellen Bench-Reuse). Fix = `FOR UPDATE` auf die committeten holdings-Rows, deckt Starter+Bench gemeinsam. | concurrency | S | 🟡 offen (S455-Residual, Reviewer-Catch) |
+| D-02b | **TOCTOU cross-event Concurrency-Race in `rpc_save_lineup`** — Verfügbarkeits-Check (Starter UND Bench) liest `holdings` per plain SELECT ohne `FOR UPDATE` → 2 gleichzeitige Saves desselben Users auf verschiedene Events mit derselben Karte sehen beide `available` → beide locken (verschiedene PK). **Vererbt** vom Starter-Pfad; S455 macht es nicht schlimmer (schließt den sequentiellen Bench-Reuse). Fix = `FOR UPDATE` auf die committeten holdings-Rows, deckt Starter+Bench gemeinsam. | concurrency | S | ✅ **geheilt S456** (upfront ordered `FOR UPDATE` auf alle beteiligten holdings-Rows vor den Verfügbarkeits-Checks; single-writer-Rendezvous; deadlock-frei via `ORDER BY player_id` + UNIQUE-Index; force-rollback + post-apply bewiesen; Reviewer PASS „a senior would merge this") |
 
 ### 🟠 Tote Flächen — Dead-Feature-GC (entscheiden + entfernen)
 | ID | Befund | Klasse | Aufw. | Scope | Status |
@@ -114,7 +114,7 @@ Legende Scope: **CTO** = autonom heilbar · **Money/CEO** = §3, selbst + CEO-Ap
 | D-17 | **`scout_scores` ↔ `user_stats` Dual-Write divergent** — gleicher Trigger schreibt beide mit verschiedenen Formeln; live divergent für ALLE 70 Overlap-User (z.B. manager 778 vs 418). Beide live gerendert (/rankings vs /community). | datenmodell | L | ✅ **geheilt S454** (CEO Anil „A": user_stats-Scores = kept-fresh Projektion von scout_scores via Trigger; Divergenz 70→0 live; Money-Anker 0 Edits; Reviewer-Level-Notif-Kaskade geguarded. Residual: Path-2 Spalten-Drop + D-11) |
 | D-18 | **`events`-Tabelle (40 Spalten):** `entry_fee` seit 3 Monaten „DEPRECATED", aber `create_user_event` (2 Tage alt!) schreibt es weiter dual; `prize_pool` vs `reward_structure` alt/neu koexistent. | datenmodell | L | 🟡 offen |
 | D-19 | **`players` (49 Spalten):** denormalisierte Aggregate (matches/goals/...) **driften live 22 %** (880/3963 falsch), kein Trigger, kein Schedule — nur manueller `gameweek-sync`. PerformanceTab zeigt Saison- UND Fixture-Daten widersprüchlich. | datenmodell | M | 🟡 offen |
-| D-20 | **`lineups` (33 Spalten) Wide-Column** — `slot_att3` + alle 4 `bench_*` = 0 Rows live → Bench/Auto-Sub-Feature (195d) **in Prod nie befüllt = tot**. Orphan-Typ `Lineup` (types/index.ts:292) neben `DbLineup`. | datenmodell | L | 🟡 offen (D111) |
+| D-20 | **`lineups` (33 Spalten) Wide-Column** — `slot_att3` + alle 4 `bench_*` = 0 Rows live → Bench/Auto-Sub-Feature (195d) **in Prod nie befüllt = tot**. Orphan-Typ `Lineup` (types/index.ts:292) neben `DbLineup`. | datenmodell | L | 🟢 **BEHALTEN** (CEO Anil 2026-06-29: Bench/Auto-Sub bleibt aktives Produkt-Feature; D-02 gehärtet S455 + D-02b S456). Rest-Hygiene (`slot_att3`-Nutzung + Orphan-Typ `Lineup`) bleibt offen, kein Feature-Rückbau. |
 | D-21 | **Externe-ID doppelt modelliert:** `player_external_ids` (9663) vs inline `players.api_football_id`; `players.fixture_api_football_id` TOT mit 2 bereits falschen Rows; `clubs.api_football_id` vs `club_external_ids` ohne Sync-Trigger; `leagues` ohne external-Tabelle (Pattern nie fertig). 185 Spieler im Scoring-Pfad via pei unsichtbar. | datenmodell | M | 🟡 offen |
 | D-22 | `clubs.active_gameweek` + `leagues.active_gameweek` (zwei Spalten, ein Konzept) — clubs frozen+unread, **428b DROP post-Deploy offen**. | datenmodell | XS | 🟡 offen (D115) |
 
@@ -142,7 +142,7 @@ Legende Scope: **CTO** = autonom heilbar · **Money/CEO** = §3, selbst + CEO-Ap
 
 ## 4. Bewusste Zwei + Geheilt (NICHT als Krankheit behandeln)
 - **Gesund (bewusste-zwei, protokolliert):** `orders`/`offers` (D112) · `fan_rankings`/`airdrop_scores`/`score_history` (eigene Grains, kein Parallel-Aggregat) · `score_event` Default-40 (Slice 419 bewusst) · `players`-Aggregat-Denorm als Read-Cache (Pattern legitim — krank ist nur der trigger-lose Drift, s. D-19).
-- **Geheilt (Beleg dass das Muster schließbar ist):** `treasury_balance_cents`→Ledger (406) · 2× Lineup-Builder (426) · GameweekSelector (421) · `initial_listing_price` (368f) · `buy_from_ipo`-Idempotenz (403) · Tracker-Stand (430) · Hooks/Skills (431) · D-01 Scoring-fixture-bound (453) · D-17 Ranking-SSOT (454) · D-02 Bench-Lock (455).
+- **Geheilt (Beleg dass das Muster schließbar ist):** `treasury_balance_cents`→Ledger (406) · 2× Lineup-Builder (426) · GameweekSelector (421) · `initial_listing_price` (368f) · `buy_from_ipo`-Idempotenz (403) · Tracker-Stand (430) · Hooks/Skills (431) · D-01 Scoring-fixture-bound (453) · D-17 Ranking-SSOT (454) · D-02 Bench-Lock (455) · D-02b Concurrency-Lock (456).
 
 ---
 
@@ -161,6 +161,6 @@ Legende Scope: **CTO** = autonom heilbar · **Money/CEO** = §3, selbst + CEO-Ap
 4. **[Money-Path-Unifikation]** D-05/D-06/D-07 + 3 Kauf-RPCs.
 5. **[RLS/Index-Konsolidierung]** 81 permissive Policies mergen + 26 unused Index + 51 FK-Index.
 6. **[Dead-Feature-GC]** D-10/D-14/D-16 + Wildcard/Club-Missionen (geparkt).
-7. **[D113-Klasse]** D-01 ✅ geheilt 453 · D-02 ✅ geheilt 455 · D-02b (Concurrency-Residual) + D-04 offen.
+7. **[D113-Klasse]** D-01 ✅ geheilt 453 · D-02 ✅ geheilt 455 · D-02b ✅ geheilt 456 · D-04 (lineups DB-UNIQUE) offen.
 8. **[Architektur XL]** D-03 SSR-Prefetch — höchste Wirkung, niedrigster Hebel-pro-Aufwand → zuletzt.
 9. **[Konsistenz-Batch]** D-23/D-24/D-25/D-26 — klein, hoch-sichtbar.

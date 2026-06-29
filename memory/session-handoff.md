@@ -1,22 +1,23 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 18:51)
+# Session Handoff — Auto (2026-06-29 19:48)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 5 Files
 ```
  M memory/session-handoff.md
  M worklog/active.md
-?? supabase/migrations/20260629170000_slice_455_bench_holding_locks.sql
-?? worklog/proofs/455-bench-locks.txt
+?? supabase/migrations/20260629180000_slice_456_holdings_row_lock.sql
+?? worklog/proofs/456-holdings-row-lock.txt
+?? worklog/specs/456-d02b-holdings-row-lock.md
 ```
 
 ## Session Commits: 5
+- 92b007de fix(fantasy): Slice 455 — D-02 Bench-Karten in holding_locks (Geld-Leck, live)
 - 94f36201 docs(spec): Slice 455 D-02 Bench-Lock — Recon+Fix-Design komplett (Build vertagt, Checkpoint)
 - edfb8600 docs(register): D-17 dup-registry geheilt->bewusste-zwei (Projektion legitim, Symbole bleiben)
 - e291aee8 fix(ranking): Slice 454 — D-17 Ranking-SSOT (user_stats = Projektion von scout_scores, live)
 - aee0aa95 fix(scoring): Slice 453 — D-01 Scoring-Funktionen aufs Fixture-Modell (42P10-Landmine, live)
-- 939a2f84 docs(cleanup): Slice 452 — K2.6 Memory-Split + K2.2c beta-Docs (K2-Epic komplett)
 
 <!-- auto:handoff-end -->
 
@@ -24,6 +25,15 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 13) — D-02b Concurrency-Race GEHEILT live (Slice 456) + D-20 CEO-Entscheid.**
+> - **CEO Anil:** „d-02b machen" + „D-20 behalten".
+> - **Fix (live, Migration `20260629180000`):** `rpc_save_lineup` Verfügbarkeits-Check (Starter+Bench) las `holdings` ohne `FOR UPDATE` → cross-event Over-Commit-Race (2 concurrent Saves, gleiche Karte, verschiedene Events → beide locken). 1 additiver Block C: upfront `FOR UPDATE` auf alle beteiligten holdings-Rows (`unnest(v_all_slots || v_bench_uids)`, `ORDER BY player_id` = deadlock-frei) VOR den Checks. Single-Writer-Rendezvous (rpc_save_lineup einziger Lock-Writer) → serialisiert; READ COMMITTED re-read → korrekter Reject. Byte-true Patch via `replace()`, self-verify, idempotent (D-02b-Marker-Guard). Reviewer **PASS** („a senior would merge this").
+> - **Proof:** force-rollback (Happy-Path 8 Locks unverändert, A+B+C koexistieren, FOR UPDATE=1); post-apply functiondef-Counts + SECDEF/proconfig=null/Grants(anon kein EXECUTE) bewahrt; Index `holdings_user_id_player_id_key` UNIQUE = sortierte Lock-Order. Proof `456-holdings-row-lock.txt`, Review `456-review.md`. Knowledge errors-db **S456** (TOCTOU Child-INSERT → Parent-FOR-UPDATE).
+> - **D-20 (Bench/Auto-Sub Wide-Column):** CEO = **BEHALTEN** (aktives Feature; D-02/D-02b gehärtet). Rest-Hygiene (`slot_att3`-Nutzung, Orphan-Typ `Lineup`) bleibt offen, kein Feature-Rückbau.
+> - **⏭️ NÄCHSTES (TEIL B, CEO-Wahl):** **W0** DB-Security-Batch (28 anon-SECDEF; Triage: keine anon-Geld-Mutation, 3 echte Items D-12/Audit-RPCs/Hygiene) · **W2 Path-2** (user_stats-Score-Spalten-Drop) + **D-11** (totes bescout_scores) = 454-Residuals · K6/K7 (TEIL-A LOW).
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 12) — D-02 Bench-Geld-Leck GEHEILT live (Slice 455).**
 > - **CEO-Wahl Anil:** „D-02 fertigbauen" → force-rollback-Smoke + Reviewer + CEO-Apply (§3) freigegeben.
 > - **Fix (live, Migration `20260629170000`):** `rpc_save_lineup` (25k-Money-RPC) lockte nur 12 Starter; Bench (`v_bench_uids`) validiert aber nie in `holding_locks` + nie cross-event geprüft → Bench-Karte in N Events wiederverwendbar (Auto-Sub-Reward-Leck). 2 additive Blöcke spiegeln Starter-Logik 1:1, Starter byte-treu: (A) Bench cross-event-Verfügbarkeit → reject `insufficient_sc_bench`; (B) Bench-Lock-INSERT (qty `v_min_sc`, ON CONFLICT DO NOTHING). Methode = byte-true Patch aus Live-`pg_get_functiondef` via `replace()` an 2 eindeutigen Ankern, self-verify, idempotent (S156). **Latent geschlossen** (holding_locks=0 live). FE `useEventActions.ts` Toast gefixt.
