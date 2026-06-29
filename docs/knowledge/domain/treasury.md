@@ -204,7 +204,7 @@ Die Geldquelle eines Events ist **`events.type`** (= Kategorie UND Finanzierung)
 
 **Bau-Stand 2026-06-19:** FRE-1 Leiter/Perk-Katalog ✅ · FRE-2 Follow zählt ✅ · FRE-3 exklusive Vereins-Beiträge mit 🔒-Vorschau ✅ · FRE-5 club-konfigurierbare Fan-Rang-Schwellen ✅. **FRE-4 Airdrop ist bewusst verschoben** auf echte-Coin-/CASP-Phase; Verein zahlt aktuell keine $SCOUT-Airdrops aus Treasury.
 
-**Offen in aktueller Phase:** Polls-Reste (exklusive Treue-Umfragen, Abo-Early-Access). `csf_multiplier`-Removal ist erledigt (Slice 348 — Spalte + RPC-Variable + Return-Feld + TS raus). Fan-Reward-Engine selbst ist für diese Phase produktfähig genug; nächster Fokus = Pro-Stand-Roadmap `worklog/notes/348-pro-stand-roadmap.md`.
+**Offen in aktueller Phase:** Polls-Reste (exklusive Treue-Umfragen, Abo-Early-Access). `csf_multiplier`-Removal ist erledigt (Slice 348 — Spalte + RPC-Variable + Return-Feld + TS raus). Fan-Reward-Engine selbst ist für diese Phase produktfähig genug; nächster Fokus = Mock→Pro-Plan `worklog/notes/mock2pro-plan.md`.
 
 ---
 

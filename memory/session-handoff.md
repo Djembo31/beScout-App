@@ -1,33 +1,32 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 13:40)
+# Session Handoff — Auto (2026-06-29 14:44)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 20 Files
+## Uncommitted Changes: 18 Files
 ```
- M .claude/hooks/ship-no-audit-slice.sh
- M docs/knowledge/INDEX.md
- M docs/knowledge/README.md
- M docs/knowledge/decisions/legal-classification.md
- M docs/knowledge/domain/README.md
- M docs/knowledge/research/README.md
- M docs/knowledge/research/gtm-strategy.md
+ M .claude/rules/workflow.md
+ M .husky/pre-commit
+ M MASTERPLAN.md
+ M TODO.md
+ M docs/knowledge/domain/bescout-liga.md
+ M docs/knowledge/domain/treasury.md
+D  docs/plans/2026-04-08-transactions-history-spec.md
+D  docs/plans/2026-04-10-bescout-liga-spec.md
  M memory/session-handoff.md
-D  wiki/SCHEMA.md
-D  wiki/bescout-overview.md
-D  wiki/business-model.md
-D  wiki/compliance.md
-D  wiki/comunio.md
-D  wiki/early-feedback-freundeskreis.md
-D  wiki/equipment-system.md
-D  wiki/fancraze.md
-D  wiki/fantasy-tournaments.md
-D  wiki/gamification.md
-D  wiki/hattrick.md
-D  wiki/index.md
+ M scripts/tracker-drift-check.mjs
+ M worklog/active.md
+ M worklog/log.md
+D  worklog/notes/348-pro-stand-roadmap.md
+D  worklog/notes/k2.3-docs-consolidation-recon.md
+D  worklog/notes/k2.4-wiki-consolidation-recon.md
+D  worklog/notes/process-elite-prep.md
+?? worklog/notes/k2.5-anchor-redirect-recon.md
+?? worklog/proofs/451-k2.5-anchor-redirect.txt
 ```
 
-## Session Commits: 4
+## Session Commits: 5
+- 7b6bdb68 docs(knowledge): Slice 450 — K2.4 wiki/ -> docs/knowledge/ Harvest-Konsolidierung (wiki/ 21->0)
 - 6dbd7179 docs(handoff): Session-Close 2026-06-29 — K2.3 KOMPLETT (A-E, Slices 444-449), naechste K2.4
 - 8ebc4faf chore(docs): Slice 449 — K2.3 Welle E: Frontend-Doc-Dedup (COMPONENTS + player-card-system geloescht)
 - aca5151f docs(knowledge): Slice 448 — K2.3 Welle D: Gamification/Scaling-Harvest
@@ -39,6 +38,16 @@ D  wiki/index.md
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 7) — K2.5 Anker-Ref-Umbiegung KOMPLETT (Slice 451).**
+> - **Recon-Befund: niedriger-Risiko als befürchtet** — durable Wissen ist schon kanonisch (decisions D104-D117 + treasury/fantasy). 23 Anker: 0 K-pure · 9 W (bleiben als Evidenz) · 13 S · 1 T. Map: `worklog/notes/k2.5-anchor-redirect-recon.md` (→ K2.6-GC).
+> - **CEO-Entscheid: disease-register Option B** — bleibt tool-gekoppelt in `worklog/notes` (Move verworfen: operatives Living-Register + audit:knowledge-Gate-Churn). MASTERPLAN:64 annotiert.
+> - **6 gelöscht** (git=Archiv): process-elite-prep · k2.3/k2.4-recon · 348-pro-stand · transactions-spec · bescout-liga-spec. docs/plans 5→3 (jarvis-cortex×2 → K2.6-defer, scout-card-spec = D100-Evidenz bleibt).
+> - **Echter Drift gefixt:** `348-pro-stand` (superseded → `mock2pro-plan`) an 4 Live-Stellen (`workflow.md:245`-REGEL · `treasury.md:207` · `.husky/pre-commit:35` · `TODO.md:13`) + bescout-liga Spec-Row + 2 Provenance-Kommentare. **append-only decisions.md UNANGETASTET** (ADR-Evidenz 357/365/scout-card/workflow-ideal/E0-welle2 behalten → Pointer valid).
+> - Gates: knowledge:check HARD 0 · audit:dup 0 Reg · **grep 0 live dangling**. **Reviewer PASS** (independent repo-grep bestätigt 0 dangling, append-only geschützt; 3 NIT/INFO). Proof `proofs/451-k2.5-anchor-redirect.txt` · Review `reviews/451-review.md`.
+> - **⏭️ OFFEN K2 = K2.6 + K2.2c:** **K2.6** Memory-Modell [CEO] (`memory/`-Vault vs Auto-`MEMORY.md`; Prior-Art `E0-welle2` + `jarvis-cortex`×2 + `workflow-ideal-prep` [dangling intra-ref→GC] warten dafür) · **K2.2c** beta-Docs (12). Plan-SSOT: MASTERPLAN K2. **Parallel (CEO-Wahl):** Mock→Pro D-01 (🔴 42P10) · D-02 · D-17 · W0 DB-Security.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 6) — K2.4 wiki/-Konsolidierung KOMPLETT (Slice 450, wiki/ 21→0).**
 > - **Wellen A-E** (Muster K2.3 harvest→canon-check→delete): **A** 8 Competitor-Files → 🆕`research/competitors.md` (Sorare-first; Canon-Heilung „Fee-Burn"→zirkulär D96, Credits/$SCOUT→D99) · **B** early-feedback → `gtm-strategy.md` · **C** scout-launch+business-model → `legal-classification.md` §6/§6.2 (Malta-vs-Litauen, Outsourcing, CASP-„keine-Lizenz"=CONTESTED; stale ~3K-Malta/Süper-Lig-Shift NICHT geerntet) · **D** 7 Produkt-Dubletten gelöscht · **E** 3 Infra + 4 READMEs + 1 Hook entdrahtet.
 > - **Headline-Korrektheit:** `docs/knowledge/INDEX.md` (Routing-SSOT) zeigte auf 7 root-`wiki/`-Files als Kanon → der „SSOT" routete in den Orphan-Tree. Aufgelöst. **autodream-Kopplung verifiziert Non-Issue** (zielt auf `memory/wiki-*`, nicht root-`wiki/`). Reviewer **PASS** (grep-verifiziert 0/13 Stale geleakt; 3 NIT/LOW geheilt). knowledge:check HARD 0 · audit:dup 0 Reg · 0 live dangling. Proof `proofs/450-wiki-consolidation.txt` · Review `reviews/450-review.md`.

@@ -1,7 +1,7 @@
 ---
 title: BeScout Liga + Rankings Hub
 created: 2026-04-10
-updated: 2026-06-25
+updated: 2026-06-29
 status: active
 tags: [liga, rankings, leaderboard, bescout-saison]
 consult_when: Rankings-Hub, BeScout-Saison (Nutzer-Wettbewerb), Pro-Liga-Wertung, Liga-weiter Wettbewerb
@@ -124,7 +124,6 @@ Alle 7 Widgets implementiert (Q6 beantwortet):
 | `src/components/admin/EventFormModal.tsx` | is_liga_event Checkbox |
 | `src/app/api/cron/gameweek-sync/route.ts` | Liga-Scoring in Cron |
 | `src/app/(app)/hooks/useHomeData.ts` | 7d Price Changes (real) |
-| `docs/plans/2026-04-10-bescout-liga-spec.md` | Ursprünglicher Spec-Plan |
 
 ---
 

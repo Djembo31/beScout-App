@@ -2,29 +2,25 @@
 
 ```
 status: idle
-slice: 450
-title: K2.4 — wiki/ (21 Files) → docs/knowledge/ Harvest-Kanonisierung — DONE
-size: M
+slice: 451
+title: K2.5 — Plan-Anker + disease-register Ref-Umbiegung — DONE
+size: L
 type: Doc
 stage: LOG (DONE)
-spec: inline (K2-Epic Welle K2.4; Recon worklog/notes/k2.4-wiki-consolidation-recon.md)
-impact: inline (root wiki/ = orphan-Tree ohne aktive Kopplung; INDEX-SSOT routete IN den Orphan)
-proof: worklog/proofs/450-wiki-consolidation.txt
-review: worklog/reviews/450-review.md (PASS — 0/13 Stale geleakt, 3 NIT/LOW geheilt)
+spec: inline (Recon worklog/notes/k2.5-anchor-redirect-recon.md)
+impact: kanonische Schicht berührt (workflow.md-Regel + treasury/bescout-liga) — Ref-Umbiegung only, money-neutral, append-only decisions.md UNANGETASTET
+proof: worklog/proofs/451-k2.5-anchor-redirect.txt
+review: worklog/reviews/451-review.md (PASS — 0 live dangling, append-only geschützt, 3 NIT/INFO)
 ```
 
-## Ergebnis (K2.4 — wiki/ 21 → 0, Ordner gelöscht)
+## Ergebnis (K2.5 — Anker-Ref-Umbiegung)
 
-Wellen A-E (Muster K2.3 harvest→canon-check→delete):
-- **A** 8 Competitor-Files → 🆕`research/competitors.md` (Sorare-first; Canon-Heilung „Fee-Burn"→zirkulär D96, Credits/$SCOUT→D99). INDEX Z.77 umgebogen.
-- **B** early-feedback → `gtm-strategy.md` (Early-Demand-Signal-Subsektion).
-- **C** scout-launch + business-model(Token-Allok) → `legal-classification.md` §6/§6.2 (Malta-vs-Litauen, Outsourcing-Split, CASP „keine-Lizenz"=CONTESTED markiert). Stale (~3K-Malta, Süper-Lig-Shift) NICHT geerntet.
-- **D** 7 Produkt-Dubletten gelöscht (Abdeckung verifiziert: treasury/vision/fantasy/reward-ranking/equipment-realtime).
-- **E** 3 Infra-Files + 4 READMEs + 1 Hook entdrahtet.
-
-**Headline-Korrektheit:** INDEX (Routing-SSOT) zeigte auf 7 root-`wiki/`-Files als Kanon → SSOT routete in den Orphan-Tree. Aufgelöst.
-Gates: knowledge:check HARD 0 · audit:dup 0 Regression · 0 live wiki/-dangling. Reviewer PASS.
+Recon-Befund: niedriger-Risiko — durable Wissen schon kanonisch (decisions D104-D117 + treasury/fantasy). 23 Anker: 0 K · 9 W (bleiben als Evidenz) · 13 S · 1 T.
+- **6 gelöscht** (git=Archiv): process-elite-prep · k2.3/k2.4-recon · 348-pro-stand · transactions-spec · bescout-liga-spec. docs/plans 5→3 (jarvis-cortex×2 → K2.6-defer, scout-card-spec = D100-Evidenz bleibt).
+- **Echter Drift gefixt:** 348-pro-stand→mock2pro-plan an 4 Live-Stellen (workflow.md:245-Regel · treasury:207 · .husky:35 · TODO:13) + bescout-liga Spec-Row + 2 Provenance-Kommentare.
+- **disease-register = CEO-B: bleibt** tool-gekoppelt in worklog/notes (Move verworfen). MASTERPLAN:64 annotiert.
+- **append-only decisions.md UNANGETASTET** — ADR-Evidenz-Files (357/365/scout-card/workflow-ideal/E0-welle2) behalten → 6 D-Pointer valid.
+- Gates: knowledge:check HARD 0 · audit:dup 0 Reg · grep 0 live dangling.
 
 ## Nächstes
-**K2.5** (18 Plan-Anker + `disease-register` → `knowledge` MIT Ref-Umbiegung — höchstes Risiko) · **K2.6** Memory-Modell [CEO] · **K2.2c** beta-Docs. Plan-SSOT: MASTERPLAN K2.
-Parallel offen (CEO-Wahl, NICHT TEIL A): Mock→Pro D-01 (🔴 42P10) · D-02 · D-17 · W0 DB-Security.
+**K2.6** Memory-Modell [CEO] (Prior-Art E0-welle2 + jarvis-cortex×2 warten dafür) · **K2.2c** beta-Docs. Plan-SSOT: MASTERPLAN K2.

@@ -1,0 +1,42 @@
+PROOF — Slice 451 (K2.5: Plan-Anker + disease-register Ref-Umbiegung)
+Datum 2026-06-29 · Type Doc (Ref-Umbiegung, money-neutral)
+
+ERGEBNIS: 23 Anker klassifiziert (Recon worklog/notes/k2.5-anchor-redirect-recon.md):
+  0 K-pure · 9 W (bleiben, Evidenz) · 13 S (superseded) · 1 T (disease-register).
+CEO-Entscheid: disease-register = Option B (bleibt tool-gekoppelt in worklog/notes; Move verworfen).
+
+HEADLINE: K2.5 niedriger-Risiko als befürchtet — durable Wissen ist schon kanonisch
+(decisions D104-D117 WARUM + treasury/fantasy WIE). Die Canon→Note-Pointer sind großteils
+legitime EVIDENZ-Pointer, kein Drift. Echter Drift = nur 348-pro-stand (superseded).
+
+GELÖSCHT (6, git=Archiv — nur historisch/frozen referenziert):
+  process-elite-prep · k2.3-recon · k2.4-recon · 348-pro-stand-roadmap · transactions-history-spec · bescout-liga-spec.
+  docs/plans 5→3 (jarvis-cortex ×2 → K2.6-Prior-Art-defer; scout-card-spec = D100-ADR-Evidenz bleibt).
+  worklog/notes 18(+k2.5-recon)→15.
+
+REWIRES (348-pro-stand superseded → mock2pro-plan):
+  - .claude/rules/workflow.md:245   (Tracker-Kopplung-REGEL — routete auf toten Sub-Tracker!)
+  - docs/knowledge/domain/treasury.md:207   (nächster-Fokus-Pointer)
+  - .husky/pre-commit:35   ([TRACKER-RECONCILE]-Reminder)
+  - TODO.md:13   (Tracker-Pointer)
+  - docs/knowledge/domain/bescout-liga.md:127   (Spec-Row entfernt; updated:heute)
+  - MASTERPLAN.md:64   (disease-register „→ docs/knowledge" → „bleibt tool-gekoppelt", CEO-B)
+  - 2× Provenance-Kommentar process-elite-prep → „Slice 430" (.husky:43 + scripts/tracker-drift-check.mjs:6)
+
+KEPT — append-only-ADR-Evidenz (KEIN decisions.md-Edit): 357 · 365 · scout-card-spec · workflow-ideal-prep · E0-welle2.
+KEPT — 9 W (Evidenz/Roadmap): event-creator-liga-epic · 358/366-epic · 401-audit · mock2pro-plan/-audit · 406b · gameweek-recon · 368c.
+
+HARVEST-GAP-CHECK (verifiziert, nicht angenommen): 0 nötig.
+  - fantasy.md domain: Creator/Zwei-Töpfe/GW-Per-Liga-Mechanik lebt in .claude/rules/fantasy.md + decisions D107/D115.
+  - treasury.md: orders/offers/Order-Mechanik = 4 Hits (abgedeckt).
+  - Prosa-Dup DB/code-ableitbarer Mechanik würde driften (README-Regel) → bewusst nicht geharvestet.
+
+GATES:
+  $ grep <6 deleted stems> repo-weit → 0 live dangling.
+    Übrig nur: log.md (Historie) · proofs/reviews (frozen) · _archive · handoff alte Teil-Blöcke (Historie)
+    · kept Evidenz (workflow-ideal-prep/401-audit, intra-historisch) · k2.5-recon (→K2.6-GC).
+    Die 3 LIVE-Tooling-Refs (.husky:35, scripts:6, TODO:13) wurden GEFIXT (zuvor 14 Treffer → 11, alle akzeptiert).
+  $ pnpm audit:knowledge:check → HARD 0 · 5 SOFT pre-existing (treasury/fantasy/missions/reward-ranking/cross-domain — slice-fremd).
+  $ pnpm audit:dup → 0 Regression · Registry 9 unverändert (disease-register bleibt = Tool-Pfad stabil).
+
+append-only memory/decisions.md (:3787/:3870/:3902/:4332/:4343/:3662): UNANGETASTET (0 Diff — Ziel-Files behalten → Pointer valid).

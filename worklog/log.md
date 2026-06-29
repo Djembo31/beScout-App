@@ -2,6 +2,16 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 451 | 2026-06-29 | docs(cleanup): K2.5 — Plan-Anker + disease-register Ref-Umbiegung
+- Stage-Chain: SPEC (inline) → IMPACT (inline, kanonische Schicht) → BUILD (Recon + Rewire/Delete) → REVIEW (Cold-Context) → PROVE (`proofs/451-k2.5-anchor-redirect.txt`) → LOG.
+- **Recon-Befund (`worklog/notes/k2.5-anchor-redirect-recon.md`): K2.5 niedriger-Risiko als befürchtet** — durable Wissen ist schon kanonisch (decisions D104-D117 WARUM + treasury/fantasy WIE). 23 Anker: 0 K-pure · 9 W (Evidenz, bleiben) · 13 S · 1 T. Die Canon→Note-Pointer sind großteils legitime Evidenz-Pointer, kein Drift.
+- **CEO-Entscheid: disease-register Option B** (bleibt tool-gekoppelt in worklog/notes — Move verworfen: operatives Living-Register + audit:knowledge-Gate-Churn pro Dup-Eintrag). `duplication-check.ts:43` + MASTERPLAN:64 annotiert.
+- **6 gelöscht** (git=Archiv, nur historisch/frozen referenziert): process-elite-prep · k2.3-recon · k2.4-recon · 348-pro-stand-roadmap · transactions-history-spec · bescout-liga-spec. docs/plans 5→3 (jarvis-cortex×2 → K2.6-Prior-Art-defer; scout-card-spec = D100-ADR-Evidenz behalten).
+- **Echter Drift gefixt:** `348-pro-stand` (superseded→`mock2pro-plan`) an 4 Live-Stellen — `.claude/rules/workflow.md:245` (Tracker-Kopplung-REGEL routete auf toten Tracker!) · `treasury.md:207` · `.husky/pre-commit:35` · `TODO.md:13` — + `bescout-liga.md:127` Spec-Row entfernt + 2 Provenance-Kommentare (→Slice 430).
+- **append-only decisions.md UNANGETASTET:** ADR-Evidenz-Files (357/365/scout-card-spec/workflow-ideal-prep/E0-welle2) bewusst BEHALTEN → die 6 D-Pointer (:3787/:3870/:3902/:4332/:4343/:3662) bleiben valid, 0 append-only-Edit.
+- **Harvest-Gap-Check (verifiziert, nicht angenommen): 0 nötig** — Creator/Zwei-Töpfe (D107)/GW-Per-Liga (D115)-Mechanik lebt in `.claude/rules/fantasy.md` + decisions; orders/offers in treasury.md (4 Hits). Prosa-Dup würde driften (README-Regel) → bewusst nicht geharvestet.
+- Gates: knowledge:check HARD 0 (treasury+bescout-liga updated:heute) · audit:dup 0 Regression (Registry 9 unverändert) · **grep 6 Stems → 0 live dangling**.
+
 ## 450 | 2026-06-29 | docs(knowledge): K2.4 — wiki/ (21 Files) → docs/knowledge/ Harvest-Konsolidierung
 - Stage-Chain: SPEC (inline) → IMPACT (inline) → BUILD (5 Wellen A-E) → REVIEW (Cold-Context PASS, `reviews/450-review.md`) → PROVE (`proofs/450-wiki-consolidation.txt`) → LOG.
 - **wiki/ 21 → 0, Ordner gelöscht.** Net +81/−1473 über 31 Files. Recon-Map `worklog/notes/k2.4-wiki-consolidation-recon.md` (A=7 Dublette · B=10 Harvest · C=4 Stale).

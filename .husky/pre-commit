@@ -32,7 +32,7 @@ if git diff --cached --name-only | grep -qx 'worklog/log.md'; then
     echo "     • MASTERPLAN.md  (Stand-Satz)"
     echo "     • TODO.md        (Erledigt + P0/P1)"
     echo "     • worklog/s7-phase3-remaining.md  (Epic-Tracker — falls S7-Scope berührt)"
-    echo "     • worklog/notes/348-pro-stand-roadmap.md  (falls Pro-Stand betroffen)"
+    echo "     • worklog/notes/mock2pro-plan.md  (falls Mock→Pro-Scope betroffen)"
     echo "  Reine Doku/Meta-Slices ohne Domain-Scope: ignorieren."
     echo ""
   fi
@@ -40,7 +40,7 @@ fi
 
 # [pre-commit] Tracker-Drift-Guard (Slice 430) — NON-BLOCKING (Script exit 0).
 # Flaggt Mega-Zeilen in den scannbaren Trackern (MASTERPLAN/TODO/INDEX/handoff).
-# Verhindert das Nachwachsen der „Stand 4-5× dupliziert"-Krankheit (process-elite-prep.md).
+# Verhindert das Nachwachsen der „Stand 4-5× dupliziert"-Krankheit (Slice 430).
 node scripts/tracker-drift-check.mjs || true
 
 # [pre-commit] Merge-conflict markers in staged files (Slice 436: aus pre-commit-guard.sh konsolidiert).

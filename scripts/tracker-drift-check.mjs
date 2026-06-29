@@ -3,7 +3,7 @@
  * Slice 430 — Tracker-Drift-Guard (P5 Anti-Drift, Prozess-Elite-Optimierung).
  *
  * Verhindert das Nachwachsen der „Mega-Zeilen + Stand-Prosa dupliziert"-Krankheit
- * (process-elite-prep.md): der laufende „Stand" lebte 4-5× dupliziert als 4000-7500-Zeichen-
+ * (Slice 430-Diagnose): der laufende „Stand" lebte 4-5× dupliziert als 4000-7500-Zeichen-
  * Einzeiler in TODO/INDEX/MASTERPLAN/handoff → Drift + Token + Edit-Friktion.
  *
  * Die Regel (workflow.md): „Laufender Fortschritt lebt an EINEM Ort (session-handoff.md).
