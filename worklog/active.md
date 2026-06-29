@@ -2,24 +2,20 @@
 
 ```
 status: idle
-slice: 454
-title: D-17 — Ranking-SSOT (user_stats-Scores = Projektion von scout_scores) — DONE (live applied)
+slice: 455
+title: D-02 — Bench-Karten in holding_locks (Geld-Leck) — SPEC DONE, BUILD pending (Checkpoint)
 size: M
 type: Migration
-stage: LOG (DONE)
-spec: worklog/specs/454-d17-ranking-ssot.md
-proof: worklog/proofs/454-ranking-ssot.txt
-review: worklog/reviews/454-review.md (CONCERNS → Finding#1 Level-Kaskade gefixt+bewiesen)
+stage: SPEC (done) — BUILD-Entscheid offen
+spec: worklog/specs/455-d02-bench-holding-locks.md
+scope: Money/§3, LATENT (Bench-Feature unbenutzt, holding_locks=0)
 ```
 
-## Ergebnis (D-17 geheilt, live)
-Money-nah/§3. scout_scores (kanonisch, geld-gekoppelt) ↔ user_stats berechneten dieselben Dims mit verschiedenen Formeln → 70/70 divergent (manager 778 vs 418). CEO Anil „A": user_stats-Scores = kept-fresh Projektion.
-- Spalten smallint→integer (Overflow-Edge); refresh_user_stats liest scout_scores (Rest byte-treu); Projektions-Trigger auf scout_scores; Backfill GEGUARDET gg. trg_sync_level. **scout_scores 0 Edits.**
-- **Reviewer-Catch (HIGH):** Backfill hätte trg_sync_level 70× gefeuert → Level-Rescale + irreversible „Aufstieg!"-Notifs. Gefixt: DISABLE/ENABLE-Guard + profiles.level still rescaled (Guard-Proof notif_delta=0).
-- Apply v1 FAIL (0A000 trg_sync_level depends on total_score) → v2 DROP/recreate Trigger um ALTER. Post-apply: divergence_live=0, integer, projection_trg propagiert live (778→788), level_inconsistent=0. vitest 79/79.
+## Stand (Recon + Design KOMPLETT, Build offen)
+D-02 live bestätigt (D87): `rpc_save_lineup` lockt nur 12 Starter (`v_all_slots` Z.37-41 = `v_slot_keys` 12 Keys), Bench (`v_bench_uids`) wird validiert aber **nie in holding_locks**; auch der Cross-Event-Verfügbarkeits-Check (Z.365-377) läuft nur über Starter. → Bench-Karte in N Events wiederverwendbar (Auto-Sub-Reward-Leck). **Latent** (0 Locks live).
 
-## Residual (getrackt → später)
-Path 2 (Surfaces direkt auf scout_scores + user_stats-Score-Spalten droppen = physische SSOT) · D-11 (totes bescout_scores/award_score_points/score_events) · tier-Schwellen-Tuning · #2 rank-lag (self-heal, akzeptiert).
+**Fix steht (Spec 455):** 2 additive Blöcke (Bench-Verfügbarkeits-Check nach Z.377 + Bench-Lock-INSERT nach Z.438), spiegeln die Starter-Logik, Starter-Pfad byte-treu.
 
-## Nächstes (TEIL B, CEO-Wahl)
-D-02 Bench-Geld-Leak (M, Money) · W0 DB-Security · W2 Score-SSOT Path 2 · D-11 Dead-GC. K6/K7 (TEIL-A LOW) offen.
+**Build = 25k-Money-RPC byte-treu CREATE OR REPLACE** → bewusst auf frischen Kontext vertagt (Caution > Speed, §1; D-02 latent). Nächste Session: Voll-Def ziehen → 2 Blöcke rein → force-rollback → Reviewer → CEO-Apply.
+
+## Offen (TEIL B, nach D-02): W0 DB-Security · W2 Path-2/D-11 (454-Residuals) · K6/K7 (TEIL-A LOW).

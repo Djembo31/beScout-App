@@ -1,23 +1,17 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 16:50)
+# Session Handoff — Auto (2026-06-29 17:12)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 5 Files
-```
- M memory/session-handoff.md
- M worklog/active.md
-?? supabase/migrations/20260629160000_slice_454_ranking_ssot.sql
-?? worklog/proofs/454-ranking-ssot.txt
-?? worklog/specs/454-d17-ranking-ssot.md
-```
+## Working Tree: Clean
 
-## Session Commits: 5
+## Session Commits: 6
+- edfb8600 docs(register): D-17 dup-registry geheilt->bewusste-zwei (Projektion legitim, Symbole bleiben)
+- e291aee8 fix(ranking): Slice 454 — D-17 Ranking-SSOT (user_stats = Projektion von scout_scores, live)
 - aee0aa95 fix(scoring): Slice 453 — D-01 Scoring-Funktionen aufs Fixture-Modell (42P10-Landmine, live)
 - 939a2f84 docs(cleanup): Slice 452 — K2.6 Memory-Split + K2.2c beta-Docs (K2-Epic komplett)
 - 5c9a9520 docs(cleanup): Slice 451 — K2.5 Plan-Anker Ref-Umbiegung (6 geloescht, 348->mock2pro-plan Drift-Rewire)
 - 7b6bdb68 docs(knowledge): Slice 450 — K2.4 wiki/ -> docs/knowledge/ Harvest-Konsolidierung (wiki/ 21->0)
-- 6dbd7179 docs(handoff): Session-Close 2026-06-29 — K2.3 KOMPLETT (A-E, Slices 444-449), naechste K2.4
 
 <!-- auto:handoff-end -->
 
@@ -25,6 +19,15 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟡 SESSION-CLOSE 2026-06-29 (Teil 11) — D-02 Bench-Geld-Leck: Recon + Fix-Design KOMPLETT, Build VERTAGT (Slice 455, Checkpoint).**
+> - **CEO-Wahl Anil:** „weiter mit D-02". Recon live (D87) → **D-02 bestätigt real + LATENT** (Bench-Feature unbenutzt, `holding_locks`=0 live; Leck aktiviert sich erst bei Bench-Nutzung).
+> - **Bug (verifiziert):** `rpc_save_lineup` (25k-Money-RPC) — `v_all_slots` (Z.37-41) = `v_slot_keys` (Z.5) = exakt **12 Starter**, kein Bench. Cross-Event-Verfügbarkeits-Check (Z.365-377, `FOR v_i IN 1..12`) + Lock-INSERT (Z.436-438, `unnest(v_all_slots)`) decken **nur Starter** ab. Bench (`v_bench_uids`) wird validiert (Position/Holdings/Dup/overlap) aber **NIE in `holding_locks`** → dieselbe Bench-Karte in N gleichzeitigen Events → Auto-Sub punktet überall = Reward-Leck.
+> - **Fix steht (Spec `worklog/specs/455-d02-bench-holding-locks.md`):** 2 **additive** Blöcke, spiegeln Starter-Logik, Starter-Pfad byte-treu: (A) Bench-Cross-Event-Verfügbarkeits-Check nach Z.377 (`FOREACH v_bench_uids` → `holdings − SUM(locks WHERE event_id != p_event_id) < v_min_sc` → reject `insufficient_sc_bench`). (B) Bench-Lock-INSERT nach Z.438 (`unnest(v_bench_uids)` → holding_locks, qty `v_min_sc`, `ON CONFLICT DO NOTHING`). Open-Q: Bench-Lock-qty `v_min_sc` vs `1` (CTO-Detail).
+> - **BUILD bewusst VERTAGT** (§1 „caution over speed"): byte-treuer CREATE OR REPLACE eines 25k-Money-RPC nach 3 Money-Slices am Session-Ende = Fehler-Risiko auf kritischstem Code; D-02 latent = nicht dringend. **Nächste Session zuerst:** Voll-Def `rpc_save_lineup` ziehen → 2 Blöcke an Z.377/438 → force-rollback Money-Smoke (Bench-Lock + cross-event-reject) → Reviewer → CEO-Apply. ACs/Edges/Pre-Mortem in Spec 455.
+> - **⏭️ DANACH (TEIL B, CEO-Wahl):** W0 DB-Security-Batch · W2 Path-2 (user_stats-Score-Spalten droppen) + D-11 (totes bescout_scores) = 454-Residuals · K6/K7 (TEIL-A LOW).
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 10) — D-17 Ranking-SSOT GEHEILT live (Slice 454). TEIL B Welle W2-Konsolidierung.**
 > - **CEO-Wahl Anil:** „weiter mit D-17" → Modell-Entscheid **„A — scout_scores = eine Quelle"** + Live-Apply (§3) freigegeben.
 > - **Bug (D87 Live):** `scout_scores` (trader/manager/analyst, KANONISCH, geld-gekoppelt via close_monthly_liga+airdrop) ↔ `user_stats` (trading/manager/scout) berechneten dieselben Dims mit verschiedenen Formeln → **70/70 Overlap-User divergent** (manager 778 vs 418; user sah 2 verschiedene Punktzahlen: /rankings=scout_scores vs Community/Club=user_stats).
