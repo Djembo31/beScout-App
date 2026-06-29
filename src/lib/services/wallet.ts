@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabaseClient';
 import type { DbWallet, DbHolding, DbHoldingLock, DbTransaction } from '@/types';
 import { mapRpcError } from '@/lib/services/trading';
 import { logSilentCatch } from '@/lib/observability/silentRejects';
+import { fmtScout } from '@/lib/utils';
 
 export type HoldingWithPlayer = DbHolding & {
   player: {
@@ -275,9 +276,13 @@ type WalletRpcResult = { success: boolean; error?: string; new_balance?: number 
 // Helpers
 // ============================================
 
-/** Cents → Credits-Anzeige (z.B. 1000000 → "10.000"; 1 Credit = 100 cents, D99). Funktionsname bleibt (Code-intern). */
+/**
+ * Cents → Credits-Anzeige (z.B. 1170827 → "11.708,27"; 1 Credit = 100 cents, D99).
+ * Slice 467/D-23: dünner cents-Adapter auf den EINEN kanonischen Credits-Formatter `fmtScout`
+ * (2 Dez, CEO-Entscheid Anil 2026-06-30). Vorher 0-Dez → versteckte den Cent-Anteil + divergierte
+ * von fmtScout auf demselben Screen (SideNav vs TopBar). Funktionsname bleibt (Code-intern).
+ */
 export function formatScout(cents: number): string {
-  const bsd = Math.round(cents) / 100;
-  return bsd.toLocaleString('de-DE', { maximumFractionDigits: 0 });
+  return fmtScout(Math.round(cents) / 100);
 }
 

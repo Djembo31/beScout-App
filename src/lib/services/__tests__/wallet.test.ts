@@ -13,11 +13,10 @@ describe('formatScout', () => {
     expect(result).toBe('10.000');
   });
 
-  it('formats small cent value (50 -> "0" or "1")', () => {
-    // 50 cents = 0.5 bCredits. maximumFractionDigits: 0, so rounds to "1" or "0"
+  it('formats small fractional cent value exactly (50 -> "0,5")', () => {
+    // Slice 467/D-23: 50 cents = 0,5 Credits → 2-Dez (kanonischer fmtScout), nicht mehr gerundet.
     const result = formatScout(50);
-    // 0.5 rounds to 1 in de-DE with maxFractionDigits:0 (round-half-to-even)
-    expect(['0', '1']).toContain(result);
+    expect(result).toBe('0,5');
   });
 
   it('formats zero', () => {

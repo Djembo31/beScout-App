@@ -1,17 +1,21 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-30 00:35)
+# Session Handoff — Auto (2026-06-30 01:08)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 4 Files
+## Uncommitted Changes: 6 Files
 ```
+ M src/lib/services/__tests__/wallet-v2.test.ts
+ M src/lib/services/__tests__/wallet.test.ts
+ M src/lib/services/wallet.ts
  M worklog/active.md
-?? supabase/migrations/20260630130000_slice_465_top_role_family_close.sql
-?? worklog/proofs/465-d37b-family-close.txt
-?? worklog/specs/465-d37b-top-role-family-close.md
+?? worklog/proofs/467-d23-formatter.txt
+?? worklog/specs/467-d23-money-formatter-consolidate.md
 ```
 
-## Session Commits: 8
+## Session Commits: 10
+- f2de961a chore(db): Slice 466 — W0 Security-Map-Recon-RPCs admin-only (REVOKE anon+auth) (live)
+- 0fe1aedd fix(security): Slice 465 — D-37b top_role='Admin'-Familie vollstaendig schliessen (live)
 - 54765397 fix(security): Slice 464 — D-37 SOLE-gate top_role-RPCs auf platform_admins (live)
 - 2bebeab1 fix(security): Slice 463 — D-36 Stats-Siblings Platform-Admin-Guard auf platform_admins (live)
 - 3214a86f fix(security): Slice 462 — D-35 get_club_dashboard_stats_v2 Admin-Guard + REVOKE anon (live)
@@ -27,6 +31,16 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-30 (Teil 24) — D-23 Geld-Formatter-Divergenz geheilt (Slice 467). Autonom-Modus.**
+> - **CEO Anil:** Format-Entscheid „2 Dezimalstellen" → CTO-Umsetzung autonom.
+> - **Fix (Commit folgt):** `formatScout(cents)` (wallet.ts, war 0-Dez, versteckte Cent-Anteil) delegiert jetzt an kanonischen `fmtScout(Math.round(cents)/100)` (utils.ts, 2-Dez). EINE Formatierungs-Wahrheit; SideNav/TopBar zeigen konsistent 2-Dez. 1-Zeilen-Delegation statt 604-Caller/201-File-Refactor. `maximumFractionDigits:2` (kein min) → ganze Credits unverändert „10.000", nur fractional „…,27".
+> - **Proof:** tsc 0 + wallet-Tests 2 files/31 passed (nur 3 fractional-Asserts 50→„0,5"/49→„0,49"). Reviewer Code-**PASS** (CONCERNS war nur Register-Housekeeping, adressiert; ~60 Caller geprüft kein 100×-Bug). Disease-Register D-23 → bewusste-zwei/geheilt S467.
+> - **🟡 OFFEN — AC-05 Visual:** nach Vercel-Deploy dieses Commits bescout.net (jarvis-qa) Wallet mit fractional Saldo: SideNav == TopBar (2-Dez)? feedback_no_premature_ready — D-23 erst „fully done" nach Visual-Check.
+> - **🟢 SESSION-BILANZ autonom (460-467, 8 Slices, alle live+gepusht, Reviewer/force-rollback):** W0-Security-Block KOMPLETT (INV-31 no_guard · D-12 Dead-RPC · D-35 v2-PII · D-36/37/37b top_role-Familie 7 RPCs · 466 Recon-Leak) + D-23 Geld-Divergenz. = die substanziellen P0/P1-Risiken dieser Domänen geschlossen.
+> - **⏭️ NÄCHSTES (autonom/CEO):** AC-05 Visual D-23 (post-Deploy) · dann nur noch **P2-Hygiene** (anon-Hygiene-Batch · 87 search_path · 81 Policies/Index · D-38 sponsorStats Silent-Fail) ODER **CEO-Scope** (D-24 Wording-Compliance · Dead-GC D-14/15/16 Money). Hier lohnt CEO-Richtungswahl statt P2-Grind (Direktive: „nicht endlose Detailpflege").
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-30 (Teil 23) — W0 Security-Map-Recon-RPCs admin-only live (Slice 466). Autonom-Modus.**
 > - **CEO Anil:** „mach autonom weiter". §3 Security-Hygiene.
 > - **Fix (live, Migration `20260630140000`):** `get_security_definer_user_param_audit()` + `get_rls_policy_matrix()` (SECDEF-Audit, leaken Security-Landkarte) `REVOKE EXECUTE FROM anon, authenticated, PUBLIC` → admin-only. Konsumenten = NUR db-invariants-Test (service_role) → unberührt; 0 App-Caller. Self-review (XS REVOKE-only).

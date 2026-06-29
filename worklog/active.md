@@ -2,25 +2,26 @@
 
 ```
 status: idle
-slice: 466
-title: W0 — Security-Map-Recon-RPCs admin-only (REVOKE anon+auth) — DONE
-size: XS
-type: Migration (Security, §3)
+slice: 467
+title: D-23 — Geld-Formatter konsolidieren (formatScout → fmtScout, 2 Dez) — DONE (AC-05 Visual post-Deploy offen)
+size: S
+type: Service (Display-Konsolidierung)
 stage: LOG (done)
-spec: worklog/specs/466-w0-recon-rpcs-admin-only.md
-impact: skipped (reines Grant-REVOKE, 0 App-Consumer)
-proof: worklog/proofs/466-recon-rpcs.txt
-review: worklog/reviews/466-review.md (self-review PASS)
+spec: worklog/specs/467-d23-money-formatter-consolidate.md
+impact: skipped (reine Display-Logik, Return-Type string unverändert)
+proof: worklog/proofs/467-d23-formatter.txt
+review: worklog/reviews/467-review.md (CONCERNS=Housekeeping, Code PASS, adressiert)
 ```
 
-## Plan (CEO autonom-Go Anil 2026-06-30 „mach autonom weiter", §3)
-2 SECDEF-Audit-RPCs (get_security_definer_user_param_audit + get_rls_policy_matrix) sind anon+auth-granted → leaken die Security-Landkarte (welche RPC ungeguarded, welche RLS-Policies). Konsumenten = NUR db-invariants-Test (service_role). REVOKE anon+authenticated → admin-only. Test unberührt (service_role behält).
+## Plan (CTO; CEO-Format-Entscheid Anil 2026-06-30: 2 Dezimalstellen)
+D-23: formatScout (cents, 0-Dez) vs fmtScout (Credits, 2-Dez) → verschiedene Zahlen auf demselben Screen (SideNav vs TopBar, ~45% Wallets). Fix: formatScout(cents) delegiert an kanonischen fmtScout(cents/100) → EINE Formatierungs-Wahrheit, 2-Dez konsistent, kein 201-File-Refactor. Nur fractional-Salden ändern sich (exakt statt gerundet = der Fix).
 
 ## Letzter Slice DONE
-466 (W0-Recon-RPCs) — get_security_definer_user_param_audit + get_rls_policy_matrix REVOKE anon+auth (admin-only), live.
+467 (D-23) — Geld-Formatter konsolidiert (formatScout→fmtScout, 2-Dez), Reviewer Code-PASS. AC-05 Visual post-Deploy offen.
 
-## W0-Security-Faden Stand (460-466)
-INV-31 (460) · D-12 (461) · D-35 (462) · D-36/37/37b (463-465, top_role-Familie restlos) · Recon-RPCs (466). Großer Security-Block zu.
+## Session-Stand (autonom 460-467)
+W0-Security-Block (460-466) + D-23 Geld-Divergenz (467) = die substanziellen Risiken zu. Rest = P2-Hygiene oder CEO-Scope.
 
-## Offen (TEIL B) — nächste autonome Kandidaten
-- **W0-Rest:** anon-REVOKE-Hygiene-Batch (Trigger + Kalkulatoren + Leaderboard-RPCs, ⚠️ Leaderboard-anon-Prüfung) · 87 search_path_mutable · 81 permissive Policies + 26 unused + 51 FK-Index. · **D-38** sponsorStats Silent-Fail. · **W5** (D-23/24/25/26). · **Dead-GC** D-14/15/16 (Money/CEO). · **INV-19/32/33** P2.
+## Offen (TEIL B) — nächste Kandidaten
+- **🟡 AC-05 Visual D-23** post-Deploy bescout.net (SideNav==TopBar 2-Dez, jarvis-qa).
+- **W0-Rest** (P2 anon-Hygiene · 87 search_path · 81 Policies + Index) · **D-38** sponsorStats Silent-Fail · **W5-Rest** (D-24 Wording **Compliance/CEO**/D-25 Auth-i18n/D-26 Club-Logos) · **Dead-GC** D-14/15/16 (Money/CEO) · **INV-19/32/33** P2 · K6/K7 (LOW).

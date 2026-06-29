@@ -241,14 +241,13 @@ describe('formatScout', () => {
     expect(formatScout(1000000)).toBe('10.000');
   });
 
-  it('rounds 50 cents (0.5 BSD) up to "1"', () => {
-    // Math.round(50) / 100 = 0.5, toLocaleString de-DE maxFractionDigits:0 rounds to 1
-    expect(formatScout(50)).toBe('1');
+  it('formats 50 cents (0,5 Credits) exactly as "0,5" (Slice 467/D-23, 2-Dez)', () => {
+    // Delegation an kanonischen fmtScout (maximumFractionDigits:2) → exakter Cent-Anteil, nicht gerundet
+    expect(formatScout(50)).toBe('0,5');
   });
 
-  it('rounds 49 cents (0.49 BSD) down to "0"', () => {
-    // Math.round(49) / 100 = 0.49, toLocaleString de-DE maxFractionDigits:0 rounds to 0
-    expect(formatScout(49)).toBe('0');
+  it('formats 49 cents (0,49 Credits) exactly as "0,49" (Slice 467/D-23, 2-Dez)', () => {
+    expect(formatScout(49)).toBe('0,49');
   });
 
   it('formats negative values: -100 cents as "-1"', () => {

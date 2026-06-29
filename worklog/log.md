@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 467 | 2026-06-30 | fix(ui): D-23 — Geld-Formatter konsolidieren (formatScout → fmtScout, 2 Dez)
+- Stage-Chain: SPEC → IMPACT (skipped: reine Display-Logik) → BUILD (1 Service + 2 Tests) → REVIEW (Cold-Context **CONCERNS** = LOG-Housekeeping, Code PASS, alle adressiert) → PROVE (tsc + Tests) → LOG. **Display-Konsolidierung CTO; CEO-Format-Entscheid Anil 2026-06-30: 2 Dezimalstellen.**
+- **Befund (D-23, dup-registry):** `fmtScout(credits)` (utils.ts, 2-Dez) vs `formatScout(cents)` (wallet.ts, 0-Dez, versteckte Cent-Anteil) → SideNav „11.708,27" vs TopBar „11.708" für dieselbe Wallet (~45% fractional). Sichtbare Geld-Divergenz (visible-false-truth).
+- **Fix:** `formatScout(cents)` delegiert an kanonischen `fmtScout(Math.round(cents)/100)` → EINE Formatierungs-Wahrheit, 2-Dez konsistent. **1-Zeilen-Delegation statt 604-Caller/201-File-Refactor** (Simplicity-First). `maximumFractionDigits:2` (kein min) → ganze Credits unverändert „10.000", nur fractional „…,27" = der Fix. formatScout bleibt dokumentierter cents-Adapter (bewusste-zwei wie D112).
+- **Proof:** tsc exit 0 (kein circular import, utils=Leaf) + wallet.test + wallet-v2.test **2 files / 31 tests passed** (nur 3 fractional-Asserts angepasst: 50→„0,5", 49→„0,49"; ganze Credits unverändert). Reviewer-Caller-grep (~60 Sites): kein 100×-Bug (alle cents), kein Doppel-Format, kein Test-Bruch. Proof `467-d23-formatter.txt`, Review `467-review.md`.
+- **🟡 AC-05 Visual (SideNav==TopBar 2-Dez) = post-Deploy bescout.net offen** (feedback_no_premature_ready — kein „fully done" vor Visual; Logik unit-bewiesen).
+- **Tracking:** Disease-Register D-23 → dup-registry `bewusste-zwei` (Adapter-Beziehung) + §3-Tabelle ✅ geheilt S467. CEO-Format-Entscheid 2-Dez festgehalten.
+
 ## 466 | 2026-06-30 | chore(db): W0 — Security-Map-Recon-RPCs admin-only (REVOKE anon+auth) (live)
 - Stage-Chain: SPEC → IMPACT (skipped: reines Grant-REVOKE) → BUILD (1 Migration) → PROVE (grants + db-invariants) → REVIEW (self-review, XS REVOKE-only Pattern-bekannt) → CEO-Apply → LOG. **Security-Hygiene §3; CEO autonom-Go Anil.**
 - **Befund (D87 + grep):** `get_security_definer_user_param_audit()` + `get_rls_policy_matrix()` (SECDEF-Audit-RPCs) an **anon+authenticated** granted → leaken die Security-Landkarte (welche RPC ungeguarded/needs_fix, RLS-Policy-Matrix). Konsumenten = NUR db-invariants.test.ts (service_role, `SUPABASE_SERVICE_ROLE_KEY`); 0 App-/UI-Caller.
