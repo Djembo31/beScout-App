@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 455 | 2026-06-29 | fix(fantasy): D-02 — Bench-Karten in holding_locks (Geld-Leck, live)
+- Stage-Chain: SPEC → IMPACT (skipped, nur neuer Reject-Code) → BUILD → REVIEW (Cold-Context CONCERNS → Finding#1 gefixt, #2 getrackt) → PROVE (force-rollback + post-apply) → LOG. **Money/§3, CEO-Apply Anil.**
+- **Problem (D87 Live):** `rpc_save_lineup` (25k-Money-RPC, SECDEF) lockt nur die 12 Starter (`v_all_slots`) in `holding_locks`; die Bank (`v_bench_uids`) wird voll validiert aber NIE gelockt UND nie cross-event geprüft → dieselbe Bench-Karte in N gleichzeitigen Events nutzbar, Auto-Sub punktet überall (echtes Wallet-Credit) = Reward-Leck. **Latent** (holding_locks=0, lineups_with_bench=0 live).
+- **Fix (CEO Anil „weiter mit D-02"):** 2 additive Blöcke, spiegeln die Starter-Logik 1:1, Starter-Pfad byte-treu. (A) Bench cross-event-Verfügbarkeit (`holdings − SUM(locks WHERE event≠p_event_id) < v_min_sc` → reject `insufficient_sc_bench`). (B) Bench-Lock-INSERT (`unnest(v_bench_uids)`, qty `v_min_sc`, ON CONFLICT DO NOTHING). Methode = byte-true Patch aus Live-`pg_get_functiondef` via `replace()` an 2 eindeutigen Ankern, self-verify, idempotent (S156). Migration `20260629170000`. FE: `useEventActions.ts` `insufficient_sc_bench` → spezifische Toast.
+- **Completeness (S453 Writer-Enum):** `rpc_save_lineup` einziger Lock-`INSERT`-Writer; alle 5 Teardown-Pfade löschen per `event_id` → Bench-Locks erzeugen keine Waisen.
+- **Reviewer (CONCERNS, kein Blocker):** Finding#1 FE-Toast Exact-Match-Switch verfehlte `insufficient_sc_bench` → gefixt (kombiniertes `case`). Finding#2 vererbter TOCTOU-Concurrency-Race (kein FOR UPDATE, Starter+Bench) → Residual **D-02b** getrackt. Starter-Pfad nachweislich unberührt, Money-Logik sequentiell leck-frei.
+- **Proof:** force-rollback (1-2-2-2, 7+7 disjunkt + 1 geteilte Bench): A=ok/8 Locks, B=`insufficient_sc_bench`/0 Locks, Re-Save idempotent/8; post-apply functiondef-Counts (Block A=1, B=1, Starter-INSERT=1, Starter-err=1) + SECDEF/proconfig=null/Grants(anon kein EXECUTE) bewahrt; tsc 0. Proof `455-bench-locks.txt`, Review `455-review.md`.
+- **Knowledge:** errors-frontend **S393-Erw. (S455)** (Reject-Code = ZWEI FE-Surfaces: switch=Exact-Match vs mapErrorToKey=Regex). Disease-Register **D-02 → geheilt**, **D-02b** neu (Concurrency-Residual).
+
 ## 454 | 2026-06-29 | fix(ranking): D-17 — Ranking-SSOT (user_stats = Projektion von scout_scores, live)
 - Stage-Chain: SPEC → IMPACT (skipped) → BUILD → REVIEW (Cold-Context CONCERNS → Finding#1 gefixt+bewiesen) → PROVE (force-rollback + post-apply) → LOG. **Money-nah/§3, CEO-Apply Anil.**
 - **Problem (D87 Live):** scout_scores (trader/manager/analyst, kanonisch, geld-gekoppelt via close_monthly_liga+airdrop) ↔ user_stats (trading/manager/scout) berechneten dieselben Dims mit verschiedenen Formeln → **70/70 Overlap-User divergent** (manager 778 vs 418). /rankings las schon scout_scores; Community/Club/Mentor lasen user_stats.

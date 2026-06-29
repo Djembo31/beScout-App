@@ -83,7 +83,7 @@ Legende Scope: **CTO** = autonom heilbar · **Money/CEO** = §3, selbst + CEO-Ap
 | ID | Befund | Klasse | Aufw. | Scope | Status |
 |----|--------|--------|-------|-------|--------|
 | D-01 | **D113 NICHT restlos geheilt:** `cron_process_gameweek` (Step 4, jeder Sync) + `admin_resync_gw_scores` schreiben weiter alte Shape `ON CONFLICT(player_id,gameweek)` auf die von 419 GEDROPPTE UNIQUE → **`42P10` beim ersten echten Spieltag.** Maskiert durch Off-Season. | datenmodell | S | Money/CEO | ✅ **geheilt S453** (live applied; beide auf fixture-bound gespiegelt; Writer-Enum bewies Completeness; Rest-Dup→§0-Registry D-01b) |
-| D-02 | **Bench-Karten umgehen `holding_locks` komplett** — `rpc_save_lineup` lockt nur 12 Starter, Bank nie → 1 Karte als Bench in N gleichzeitigen Events, punktet überall via Auto-Sub (echtes Wallet-Credit). | datenmodell | M | Money/CEO | 🟠 offen (bekannt 3.1) |
+| D-02 | **Bench-Karten umgehen `holding_locks` komplett** — `rpc_save_lineup` lockt nur 12 Starter, Bank nie → 1 Karte als Bench in N gleichzeitigen Events, punktet überall via Auto-Sub (echtes Wallet-Credit). | datenmodell | M | Money/CEO | ✅ **geheilt S455** (CEO Anil approved; 2 additive Blöcke = Bench cross-event-Verfügbarkeit + Bench-Lock-INSERT, Starter byte-treu; force-rollback + post-apply functiondef-Counts bewiesen; Reviewer CONCERNS-ohne-Blocker; FE-Toast `insufficient_sc_bench` gefixt. Concurrency-Residual → D-02b) |
 | D-03 | **Client-only/CSR-Architektur** — 0 Server-Prefetch/Hydration, 404 `use client`, Auth blockt kritischen Render-Pfad (5-13s Skeleton). | architektur | XL | CEO | 🟠 offen (bekannt #3) |
 | D-04 | **`lineups` ohne DB-UNIQUE gegen Doppel-Spieler** — Integrität lebt 100 % im 25k-Zeichen-RPC; `bench_*` haben NICHT MAL einen FK. | architektur/datenmodell | L | CEO | 🟠 offen (D111) |
 
@@ -95,6 +95,7 @@ Legende Scope: **CTO** = autonom heilbar · **Money/CEO** = §3, selbst + CEO-Ap
 | D-07 | **2-arg `deduct_wallet_balance`/`refund_wallet_balance`** (4 Overloads) — schreiben KEIN `transactions`-Ledger (Audit-Trail-Bypass), 0 Caller, supersedet von 5-arg, nie gedroppt. Latenter Overload-Footgun. | ungetr.-dup | XS | 🟠 offen |
 | D-08 | **`getSystemStats` `.limit(5000)`** — `totalBsdCirculation` (wallets-SUM) unterzählt still ab >1000 Usern (heute 128); korrekter RPC-Zwilling `get_treasury_stats` existiert, alter Pfad nie konsolidiert. | money-risiko | S | 🟠 offen |
 | D-09 | `getTreasuryStats`-Fallback `.limit(5000)` über trades (Fee-Summen) — gleiche Cap-Klasse, nur im RPC-Ausfall-Branch. | konsist. | S | 🟡 offen |
+| D-02b | **TOCTOU cross-event Concurrency-Race in `rpc_save_lineup`** — Verfügbarkeits-Check (Starter UND Bench) liest `holdings` per plain SELECT ohne `FOR UPDATE` → 2 gleichzeitige Saves desselben Users auf verschiedene Events mit derselben Karte sehen beide `available` → beide locken (verschiedene PK). **Vererbt** vom Starter-Pfad; S455 macht es nicht schlimmer (schließt den sequentiellen Bench-Reuse). Fix = `FOR UPDATE` auf die committeten holdings-Rows, deckt Starter+Bench gemeinsam. | concurrency | S | 🟡 offen (S455-Residual, Reviewer-Catch) |
 
 ### 🟠 Tote Flächen — Dead-Feature-GC (entscheiden + entfernen)
 | ID | Befund | Klasse | Aufw. | Scope | Status |
@@ -141,7 +142,7 @@ Legende Scope: **CTO** = autonom heilbar · **Money/CEO** = §3, selbst + CEO-Ap
 
 ## 4. Bewusste Zwei + Geheilt (NICHT als Krankheit behandeln)
 - **Gesund (bewusste-zwei, protokolliert):** `orders`/`offers` (D112) · `fan_rankings`/`airdrop_scores`/`score_history` (eigene Grains, kein Parallel-Aggregat) · `score_event` Default-40 (Slice 419 bewusst) · `players`-Aggregat-Denorm als Read-Cache (Pattern legitim — krank ist nur der trigger-lose Drift, s. D-19).
-- **Geheilt (Beleg dass das Muster schließbar ist):** `treasury_balance_cents`→Ledger (406) · 2× Lineup-Builder (426) · GameweekSelector (421) · `initial_listing_price` (368f) · `buy_from_ipo`-Idempotenz (403) · Tracker-Stand (430) · Hooks/Skills (431).
+- **Geheilt (Beleg dass das Muster schließbar ist):** `treasury_balance_cents`→Ledger (406) · 2× Lineup-Builder (426) · GameweekSelector (421) · `initial_listing_price` (368f) · `buy_from_ipo`-Idempotenz (403) · Tracker-Stand (430) · Hooks/Skills (431) · D-01 Scoring-fixture-bound (453) · D-17 Ranking-SSOT (454) · D-02 Bench-Lock (455).
 
 ---
 
@@ -160,6 +161,6 @@ Legende Scope: **CTO** = autonom heilbar · **Money/CEO** = §3, selbst + CEO-Ap
 4. **[Money-Path-Unifikation]** D-05/D-06/D-07 + 3 Kauf-RPCs.
 5. **[RLS/Index-Konsolidierung]** 81 permissive Policies mergen + 26 unused Index + 51 FK-Index.
 6. **[Dead-Feature-GC]** D-10/D-14/D-16 + Wildcard/Club-Missionen (geparkt).
-7. **[D113-Klasse]** D-01 (latent HIGH!) + D-02 + D-04.
+7. **[D113-Klasse]** D-01 ✅ geheilt 453 · D-02 ✅ geheilt 455 · D-02b (Concurrency-Residual) + D-04 offen.
 8. **[Architektur XL]** D-03 SSR-Prefetch — höchste Wirkung, niedrigster Hebel-pro-Aufwand → zuletzt.
 9. **[Konsistenz-Batch]** D-23/D-24/D-25/D-26 — klein, hoch-sichtbar.

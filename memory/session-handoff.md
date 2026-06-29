@@ -1,17 +1,22 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 17:12)
+# Session Handoff — Auto (2026-06-29 18:51)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 4 Files
+```
+ M memory/session-handoff.md
+ M worklog/active.md
+?? supabase/migrations/20260629170000_slice_455_bench_holding_locks.sql
+?? worklog/proofs/455-bench-locks.txt
+```
 
-## Session Commits: 6
+## Session Commits: 5
+- 94f36201 docs(spec): Slice 455 D-02 Bench-Lock — Recon+Fix-Design komplett (Build vertagt, Checkpoint)
 - edfb8600 docs(register): D-17 dup-registry geheilt->bewusste-zwei (Projektion legitim, Symbole bleiben)
 - e291aee8 fix(ranking): Slice 454 — D-17 Ranking-SSOT (user_stats = Projektion von scout_scores, live)
 - aee0aa95 fix(scoring): Slice 453 — D-01 Scoring-Funktionen aufs Fixture-Modell (42P10-Landmine, live)
 - 939a2f84 docs(cleanup): Slice 452 — K2.6 Memory-Split + K2.2c beta-Docs (K2-Epic komplett)
-- 5c9a9520 docs(cleanup): Slice 451 — K2.5 Plan-Anker Ref-Umbiegung (6 geloescht, 348->mock2pro-plan Drift-Rewire)
-- 7b6bdb68 docs(knowledge): Slice 450 — K2.4 wiki/ -> docs/knowledge/ Harvest-Konsolidierung (wiki/ 21->0)
 
 <!-- auto:handoff-end -->
 
@@ -19,6 +24,16 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 12) — D-02 Bench-Geld-Leck GEHEILT live (Slice 455).**
+> - **CEO-Wahl Anil:** „D-02 fertigbauen" → force-rollback-Smoke + Reviewer + CEO-Apply (§3) freigegeben.
+> - **Fix (live, Migration `20260629170000`):** `rpc_save_lineup` (25k-Money-RPC) lockte nur 12 Starter; Bench (`v_bench_uids`) validiert aber nie in `holding_locks` + nie cross-event geprüft → Bench-Karte in N Events wiederverwendbar (Auto-Sub-Reward-Leck). 2 additive Blöcke spiegeln Starter-Logik 1:1, Starter byte-treu: (A) Bench cross-event-Verfügbarkeit → reject `insufficient_sc_bench`; (B) Bench-Lock-INSERT (qty `v_min_sc`, ON CONFLICT DO NOTHING). Methode = byte-true Patch aus Live-`pg_get_functiondef` via `replace()` an 2 eindeutigen Ankern, self-verify, idempotent (S156). **Latent geschlossen** (holding_locks=0 live). FE `useEventActions.ts` Toast gefixt.
+> - **Proof:** force-rollback (1-2-2-2, 7+7 disjunkt + 1 geteilte Bench): A=ok/8 Locks inkl. Bench, B geteilte Bench→`insufficient_sc_bench`/0 Locks, Re-Save idempotent/8; post-apply functiondef-Counts (Block A=1, B=1, Starter-INSERT=1, Starter-err=1) + SECDEF/proconfig=null/Grants(anon kein EXECUTE) bewahrt; tsc 0. Proof `455-bench-locks.txt`, Review `455-review.md`.
+> - **Completeness (S453 Writer-Enum):** `rpc_save_lineup` einziger Lock-INSERT-Writer; alle 5 Teardown-Pfade löschen per `event_id` → Bench-Locks erzeugen keine Waisen.
+> - **Reviewer (CONCERNS, kein Blocker):** FE-Switch Exact-Match verfehlte `insufficient_sc_bench` (gefixt) + vererbter TOCTOU-Concurrency-Race (kein FOR UPDATE, Starter+Bench) → **D-02b** getrackt. Knowledge errors-frontend **S393-Erw.(S455)**.
+> - **⏭️ NÄCHSTES (TEIL B, CEO-Wahl):** **W0** DB-Security-Batch (28 anon-SECDEF; Triage: keine anon-Geld-Mutation, 3 kleine echte Items D-12/Audit-RPCs/Hygiene) · **D-02b** Concurrency-Race (FOR UPDATE Starter+Bench) · **W2 Path-2** (user_stats-Score-Spalten-Drop) + **D-11** (totes bescout_scores) = 454-Residuals · K6/K7 (TEIL-A LOW).
+>
+> ---
+>
 > **🟡 SESSION-CLOSE 2026-06-29 (Teil 11) — D-02 Bench-Geld-Leck: Recon + Fix-Design KOMPLETT, Build VERTAGT (Slice 455, Checkpoint).**
 > - **CEO-Wahl Anil:** „weiter mit D-02". Recon live (D87) → **D-02 bestätigt real + LATENT** (Bench-Feature unbenutzt, `holding_locks`=0 live; Leck aktiviert sich erst bei Bench-Nutzung).
 > - **Bug (verifiziert):** `rpc_save_lineup` (25k-Money-RPC) — `v_all_slots` (Z.37-41) = `v_slot_keys` (Z.5) = exakt **12 Starter**, kein Bench. Cross-Event-Verfügbarkeits-Check (Z.365-377, `FOR v_i IN 1..12`) + Lock-INSERT (Z.436-438, `unnest(v_all_slots)`) decken **nur Starter** ab. Bench (`v_bench_uids`) wird validiert (Position/Holdings/Dup/overlap) aber **NIE in `holding_locks`** → dieselbe Bench-Karte in N gleichzeitigen Events → Auto-Sub punktet überall = Reward-Leck.

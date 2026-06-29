@@ -399,6 +399,9 @@ export function useEventActions(clubId: string) {
       const msg = err instanceof Error ? err.message : '';
       switch (msg) {
         case 'insufficient_sc':
+        // Slice 455 (D-02): Bench-Karte cross-event nicht verfuegbar — gleiche Semantik
+        // wie Starter (Karte in anderem Event gelockt) → gleiche spezifische Toast.
+        case 'insufficient_sc_bench':
           addToast(t('insufficientSc', { min: event.minScPerSlot ?? 1 }), 'error');
           break;
         case 'duplicate_player':

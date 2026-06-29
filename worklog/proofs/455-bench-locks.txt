@@ -1,0 +1,71 @@
+Slice 455 — D-02: Bench-Karten in holding_locks (Geld-Leck) — PROOF
+DB: skzjfhvgccaeplydsunz · Datum: 2026-06-29 · Scope: Money/§3 (latent)
+
+=====================================================================
+1) RECON (Live-D87) — vor Fix
+=====================================================================
+rpc_save_lineup: 1 Signatur (kein Overload), SECURITY DEFINER=true, proconfig=null (kein SET search_path).
+Grants: authenticated, postgres, service_role haben EXECUTE — anon hat KEIN EXECUTE (§3-Posture korrekt).
+Live-Zustand: holding_locks_count=0, lineups_count=447, lineups_with_bench=0, open_events=1.
+  -> Bench-Feature nie genutzt -> Leck LATENT (aktiviert sich erst bei Bench-Nutzung).
+
+Bug (verifiziert am Voll-functiondef):
+  - v_all_slots = 12 Starter (gk..att3). Kein Bench.
+  - Starter-Cross-Event-Check (FOR 1..12): available = holdings.qty - SUM(locks WHERE event_id != p_event_id),
+    reject 'insufficient_sc' bei < v_min_sc. -> Bench fehlt hier.
+  - Starter-Lock-INSERT: unnest(v_all_slots) WITH ORDINALITY -> holding_locks. -> Bench nie gelockt.
+  - Bench (v_bench_uids) wird voll validiert (Position/Holdings>=1/Dup/overlaps-starter/Liga/lineup_rules)
+    aber NIE in holding_locks.
+
+=====================================================================
+2) MECHANIK-CHECKS (force-rollback-Sicherheit ueber MCP)
+=====================================================================
+- BEGIN; CREATE OR REPLACE _probe; ROLLBACK; -> to_regprocedure(_probe) IS NULL = true
+  -> transaktionales DDL-Rollback bestaetigt (RPC kann nicht ungewollt persistieren).
+- BEGIN; temp insert; SELECT; ROLLBACK; -> SELECT-Ergebnis zurueckgegeben (vals=[7,8])
+  -> finales SELECT vor ROLLBACK wird geliefert (Smoke-Pattern valide).
+
+=====================================================================
+3) FORCE-ROLLBACK MONEY-SMOKE (neuer RPC im BEGIN..ROLLBACK, danach DB unveraendert)
+=====================================================================
+Patch-Methode: pg_get_functiondef (live) -> replace() an 2 eindeutigen Ankern -> EXECUTE.
+  Anker matchten (kein RAISE), gepatchter RPC kompilierte + lief.
+Fixture: user ded75479-…, Formation 1-2-2-2 (7 Starter), 2 Events A/B,
+  Set1(7) + Set2(7) disjunkte Starter (qty 1), 1 geteilte Bench-Karte X=00add130 (ATT, qty 1).
+
+  step                         | result
+  -----------------------------+-----------------------------------------------------------
+  1_A_save                     | {ok:true, is_new:true, lineup_id:d6754217-…}
+  2_A_bench_locked             | true                  <- Block B: Bench X jetzt in holding_locks
+  3_A_lock_count               | 8                     <- 7 Starter + 1 Bench (Starter-Lock intakt)
+  4_B_save_sharedbench         | {ok:false, error:insufficient_sc_bench, available:0, required:1,
+                               |  player_id:00add130-…}  <- Block A: Cross-Event-Reject gezielt auf Bench
+                               |                            (_bench-Suffix => NICHT der Starter-Check)
+  5_B_lock_count               | 0                     <- B vor jedem Write abgelehnt, kein Leck
+  6_A_resave                   | {ok:true, is_new:false, lineup_id:d6754217-…}  <- idempotent (AC4)
+  7_A_lock_count_after_resave  | 8                     <- keine Lock-Duplikation
+
+ACs: AC1 (Bench gelockt) ✅ · AC2 (cross-event reject, gezielt _bench) ✅ · AC4 (idempotent) ✅
+     AC6 (Bench leer/NULL kein Crash) ✅ (unnest(empty)=0 rows; force-rollback ok).
+ROLLBACK -> holding_locks_count weiterhin 0 live (kein Persistenz-Nebeneffekt).
+
+=====================================================================
+4) POST-APPLY (CEO Anil approved 2026-06-29; Migration slice_455_bench_holding_locks = success)
+=====================================================================
+pg_get_functiondef-Marker-Counts (live, nach Apply):
+  cnt_bench_err_blockA   (insufficient_sc_bench)            = 1   <- Block A genau 1x dazu
+  cnt_bench_insert_blockB (unnest(v_bench_uids))            = 1   <- Block B genau 1x dazu
+  cnt_starter_insert     (unnest(v_all_slots) WITH ORDIN.)  = 1   <- Starter-Lock unveraendert (AC3)
+  cnt_starter_err        ('insufficient_sc')                = 1   <- Starter-Verfuegb.-Check unveraendert (AC3)
+  => genau 2 additive Bloecke, Starter-Pfad byte-treu.
+
+SECDEF/Grants (AC5):
+  prosecdef = true                                          <- SECURITY DEFINER bewahrt
+  proconfig = null                                          <- kein SET search_path (byte-true; W0-Gap, nicht eingefuehrt)
+  owner     = postgres
+  acl       = postgres=X | authenticated=X | service_role=X <- anon KEIN EXECUTE (mentions_anon=false) -> §3 ok
+
+ERGEBNIS: AC1 ✅ AC2 ✅ AC3 ✅ AC4 ✅ AC5 ✅ AC6 ✅. D-02 live geschlossen.
+Residual (getrackt, disease-register D-02b): TOCTOU cross-event Concurrency-Race (kein FOR UPDATE) =
+  vererbt vom Starter-Pfad, Slice macht es nicht schlimmer; Row-Lock-Slice spaeter.
+FE: useEventActions.ts insufficient_sc_bench -> spezifische insufficientSc-Toast (tsc 0).
