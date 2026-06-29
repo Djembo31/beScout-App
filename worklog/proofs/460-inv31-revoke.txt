@@ -1,0 +1,76 @@
+Slice 460 — INV-31 Security-Fix: REVOKE no_guard SECDEF-RPCs
+Proof — 2026-06-29 · DB skzjfhvgccaeplydsunz · CEO-approved (Anil, §3 "REVOKE-only")
+Migration: 20260629210000_slice_460_inv31_revoke.sql (apply_migration → {success:true})
+
+================================================================================
+BEFORE (live, pre-apply) — both single-signature, no overload
+================================================================================
+calculate_fan_rank(p_user_id uuid, p_club_id uuid)
+  acl_before = {postgres=X/postgres, service_role=X/postgres, authenticated=X/postgres}
+  auth_exec=true  anon_exec=false  service_role_exec=true
+refund_wildcards_on_leave(p_user_id uuid, p_event_id uuid)
+  acl_before = {postgres=X/postgres, authenticated=X/postgres, service_role=X/postgres}
+  auth_exec=true  anon_exec=false  service_role_exec=true
+
+Triage evidence (live, read-only):
+- refund_wildcards_on_leave: 0 caller in src/ + supabase/ + scripts/ (grep), 0 DB-caller
+  (pg_proc.prosrc ~ 'refund_wildcards_on_leave' = empty). Calls earn_wildcards (value-item,
+  no idempotency: balance += amount). earn_wildcards HAS inner guard
+  (auth.uid() IS DISTINCT FROM p_user_id → 'auth_uid_mismatch') → cross-user blocked,
+  authenticated self-repeat = wildcard farm via PostgREST. = dead orphan.
+- calculate_fan_rank: live callers = cron gameweek-sync:1594 (supabaseAdmin/service_role)
+  + trg_recalc_fan_rank_on_follow (SECDEF, owner ctx) + batch_recalculate_fan_ranks
+  (SECDEF, acl {service_role} only). Client service recalculateFanRank = dead (0 prod caller,
+  only tests). Direct authenticated spoof of p_user_id = info-leak (holdings-count/abo-tier
+  in returned components) + self-correcting fan_rankings UPSERT.
+
+================================================================================
+FIX
+================================================================================
+REVOKE EXECUTE ON FUNCTION public.calculate_fan_rank(uuid, uuid)        FROM authenticated, anon, PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.refund_wildcards_on_leave(uuid, uuid) FROM authenticated, anon, PUBLIC;
+(REVOKE-only — no body rewrite → zero PATCH-AUDIT risk S156. service_role NOT touched.)
+
+================================================================================
+AFTER (live, post-apply)
+================================================================================
+AC-01 [SECURITY] authenticated/anon lost EXECUTE on both:
+  calculate_fan_rank          auth_exec=FALSE  anon_exec=FALSE
+  refund_wildcards_on_leave   auth_exec=FALSE  anon_exec=FALSE
+  acl_after (both) = {postgres=X/postgres, service_role=X/postgres}
+  => PASS
+
+AC-02 [REGRESSION] service_role retains EXECUTE (cron/batch/trigger unaffected):
+  calculate_fan_rank          service_role_exec=TRUE
+  refund_wildcards_on_leave   service_role_exec=TRUE
+  => PASS
+
+AC-03 [HAPPY] INV-31 audit needs_fix:
+  get_security_definer_user_param_audit() WHERE needs_fix=true → count=0, remaining=(none)
+  => PASS (INV-31 green, no allowlist_reason needed, no body change)
+
+AC-05 [REGRESSION] calculate_fan_rank still callable in owner ctx (force-rollback DO block):
+  DO $$ ... v := calculate_fan_rank(seed_user, seed_club); RAISE EXCEPTION 'AC05_RESULT >>> ...' END $$;
+  => "AC05_RESULT >>> ok=true tier=stammgast (call succeeded in owner ctx, UPSERT rolled back)"
+  => PASS
+
+================================================================================
+AC-04 [REGRESSION] full db-invariants suite + tsc
+================================================================================
+$ npx vitest run src/lib/__tests__/db-invariants.test.ts
+  Tests: 3 failed | 36 passed (39)     [was: 4 failed | 35 passed → INV-31 went green, 4→3]
+  Remaining failures = pre-existing, UNCHANGED, NOT in scope:
+    × INV-19  (treasury_ledger RLS-enabled / 0-policy = Cron-Only pattern → whitelist entry)
+    × INV-32  (club_fan_rank_thresholds / liga_reward_config public-read → EXPECTED_PUBLIC entry)
+    × INV-33  (dev seed account aaaaaaaa-0005 wallet drift -30000 = seed noise)
+  INV-31 = NO LONGER in failed list (green). No new failure introduced.
+  => PASS
+
+$ npx tsc --noEmit
+  exit 0   (migration-only change, no TS touched)
+  => PASS
+
+================================================================================
+VERDICT: all 5 ACs PASS. INV-31 closed. 2 §3 security leaks (info-leak + wildcard
+self-farm) shut. No body rewrite, no functional regression for legit callers.
+================================================================================

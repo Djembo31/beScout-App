@@ -1,35 +1,24 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 22:09)
+# Session Handoff — Auto (2026-06-29 22:45)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 17 Files
+## Uncommitted Changes: 5 Files
 ```
-M  .claude/rules/errors-infra.md
-M  MASTERPLAN.md
-M  memory/session-handoff.md
-M  messages/de.json
-M  messages/tr.json
-M  src/lib/__tests__/db-invariants.test.ts
-M  src/lib/queries/index.ts
-M  src/lib/queries/keys.ts
-M  src/lib/queries/misc.ts
-D  src/lib/services/scoutMissions.ts
-A  supabase/migrations/20260629200000_slice_458_dead_feature_gc.sql
-M  worklog/active.md
-M  worklog/log.md
-M  worklog/notes/disease-register.md
-A  worklog/proofs/458-dead-feature-gc.txt
-A  worklog/reviews/458-review.md
-A  worklog/specs/458-d13-d10-dead-feature-gc.md
+ M memory/session-handoff.md
+ M worklog/active.md
+?? supabase/migrations/20260629210000_slice_460_inv31_revoke.sql
+?? worklog/proofs/460-inv31-revoke.txt
+?? worklog/specs/460-inv31-secdef-revoke.md
 ```
 
-## Session Commits: 5
+## Session Commits: 6
+- b121ee9a fix(invariants): Slice 459 — INV-XS Doppel-Fix (success_fee + events-Snapshot)
+- 06ab5d62 chore(db): Slice 458 — Dead-Feature-GC-Batch D-13 (season_reset_scores) + D-10 (2. Mission-System) (live)
 - b1432588 chore(db): Slice 457 — D-11 Dead-Scoring-Modell GC (bescout_scores+score_events+award_score_points gedroppt, live)
 - c47b8933 docs(plan): MASTERPLAN W3 reconcile — Bench-Lock (455 D-02 + 456 D-02b) erledigt
 - 06e2f429 fix(fantasy): Slice 456 — D-02b holdings Row-Lock gegen cross-event Concurrency-Race (live)
 - 92b007de fix(fantasy): Slice 455 — D-02 Bench-Karten in holding_locks (Geld-Leck, live)
-- 94f36201 docs(spec): Slice 455 D-02 Bench-Lock — Recon+Fix-Design komplett (Build vertagt, Checkpoint)
 
 <!-- auto:handoff-end -->
 
@@ -37,6 +26,16 @@ A  worklog/specs/458-d13-d10-dead-feature-gc.md
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 17) — INV-31 Security-Fix GEHEILT live (Slice 460): REVOKE no_guard SECDEF-RPCs.**
+> - **CEO Anil:** „INV-31 jetzt, REVOKE-only" (§3). Faktenbasierte Live-Triage VOR Bau (read-only DB): die einzige live-rote *Security*-Invariante.
+> - **Fix (live, Migration `20260629210000`):** `REVOKE EXECUTE … FROM authenticated, anon, PUBLIC` auf `calculate_fan_rank(uuid,uuid)` + `refund_wildcards_on_leave(uuid,uuid)` — 2 no_guard SECDEF-RPCs (identity-spoof-Klasse). REVOKE-only, kein Body-Rewrite (null S156-Risiko am 5k-Body). Beide ohne legitimen direkten authenticated-Caller (Cron/Batch/Trigger = service_role/SECDEF-Owner; Client-Service `recalculateFanRank` tot; `refund_wildcards_on_leave` = toter Orphan 0 Caller). Schließt: `calculate_fan_rank` Info-Leak (Holdings-Count/Abo-Tier via fremde p_user_id) + `refund_wildcards_on_leave` Self-Repeat-Wildcard-Farm (cross-user war schon durch inneren earn_wildcards-Guard blockiert).
+> - **Root-Cause (Reviewer-Catch):** Slice 251 (`20260428120500`) ließ den AR-27-Guard (`20260414200000`) für genau diese RPC beim Per-Liga-Rewrite still fallen (S156-Silent-Revert; 4/5 Geschwister behielten ihn, ~2 Mon. latent) → INV-31 als **laufender** Invariant fing es.
+> - **Proof:** auth/anon EXECUTE→FALSE beide, service_role→TRUE beide, `needs_fix`=0, force-rollback Owner-Call (ok=true), db-invariants **4→3 failed** (INV-31 grün, INV-19/32/33 unverändert), tsc 0. Reviewer **PASS** („ein Senior merged das"). Proof `460-inv31-revoke.txt`. Knowledge errors-db **S460**. Disease-Register: INV-31→geheilt, **D-34** (toter non-idempotenter Orphan grant-dicht; Re-Arm bei service_role-Verdrahtung → Dedup/DROP).
+> - **🟡 REST-INV noch rot (3, alle pre-existing P2, NICHT Scope 460):** INV-19 (treasury_ledger Cron-Only-RLS → Whitelist-Eintrag) · INV-32 (club_fan_rank_thresholds/liga_reward_config public-read → EXPECTED_PUBLIC) · INV-33 (Dev-Seed-Konto aaaaaaaa-0005 wallet-drift −30000).
+> - **⏭️ NÄCHSTES (TEIL B, CEO-Wahl):** **W0-Rest** (27 anon-SECDEF Hygiene-Batch + **D-12** toter `get_club_dashboard_stats` v1 DROP, anon-PII) · **W5** Konsistenz-Batch (D-23/24/25/26) · **Dead-GC-Rest** D-14/15/16 (Money/CEO) · **INV-19/32/33** P2 Test-Ehrlichkeit (1 XS-Slice).
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 16) — INV-XS Doppel-Fix (Slice 459): INV-22 + INV-18 Snapshot-Sync.**
 > - **CEO Anil:** INV-XS-Wahl (nach 457/458). XS, kein Money-Verhalten.
 > - **Fix:** 2 pre-existing db-invariants-Drifts (S330/S359-„5.-Sync-Punkt") auf Live-Realität: `success_fee` (CSF-Engine S330) in `ALL_CREDIT_TX_TYPES` (activityHelpers+i18n waren schon komplett) + events.status `cancelled`(S399)/events.type `user`(S396) in INV-18-Snapshot. 3 1-Zeilen-Edits.
