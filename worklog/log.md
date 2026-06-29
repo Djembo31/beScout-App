@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 459 | 2026-06-29 | fix(invariants): INV-XS Doppel-Fix — INV-22 (success_fee) + INV-18 (events-Snapshot)
+- Stage-Chain: SPEC → BUILD → PROVE (db-invariants isoliert) → REVIEW (self-review, XS Pattern-bekannt) → LOG. **i18n/Test-Sync, kein Money-Verhalten; CEO Anil INV-XS-Wahl.**
+- **Befund (Live-DB, beim 457/458-vitest aufgefallen):** 2 pre-existing INV-Snapshot-Drifts (S330/S359-„5.-Sync-Punkt"-Klasse — CHECK erweitert, TS/Snapshot nie nachgezogen): **INV-22** `success_fee` (im transactions_type_check seit Slice 330 CSF-Engine) fehlte in `ALL_CREDIT_TX_TYPES` → künftige CSF-Buchung = raw-string-Fallback (activityHelpers + i18n `activity.successFee` waren schon komplett, nur die SSOT-Liste nicht). **INV-18** events.status-Snapshot fehlte `cancelled` (Event-Cancel Slice 399, live 1) + events.type fehlte `user` (User-Events Slice 396, live 2) — legitime gewollte Werte, DB korrekt.
+- **Fix:** 3 1-Zeilen-Edits, Sync auf live-verifizierte Realität — `transactionTypes.ts` ALL_CREDIT_TX_TYPES += success_fee; `db-invariants.test.ts` events.status += cancelled, events.type += user.
+- **Proof:** db-invariants isoliert **6→4 failed** (INV-18+22 rot→grün; INV-19/31/32/33 UNVERÄNDERT = pre-existing W0-Security/Daten-Drift, nicht Scope); tsc Exit 0. Proof `459-inv-sync.txt`, Review `459-review.md` (self-review PASS).
+- **Scope-Out:** success_fee NICHT in PUBLIC_TX_TYPES (CSF-Sichtbarkeit = CEO); INV-19/31/32/33 eigene Themen (INV-31 = W0).
+
 ## 458 | 2026-06-29 | chore(db): Dead-Feature-GC-Batch — D-13 (season_reset_scores) + D-10 (2. Mission-System) (live)
 - Stage-Chain: SPEC → IMPACT (skipped, 0 lebende Consumer beider Features) → BUILD (Migration + FE-Cleanup) → PROVE (force-rollback + post-apply + grep) → REVIEW (Cold-Context CONCERNS → i18n im Slice nachgezogen) → CEO-Apply → LOG. **Dead-Feature-GC-Batch, §0 Subtraktion; CEO Anil Dead-GC-Batch-Wahl. EINE gebündelte Verifikation (Anil-Wunsch).**
 - **Befund (D87 Live):** **D-13** `season_reset_scores()` = verwaiste Season-Reset-RPC (mutiert scout_scores, ABER 0 statische Caller + 0 pg_cron + ACL service_role-only → unaufrufbar; lebender Zwilling `soft_reset_season(text,date,date)` verkabelt AdminLigaTab). **D-10** = komplettes 2. Mission-System (Scout Missions): `scoutMissions.ts` + Hooks `useScoutMissions`/`useMissionProgress` + Re-Export + 2 RPCs (`claim_scout_mission_reward`/`submit_scout_mission`, an authenticated granted, 0 Caller/Trigger/View) + 2 Tabellen (`scout_mission_definitions` 5 Rows, `user_scout_missions` 0) — **0 Render** (grep), unbewusste Zwei neben lebendem `mission_definitions`(30)/`user_missions`(4397).

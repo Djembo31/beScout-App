@@ -48,6 +48,8 @@ export const ALL_CREDIT_TX_TYPES = [
   'scout_subscription', 'scout_subscription_earning',
   'creator_fund_payout', 'ad_revenue_payout',
   'pbt_liquidation',
+  // Slice 330 CSF-Engine (DB canonical, im transactions_type_check seit 330; INV-22-Sync S459)
+  'success_fee',
   // Slice 037: event entry refund (DB canonical)
   'event_entry_unlock',
   // Slice 396: user-events money (DB canonical)

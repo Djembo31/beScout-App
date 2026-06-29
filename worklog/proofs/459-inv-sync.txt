@@ -1,0 +1,35 @@
+Slice 459 — INV-XS Doppel-Fix (INV-22 success_fee + INV-18 events-Snapshot) — PROOF
+DB: skzjfhvgccaeplydsunz · 2026-06-29
+
+================================================================
+1) RECON (Live-DB)
+================================================================
+transactions_type_check: enthält 'success_fee' (Slice 330 CSF, +41 Werte total)
+events_status_check: enthält 'cancelled'    | events_type_check: enthält 'user'
+Row-counts: tx.success_fee=0 (latent) · events.status=cancelled → 1 · events.type=user → 2
+activityHelpers.ts: success_fee KOMPLETT (Icon Banknote / Color emerald / LabelKey successFee)
+i18n: activity.successFee vorhanden DE „Community-Bonus" / TR „Topluluk Bonusu"
+INV-18 transactions.type-case: enthält success_fee BEREITS → nur events drifteten
+
+================================================================
+2) FIX (3 1-Zeilen-Edits, Sync auf Live-Realität)
+================================================================
+- transactionTypes.ts ALL_CREDIT_TX_TYPES += 'success_fee'
+- db-invariants.test.ts INV-18 events.status expected += 'cancelled'
+- db-invariants.test.ts INV-18 events.type   expected += 'user'
+
+================================================================
+3) VERIFY (db-invariants isoliert)
+================================================================
+  BEFORE: Tests 6 failed | 33 passed (39)  — failing: INV-18,19,22,31,32,33
+  AFTER:  Tests 4 failed | 35 passed (39)  — failing: INV-19,31,32,33
+  → INV-18 ✅ grün (events drifts weg)   ← AC2
+  → INV-22 ✅ grün (success_fee in TS)    ← AC1
+  → INV-19/31/32/33 UNVERÄNDERT (pre-existing W0-Security/Daten-Drift, nicht mein Scope) ← AC4
+  npx tsc --noEmit → EXIT 0 (CreditTxType-Union-Erweiterung bricht keinen Consumer) ← AC3
+
+================================================================
+4) SCOPE-OUT (bewusst)
+================================================================
+- success_fee NICHT in PUBLIC_TX_TYPES/RLS (CSF-Sichtbarkeit = CEO-Entscheid, konservativ privat)
+- INV-19/31/32/33 = eigene Themen (INV-31 = W0-Security-Welle)

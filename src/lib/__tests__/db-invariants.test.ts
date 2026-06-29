@@ -690,13 +690,15 @@ describe('DB Invariants', () => {
         table: 'events',
         column: 'status',
         constraint: 'events_status_check',
-        expected: ['upcoming', 'registering', 'late-reg', 'running', 'scoring', 'ended'],
+        // 'cancelled' = Event-Cancel (Slice 399, live 1 Row); Snapshot-Sync S459
+        expected: ['upcoming', 'registering', 'late-reg', 'running', 'scoring', 'ended', 'cancelled'],
       },
       {
         table: 'events',
         column: 'type',
         constraint: 'events_type_check',
-        expected: ['bescout', 'club', 'sponsor', 'special'],
+        // 'user' = User-Events (Slice 396 user-events money core, live 2 Rows); Snapshot-Sync S459
+        expected: ['bescout', 'club', 'sponsor', 'special', 'user'],
       },
       {
         table: 'players',

@@ -1,20 +1,27 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 21:58)
+# Session Handoff — Auto (2026-06-29 22:09)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 10 Files
+## Uncommitted Changes: 17 Files
 ```
- M memory/session-handoff.md
- M src/lib/__tests__/db-invariants.test.ts
- M src/lib/queries/index.ts
- M src/lib/queries/keys.ts
- M src/lib/queries/misc.ts
+M  .claude/rules/errors-infra.md
+M  MASTERPLAN.md
+M  memory/session-handoff.md
+M  messages/de.json
+M  messages/tr.json
+M  src/lib/__tests__/db-invariants.test.ts
+M  src/lib/queries/index.ts
+M  src/lib/queries/keys.ts
+M  src/lib/queries/misc.ts
 D  src/lib/services/scoutMissions.ts
- M worklog/active.md
-?? supabase/migrations/20260629200000_slice_458_dead_feature_gc.sql
-?? worklog/proofs/458-dead-feature-gc.txt
-?? worklog/specs/458-d13-d10-dead-feature-gc.md
+A  supabase/migrations/20260629200000_slice_458_dead_feature_gc.sql
+M  worklog/active.md
+M  worklog/log.md
+M  worklog/notes/disease-register.md
+A  worklog/proofs/458-dead-feature-gc.txt
+A  worklog/reviews/458-review.md
+A  worklog/specs/458-d13-d10-dead-feature-gc.md
 ```
 
 ## Session Commits: 5
@@ -30,6 +37,15 @@ D  src/lib/services/scoutMissions.ts
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 16) — INV-XS Doppel-Fix (Slice 459): INV-22 + INV-18 Snapshot-Sync.**
+> - **CEO Anil:** INV-XS-Wahl (nach 457/458). XS, kein Money-Verhalten.
+> - **Fix:** 2 pre-existing db-invariants-Drifts (S330/S359-„5.-Sync-Punkt") auf Live-Realität: `success_fee` (CSF-Engine S330) in `ALL_CREDIT_TX_TYPES` (activityHelpers+i18n waren schon komplett) + events.status `cancelled`(S399)/events.type `user`(S396) in INV-18-Snapshot. 3 1-Zeilen-Edits.
+> - **Proof:** db-invariants isoliert **6→4 failed** (INV-18+22 rot→grün); tsc 0. self-review PASS. Proof `459-inv-sync.txt`.
+> - **🟡 REST-INV noch rot (4, alle pre-existing, NICHT Scope 459):** INV-31 (calculate_fan_rank/refund_wildcards_on_leave no_guard = **W0-Security**) · INV-19 (club/platform_treasury_ledger RLS-an/0-Policy = Cron-Only-Pattern → Whitelist-Eintrag) · INV-32 (club_fan_rank_thresholds/liga_reward_config qual=true → EXPECTED_PUBLIC-Eintrag) · INV-33 (Dev-Account wallet/tx-drift −30000).
+> - **⏭️ NÄCHSTES (TEIL B, CEO-Wahl):** **W0** DB-Security (INV-31 no_guard + 28 anon-SECDEF + D-12 DROP) · **W5** Konsistenz-Batch (D-23/24/25/26) · **Dead-GC-Rest** D-14/15/16 (Money/CEO).
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 15) — Dead-Feature-GC-Batch GEHEILT live (Slice 458): D-13 + D-10.**
 > - **CEO Anil:** Dead-GC-Batch-Wahl (nach D-11/457) → D-13 (season_reset_scores) + D-10 (2. Mission-System), EINE gebündelte Verifikation.
 > - **Fix (live, Migration `20260629200000`):** reine Subtraktion (§0) — 5 DROPs: `season_reset_scores()` (D-13, verwaiste Reset-RPC, 4-Wege-Caller-Check pg_proc+pg_cron+src+ACL alle negativ, lebender Zwilling `soft_reset_season` bleibt) + `claim_scout_mission_reward`/`submit_scout_mission` + `user_scout_missions`(0)/`scout_mission_definitions`(5) (D-10, 0 Render). Frontend-Cleanup: `scoutMissions.ts` gelöscht + misc/index/keys/db-invariants gescrubbt. **`qk.missions.scout` BEHALTEN** (geteilt mit lebendem `useMissionHints`), nur `.progress` raus. Lebendes `mission_definitions`(30)/`user_missions`(4397) distinkt + unberührt.
