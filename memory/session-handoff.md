@@ -23,18 +23,20 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
-> **🟢 SESSION-CLOSE 2026-06-29 (Teil 2) — K2.3 docs-root-Konsolidierung Welle A+B + TZ-Hook-Fix (Slices 444-446, `main`==`origin` `abbaa141`).**
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 3) — K2.3 docs-root-Konsolidierung Welle A+B+C + TZ-Hook-Fix (Slices 444-447, `main`==`origin` `e797e460`).**
 > 4-Agent-Recon (read-only, live-verifiziert) klassifizierte **alle 18 `docs/`-root-Files** → Plan-Scope-Korrektur: **3 Krankheiten** statt der „4 Dubletten" im alten Plan: (a) **invertierte Wahrheit** (kanon. `domain/vision.md` war ÄLTER als die „veralteten" Root-Docs, un-routbar), (b) **heimatlose Cluster** (Legal/Sales/Scaling/Gamification-Design = 0 kanon. Heimat → blind löschen = Wissensverlust), (c) **„FINAL"-Lügen** (gamification-v4/SYSTEM-DESIGN-v2 „SSOT"-Header aber überholt). CEO (Anil): **Wellen, voll nach `knowledge/` kanonisieren.**
 > - **444 (A):** 7 superseded gelöscht (briefing/Context_Pack_v8/final-report-v3/STATUS/ROADMAP/SECURITY-AUDIT/ARCHITECTURE), 0 Wert, 0 dangling.
 > - **445 (B):** Vision/GTM-Harvest — `domain/vision.md`⬆️ kanonisch (Juni-Vision, Wording geheilt) + 🆕`research/gtm-strategy.md` (Personas/90-Tage-Plan/Club-Targeting/ARR). 9 Refs umgebogen, `VISION.md`+`strategy-2026-04-24` gelöscht. Behebt „invertierte Wahrheit".
 > - **446:** `knowledge:check` TZ-Bug (UTC→Lokal) — blockte knowledge-Edits lokal 00:00–02:00 (Pattern errors-infra S446).
-> - **docs/ root: 18 → 9 Files.**
+> - **447 (C):** Legal/Sales-Kanonisierung — 🆕`decisions/legal-classification.md` (Securities/E-Geld/Glücksspiel + CSF-Vertrag + Lizenz-Matrix aus `.docx` + 10 Anwalts-Fragen) + 🆕`research/sales-playbook.md` (Pakete/Preise + 9 Objection-Skripte + Ziel-Clubs). 4 Quell-Docs weg, CONCEPT-DPC-Refs umgebogen, Reviewer PASS. **Money-Catch:** „500-Cap"-Annahme → kanonisch 10.000 SC korrigiert (Agent-flagged).
+> - **docs/ root: 18 → 5 Files.**
 >
-> **⏭️ OFFEN K2.3 (Wellen C/D/E) — Recon-Treibstoff liegt vor: `worklog/notes/k2.3-docs-consolidation-recon.md`** (pro Quell-Doc: einzigartiger Inhalt + Ziel-File → KEIN Re-Recon nötig, direkt harvesten):
-> - **C** Legal/Sales: legal-brief + Sales Angebote + Licensing.docx + CONCEPT-DPC-Legal-Cluster → 🆕`decisions/legal-classification.md` + 🆕`research/sales-playbook.md`. **Reviewer + Anil-Legal-Blick.** CEO-Klärung offen: `success_fee_platform_bps` (BeScout-CSF-Schnitt 0-30%) noch gewollt?
+> **⏭️ OFFEN K2.3 (Wellen D/E) — Recon-Treibstoff liegt vor: `worklog/notes/k2.3-docs-consolidation-recon.md`** (pro Quell-Doc: einzigartiger Inhalt + Ziel-File → KEIN Re-Recon nötig; **Welle C = Vorbild für den Agent-Draft→Primary-Promote+Heal-Flow**):
 > - **D** Gamification/Scaling: gamification-v4 + SYSTEM-DESIGN-v2 + SCALE → 🆕`lessons/gamification-design-principles.md` (5 Regeln + Verhaltensökonomie) + 🆕`research/scaling.md`; Amazon-Pitch → gtm-strategy ergänzen. Evtl. `D<n>` für die 5 Design-Regeln.
 > - **E** Frontend: COMPONENTS + player-card-system gegen `beScout-frontend`-Skill dedup (COMPONENTS driftet trotz 27.6.-Datum).
-> **DANN K2.4 wiki/ · K2.5 Anker-Ref-Umbiegung · K2.6 Memory-Modell [CEO].** Parallel offen (CEO-Wahl, NICHT TEIL A): Mock→Pro **D-01** (latenter `42P10`-Scoring-Bug, §3) · W0 DB-Security.
+> **DANN K2.4 wiki/ · K2.5 Anker-Ref-Umbiegung · K2.6 Memory-Modell [CEO].**
+> **🟡 Offene CEO-/Folge-Punkte aus Welle C:** (1) `success_fee_platform_bps` (BeScout-CSF-Schnitt 0-30 %) — dokumentiert legal-classification §5.3; treasury.md realisiert ihn NICHT (CSF 100 % Holder) → CEO-Entscheid offen, nicht dringend. (2) Smell `product-map.md:55` Polls 70/30 vs kanonisch 80/20 (`polls.md`/356) → XS-Fix-Slice.
+> **Parallel offen (CEO-Wahl, NICHT TEIL A):** Mock→Pro **D-01** (latenter `42P10`-Scoring-Bug, §3) · W0 DB-Security.
 >
 > ---
 >
