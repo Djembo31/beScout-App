@@ -1,0 +1,36 @@
+=== Slice 449 — K2.3 Welle E: Frontend-Doc-Dedup — PROOF ===
+Datum: 2026-06-29
+
+## Entscheidung: LÖSCHEN (kein Harvest) — faktenbasiert
+Anders als Wellen A-D (heimatlose Wissensquellen → migriert) sind diese 2 Docs DRIFTENDE DUBLETTEN
+einer Wahrheit, die bereits kanonisch woanders lebt → Subtraktion ohne Ersatz (§0).
+
+## Code-Verifikation (live, src/components/player/)
+- variant-Enum: PlayerRow.tsx:159 `variant?: PlayerDisplayVariant` · :177 `variant = 'card'` (Default) · :224 `if (variant === 'compact')`
+  → echter Enum = compact | card (2 Größen). COMPONENTS.md behauptete compact|standard|detailed (3) = STALE.
+- PlayerKPIs: index.tsx:529-533 `PlayerKPIs({player, context, holding, ipoData, score, rank})` "context-dependent KPI strip"
+  → das kontextabhängige Karten-System LEBT im Code. bescout-player-card-system.md = überholte Vorläufer-Spec.
+- beScout-frontend-Skill (SKILL.md:22,60): "Component Registry in CLAUDE.md ZUERST pruefen"
+  → Registry-SSOT = CLAUDE.md §6 + Code-Barrel-Exports, NICHT die Skill, NICHT COMPONENTS.md.
+
+## Drift-Belege (warum löschen statt pflegen)
+COMPONENTS.md: variant 3-statt-2 · unit="BSD" (Z.126) · Modal-"TODO" obsolet (Radix-Dialog seit 181h) ·
+  SearchInput-"TODO" obsolet (längst shared) · fmtScout (= D-23 Geld-Formatter-Twin, disease-register).
+player-card-system.md: durchgängig BSD/DPC/Profit · Predictions (Kontext 6, entfernt 338) ·
+  Mastery (D102 entfernt) · Positionsfarben gelb/blau/grün/rot ≠ kanonisch emerald/amber/sky/rose (CLAUDE.md §6) ·
+  12-Kontext-Mockup-System nie so gebaut (echt: PlayerKPIs-switch + variant compact|card).
+
+## Verifikation
+- git rm docs/COMPONENTS.md docs/bescout-player-card-system.md
+- ls docs/*.md → (leer) — docs/ root .md 2 → 0
+- 0 lebende dangling refs (grep COMPONENTS.md|player-card-system über alle Schichten außer worklog/ → nur Plan-Dateien
+  session-handoff/MASTERPLAN, im LOG nachgezogen)
+- KEIN Rettungs-File: das Card-Design-Wissen lebt selbstdokumentierend im Code (PlayerKPIs/PlayerDisplay);
+  ein Doc-Duplikat würde nur neuen Drift schaffen (= die Krankheit, die K2 heilt). git=Archiv für die Mockups.
+
+## K2.3 KOMPLETT (A-E): docs/ root 18 → 0
+A(444) 7 superseded · B(445) Vision/GTM · C(447) Legal/Sales · D(448) Gamification/Scaling · E(449) Frontend-Dedup.
+
+## Stage-Chain
+SPEC (inline) → IMPACT (inline) → BUILD (git rm) → REVIEW (self-review, Ops-Spur: reine Subtraktion,
+Code-Wahrheit verifiziert, kein Money/Security/neuer-Content) → PROVE (dieses File) → LOG.

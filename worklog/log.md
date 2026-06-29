@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 449 | 2026-06-29 | chore(docs): K2.3 Welle E — Frontend-Doc-Dedup (COMPONENTS + player-card-system gelöscht)
+- Stage-Chain: SPEC (inline) → IMPACT (inline) → BUILD (git rm) → REVIEW (self-review, Ops-Spur) → PROVE (`proofs/449-welleE-frontend-dedup.txt`) → LOG.
+- **Entscheidung LÖSCHEN, kein Harvest (faktenbasiert, Code live verifiziert):** anders als Wellen A-D sind diese 2 Docs driftende **Dubletten**, keine heimatlosen Quellen.
+- `COMPONENTS.md` gelöscht: Registry-Wahrheit = CLAUDE.md §6 (Import-Map/Tokens) + Code-Barrel-Exports + beScout-frontend-Skill (zeigt auf CLAUDE.md). Drift: variant `compact|standard|detailed` (echt `compact|card`, PlayerRow:177/224) · unit="BSD" · Modal/SearchInput-„TODO" obsolet (Radix-Dialog seit 181h / längst shared) · fmtScout (= D-23-Twin).
+- `bescout-player-card-system.md` gelöscht: System lebt im Code (`PlayerKPIs` context-switch `index.tsx:533` + `PlayerDisplay`). Doc war überholte Vorläufer-Spec, aktiv irreführend: BSD/DPC/Profit · Predictions/338 · Mastery/D102 · Positionsfarben gelb/blau/grün/rot ≠ kanonisch emerald/amber/sky/rose (§6) · 3-statt-2 Größen.
+- KEIN Rettungs-File: ein Doc-Duplikat des Code-Systems würde nur neuen Drift schaffen (= die Krankheit, die K2 heilt). git=Archiv (441/444-Prinzip).
+- **docs/ root .md 2 → 0. → K2.3 KOMPLETT (A-E): docs/ root 18 → 0** (444 superseded · 445 Vision/GTM · 447 Legal/Sales · 448 Gamification/Scaling · 449 Frontend-Dedup).
+- 0 lebende dangling. Nächstes: K2.4 wiki/ → knowledge.
+
 ## 448 | 2026-06-29 | docs(knowledge): K2.3 Welle D — Gamification/Scaling-Harvest
 - Stage-Chain: SPEC (inline) → IMPACT (inline) → BUILD → REVIEW (reviewer-Agent PASS) → PROVE (`proofs/448-welleD-gamification-scaling.txt`) → LOG.
 - 🆕 `lessons/gamification-design-principles.md` (5 Design-Regeln [Skill>Grind/Verlust>Gewinn/Sofort>Später/Können>Markt/Fairness] + Verhaltensökonomie [Consumption Capital, Verlustaversion] + Ticket-/Cosmetics-Balancing + Mystery-Box-Lootbox-Legal + „entworfen-nicht-gebaut": dyn.Titel/Newbie/Season-Reset/Live-Gam) + 🆕 `research/scaling.md` (Schwellen [Supabase ~50K/500-conn] + Migrations-Pfad [Redis/BullMQ/Ably/Rust] + Service-Interfaces + Kosten). 2 INDEX-Einträge.
