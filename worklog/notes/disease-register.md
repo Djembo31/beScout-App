@@ -68,7 +68,7 @@ Die Synthese fand selbstkritisch: keiner der 34/32 Befunde hatte die **Supabase-
 
 **3 echte, kleine Items (alle §3 → warten auf Anil-Approval):**
 1. ~~**D-12 `get_club_dashboard_stats(text)` → DROP.**~~ ✅ **geheilt S461** (live DROP). **Teil-Schluss:** entfernte den toten v1-Pfad + by-name-Enumeration; die anon-Per-User-PII-Exposure besteht via `get_club_dashboard_stats_v2(uuid)` (identische Shape) fort → **D-35** (anon-Grant-Entscheid, W0-Hygiene). „Exposure + Duplikat in EINEM Schnitt" war zu optimistisch — nur Duplikat + Enumeration geschlossen.
-2. **`get_security_definer_user_param_audit()` + `get_rls_policy_matrix()` → REVOKE anon+authenticated (admin-only).** Geben einem Angreifer die Security-Landkarte (welche Funktion ungeguarded/`needs_fix` ist). Reiner Recon-Leak, kein legitimer Nicht-Admin-Caller.
+2. ✅ **geheilt S466** — `get_security_definer_user_param_audit()` + `get_rls_policy_matrix()` REVOKE anon+authenticated (admin-only; service_role behält → db-invariants-Test unberührt, 0 App-Caller). Recon-Leak (Security-Landkarte) geschlossen.
 3. **Hygiene-Batch (§3-Prinzip): REVOKE anon von 9 Triggern + ~10 Pure-Kalkulatoren** (fn_get_elo_*, fn_get_rang_*, fn_get_streak_*, scout_events_enabled, is_club_admin, get_current_liga_season). Trigger brauchen kein EXECUTE-Grant zum Feuern → REVOKE = null Impact. Kalkulatoren: anon raus, `authenticated` behalten.
 
 **⚠️ VOR REVOKE prüfen (nicht blind):** Rufen öffentliche Club-Seiten (ausgeloggte Besucher = `anon`) `get_club_dashboard_stats_v2` / `get_club_top_scouts` / `get_monthly_liga_winners` auf? Wenn ja = anon gewollt (öffentliche Leaderboards) → behalten. Wenn nur eingeloggt → anon raus. **Read-only Triage abgeschlossen; kein Code/Grant geändert.**

@@ -1,0 +1,42 @@
+Slice 466 — W0: Security-Map-Recon-RPCs admin-only (REVOKE anon+authenticated)
+Proof — 2026-06-30 · DB skzjfhvgccaeplydsunz · CEO autonom-Go (Anil, §3)
+Migration: 20260630140000_slice_466_recon_rpcs_admin_only.sql (apply_migration → {success:true})
+
+================================================================================
+TRIAGE (read-only)
+================================================================================
+get_security_definer_user_param_audit() + get_rls_policy_matrix() = SECDEF-Audit-RPCs,
+liefern die Security-Landkarte (needs_fix-Status pro RPC / RLS-Policy-Matrix).
+Konsumenten = NUR db-invariants.test.ts (Z.1506 + 1696), laeuft als service_role
+(SUPABASE_SERVICE_ROLE_KEY, test Z.27). grep src/ = 0 App-/UI-Caller.
+
+BEFORE: beide acl {postgres,anon,authenticated,service_role}; anon=true, auth=true, svc=true.
+
+================================================================================
+FIX
+================================================================================
+REVOKE EXECUTE ON FUNCTION public.get_security_definer_user_param_audit() FROM anon, authenticated, PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.get_rls_policy_matrix()                 FROM anon, authenticated, PUBLIC;
+
+================================================================================
+AFTER (live, post-apply)
+================================================================================
+AC-01 [SECURITY] anon + authenticated EXECUTE entzogen (beide):
+  get_security_definer_user_param_audit: anon=FALSE, auth=FALSE
+  get_rls_policy_matrix:                 anon=FALSE, auth=FALSE
+  acl_after (beide) = {postgres=X/postgres, service_role=X/postgres}
+  => PASS
+
+AC-02 [REGRESSION] service_role behält EXECUTE (beide):
+  svc_after = TRUE (beide)  => PASS
+
+AC-03 [REGRESSION] db-invariants (service_role) unverändert:
+  $ npx vitest run db-invariants.test.ts -> 3 failed (INV-19/32/33 pre-existing, UNCHANGED)
+  INV-31 NICHT in failed list = ruft get_security_definer_user_param_audit als service_role
+  erfolgreich (sonst waere es 4 failed). => PASS
+
+================================================================================
+VERDICT: all ACs PASS. Security-Map-Recon-Leak (welche RPC ungeguarded / RLS-Matrix) für
+anon+authenticated geschlossen; admin-only (service_role). db-invariants-Test unberührt
+(service_role). 0 App-Caller -> kein Funktions-Verlust.
+================================================================================

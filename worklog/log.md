@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 466 | 2026-06-30 | chore(db): W0 — Security-Map-Recon-RPCs admin-only (REVOKE anon+auth) (live)
+- Stage-Chain: SPEC → IMPACT (skipped: reines Grant-REVOKE) → BUILD (1 Migration) → PROVE (grants + db-invariants) → REVIEW (self-review, XS REVOKE-only Pattern-bekannt) → CEO-Apply → LOG. **Security-Hygiene §3; CEO autonom-Go Anil.**
+- **Befund (D87 + grep):** `get_security_definer_user_param_audit()` + `get_rls_policy_matrix()` (SECDEF-Audit-RPCs) an **anon+authenticated** granted → leaken die Security-Landkarte (welche RPC ungeguarded/needs_fix, RLS-Policy-Matrix). Konsumenten = NUR db-invariants.test.ts (service_role, `SUPABASE_SERVICE_ROLE_KEY`); 0 App-/UI-Caller.
+- **Fix (live, Migration `20260630140000`):** `REVOKE EXECUTE FROM anon, authenticated, PUBLIC` beide → admin-only (service_role + postgres behalten).
+- **Proof:** anon+auth→FALSE beide, service_role→TRUE, acl `{postgres,service_role}`; db-invariants unverändert 3 failed (INV-31 läuft als service_role weiter, sonst 4). Proof `466-recon-rpcs.txt`, Review `466-review.md` (self-review PASS).
+- **Scope-Out:** anon-Hygiene-Batch (Trigger+Kalkulatoren+Leaderboard) = 467; 87 search_path/81 Policies/Index = eigene W0-Slices.
+
 ## 465 | 2026-06-30 | fix(security): D-37b — top_role='Admin'-Familie vollständig schließen (get_sponsor_stats_summary + set_club_fan_rank_thresholds) (live)
 - Stage-Chain: SPEC → IMPACT (skipped) → BUILD (1 Migration, 2 RPCs) → PROVE (3-Rollen-force-rollback + Recompute-Happy-Path-rollback) → REVIEW (Cold-Context **PASS**) → CEO-Apply → LOG. **Security/Konsistenz §3 — kein Money; CEO autonom-Go Anil „mach autonom weiter".**
 - **Befund (post-464-Vollständigkeits-Audit, read-only):** die letzten 2 `top_role='Admin'`-RPCs: `get_sponsor_stats_summary` (RETURNS TABLE read-only, SOLE-gate tot + **vestigial anon-granted**) + `set_club_fan_rank_thresholds` (Sekundär-Branch: top_role OR club_admins; config-write + fan_rankings-recompute, = der S347-Fall).

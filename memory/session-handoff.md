@@ -27,6 +27,15 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-30 (Teil 23) — W0 Security-Map-Recon-RPCs admin-only live (Slice 466). Autonom-Modus.**
+> - **CEO Anil:** „mach autonom weiter". §3 Security-Hygiene.
+> - **Fix (live, Migration `20260630140000`):** `get_security_definer_user_param_audit()` + `get_rls_policy_matrix()` (SECDEF-Audit, leaken Security-Landkarte) `REVOKE EXECUTE FROM anon, authenticated, PUBLIC` → admin-only. Konsumenten = NUR db-invariants-Test (service_role) → unberührt; 0 App-Caller. Self-review (XS REVOKE-only).
+> - **Proof:** anon+auth→false, service_role→true (beide); db-invariants unverändert 3 (INV-31 läuft als service_role weiter). Proof `466-recon-rpcs.txt`.
+> - **🟢 W0-Security-Faden 460-466 = großer Block zu:** INV-31 · D-12 · D-35 · D-36/37/37b (top_role-Familie restlos, 7 RPCs) · Recon-RPCs (466). Alle no_guard/dead/anon-PII/platform-admin-Drift/Recon-Leak geschlossen.
+> - **⏭️ NÄCHSTES (autonom, W0-Rest):** **467** = anon-REVOKE-Hygiene-Batch (9 Trigger [REVOKE anon = null-Impact, Trigger feuern tabellengebunden] + ~10 Pure-Kalkulatoren [REVOKE anon, authenticated behalten] + 3 Leaderboard-RPCs [⚠️ ERST prüfen ob öffentliche/ausgeloggte Club-Seiten sie als anon rufen → wenn ja behalten]). Danach: 87 search_path_mutable · 81 permissive Policies + 26 unused + 51 FK-Index · **D-38** sponsorStats Silent-Fail · W5 (D-23/24/25/26) · Dead-GC D-14/15/16 (Money/CEO) · INV-19/32/33 P2.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-30 (Teil 22) — D-37b: top_role='Admin'-Familie KOMPLETT eliminiert live (Slice 465). Autonom-Modus.**
 > - **CEO Anil:** „mach autonom weiter bis Token ausgeschöpft" → W0-Security-Thread autonom.
 > - **Fix (live, Migration `20260630130000`):** letzte 2 `top_role='Admin'`-RPCs — `get_sponsor_stats_summary` (SOLE-gate read-only, +vestigial anon-granted → +REVOKE anon) + `set_club_fan_rank_thresholds` (Sekundär: club_admins funktionierte, Platform-Override tot) auf kanonische `platform_admins`. Bodies byte-true; club_admins-Branch unverändert; get_sponsor `public.`-qualifiziert (search_path='').
