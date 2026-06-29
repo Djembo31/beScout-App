@@ -1,22 +1,23 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-29 15:53)
+# Session Handoff — Auto (2026-06-29 16:50)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 3 Files
+## Uncommitted Changes: 5 Files
 ```
+ M memory/session-handoff.md
  M worklog/active.md
-?? supabase/migrations/20260629140000_slice_453_scoring_fixture_conflict.sql
-?? worklog/specs/453-d01-scoring-fixture-conflict.md
+?? supabase/migrations/20260629160000_slice_454_ranking_ssot.sql
+?? worklog/proofs/454-ranking-ssot.txt
+?? worklog/specs/454-d17-ranking-ssot.md
 ```
 
-## Session Commits: 6
+## Session Commits: 5
+- aee0aa95 fix(scoring): Slice 453 — D-01 Scoring-Funktionen aufs Fixture-Modell (42P10-Landmine, live)
 - 939a2f84 docs(cleanup): Slice 452 — K2.6 Memory-Split + K2.2c beta-Docs (K2-Epic komplett)
 - 5c9a9520 docs(cleanup): Slice 451 — K2.5 Plan-Anker Ref-Umbiegung (6 geloescht, 348->mock2pro-plan Drift-Rewire)
 - 7b6bdb68 docs(knowledge): Slice 450 — K2.4 wiki/ -> docs/knowledge/ Harvest-Konsolidierung (wiki/ 21->0)
 - 6dbd7179 docs(handoff): Session-Close 2026-06-29 — K2.3 KOMPLETT (A-E, Slices 444-449), naechste K2.4
-- 8ebc4faf chore(docs): Slice 449 — K2.3 Welle E: Frontend-Doc-Dedup (COMPONENTS + player-card-system geloescht)
-- aca5151f docs(knowledge): Slice 448 — K2.3 Welle D: Gamification/Scaling-Harvest
 
 <!-- auto:handoff-end -->
 
@@ -24,6 +25,18 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-29 (Teil 10) — D-17 Ranking-SSOT GEHEILT live (Slice 454). TEIL B Welle W2-Konsolidierung.**
+> - **CEO-Wahl Anil:** „weiter mit D-17" → Modell-Entscheid **„A — scout_scores = eine Quelle"** + Live-Apply (§3) freigegeben.
+> - **Bug (D87 Live):** `scout_scores` (trader/manager/analyst, KANONISCH, geld-gekoppelt via close_monthly_liga+airdrop) ↔ `user_stats` (trading/manager/scout) berechneten dieselben Dims mit verschiedenen Formeln → **70/70 Overlap-User divergent** (manager 778 vs 418; user sah 2 verschiedene Punktzahlen: /rankings=scout_scores vs Community/Club=user_stats).
+> - **Fix (live, Migration `20260629160000`):** user_stats-Scores = **kept-fresh Projektion** von scout_scores. (1) Score-Spalten smallint→integer (Overflow-Edge, scout uncapped). (2) `refresh_user_stats` liest scout_scores statt eigener gedeckelter Formel (Rest byte-treu + `fn_compute_user_tier`-Helper). (3) `trg_scout_scores_project_user_stats` (AFTER INS/UPD OF scores ON scout_scores) projiziert sofort → Drift unmöglich (legitimer Denorm-mit-Trigger). (4) Backfill 70 Rows + rank. **scout_scores/award_dimension_score/Geld-Reader = 0 Edits.**
+> - **Reviewer-Catch (Cold-Context, HIGH — wieder wertvoll):** Backfill hätte `trg_sync_level` (AFTER UPD OF total_score → profiles.level + „Aufstieg!"-Notification) 70× gefeuert → Level-Rescale + **irreversibler Notification-Spam** (total_score capped→uncapped, 70/70 wechseln Level). Gefixt: Backfill geguarded (`DISABLE/ENABLE trg_sync_level`, profiles.level still+konsistent rescaled). Guard-Proof: notif_delta=0.
+> - **Apply-Story:** v1 FAIL `0A000` (trg_sync_level `UPDATE OF total_score` blockt ALTER TYPE) → atomar zurückgerollt → v2 DROP/recreate Trigger um den ALTER (Dependency-Check vorab: nur dieser Trigger). Post-apply: **divergence_live=0 · integer · projection_trg propagiert live (778→788) · level_inconsistent=0**; vitest 79/79. Proof `454-*.txt`, Review `454-review.md`.
+> - **Knowledge:** errors-db **S454** (Werte-Skala-Flip → Downstream-Trigger/Reader mit-auditieren · Backfill-Notif-Guard · ALTER-TYPE-Trigger-Dep). Disease-Register **D-17 → geheilt** (dup-registry geheilt).
+> - **🟡 Residual (getrackt → später):** **Path 2** = Surfaces (social/club/mentor) direkt auf scout_scores + user_stats-Score-Spalten droppen (physische statt projizierte SSOT) · **D-11** = totes `bescout_scores`/`award_score_points`/`score_events` löschen · tier-Schwellen-Tuning auf scout-Skala · #2 rank-lag (self-heal, akzeptiert) · #3 Badge/Rang-Display konvergiert auf scout-Skala (= gewollt, Live-Render-Check post-Deploy).
+> - **⏭️ NÄCHSTES (TEIL B, CEO-Wahl):** **D-02** Bench-Geld-Leak (M, Money — Bank-Karten umgehen holding_locks) · **W0** DB-Security-Batch · **W2 Path-2** Score-Spalten-Drop + **D-11** Dead-GC (454-Residuals) · K6/K7 (TEIL-A LOW) offen.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-29 (Teil 9) — D-01 Scoring-Landmine GEHEILT live (Slice 453). TEIL B gestartet.**
 > - **CEO-Wahl Anil:** nach K2-Epic → „Jetzt TEIL B, D-01" (TEIL-A-Rest K6 types-split→W6 / K7 Archiv→später Sweep, beide LOW). Live-Apply explizit freigegeben (§3).
 > - **Bug (D87 Live, DB skzjfhvgccaeplydsunz):** `cron_process_gameweek` Step4 + `admin_resync_gw_scores` schrieben altes GW-Modell `(player_id,gameweek,score) ON CONFLICT (player_id,gameweek)` gegen die von 419/D113 gedroppte UNIQUE (jetzt `(player_id,fixture_id)`; fixture_id+league_id NOT NULL) → **42P10 + NOT-NULL beim 1. echten Spieltag** (Off-Season maskiert). BEFORE live bewiesen: `admin_resync_gw_scores(26)`→42P10.

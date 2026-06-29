@@ -2,23 +2,24 @@
 
 ```
 status: idle
-slice: 453
-title: D-01 — Scoring-Funktionen aufs Fixture-Modell migrieren (42P10-Landmine) — DONE (live applied)
-size: S
+slice: 454
+title: D-17 — Ranking-SSOT (user_stats-Scores = Projektion von scout_scores) — DONE (live applied)
+size: M
 type: Migration
 stage: LOG (DONE)
-spec: worklog/specs/453-d01-scoring-fixture-conflict.md
-proof: worklog/proofs/453-scoring-fixture-conflict.txt
-review: worklog/reviews/453-review.md (CONCERNS → Finding#1 via Writer-Enum aufgelöst, Finding#2 Proof-Diff, #3 LOW)
+spec: worklog/specs/454-d17-ranking-ssot.md
+proof: worklog/proofs/454-ranking-ssot.txt
+review: worklog/reviews/454-review.md (CONCERNS → Finding#1 Level-Kaskade gefixt+bewiesen)
 ```
 
-## Ergebnis (D-01 geheilt, live)
-Money/§3. `cron_process_gameweek` Step 4 + `admin_resync_gw_scores` schrieben altes GW-Modell `ON CONFLICT (player_id, gameweek)` gegen die von 419 gedroppte UNIQUE → 42P10 + NOT-NULL beim 1. echten Spieltag. Beide auf die korrekte `sync_fixture_scores` gespiegelt (fixture-bound), Rest byte-treu.
-- BEFORE live: `admin_resync_gw_scores(26)` → 42P10. AFTER force-rollback GW26: 2805 fresh/idempotent, 0 null-FK. Apply (CEO Anil) → post-apply pg_get_functiondef fixture_now=t/stale=f/secdef+search_path erhalten; `admin_resync_gw_scores(99)` → success/0. vitest 81/81.
-- **Reviewer-Catch (wertvoll):** Writer-Enumeration (statt Conflict-Grep) bewies Completeness — genau 3 Writer, `admin_import_gameweek_stats` delegiert an sync_fixture_scores (safe).
+## Ergebnis (D-17 geheilt, live)
+Money-nah/§3. scout_scores (kanonisch, geld-gekoppelt) ↔ user_stats berechneten dieselben Dims mit verschiedenen Formeln → 70/70 divergent (manager 778 vs 418). CEO Anil „A": user_stats-Scores = kept-fresh Projektion.
+- Spalten smallint→integer (Overflow-Edge); refresh_user_stats liest scout_scores (Rest byte-treu); Projektions-Trigger auf scout_scores; Backfill GEGUARDET gg. trg_sync_level. **scout_scores 0 Edits.**
+- **Reviewer-Catch (HIGH):** Backfill hätte trg_sync_level 70× gefeuert → Level-Rescale + irreversible „Aufstieg!"-Notifs. Gefixt: DISABLE/ENABLE-Guard + profiles.level still rescaled (Guard-Proof notif_delta=0).
+- Apply v1 FAIL (0A000 trg_sync_level depends on total_score) → v2 DROP/recreate Trigger um ALTER. Post-apply: divergence_live=0, integer, projection_trg propagiert live (778→788), level_inconsistent=0. vitest 79/79.
 
-## Residual (Schnitt-Regel §0, getrackt → dup-registry)
-3-Wege-Scoring-Write-Duplikation (cron Step4 / admin_resync / sync_fixture_scores = identischer INSERT 3×) → W2 Score-SSOT (1 Helper). 419 heilte 1/3, 453 die 2 stale — alle 3 noch dupliziert.
+## Residual (getrackt → später)
+Path 2 (Surfaces direkt auf scout_scores + user_stats-Score-Spalten droppen = physische SSOT) · D-11 (totes bescout_scores/award_score_points/score_events) · tier-Schwellen-Tuning · #2 rank-lag (self-heal, akzeptiert).
 
 ## Nächstes (TEIL B, CEO-Wahl)
-D-17 Ranking-Konsolidierung · D-02 Bench-Geld-Leak · W0 DB-Security · oder W2 Score-SSOT-Helper (Residual). K6/K7 (TEIL-A-Rest, LOW) weiter offen.
+D-02 Bench-Geld-Leak (M, Money) · W0 DB-Security · W2 Score-SSOT Path 2 · D-11 Dead-GC. K6/K7 (TEIL-A LOW) offen.

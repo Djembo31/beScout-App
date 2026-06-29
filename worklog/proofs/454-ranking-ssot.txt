@@ -1,0 +1,53 @@
+PROOF — Slice 454: D-17 Ranking-SSOT (user_stats-Scores = Projektion von scout_scores)
+Datum: 2026-06-29 | Type: Migration | Scope: Money-nah/§3 (scout_scores UNANGETASTET) | DB: skzjfhvgccaeplydsunz (D87 Live)
+CEO Anil: „A — scout_scores = eine Quelle". CTO-WIE: kept-fresh Projektion.
+
+═══ PROBLEM (Evidence) — 100% Divergenz ═══
+scout_scores=128 Rows, user_stats=70, Overlap=70 → 70/70 divergent in ALLEN 3 Dimensionen
+(manager 70/70 + trader 70/70 + analyst 70/70). Register-Claim „manager 778 vs 418" bestätigt
+(scout_scores max manager=778; user_stats hatte eigene gedeckelte Formel → 418).
+- scout_scores (award_dimension_score): inkrementell, geld-gekoppelt (close_monthly_liga + airdrop lesen).
+- user_stats (refresh_user_stats): eigene LEAST(1000,...)-Formel, gezeigt auf Community/Club/Mentor.
+
+═══ WRITER-COMPLETENESS (S453-Lehre — gegen Divergenz-Rückkehr) ═══
+pg_proc-Enumeration (schema-tolerant) aller user_stats-Score-Writer:
+  refresh_user_stats | writes_us=t | sets_score_cols=t   ← der EINZIGE Writer
+→ kein anderer Trigger/RPC setzt die Score-Spalten mit eigener Formel. Migration deckt ihn ab
+  + neuer Trigger deckt alle scout_scores-Schreibpfade. Kein versteckter Divergenz-Pfad.
+
+═══ FIX-LOGIK force-rollback bewiesen (Projektion, zurückgerollt) ═══
+DO-Block: Divergenz vorher → Projektion scout_scores→user_stats → Divergenz nachher → RAISE rollback.
+→ SMOKE divergence_before=70 divergence_after=0 max_total_after=2791
+   - after=0: Projektion macht user_stats exakt = scout_scores ✅
+   - max_total 2791 < smallint(32767) heute, aber scout uncapped → Spalten widen smallint→integer ✅
+   - alles zurückgerollt (Live-DB unberührt) ✅
+
+═══ MIGRATION (6 Teile) ═══
+1. user_stats.{trading,manager,scout,total}_score smallint→integer (Overflow-Edge weg).
+2. fn_compute_user_tier(integer) IMMUTABLE (eine kanonische tier-Formel, kein Dup).
+3. refresh_user_stats: 3 Score-Vars aus scout_scores + tier via Helper; Rest byte-treu (PATCH-AUDIT).
+4. Trigger trg_scout_scores_project_user_stats AFTER INS/UPD OF scores → leichtes 1-Row-UPDATE (Drift unmöglich).
+5. Backfill 70 Rows + rank-Neuberechnung.
+6. AR-44: refresh_user_stats service_role-only bewahrt; Trigger/Helper revoke anon/authenticated.
+
+═══ REVIEWER-FINDING #1 (HIGH) — Level-Notification-Kaskade — GELÖST + bewiesen ═══
+Reviewer fand: Backfill würde `trg_sync_level` (AFTER UPD OF total_score → profiles.level + "Aufstieg!"-Notif)
+70× feuern → Level-Neuskalierung + irreversibler Notification-Spam (70/70 wechseln Level: 1019→Lvl45, 2791→Lvl74).
+Fix: Backfill guarded (DISABLE trg_sync_level → scores+rank backfill → profiles.level still neu-skalieren → ENABLE; transaktional).
+GUARD-PROOF (force-rollback): notif_delta=0 · divergence_after=0 · levels_rescaled=70 ✅ (kein Spam, korrekt, alle Level konsistent).
+Accepted/documented: #2 rank-lag (self-heal), #3 Badge/Rang-Konvergenz (= Kern von A, Live-Render post-Deploy), #5 INNER-JOIN (70/70 moot). #4 REVOKE FROM PUBLIC gefixt.
+
+═══ APPLY (CEO Anil approved) + POST-APPLY-VERIFIKATION ═══
+mcp__supabase__apply_migration slice_454_ranking_ssot → erst FAIL (0A000: trg_sync_level depends on total_score —
+ALTER TYPE blockiert), atomar zurückgerollt (nichts appliziert). v2: trg_sync_level DROP vor / identisch recreate nach
+ALTER (Dependency-Check vorab: nur dieser Trigger, keine Views/Generated). → {"success":true}.
+
+POST-APPLY (live):
+  divergence_live=0 · total_score_type=integer · projection_trg=1 · sync_level_trg=1 (recreated) · level_inconsistent=0 ✅
+  Trigger-Propagation (force-rollback): scout manager_score +10 → user_stats 778→788 ✅ (Drift unmöglich)
+  Money-Anker: scout_scores/award_dimension_score/close_monthly_liga 0 Edits (nur user_stats-Projektion + neuer Trigger)
+  Backfill: 0 tier_promotion-Notif-Spam (guarded, Guard-Proof oben) · profiles.level konsistent rescaled (level_inconsistent=0)
+
+═══ Residual (getrackt → später) ═══
+Path 2 (Surfaces direkt auf scout_scores + Score-Spalten droppen = physische SSOT) · D-11 (totes
+bescout_scores/award_score_points/score_events) · tier-Schwellen-Tuning auf scout-Skala.

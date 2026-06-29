@@ -22,7 +22,7 @@ geheilt | S421 | code | GameweekSelector | Orphan-Component entfernt Slice 421
 ungetrackt | D-23 | code | formatScout, fmtScout | 2 Geld-Formatter (0-dez vs 2-dez) → 1 kanonischer formatBalance (W5)
 ungetrackt | D-33 | code | timeAgo, formatTimeAgo | 2 Relativzeit-Formatter (utils.ts:35/47); timeAgo hartcodiert EN „just now/ago" (i18n-Leak) → 1 kanonischer (W5/Design). TOOL-FUND Slice 434.
 ungetrackt | D-15 | concept | getMyAdPayouts, getMyPayouts | Ad-Payout-Subset-Twin (Dead-Feature-GC, W5)
-ungetrackt | D-17 | db | scout_scores, user_stats | divergenter Dual-Write zweier Ranking-Quellen (W2/CEO)
+geheilt | D-17 | db | scout_scores, user_stats | S454: user_stats-Scores = kept-fresh Projektion von scout_scores (Trigger trg_scout_scores_project_user_stats), Divergenz 70->0 live. Residual: Path2 Score-Spalten-Drop
 ungetrackt | D-10 | concept | scoutMissions, missions | 2. Mission-System tot neben lebendem (Dead-Feature-GC)
 bewusste-zwei | D112 | concept | orders, offers | echte 2 Produkte (Orderbuch Fork B) — NICHT anfassen
 ungetrackt | D-01b | concept | cron_process_gameweek, admin_resync_gw_scores, sync_fixture_scores | 3x identischer player_gameweek_scores-INSERT; S453 heilte die 2 stale auf fixture-bound (419 heilte 1/3) - alle 3 noch dupliziert -> W2 Score-SSOT 1 Helper (auth-Kontext-Diff cron/admin/club_admin blockt naive Delegation)
@@ -110,7 +110,7 @@ Legende Scope: **CTO** = autonom heilbar · **Money/CEO** = §3, selbst + CEO-Ap
 ### 🟡 Datenmodell-SSOT (CEO-Konsolidierung)
 | ID | Befund | Klasse | Aufw. | Status |
 |----|--------|--------|-------|--------|
-| D-17 | **`scout_scores` ↔ `user_stats` Dual-Write divergent** — gleicher Trigger schreibt beide mit verschiedenen Formeln; live divergent für ALLE 70 Overlap-User (z.B. manager 778 vs 418). Beide live gerendert (/rankings vs /community). | datenmodell | L | 🟡 offen (getrackt, CEO) |
+| D-17 | **`scout_scores` ↔ `user_stats` Dual-Write divergent** — gleicher Trigger schreibt beide mit verschiedenen Formeln; live divergent für ALLE 70 Overlap-User (z.B. manager 778 vs 418). Beide live gerendert (/rankings vs /community). | datenmodell | L | ✅ **geheilt S454** (CEO Anil „A": user_stats-Scores = kept-fresh Projektion von scout_scores via Trigger; Divergenz 70→0 live; Money-Anker 0 Edits; Reviewer-Level-Notif-Kaskade geguarded. Residual: Path-2 Spalten-Drop + D-11) |
 | D-18 | **`events`-Tabelle (40 Spalten):** `entry_fee` seit 3 Monaten „DEPRECATED", aber `create_user_event` (2 Tage alt!) schreibt es weiter dual; `prize_pool` vs `reward_structure` alt/neu koexistent. | datenmodell | L | 🟡 offen |
 | D-19 | **`players` (49 Spalten):** denormalisierte Aggregate (matches/goals/...) **driften live 22 %** (880/3963 falsch), kein Trigger, kein Schedule — nur manueller `gameweek-sync`. PerformanceTab zeigt Saison- UND Fixture-Daten widersprüchlich. | datenmodell | M | 🟡 offen |
 | D-20 | **`lineups` (33 Spalten) Wide-Column** — `slot_att3` + alle 4 `bench_*` = 0 Rows live → Bench/Auto-Sub-Feature (195d) **in Prod nie befüllt = tot**. Orphan-Typ `Lineup` (types/index.ts:292) neben `DbLineup`. | datenmodell | L | 🟡 offen (D111) |

@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 454 | 2026-06-29 | fix(ranking): D-17 — Ranking-SSOT (user_stats = Projektion von scout_scores, live)
+- Stage-Chain: SPEC → IMPACT (skipped) → BUILD → REVIEW (Cold-Context CONCERNS → Finding#1 gefixt+bewiesen) → PROVE (force-rollback + post-apply) → LOG. **Money-nah/§3, CEO-Apply Anil.**
+- **Problem (D87 Live):** scout_scores (trader/manager/analyst, kanonisch, geld-gekoppelt via close_monthly_liga+airdrop) ↔ user_stats (trading/manager/scout) berechneten dieselben Dims mit verschiedenen Formeln → **70/70 Overlap-User divergent** (manager 778 vs 418). /rankings las schon scout_scores; Community/Club/Mentor lasen user_stats.
+- **Fix (CEO Anil „A — scout_scores = eine Quelle"):** user_stats-Scores = kept-fresh Projektion. Spalten smallint→integer (Overflow-Edge), refresh_user_stats liest scout_scores (Rest byte-treu + fn_compute_user_tier-Helper), Projektions-Trigger auf scout_scores (Drift unmöglich), Backfill GEGUARDET. **scout_scores 0 Edits (Money-Anker).** Migration `20260629160000`.
+- **Reviewer-Catch (HIGH, wertvoll):** Backfill hätte `trg_sync_level` 70× gefeuert → profiles.level-Rescale + irreversible „Aufstieg!"-Notifications. Gefixt: DISABLE/ENABLE-Guard + level still rescaled. Guard-Proof notif_delta=0.
+- **Proof:** force-rollback divergence 70→0; Apply v1 FAIL (0A000 trg_sync_level dep on total_score) → v2 DROP/recreate Trigger um ALTER; post-apply divergence_live=0/integer/projection_trg live 778→788/level_inconsistent=0; vitest 79/79.
+- **Knowledge:** errors-db **S454** (Werte-Skala-Flip → Downstream-Trigger mit-auditieren + Backfill-Notif-Guard + ALTER-TYPE-Trigger-Dep). **Residual:** Path-2 (Score-Spalten droppen) + D-11 (totes bescout_scores).
+
 ## 453 | 2026-06-29 | fix(scoring): D-01 — Scoring-Funktionen aufs Fixture-Modell (42P10-Landmine, live)
 - Stage-Chain: SPEC → IMPACT (skipped, Caller-grep) → BUILD → REVIEW (Cold-Context CONCERNS→aufgelöst) → PROVE (force-rollback + post-apply) → LOG. **Money/§3, CEO-Apply Anil.**
 - **Problem (D87 Live):** `cron_process_gameweek` Step4 + `admin_resync_gw_scores` schrieben `(player_id,gameweek,score) ON CONFLICT (player_id,gameweek)` gegen die von 419/D113 gedroppte UNIQUE (jetzt `(player_id,fixture_id)`, fixture_id+league_id NOT NULL) → 42P10 + NOT-NULL beim 1. echten Spieltag. BEFORE live: `admin_resync_gw_scores(26)`→42P10.
