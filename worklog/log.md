@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 487 | 2026-06-30 | perf(ssr): W6 load-delay — LCP-Stadion-Bild server-seitig preloaden (ReactDOM.preload)
+- Stage-Chain: SPEC (inline) → BUILD (2 Files) → REVIEW (self-review) → PROVE (tsc + chrome-devtools-Re-Trace) → LOG. **Mock→Pro W6; Performance; gemessen-getrieben; kein Money.**
+- **Befund (486-Trace):** LCP 2233ms war scheinbar load-delay-dominiert (64%, Bild @1798ms angefragt) — weil ClubHero voll client-gerendert ist, `<Image priority>` nicht im SSR-HTML → kein früher Preload.
+- **Fix (Option A, contained, context7-verifiziert):** `'use client' PreloadStadium` → `ReactDOM.preload(href,{as:'image',imageSrcSet,imageSizes:'100vw',fetchPriority:'high'})` → `<link rel=preload>` im SSR-Head. `page.tsx` liest die 471-geprefetchte Club-Row (getQueryData, kein Extra-Read) → next/image-srcset (q60, deviceSizes) spiegelt ClubHeros `<Image>` exakt (Cache-Hit, kein Doppel-Fetch).
+- **Live-verifiziert (Deploy `d08a3dba`, chrome-devtools Desktop):** Preload-Link im SSR-Head (srcset-Format matcht). Bild jetzt **Queued @700ms** (war @1798ms), fertig @740ms, EIN Request. **Load-delay 1432→93ms, Load-duration 358→40ms** ✅.
+- **EHRLICHES ERGEBNIS — LCP unverändert (2233→2226ms):** die Zeit verschob sich zu **Render-delay 1486ms (67%)**. Das Bild liegt fertig-geladen herum und PAINTET erst @2226ms, weil ClubHero erst nach der Hydration des riesigen `ClubContent` ('use client', ~40 Imports) rendert. → **Die Desktop-LCP ist 100% RENDER-/HYDRATION-gebunden, NICHT fetch.** 487 ist ein korrekter Schritt (Fetch-Timing gelöst + slow-network-Win + Doppel-Fetch verhindert) UND der **definitive Diagnose-Beweis**, dass der einzige verbleibende LCP-Hebel **Option B** ist (Hero im SSR painten / ClubContent-Hydration senken). Proof `487-*.txt`, Review `487-review.md`, d03-Note umgelenkt.
+- **Lehre (measure-first ×2):** zwei contained Slices (486 Bytes, 487 Fetch-Timing) haben den LCP-Bottleneck schrittweise eingekreist — er ist die Client-Hydration, nicht das Bild. Kein blinder Big-Bang; jeder Schritt gemessen.
+
 ## 486 | 2026-06-30 | perf(image): W6 Phase 3 — LCP-Bild entlasten (AVIF app-weit + ClubHero-Stadion sizes/quality)
 - Stage-Chain: SPEC (inline) → BUILD (2 Files) → REVIEW (self-review) → PROVE (tsc+config-parse+Live-Messung bescout.net) → LOG. **Mock→Pro W6; Performance; datengetrieben aus d03-Trace; kein Money.**
 - **Befund (d03-ssr-ist-analyse, gemessen):** nach 471+476 SSR-Prefetch bewiesen (/club LCP 4118→2951ms), Rest-LCP-Engpass = **BILD** (Stadion-Hero `ClubHero.tsx:97` via next/image w=3840, `fill`+`priority` aber kein `sizes`; `next.config` ohne `formats` → Next-14-Default nur WebP, AVIF inaktiv).

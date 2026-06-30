@@ -18,11 +18,28 @@ früher Preload. Bild-Download selbst nur 33ms (AVIF, kein Transfer-Problem).
 tsc --noEmit: EXIT 0 (ReactDOM.preload-Typen + getQueryData kompilieren).
 → Vercel-Deploy (post-Push) = next-build-Gate.
 
-=== AC POST-DEPLOY (bescout.net, chrome-devtools-Re-Trace) — [PENDING] ===
-- [ ] <link rel="preload" as="image" imagesrcset=... imagesizes="100vw"> im /club-SSR-Head
-- [ ] Stadion-Bild früh angefragt (Request-Zeit << 1798ms) → load-delay/load-duration ↓
-- [ ] LCP vs 2233ms (Baseline 486). Erwartung: ~−358ms (Bild beim Render gecached).
-- [ ] Visuell /club unverändert, Console clean, kein Doppel-Fetch des Stadions (Cache-Hit).
+=== AC POST-DEPLOY — ✅ LIVE-VERIFIZIERT (Deploy d08a3dba, chrome-devtools, Desktop 1366, kein Throttle) ===
+[✅] <link rel="preload" as="image" fetchPriority="high" imageSrcSet="/_next/image?url=%2Fstadiums%2F
+     galatasaray.jpg&w=640&q=60 640w, ...&w=1920&q=60 ..."> im /club-SSR-Head (Format matcht <Image> exakt).
+[✅] Stadion-Bild jetzt **Queued @700ms** (vorher @1798ms), Download fertig @740ms (6ms, image/avif),
+     EIN Request (kein Doppel-Fetch → srcset-Match bestätigt).
+[✅/❌] LCP-Phasen verschoben, aber Total unverändert:
+     Phase            486 (kein Preload)   487 (Preload)
+     Load-delay       1432 ms              93 ms     ✅ kollabiert (Bild früh angefragt)
+     Load-duration    358 ms               40 ms     ✅ (pre-cached)
+     Render-delay     77 ms                1486 ms   ← Zeit hierhin verschoben
+     LCP TOTAL        2233 ms              2226 ms   ❌ ~unverändert (−7ms)
+
+=== EHRLICHES FAZIT (chrome-devtools, definitiv) ===
+Das Preload löst das FETCH-Timing vollständig (Bild @740ms fertig geladen) — aber das LCP-Element
+(Stadion-IMG) PAINTET erst @2226ms, weil ClubHero erst nach der Hydration des riesigen ClubContent-
+Client-Bundles (~40 Imports, 'use client') rendert. Render-delay 1486ms (67%) = das Bild liegt ~1,5s
+fertig-geladen herum und wartet auf Hydration.
+→ Die Desktop-LCP ist zu 100% RENDER-/HYDRATION-gebunden, NICHT fetch-gebunden.
+→ 487 ist ein KORREKTER Schritt (Fetch-Timing gelöst + slow-network-Win + Doppel-Fetch verhindert)
+  UND der definitive Diagnose-Beweis: der einzige verbleibende LCP-Hebel ist **Option B** — den Hero
+  im SSR-HTML painten (vor/ohne ClubContent-Hydration) ODER die ClubContent-Hydrationskosten senken
+  (Code-Split der Below-Fold-Sektionen). Kein weiterer Bild-/Fetch-Hebel übrig.
 
 === Scope-Out ===
 SSR-Decouple des Hero (Option B = der 1432ms Render-Wait, Parallax/onError-entangled) = gemessener

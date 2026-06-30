@@ -70,7 +70,15 @@ Der empfohlene LCP-Bild-Slice (statt blinder Prefetch-Replikation) ist live (Sli
 - **Byte-Win Stadion-Hero (curl, AVIF-q60 vs WebP-q75): −45-47%** — Desktop-Retina w=3840 **623→343 kB**, Desktop w=1920 538→283 kB, Mobile w=828 103→56 kB. App-weit (AVIF für ALLE next/image). Visuell scharf (decorative bg unter Overlays, q60 unsichtbar).
 - **chrome-devtools-Re-Trace (Desktop, ausgeloggt, post-486): LCP 2233 ms.** LCP-Element = Stadion `image/avif w=1920 q60` (Change live). Breakdown: TTFB 366(16%) · **LOAD-DELAY 1432(64%)** · load-duration 358(16%, **Download nur 33 ms**) · render-delay 77(3%).
 - **ZENTRALE LEHRE (umlenkend):** Das Bild ist KEIN LCP-Transfer-Bottleneck mehr (AVIF-Download 33 ms). Auf Fast-Desktop-CDN war es das nie — LCP ist **LOAD-DELAY-dominiert** (Bild erst @1798 ms angefragt = späte Discovery / Client-Render-Wasserfall = D-03-Architektur-Kern). Der −45% Byte-Win zahlt auf **Mobile/langsame Netze/Datenvolumen** ein, NICHT die Fast-Desktop-LCP. Auflösungs-Cap wäre für LCP wertlos (Download schon 33 ms).
-- **Nächster W6-Hebel (gemessen, nicht geraten): LOAD-DELAY senken** — LCP-Hero früher discoveren/rendern (SSR-im-HTML statt client-fetch nach Hydration; `priority`-Preload-Effektivität prüfen; ggf. Hero als RSC). DANN (b) TTFB (472 +185 ms getServerUser) · (c) Player-Detail-Payload (usePlayers() ALLE ~632 — separat, nicht LCP).
+- **Nächster W6-Hebel (gemessen, nicht geraten): LOAD-DELAY senken** — LCP-Hero früher discoveren/rendern.
+
+## Post-487-Messung (Stadion-Preload, chrome-devtools, Desktop) — UMLENKEND
+Slice 487: `ReactDOM.preload` (page.tsx→client `PreloadStadium`) emittiert `<link rel=preload as=image>` im SSR-Head.
+- **Wirkt fürs Fetch-Timing:** Bild jetzt **Queued @700ms** (vorher @1798ms), fertig @740ms. **Load-delay 1432→93ms, Load-duration 358→40ms.**
+- **ABER LCP unverändert (2233→2226ms):** die Zeit verschob sich zu **Render-delay 1486ms (67%)**. Das Bild liegt @740ms fertig-geladen herum und PAINTET erst @2226ms — weil `ClubHero` erst nach Hydration des riesigen `ClubContent` ('use client', ~40 Imports) rendert.
+- **DEFINITIVER BEFUND:** Die Desktop-LCP ist zu 100% **RENDER-/HYDRATION-gebunden, NICHT fetch-gebunden.** Bild-Arbeit (486 AVIF) + Preload (487) sind erschöpft — kein Fetch-Hebel übrig.
+- **Einziger verbleibender LCP-Hebel = Option B:** den **Stadion-Hero im SSR-HTML painten** (vor/ohne ClubContent-Hydration) ODER **ClubContent-Hydration senken** (Below-Fold-Sektionen `dynamic()`/code-split, sodass der Hero-Teil zuerst+schnell hydratet). Beide berühren die Architektur (ClubHero parallax/onError client-entangled bzw. ClubContent-Struktur) → echter W6-Slice, CEO-Scope.
+- Nebenhebel bleiben: TTFB (472 getServerUser, hier 607ms) · Player-Detail-Payload (usePlayers() ALLE ~632, separat).
 
 ## Empfehlung (verfeinert nach Baseline)
 **Phase 1 = `/club/[slug]` SSR-Prefetch-Pilot** (statt player/[id]) — **besser**, weil public + Server-Component + **vor/nach ohne Login messbar** (player ist AuthGuard-gated, schwerer zu messen). Gleicher Pattern-Beweis (Server-queryClient + HydrationBoundary), aber sauber quantifizierbar gegen die Baseline 4.118 ms LCP. Player/home/market folgen in Phase 3. Phase 2 (Server-Auth) = größter Single-Win, bewusst getrennt (delikat).
