@@ -83,6 +83,17 @@ export function ClubProvider({ children }: { children: React.ReactNode }) {
   // only fires once via internal `hydrated` flag.
   const hydrateLeagueScope = useLeagueScope((s) => s.hydrateFromCascade);
   const leagueScopeHydrated = useLeagueScope((s) => s.hydrated);
+  const hydrateLeagueScopeFromStorage = useLeagueScope((s) => s.hydrateFromStorage);
+
+  // Slice 473: apply the persisted league pick AFTER mount (client-only) so the
+  // store's first render matches the server's (empty default) — prevents the
+  // hydration mismatch that Slice 472 exposed when the authed shell began SSR-
+  // rendering the league selector. Runs before the cascade effect below (declared
+  // earlier) so a persisted manual pick still wins over the favorite/active-club
+  // cascade (via that effect's "scope already set → skip" guard).
+  useEffect(() => {
+    hydrateLeagueScopeFromStorage();
+  }, [hydrateLeagueScopeFromStorage]);
 
   // Init club+league lookup caches (sync lookups in `getClub()` / `getLeague()`).
   // Einmal pro Session ausreichend — Cache-Dedupe in den jeweiligen Services.

@@ -44,6 +44,10 @@ export interface LeagueScopeState {
   setCountry: (code: string) => void;
   /** Reset to "Alle" (no scope). */
   resetToDefault: () => void;
+  /** Slice 473: apply the persisted localStorage pick. Called from a client
+   *  mount-effect (NOT module-init) so the store's first render matches the
+   *  server (SSR-safe). Idempotent: no-op once any scope is set. */
+  hydrateFromStorage: () => void;
   /** Hydrate from cascade (favorite_club → activeClub → first active league). Idempotent. */
   hydrateFromCascade: (params: {
     profileFavoriteClubId: string | null;
@@ -138,13 +142,32 @@ async function invalidateLeagueAwareQueries(): Promise<void> {
 // Store
 // ============================================
 
-const initialPersisted = readFromStorage();
-
+// Slice 473: Store MUST initialize with the SAME defaults on server and client.
+// Reading localStorage at module-init (the previous `readFromStorage()` seed) was
+// SSR-unsafe: server (no window) → leagueName='' vs client → cached value. Once
+// Slice 472 began SSR-rendering the authed shell (which renders leagueName via the
+// league selector), this diverged the first render → React #418/#423 (full-root
+// re-hydrate) on every authed page. The persisted pick is now read post-mount via
+// hydrateFromStorage() (client-only effect, see ClubProvider).
 export const useLeagueScope = create<LeagueScopeState>((set, get) => ({
-  leagueId: initialPersisted?.leagueId ?? null,
-  leagueName: initialPersisted?.leagueName ?? '',
-  countryCode: initialPersisted?.countryCode ?? '',
+  leagueId: null,
+  leagueName: '',
+  countryCode: '',
   hydrated: false,
+
+  hydrateFromStorage: () => {
+    // Idempotent: skip if a scope is already set (manual pick / cascade ran).
+    const cur = get();
+    if (cur.leagueId || cur.leagueName || cur.countryCode) return;
+    const persisted = readFromStorage();
+    if (persisted && (persisted.leagueId || persisted.leagueName || persisted.countryCode)) {
+      set({
+        leagueId: persisted.leagueId,
+        leagueName: persisted.leagueName,
+        countryCode: persisted.countryCode,
+      });
+    }
+  },
 
   setLeagueScope: ({ id, name, country }) => {
     set({ leagueId: id, leagueName: name, countryCode: country });

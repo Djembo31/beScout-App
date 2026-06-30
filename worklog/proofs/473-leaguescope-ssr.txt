@@ -1,0 +1,48 @@
+════════════════════════════════════════════════════════════════════════
+SLICE 473 — leagueScopeStore SSR-safe (entblockt 472 authed-SSR) — PROOF
+════════════════════════════════════════════════════════════════════════
+Datum: 2026-06-30
+Typ: Service/Store (SSR-Hydration-Korrektheit) · XS
+
+────────────────────────────────────────────────────────────────────────
+A. ROOT-CAUSE (Code + Runtime, via 472 Live-Walk gefunden)
+────────────────────────────────────────────────────────────────────────
+472 Live-Walk gegen bescout.net (logged-in jarvis-qa): Console auf home UND /market:
+  [error] React #418 (Hydration-Mismatch) [5×] + [error] React #423 (Recovery durch
+  voller Root-Re-Render) → identisch + global → shared authed Shell → LCP-Win zunichte.
+
+Root-Cause: src/features/shared/store/leagueScopeStore.ts:141
+  `const initialPersisted = readFromStorage();`  (läuft bei MODUL-Init)
+  readFromStorage(): typeof window==='undefined' ? null : localStorage.getItem(...)
+  → SERVER: leagueName=''  ·  CLIENT: cached 'Süper Lig'  → First-Render-Divergenz.
+
+Runtime-Beweis (chrome-devtools evaluate_script auf bescout.net):
+  localStorage['bescout-league-scope-v1'] = {"leagueId":"05ec9bf8-...","leagueName":"Süper Lig","countryCode":"TR"}
+  SSR-HTML (network reqid 146): Selektor-Label „Alle Ligen" (leagueName=''), „Süper Lig" nur als Dropdown-Option.
+Latenz-Erklärung: vor 472 mountete der authed Shell server-seitig nie mit user (loading=true)
+  → leagueName nie SSR-gerendert → Mismatch latent. 472 aktivierte den Pfad.
+
+────────────────────────────────────────────────────────────────────────
+B. FIX
+────────────────────────────────────────────────────────────────────────
+1. leagueScopeStore.ts: Modul-Init-Seed entfernt; init = Server-Defaults (null/''/'').
+   Neue hydrateFromStorage()-Action (liest+validiert localStorage, idempotent).
+2. ClubProvider.tsx: Client-Mount-Effect ruft hydrateFromStorage() (post-mount, vor Cascade).
+3. Tests: 4 EC-03/Persistenz-Tests auf hydrateFromStorage()-Trigger + 1 Regressions-Test.
+
+────────────────────────────────────────────────────────────────────────
+C. BUILD-VERIFIKATION (statisch)
+────────────────────────────────────────────────────────────────────────
+[C1] tsc --noEmit ........................ EXIT 0
+[C2] leagueScopeStore.test.ts ............ 18/18 PASS (inkl. neuer SSR-safe-Regressions-Test)
+[C3] Provider + LeagueScopeHeader Tests .. 30/30 PASS (5 Files) — kein Regress aus ClubProvider-Edit
+[C4] Sibling-Scan localStorage.getItem ... nur leagueScopeStore bei Modul-Init; alle anderen in useEffect/Handler/lazy
+
+────────────────────────────────────────────────────────────────────────
+D. LIVE-RE-WALK (PROVE — bescout.net logged-in) — PENDING DEPLOY
+────────────────────────────────────────────────────────────────────────
+[ ] D1 Console home + /market + /fantasy: KEIN React #418 / #423 mehr
+[ ] D2 Liga-Selektor zeigt nach Hydration korrekt „Süper Lig" (kein dauerhaftes „Alle Ligen")
+[ ] D3 472 AC-01 LCP: eingeloggte Hot-Page Content im SSR-HTML, LCP < logged-in-Baseline (jetzt nicht mehr durch Root-Re-Render zunichte)
+[ ] D4 472 AC-02 Auth-Regression: Login/Logout + 2-Account-Switch (kein User-A-sieht-User-B)
+→ Ergebnisse nach Deploy angehängt.

@@ -346,6 +346,30 @@ describe('useLeagueScope — setLeagueScope cache invalidation (EC-13 / AR-13)',
 });
 
 describe('useLeagueScope — localStorage persistence', () => {
+  it('does NOT seed from localStorage at module-init — SSR-safe (Slice 473)', async () => {
+    // Regression guard for the Slice 472 hydration mismatch: a populated
+    // localStorage must NOT seed the store at import time (server has no window →
+    // empty; client would read the cache → diverging first render → React #418/#423).
+    // The store inits empty regardless; only hydrateFromStorage() (a client
+    // mount-effect, see ClubProvider) applies the persisted pick.
+    window.localStorage.setItem(
+      'bescout-league-scope-v1',
+      JSON.stringify({ leagueId: 'league-bl-uuid', leagueName: 'Bundesliga', countryCode: 'DE' }),
+    );
+    const { useLeagueScope } = await loadStore();
+    // Init is still empty (proves no module-init read):
+    const initial = useLeagueScope.getState();
+    expect(initial.leagueId).toBeNull();
+    expect(initial.leagueName).toBe('');
+    expect(initial.countryCode).toBe('');
+    // The client action applies the persisted pick:
+    useLeagueScope.getState().hydrateFromStorage();
+    const hydrated = useLeagueScope.getState();
+    expect(hydrated.leagueId).toBe('league-bl-uuid');
+    expect(hydrated.leagueName).toBe('Bundesliga');
+    expect(hydrated.countryCode).toBe('DE');
+  });
+
   it('persists state across module reloads', async () => {
     {
       const { useLeagueScope } = await loadStore();
@@ -355,9 +379,12 @@ describe('useLeagueScope — localStorage persistence', () => {
         country: 'DE',
       });
     }
-    // Re-import the module: should rehydrate from localStorage.
+    // Re-import the module + apply the persisted pick. Slice 473: the read
+    // happens via hydrateFromStorage() (client-only action), NOT at module-init
+    // (which was SSR-unsafe — see store header). Persistence behavior unchanged.
     {
       const { useLeagueScope } = await loadStore();
+      useLeagueScope.getState().hydrateFromStorage();
       const state = useLeagueScope.getState();
       expect(state.leagueId).toBe('league-bl-uuid');
       expect(state.leagueName).toBe('Bundesliga');
@@ -368,6 +395,7 @@ describe('useLeagueScope — localStorage persistence', () => {
   it('silent-resets on corrupted localStorage JSON (EC-03)', async () => {
     window.localStorage.setItem('bescout-league-scope-v1', '{"this-is": invalid JSON}');
     const { useLeagueScope } = await loadStore();
+    useLeagueScope.getState().hydrateFromStorage(); // Slice 473: read+validate via client action
     const state = useLeagueScope.getState();
     expect(state.leagueId).toBeNull();
     expect(state.leagueName).toBe('');
@@ -381,6 +409,7 @@ describe('useLeagueScope — localStorage persistence', () => {
       JSON.stringify({ leagueId: 'x', leagueName: 'y' }), // missing countryCode
     );
     const { useLeagueScope } = await loadStore();
+    useLeagueScope.getState().hydrateFromStorage(); // Slice 473: read+validate via client action
     const state = useLeagueScope.getState();
     expect(state.leagueId).toBeNull();
     expect(state.countryCode).toBe('');
@@ -393,6 +422,7 @@ describe('useLeagueScope — localStorage persistence', () => {
       JSON.stringify({ leagueId: 123, leagueName: 'y', countryCode: 'DE' }), // leagueId as number
     );
     const { useLeagueScope } = await loadStore();
+    useLeagueScope.getState().hydrateFromStorage(); // Slice 473: read+validate via client action
     const state = useLeagueScope.getState();
     expect(state.leagueId).toBeNull();
     expect(window.localStorage.getItem('bescout-league-scope-v1')).toBeNull();
