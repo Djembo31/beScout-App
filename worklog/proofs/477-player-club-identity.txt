@@ -57,10 +57,25 @@ npx vitest run players + player-detail:
   components/player/index.tsx → Player-Card (getClub(player.club) resolved jetzt korrekt)
 
 ================================================================
-5. AC-6 LIVE-RENDER (Playwright bescout.net) — PENDING post-Vercel-Deploy
+5. AC-6 LIVE-RENDER (Playwright bescout.net, Deploy acab3db0, jarvis-qa) — DONE
 ================================================================
-Nach Deploy: Player-Detail eines divergenten Spielers (Adli) → Club-Name == Liga konsistent
-(Bayer Leverkusen + Bundesliga), Wappen = Leverkusen. → 477-player-club-live.png
+WARM-CACHE (typischer Nav-Pfad) = ✅ PASS:
+  Live-Suche bescout.net → "Amine Adli ... ATT  BAY · L5: 54  20.000 Marktpreis"
+  → Club resolved zu "BAY" (Bayer Leverkusen Kürzel) statt "Bournemouth"/"BOU".
+  Beweist: (a) Deploy live, (b) dbToPlayer/dbToPlayers FK-Resolve wirkt bei warmem Club-Cache.
+  Screenshot: 477-search-adli-bay-warm.png
+
+COLD-DIRECT-LOAD (frischer Login → direkter goto /player/<id>) = ⚠️ STALE (pre-existing, KEIN 477-Regression):
+  Player-Detail-Hero zeigte "Bournemouth" + KEINE Liga-Badge.
+  Root-Cause: S286-Klasse — `usePlayerDetailData.ts:125` `useMemo(() => dbToPlayer(dbPlayer), [dbPlayer])`
+  läuft beim Cold-Load BEVOR der nicht-reaktive Modul-Club-Cache (initClubCache) ready ist →
+  getClub→null → BEIDE (club UND league) fallen auf Fallback (Freitext/none) → useMemo recomputet
+  NICHT, wenn der Cache 1 Tick später warm wird.
+  WICHTIG: betrifft die Liga-Auflösung IDENTISCH (Liga-Badge fehlte ebenfalls cold) → PRE-EXISTING,
+  nicht von 477 eingeführt (vor 477 zeigte cold-load ebenfalls "Bournemouth", da club=reiner Freitext).
+  477 ist strikt eine Verbesserung (warm-path korrekt), kein Rückschritt.
+  → getrackt als D-26-Rest/Cache-Race (S286 + D-03 client-only-Architektur), separater Fix
+    (cache-version-Reaktivitäts-Signal als useMemo-dep). NICHT als "Player-Detail komplett geheilt" behauptet.
 
 ================================================================
 SCOPE-OUT (ehrlich, D-26 Teil-geheilt — NICHT komplett)
