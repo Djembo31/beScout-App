@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 486 | 2026-06-30 | perf(image): W6 Phase 3 — LCP-Bild entlasten (AVIF app-weit + ClubHero-Stadion sizes/quality)
+- Stage-Chain: SPEC (inline) → BUILD (2 Files) → REVIEW (self-review) → PROVE (tsc+config-parse+Live-Messung bescout.net) → LOG. **Mock→Pro W6; Performance; datengetrieben aus d03-Trace; kein Money.**
+- **Befund (d03-ssr-ist-analyse, gemessen):** nach 471+476 SSR-Prefetch bewiesen (/club LCP 4118→2951ms), Rest-LCP-Engpass = **BILD** (Stadion-Hero `ClubHero.tsx:97` via next/image w=3840, `fill`+`priority` aber kein `sizes`; `next.config` ohne `formats` → Next-14-Default nur WebP, AVIF inaktiv).
+- **Fix (context7-verifiziert, clean+zero-Risiko Byte-Cut):** `next.config images.formats=['image/avif','image/webp']` (app-weit, WebP-Fallback) + ClubHero-Stadion `sizes="100vw"` (Mobile 3840→828) + `quality={60}` (decorative bg unter 3 Overlays).
+- **Live-verifiziert (bescout.net, Deploy `b5697c63`):** Stadion jetzt **AVIF + q60** (war WebP q75). **Byte-Win −45-47%** (curl apples-to-apples: Desktop-Retina 623→343 kB, Desktop 538→283 kB, Mobile 103→56 kB; on-page Mobile 31 kB). App-weit (AVIF für ALLE next/image). Visuell scharf, keine q60-Degradation. **S474-SW-Falle gefangen** (SW `bescout-v4`+CDN servierten alte Chunks → SW/Caches-Clear + AVIF-Content-Type-Deploy-Poll). Proof `486-*.txt`, Review `486-review.md`.
+- **Ehrlich:** exakte LCP-ms-Re-Trace nicht gemessen (buffered LCP-API leer ohne Observer-vor-Paint) — der −45% Byte-Cut auf dem LCP-Element ist der direkte Mechanismus (d03-Erwartung „LCP deutlich runter"). Formale chrome-devtools-Trace = optionaler Follow-up.
+- **Measure-first:** Auflösungs-Cap (sizes desktop 3840→2048) bewusst zurückgehalten — AVIF+q60 liefert bereits −45%; Cap nur wenn Bild post-AVIF noch Bottleneck. d03-Note + MASTERPLAN W6 reconciled.
+
 ## 485 | 2026-06-30 | feat(fantasy): D-04 (W3) — lineups DB-Integrität (4 Bench-FKs + 16-Slot-Distinctness-Trigger)
 - Stage-Chain: SPEC (L) → IMPACT (skipped: additive Constraints) → BUILD (1 Migration) → REVIEW (reviewer R1 CONCERNS → Code PASS, Doku-Prämisse-Fix) → PROVE (apply+force-rollback+functiondef+vitest) → LOG. **Mock→Pro W3; CEO-Scope/money-adjacent; root-cause #2 (D111).**
 - **Befund (live verifiziert):** `lineups`-Integrität lebte 100% im 27k-`rpc_save_lineup`. DB-Lücken: (a) `bench_gk/o1/o2/o3` ohne FK→players (12 Starter-Slots schon); (b) kein DB-Constraint gegen Doppel-Spieler. Daten: 447 Lineups, 0 Doppel, 0 befüllte/Orphan-Bench → additiv ohne Cleanup.

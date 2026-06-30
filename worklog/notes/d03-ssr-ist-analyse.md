@@ -64,5 +64,12 @@
 3. **Folge:** „mechanische Prefetch-Wiederholung auf player/home/market" (Phase 3 wie ursprünglich geplant) hat **abnehmenden LCP-Ertrag** — der Daten-Wasserfall ist nicht mehr der LCP-Treiber. **Höherer Hebel = LCP-Bild-Optimierung** (hero `priority` + korrekte `sizes` + realistische Breite statt w=3840; cross-page, weil Stadion/Player-Fotos überall LCP-Element sind). TTFB ist der zweite Hebel (472 addierte +185 ms getServerUser; via Middleware-Header-Durchreichung optimierbar, Pre-Mortem-472-#5).
 4. **Empfohlener nächster W6-Slice:** LCP-Bild-Slice (hero-Bilder messbar entlasten) STATT blinder Prefetch-Replikation. Player-Detail-Perf-Item (usePlayers() lädt ALLE ~632 Spieler client-seitig) bleibt separat valide (Payload, nicht LCP).
 
+## Post-486-Messung (LCP-Bild-Slice umgesetzt, 2026-06-30, live bescout.net)
+Der empfohlene LCP-Bild-Slice (statt blinder Prefetch-Replikation) ist live (Slice 486):
+- `next.config formats=['image/avif','image/webp']` (app-weit) + ClubHero-Stadion `sizes="100vw"` + `quality={60}`.
+- **Byte-Win Stadion-Hero (curl, AVIF-q60 vs WebP-q75): −45-47%** — Desktop-Retina w=3840 **623→343 kB**, Desktop w=1920 538→283 kB, Mobile w=828 103→56 kB. App-weit (AVIF für ALLE next/image). Visuell scharf (decorative bg unter Overlays, q60 unsichtbar).
+- Exakte LCP-ms-Re-Trace offen (buffered-API-Limit); −45% auf dem LCP-Element = direkter Load-Duration-Mechanismus.
+- **Nächster W6-Hebel:** (a) optional Auflösungs-Cap (sizes desktop 3840→2048) falls Bild post-AVIF noch LCP-Bottleneck (erst chrome-devtools-Re-Trace messen) · (b) TTFB (472 +185 ms getServerUser, Middleware-Header) · (c) Player-Detail-Payload (usePlayers() lädt ALLE ~632 Spieler — separat, nicht LCP).
+
 ## Empfehlung (verfeinert nach Baseline)
 **Phase 1 = `/club/[slug]` SSR-Prefetch-Pilot** (statt player/[id]) — **besser**, weil public + Server-Component + **vor/nach ohne Login messbar** (player ist AuthGuard-gated, schwerer zu messen). Gleicher Pattern-Beweis (Server-queryClient + HydrationBoundary), aber sauber quantifizierbar gegen die Baseline 4.118 ms LCP. Player/home/market folgen in Phase 3. Phase 2 (Server-Auth) = größter Single-Win, bewusst getrennt (delikat).

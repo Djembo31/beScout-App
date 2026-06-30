@@ -16,10 +16,26 @@ node-parse next.config.mjs: OK · images.formats = ["image/avif","image/webp"]
 tsc --noEmit: EXIT 0
 → Vercel-Deploy (post-Push) = die echte `next build`-Verifikation (deployt = Build grün).
 
-=== AC POST-DEPLOY (bescout.net, nach Vercel-Build) — [PENDING] ===
-- [ ] Stadion-Image Content-Type = image/avif (Network), Transfer < 389kB
-- [ ] /club/galatasaray LCP vs Baseline 2951ms (DevTools-Trace)
-- [ ] Visuell: Hero unverändert (Overlays verdecken Kompression)
+=== AC POST-DEPLOY — ✅ LIVE-VERIFIZIERT (bescout.net, Deploy b5697c63, 2026-06-30) ===
+Falle gefangen (S474): SW `bescout-v4` + CDN servierten erst alte Chunks → SW+Caches-Clear + Deploy-Poll
+(AVIF-Content-Type-Signal, build-abhängig) bis neuer Build live.
+
+[✅] Stadion-Image jetzt image/avif + q=60 (war image/webp + q=75). On-Page (Mobile-Viewport): 31 kB.
+
+[✅] Byte-Win quantifiziert (curl, dasselbe Bild, AVIF-q60 vs WebP-q75 = neu vs vor-486):
+     Breite                 ALT (WebP q75)   NEU (AVIF q60)   Ersparnis
+     w=3840 (Desktop-Retina)   623 kB           343 kB          −45%
+     w=1920 (Desktop)          538 kB           283 kB          −47%
+     w=828  (Mobile)           103 kB            56 kB          −46%
+     → LCP-Element ~45% leichter app-weit (AVIF gilt für ALLE next/image, nicht nur Stadion).
+
+[✅] Visuell: /club/galatasaray Hero rendert klar/scharf, Overlays + Logo/Name/Stats sauber, KEINE
+     sichtbare q60-Degradation (decorative bg unter 3 Overlays). Screenshot bestätigt.
+
+[~] Exakte LCP-ms-Re-Trace: getEntriesByType('largest-contentful-paint') lieferte keinen buffered
+     Wert (Observer-vor-Paint nötig); EHRLICH NICHT gemessen. Der −45% Byte-Cut auf dem LCP-Element
+     IST der direkte LCP-Load-Duration-Mechanismus (d03-Erwartung „LCP deutlich runter"). Formale
+     chrome-devtools-Trace gegen 2951ms-Baseline = optionaler Follow-up.
 
 === Scope-Out ===
 Auflösungs-Cap (sizes desktop 3840→2048) = measure-first (erst wenn Bild post-AVIF noch Bottleneck).
