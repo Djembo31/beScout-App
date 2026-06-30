@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-30 14:58)
+# Session Handoff — Auto (2026-06-30 18:28)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -8,16 +8,17 @@
  M memory/session-handoff.md
 ```
 
-## Session Commits: 9
+## Session Commits: 10
+- d1050dba fix(auth): Slice 479 — D-25 Auth-Fehler-i18n (Login + Onboarding)
+- cc2ff2de docs(masterplan): W5 reconcile — D-26b (478) Holdings+Search DONE; D-26c offen
+- 1fb18ad5 fix(fantasy): Slice 478 — D-26b Holdings + Search Mapper Club-FK-Resolve
+- fa57b1c6 docs(masterplan): W5 reconcile — 467 (D-23) + 477 (D-26 Player-Club-FK) DONE; D-26b + Cache-Race offen
+- bda5433a docs(477): AC-6 Live-Verifikation — warm-path PASS (Adli→BAY) + Cold-Load-Cache-Race ehrlich getrackt
+- acab3db0 fix(player): Slice 477 — D-26 Player-Domain Club-Identität via dbToPlayer FK-Resolve
+- d5259320 docs(d03): W6 Post-Impl-Messung — /club LCP 4118->2951ms (471-Prefetch liefert post-476); Phase-3 auf LCP-Bild umlenken
 - ea7b3151 docs(masterplan): W6 + W2 reconcile — 472-476 done (Server-Auth-SSR LCP-Win + /club 471-fix + 428b DROP)
 - 23c5b644 docs: Slice 475 + 476 LOG + Knowledge (errors-frontend S476 Dual-Build) + Handoff Teil 29
 - 96bc9341 fix(perf): Slice 476 — /club Dual-Build-Crash fixen (HydrationBoundary legacy->modern via Client-Wrapper)
-- ccb86c1a refactor(db): Slice 475 (428b) — clubs.active_gameweek entkoppeln (Phase 1 Code) vor DROP
-- bb05a013 docs(d03): W6 Server-Auth-SSR (472-474) LOG + Prod-Proof + Knowledge (errors-frontend S474)
-- b05ba950 fix(perf): Slice 474 — Wallet/Tickets cached-placeholder SSR-safe (der echte 472-Hydration-Fix)
-- 47de778e fix(perf): Slice 473 — leagueScopeStore SSR-safe (fix hydration mismatch, unblock 472 authed-SSR)
-- abd84cdf feat(perf): Slice 472 — W6 Server-Auth-Hydration (authed SSR-Render, der echte LCP-Win)
-- 652dc4e6 docs(d03): W6 Slice 472 Server-Auth-Spec (ready) + Reconcile — 471 live, 472 fokussierter Next
 
 <!-- auto:handoff-end -->
 
@@ -25,6 +26,15 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-30 (Teil 30) — 3 autonome Konsistenz-Slices (477+478+479), alle live + gepusht, `main`==`origin`==`d1050dba`, `active.md`=idle. Elite-Senior-Modus / Mock→Pro Konsistenz-Batch W5.**
+> - **⏭️ NÄCHSTES (autonom-fähig, klein):** **D-33** (timeAgo EN-i18n-Leak, XS) · **D-26c** (Player-Detail Cold-Load-Cache-Race S286 ODER Rest-Mapper ohne club_id = watchlist/lineups.queries/offers/trading-movers Select/RPC-Change). **Große Hebel (CEO-Scope-Fork):** W3 Lineup-Datenmodell (D-04, root-cause #2) · W6 Phase 3. **Konsistenz-Batch W5 fast leer:** D-23 ✅467 · D-26 ✅477 · D-26b ✅478 · D-25 ✅479 → offen nur **D-24** (Wording, Compliance/CEO).
+> - **✅ 477 (`acab3db0` + AC-6-Doku `bda5433a`) — D-26 Player-Domäne Club-Identität:** `dbToPlayer`-Mapper (`players.ts:211`) löst Club aus FK `club_id` statt stale Freitext (294/4472 = **6,57 % live divergent**, z.B. Adli Freitext „Bournemouth" vs FK „Bayer Leverkusen"). SSOT-Schnitt parallel zur bereits FK-resolved Liga → heilt Player-Detail/Markt/Suche/Club/Admin. tsc 0 · vitest 235 (3 FK-Tests) · Reviewer PASS. **AC-6 live warm-path bewiesen (Suche Adli→„BAY")**; **Cold-Direct-Load Player-Detail = pre-existing S286/D-03 useMemo-Cache-Race** (dbToPlayer läuft vor Club-Cache-ready → club+league Fallback, recomputet nicht bei warm; betrifft Liga identisch, KEIN 477-Regression) → D-26c.
+> - **✅ 478 (`1fb18ad5`) — D-26b Holdings+Search:** die 2 Mapper mit `club_id` in der Row auf FK: `holdingMapper.ts:45` (**eligibility-affecting** — speist Fantasy-Event-Requirement-Gate `useLineupBuilder:358-362`, reuse `clubLookup?.name`) + `search.ts:96` (⌘K). tsc 0 · vitest 14 (3 FK-Tests, search.test getClub-Mock-Lücke gefixt) · self-review.
+> - **✅ 479 (`d1050dba`) — D-25 Auth-Fehler-i18n:** `/login` (5 Pfade) + `/onboarding`-Fallback zeigten rohes GoTrue-Englisch an DE/TR (erstes Bild) → kanonischer `te(mapErrorToKey(raw))` (errors-NS, **vorhandene DE+TR-Keys → kein TR-Review**). `invalidCredentials`/`handleReserved`/`handleInvalid` Spezialfälle erhalten; +2 auth-Regex → alreadyExists/rateLimited. tsc 0 · vitest 6 · grep 0-roh · **Reviewer PASS** (2 LOW-Fixes: Regex enger, Onboarding-non-Error-Degrade). **AC-6 Live (Login-Fehler DE/TR) = post-Deploy** (service-bewiesen, Reviewer verifizierte DE+TR-Keys in beiden Locales — Formsache). **Flag (optional, TR-Review):** spezifische Auth-Keys (emailNotConfirmed/weakPassword) = eigener Slice.
+> - **Methode/Lehre:** Live-Walk fing den 477-Cold-Cache-Race, den Unit-Tests + Reviewer-Logik durchließen („static green ≠ live correct"). Mapper-SSOT-Fix (FK an der Mapper-Grenze) ist das kanonische Muster für `players.club`-Klasse; Mapper OHNE `club_id` (D-26c) brauchen Select/RPC-Change. Plan (`MASTERPLAN.md` W5) + `disease-register.md` (D-25/26/26b ✅, D-26c angelegt) reconciled.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-30 (Teil 29) — 475 (DROP clubs.active_gameweek) + 476 (P0: /club seit 471 kaputt geheilt). Beide live + Prod-verifiziert.**
 > - **⏭️ NÄCHSTES (idle, CEO-Richtung):** W6 Phase 3 · Mock→Pro Welle 3 (Events/Aufstellung) · Ranking-Konsolidierung scout_scores↔user_stats — die „Nächster"-Items sind CEO-Vorlagen (NICHT autonom, TODO.md). Kein offener Blocker.
 > - **✅ 475 (= 428b, `ccb86c1a` + Migration `20260630170000`):** `clubs.active_gameweek` gedroppt (§0-Schnitt-Regel — frozen seit 428/D115, SSOT=leagues). DROP-Safety live auditiert (0 Dependents/SQL-Fns/Trigger). 2-Phasen zero-downtime (Code-deploy → DROP). Live: Spalte weg, leagues-SSOT intakt, clubs queryable 134.
