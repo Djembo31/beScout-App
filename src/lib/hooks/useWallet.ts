@@ -49,11 +49,11 @@
  */
 
 import { useQuery, type QueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
 import { useUser } from '@/components/providers/AuthProvider';
 import { getWallet } from '@/lib/services/wallet';
 import { logSilentCatch } from '@/lib/observability/silentRejects';
-import { readCached, writeCached } from '@/lib/utils/cachedQuery';
+import { writeCached } from '@/lib/utils/cachedQuery';
+import { useCachedPlaceholder } from '@/lib/hooks/useCachedPlaceholder';
 import type { DbWallet } from '@/types';
 
 // Freshness window — balance fetched within the last 30s is considered safe
@@ -115,13 +115,13 @@ export function useWallet(): UseWalletResult {
   const userId = user?.id;
 
   // Slice 268: Cold-Start placeholderData aus UID-keyed localStorage-Slot.
-  // Synchroner Read in useMemo (NICHT useState init — SSR-Hydration-Mismatch).
+  // Slice 474: post-mount-gated read (useCachedPlaceholder) — seit Slice 472 ist
+  // userId server-seitig präsent, ein synchroner First-Render-Read würde divergieren
+  // (Server undefined → Skeleton, Client cached → Hydration-Mismatch #418). Der Hook
+  // liefert undefined auf Server + First-Client-Render, danach den Cache.
   // placeholderData (NICHT initialData) → dataUpdatedAt bleibt 0 → useIsBalanceFresh
   // returnt false → Money-Path geschützt bis Real-Fetch durchläuft.
-  const placeholder = useMemo<DbWallet | undefined>(
-    () => (userId ? readCached<DbWallet>('bs_wallet', userId) : undefined),
-    [userId],
-  );
+  const placeholder = useCachedPlaceholder<DbWallet>('bs_wallet', userId);
 
   const query = useQuery<DbWallet | null, Error>({
     queryKey: userId ? walletQueryKey(userId) : ['wallet', 'no-user'] as const,

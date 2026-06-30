@@ -1,10 +1,10 @@
 'use client';
 
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
 import { qk } from './keys';
 import { getUserTickets, getTicketTransactions } from '@/lib/services/tickets';
-import { readCached, writeCached } from '@/lib/utils/cachedQuery';
+import { writeCached } from '@/lib/utils/cachedQuery';
+import { useCachedPlaceholder } from '@/lib/hooks/useCachedPlaceholder';
 
 const THIRTY_SEC = 30 * 1000;
 
@@ -18,10 +18,10 @@ type UserTicketsData = Awaited<ReturnType<typeof getUserTickets>>;
  * staleTime: 0 stellt sicher dass Background-Refetch immer läuft.
  */
 export function useUserTickets(userId: string | undefined, active = true) {
-  const placeholder = useMemo<UserTicketsData | undefined>(
-    () => (userId ? readCached<UserTicketsData>('bs_tickets', userId) : undefined),
-    [userId],
-  );
+  // Slice 474: post-mount-gated cache read (SSR-safe). See useCachedPlaceholder
+  // — Slice 472 made userId present server-side, so a synchronous first-render
+  // readCached would diverge (server undefined vs client cached "856") → #418.
+  const placeholder = useCachedPlaceholder<UserTicketsData>('bs_tickets', userId);
 
   return useQuery({
     queryKey: qk.tickets.balance(userId!),

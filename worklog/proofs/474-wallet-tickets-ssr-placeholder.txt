@@ -1,0 +1,59 @@
+════════════════════════════════════════════════════════════════════════
+SLICE 474 — Wallet/Tickets cached-placeholder SSR-safe (DER echte 472-Blocker-Fix)
+════════════════════════════════════════════════════════════════════════
+Datum: 2026-06-30 · Typ: Service/Hook (SSR-Hydration-Korrektheit) · XS-S
+
+────────────────────────────────────────────────────────────────────────
+A. ROOT-CAUSE — via Dev-Repro un-minifiziert gefunden (CEO-Entscheid „Dev-Repro")
+────────────────────────────────────────────────────────────────────────
+lokaler `next dev` + eingeloggt (jarvis-qa) → Next.js Error-Overlay (Pseudo-HTML-Diff):
+  »Expected server HTML to contain a matching text node for "12.501,47" in <div>.«
+  Pseudo-HTML: <aside> … "12.501,47"  →  die WALLET-BALANCE im SideNav.
+
+Mechanismus: `useWallet` (und `useUserTickets`) lasen den UID-keyed localStorage-Mirror
+SYNCHRON via `readCached(...)` in `useMemo` und gaben ihn als `placeholderData`.
+- Server-First-Render: `readCached` → undefined (kein window) → balanceCents=null → Skeleton.
+- Client-First-Render: `readCached` → cached "12.501,47" → Balance gerendert.
+→ Divergenz beim First-Paint → React #418 (5×: Wallet SideNav-desktop + SideNav-mobile-drawer
+  + TopBar, Tickets SideNav + TopBar) + #423 (voller Root-Re-Render) → 472-LCP-Win zunichte.
+
+Warum 472 das auslöste: der useMemo-Kommentar nahm an „useMemo statt useState vermeidet
+SSR-Mismatch" — galt aber NUR solange `userId` server-seitig undefined war (user=null).
+472 seedet den User server-seitig → `userId` ist beim First-Render präsent → der Read
+divergiert. (React-Query-Persist scheidet aus: `wallet`/`tickets` sind in
+USER_SCOPED_DOMAINS → NIE persistiert; placeholderData war die einzige First-Render-Quelle.)
+
+────────────────────────────────────────────────────────────────────────
+B. FIX
+────────────────────────────────────────────────────────────────────────
+Neuer geteilter Hook `src/lib/hooks/useCachedPlaceholder.ts` (SSOT): liest den Cache
+post-mount-gated (`useState(false)` + `useEffect(setHydrated(true))`) → undefined auf
+Server + Client-First-Render (Match), Cache einen Tick später. Money-Freshness-Gate
+(`dataUpdatedAt===0` für placeholderData) unberührt → BuyModal-Schutz intakt.
+- useWallet.ts: useMemo-readCached → useCachedPlaceholder<DbWallet>('bs_wallet', userId)
+- tickets.ts (useUserTickets): analog 'bs_tickets'
+
+────────────────────────────────────────────────────────────────────────
+C. BUILD-VERIFIKATION
+────────────────────────────────────────────────────────────────────────
+[C1] tsc --noEmit ............................ EXIT 0
+[C2] useCachedPlaceholder.test.tsx (NEU) ..... 2/2 PASS (First-Render undefined + uid-undefined no-read)
+[C3] useWallet.test.ts ....................... 18/18 PASS (kein Regress)
+[C4] Sibling-Scan readCached-Konsumenten ..... nur useWallet + useUserTickets (readCached typ-beschränkt auf bs_wallet|bs_tickets) → vollständig
+
+────────────────────────────────────────────────────────────────────────
+D. LIVE-VERIFIKATION — DEV (clean restart + SW/Cache-clear, frischer Code bestätigt)
+────────────────────────────────────────────────────────────────────────
+[D1] localhost /market eingeloggt: Console KEIN „Hydration failed" mehr (vorher 5× + #423)
+[D2] localhost / (home) eingeloggt: Console KEIN Error
+[D3] Wallet rendert nach Hydration korrekt: aside.textContent enthält „12.501,47", kein Skeleton-Stuck
+   (verifiziert via evaluate_script: walletRendered=true, asideHasSkeleton=false)
+→ Verbleibende Console = nur Warns (WebSocket-Dev-Noise, ClubCache-Shortcodes, next/image-sizes; pre-existing)
+
+────────────────────────────────────────────────────────────────────────
+E. LIVE-VERIFIKATION — PROD (bescout.net logged-in) — PENDING DEPLOY
+────────────────────────────────────────────────────────────────────────
+[ ] E1 Console home + /market + /player + /fantasy + /club: KEIN #418/#423
+[ ] E2 AC-01 LCP: eingeloggte Hot-Page Content im SSR-HTML, LCP < logged-in-Baseline (472-Win jetzt real, kein Root-Re-Render)
+[ ] E3 AC-02 Auth: Login/Logout + 2-Account-Switch (kein User-A-sieht-User-B, Wallet korrekt pro Account)
+→ Ergebnisse nach Deploy angehängt.
