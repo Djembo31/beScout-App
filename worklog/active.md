@@ -9,8 +9,17 @@ type: UI
 welle: Mock→Pro W6 / Performance (CLS, measure-driven)
 proof: worklog/proofs/490-home-cls.txt
 review: worklog/reviews/490-review.md
-stage: PROVE (code committed + deploying; CLS-Messung post-Deploy)
+stage: PROVE (deployed a82b642f; Feld-CLS-Verifikation ~24h pending)
 ```
+
+## Slice 490 — DEPLOYED, Feld-Verifikation pending
+- **Code live (a82b642f):** Fork-Swap strukturell eliminiert (Reviewer PASS, Logik-Proof). `dashboardReady` gatet 8 personalisierte Blöcke.
+- **NÄCHSTER MESS-SCHRITT (in ~1 Tag):** Sentry p75 CLS `/` re-queryn (war 0,282). Entscheidungsbaum:
+  - `/` <0,1 → Slice done.
+  - `/` 0,1–0,2 → **Hero-Folge-Slice** (Reviewer #1): `heroMode`-Flip (`cta-new`→`scout`) + CTA-Banner (`!loading && holdingsCount===0`, HomeStoryHeader:231) auf `dashboardReady` ODER `min-h` am Hero. Gleiche Root-Cause-Klasse.
+- **Geparkt:** `/market` CLS 0,194 (eigener Slice). Sentry: org bescout, de.sentry.io, dataset spans.
+
+---
 
 ## Slice 490 — Problem (Sentry-Feld-Daten + Code-verifiziert)
 - **Sentry p75 CLS (echte User, 14d): `/` = 0,282 🔴 poor** (1100 Samples, meistbesuchte Seite). `/market` 0,194, Rest grün. Field-weiter, real-user-Impact.

@@ -34,7 +34,22 @@ REVIEW: reviewer-agent PASS (worklog/reviews/490-review.md, 22 min).
   Findings #1/#2 (LOW, measure): Hero heroMode-Flip + Insertion-Residual → in PROVE messen.
 
 ═══════════════════════════════════════════════════════════════════════
-NACHHER-MESSUNG (chrome-devtools, authed `/`, post-Deploy) — PENDING
+DEPLOY + NACHHER-MESSUNG
 ═══════════════════════════════════════════════════════════════════════
-[wird nach Vercel-Deploy ergänzt: CLS-Trace authed Home jarvis-qa —
- Swap weg? CLS-Wert? Hero-Residual >0,1? + Sentry-Feld-p75 über die nächsten Tage]
+Deploy: Commit a82b642f → origin/main (Vercel prod, 2026-07-01).
+
+LOGIK-PROOF (Reviewer-verifiziert, stark): die 8 personalisierten Blöcke können
+NICHT mehr vor `dashboardReady` rendern → der bidirektionale ~440px-Swap ist
+strukturell eliminiert (kein Bestandsnutzer sieht das Neu-User-Layout beim Laden).
+Greift dank S472-Server-Seed (uid ab Frame 1 → Dashboard ab Frame 1 enabled).
+
+FELD-PROOF (autoritativ, PENDING ~24h): Sentry p75 CLS `/` (org bescout, de.sentry.io,
+dataset spans, `p75(measurements.cls) has:measurements.cls transaction:/`). Vorher 0,282.
+→ NÄCHSTE SESSION / in ~1 Tag re-queryn: ist `/` unter den `/market`-0,194 / Richtung <0,1?
+  - <0,1  → Slice done.
+  - 0,1–0,2 → Hero heroMode-Flip + CTA-Banner (Reviewer #1) ist der Rest → Folge-Slice
+    (heroMode/CTA-Banner auf dashboardReady ODER min-h am Hero).
+
+Hinweis: chrome-devtools-Einzel-Trace bewusst NICHT als Primär-Proof — Feld-p75 (echte
+User, alle Netze) ist die belastbare Metrik; Lab-Einzelwert wäre lauter + authed-Flow
+SW-Cache-zickig (S474). Lab-Trace optional auf Anil-Wunsch für einen Sofort-Read.

@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 490 | 2026-07-01 | fix(perf): Startseiten-CLS — Layout-Fork erst bei dashboardReady (deployed, Feld-Verifikation pending)
+- Stage-Chain: SPEC (inline) → BUILD (2 Files) → REVIEW (reviewer-agent PASS) → PROVE (tsc + Logik-Proof; Feld-CLS ~24h pending) → LOG. **Mock→Pro W6; Performance; Sentry-Feld-getrieben; kein Money.**
+- **Befund (Sentry-Feld, NICHT aus Memory):** p75 CLS `/` = **0,282 🔴 poor** (echte User, meistbesuchte Seite). `/market` 0,194, Rest grün. Web-Vitals waren bereits live erfasst (siehe Memory `reference_web_vitals_sentry` — KEIN Wiring-Slice nötig, das war eine falsche Prämisse; der Live-Check förderte STATTDESSEN dieses echte CLS-Finding zutage).
+- **Root-Cause (Sentry + Code verifiziert):** `page.tsx isNewUser = holdings.length === 0` nicht ans Dashboard-Laden gekoppelt (`holdings = dashboard?.holdings ?? []` leer während Load; `homeLoading` deckt Dashboard NICHT ab) → jeder Bestandsnutzer sieht beim Laden kurz das Neu-User-Layout (~440px), dann Swap = der Sprung.
+- **Fix (§0-sauber, 2 Files):** `dashboardReady = !useHomeDashboard.isLoading` gatet die 8 personalisierten dashboard-abhängigen Blöcke (Neu/Bestand-Fork + founding-upsell + WelcomeBonusModal) → kein Layout-Entscheid vor Daten = kein Swap. Greift dank S472-Server-Seed (uid ab Frame 1).
+- **Reviewer PASS** (`490-review.md`): Onboarding-Flow intakt, Linchpin (S472-Seed) verifiziert, disabled-query kein Infinite-Skeleton, **stationärer Zustand byte-identisch (0 Regression)**. Findings #1/#2 LOW (measure): Hero `heroMode`-Flip + Insertion-Residual.
+- **PROVE-Status (ehrlich, kein premature done):** Code live (`a82b642f`), Swap strukturell eliminiert (Logik-Proof). **Autoritative Feld-Verifikation (Sentry p75 CLS `/`) pending ~24h** — Entscheidungsbaum in `active.md`/Proof: <0,1 = done · 0,1–0,2 = Hero-Folge-Slice (heroMode/CTA-Banner auf dashboardReady). Proof `490-home-cls.txt`.
+
 ## 489 | 2026-07-01 | fix(observability): 5xx-Status-Code-Audit — sync-contracts Leerdaten-als-500 → 200+skip
 - Stage-Chain: SPEC (inline) → BUILD (1 File) → REVIEW (self, XS) → PROVE (tsc + audit-grep + consumer-check) → LOG. **488-Reviewer-Finding #1; P2 (CEO „p2"); Observability-Noise-Reduktion; kein Money/Logik.**
 - **Audit:** alle 64 `status:500`-Returns über 24 Routen kategorisiert — die EINZIGE Leerdaten-als-500-Mis-Modellierung ist `admin/sync-contracts/route.ts:148-149` (`!clubs?.length`/`!extIds.length`). Rest = Config-Guards (feuern nur bei Fehl-Deploy, legitimes Signal) + echte Supabase-Errors (sollen captured werden). `gameweek-sync:268` (`!activeLeagues`) = Grenzfall „System kaputt" → bewusst gelassen.
