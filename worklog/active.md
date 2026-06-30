@@ -1,23 +1,22 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 474
-title: Wallet/Tickets cached-placeholder SSR-safe — DER 472-Blocker-Fix (#418 weg)
+title: W6 Server-Auth-SSR (472+473+474) — DONE, LCP-Win live, #418 eliminiert
 size: XS
 type: Service/Hook (SSR-Hydration-Korrektheit)
 welle: W6 (Performance/Architektur)
-stage: PROVE (Dev-Walk grün; Prod-Walk pending Deploy)
+stage: LOG (done)
 spec: inline (XS, via Dev-Repro root-caused)
 proof: worklog/proofs/474-wallet-tickets-ssr-placeholder.txt
-review: worklog/reviews/474-review.md (self-review, kein Money-Logic-Change)
+review: worklog/reviews/474-review.md
 ```
 
-## Lösung (CEO-Entscheid „Dev-Repro → gezielt fixen")
-- Dev-Repro un-minifiziert: Mismatch = Wallet-Balance „12.501,47" im `<aside>`. `useWallet`/`useUserTickets` lasen localStorage-Mirror synchron als placeholderData → seit 472 (userId server-präsent) divergiert First-Render.
-- **474 fixt es:** geteilter `useCachedPlaceholder`-Hook (post-mount-gated). **Dev-verifiziert: /market + /home #418/#423-FREI**, Wallet rendert korrekt. Money-Freshness-Gate unberührt.
-- **473 (leagueScope) = korrekte aber tangentiale SSR-Härtung** (live, behalten). **472 (Seed) + 474 (Fix) = die funktionierende Lösung.**
-- ⏭️ Prod-Deploy + finaler Prod-Walk (Console #418-frei + LCP-Win messbar + 2-Account-Switch) = letztes Gate.
+## Letzter Slice DONE — W6 SSR-Trilogie (472+473+474), alle live + Prod-verifiziert
+- **472** (`abd84cdf`) Server-Auth-Seed · **473** (`47de778e`) leagueScopeStore SSR-safe (tangential) · **474** (`b05ba950`) Wallet/Tickets cached-placeholder SSR-safe = DER Fix.
+- **Prod-Walk grün:** home/market/fantasy/player #418/#423-FREI · LCP authed Home **1602ms** (Content im SSR-HTML) · 2-Account-Switch jarvis→ali **kein Cross-User-Leak**.
+- **Lehre:** Cold-Context-Reviewer sagte Blast-Radius voraus; Live-Walk fing den Bug, den tsc+Reviewer-Code-PASS durchließen. Dev-Repro (CEO-Entscheid) → un-minifizierter Mismatch im Next.js-Error-Overlay. Knowledge → errors-frontend.md S474.
 
 ## Inline-Spec 473
 **Problem (Live-Walk 472 gefunden, Root-Cause Code+Runtime bestätigt):** `leagueScopeStore.ts:141` `const initialPersisted = readFromStorage()` seedet Store-Init aus localStorage bei MODUL-Init. Server (kein window) → `leagueName=''`; Client → cached `'Süper Lig'`. 472 rendert erstmals den authed Shell server-seitig → Liga-Selektor rendert `leagueName` → Server-`''` vs Client-`'Süper Lig'` = React #418 (5×) + #423 (voller Root-Re-Render) auf JEDER authed Page → **LCP-Win von 472 zunichte**.

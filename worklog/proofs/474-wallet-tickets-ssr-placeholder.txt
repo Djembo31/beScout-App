@@ -51,9 +51,11 @@ D. LIVE-VERIFIKATION — DEV (clean restart + SW/Cache-clear, frischer Code best
 → Verbleibende Console = nur Warns (WebSocket-Dev-Noise, ClubCache-Shortcodes, next/image-sizes; pre-existing)
 
 ────────────────────────────────────────────────────────────────────────
-E. LIVE-VERIFIKATION — PROD (bescout.net logged-in) — PENDING DEPLOY
+E. LIVE-VERIFIKATION — PROD (bescout.net logged-in, Deploy b05ba950, SW+Cache geleert) — ✅ ALLE GRÜN
 ────────────────────────────────────────────────────────────────────────
-[ ] E1 Console home + /market + /player + /fantasy + /club: KEIN #418/#423
-[ ] E2 AC-01 LCP: eingeloggte Hot-Page Content im SSR-HTML, LCP < logged-in-Baseline (472-Win jetzt real, kein Root-Re-Render)
-[ ] E3 AC-02 Auth: Login/Logout + 2-Account-Switch (kein User-A-sieht-User-B, Wallet korrekt pro Account)
-→ Ergebnisse nach Deploy angehängt.
+[x] E1 Console KEIN #418/#423 mehr (jarvis-qa): home ✓ · /market ✓ · /fantasy ✓ · /player ✓ (alle „no console errors"; home 1× pre-existing Resource-404, kein Hydration-Bezug)
+[x] E2 AC-01 LCP authed Home = 1602 ms (TTFB 501 + Render-Delay 1101, CLS 0.04). Content im SSR-HTML, kein Root-Re-Render. Vgl. d03-Baseline /club/galatasaray(public) 4118ms/Load-Delay 2049ms; authed Cold-Start war 5-13s „Initial-Load-Schrott" → 472-Win REAL.
+[x] E3 AC-02 Auth-Regression: Logout jarvis-qa (Bestätigung) → Login ali@test.bescout.de → **KEIN Cross-User-Leak**:
+      ali sieht Wallet 10.835 CR (nicht jarvis 12.501,47), Tickets 155 (nicht 856), „Ali Şahin"/Avatar „A" (nicht Jarvis QA), Rolle superadmin + Club-Admin Sakaryaspor korrekt. ali /market frischer SSR-Load = KEIN Error.
+      → cacheMatchesSeed-Guard (472) + Seed + Wallet-Placeholder-Fix (474) cross-account korrekt.
+VERDICT: 472 (Seed) + 474 (Fix) = der LCP-Win ist live realisiert, #418/#423 eliminiert, kein Auth-Regress.

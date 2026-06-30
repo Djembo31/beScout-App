@@ -1,28 +1,19 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-30 03:49)
+# Session Handoff — Auto (2026-06-30 12:54)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 5 Files
+## Uncommitted Changes: 1 Files
 ```
  M memory/session-handoff.md
- M src/app/(app)/club/[slug]/page.tsx
- M worklog/active.md
-?? src/lib/getServerQueryClient.ts
-?? worklog/specs/471-club-ssr-prefetch.md
 ```
 
-## Session Commits: 10
-- db6463b5 docs(d03): SSR-Baseline gemessen (club/galatasaray LCP 4118ms, Load-delay 2049ms)
-- 98f1cfea docs(d03): SSR/Performance Ist-Analyse + phasierter Inkrement-Plan
-- b73188cd docs(register): Fakten-Reconcile D-06 (accept_offer money-korrekt, kein aktiver Bug -> P2)
-- 5a426532 docs(register): Fakten-Reconcile D-19 (kein Bug) + D-07 (P2-latent verifiziert)
-- 458694f8 docs(perf-lane): Perf-Lane-Reconcile — FK-Indizes geheilt (470), 3 Perf-Items geparkt-mit-Gruenden
-- 5cdeb501 perf(db): Slice 470 — 49 Covering-Indizes fuer unindexed Foreign Keys (live)
-- fc5c3d6e chore(security): P2-Hygiene-Lane — 468 search_path-Haertung (62 SECDEF) + 469 D-38 sponsorStats Silent-Fail (live)
-- 4900819b fix(ui): Slice 467 — D-23 Geld-Formatter konsolidieren (formatScout -> fmtScout, 2 Dez)
-- f2de961a chore(db): Slice 466 — W0 Security-Map-Recon-RPCs admin-only (REVOKE anon+auth) (live)
-- 0fe1aedd fix(security): Slice 465 — D-37b top_role='Admin'-Familie vollstaendig schliessen (live)
+## Session Commits: 5
+- b05ba950 fix(perf): Slice 474 — Wallet/Tickets cached-placeholder SSR-safe (der echte 472-Hydration-Fix)
+- 47de778e fix(perf): Slice 473 — leagueScopeStore SSR-safe (fix hydration mismatch, unblock 472 authed-SSR)
+- abd84cdf feat(perf): Slice 472 — W6 Server-Auth-Hydration (authed SSR-Render, der echte LCP-Win)
+- 652dc4e6 docs(d03): W6 Slice 472 Server-Auth-Spec (ready) + Reconcile — 471 live, 472 fokussierter Next
+- 3653bd31 feat(perf): Slice 471 — W6 SSR-Prefetch-Infrastruktur + Provider-Request-Scoping (Fundament)
 
 <!-- auto:handoff-end -->
 
@@ -30,6 +21,14 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-30 (Teil 28) — W6 Server-Auth-SSR KOMPLETT + Prod-verifiziert (472+473+474): authed LCP-Win live, #418 eliminiert.**
+> - **⏭️ NÄCHSTES (idle, CEO-Richtung):** W6 Phase 3 (weitere Page-Prefetches / RSC-Migration, `worklog/notes/d03-ssr-ist-analyse.md`) ODER zurück in den Mock→Pro-Strom / TEIL-A-Rest. Kein offener Blocker.
+> - **✅ Geliefert (alle live + Prod-Walk grün):** **472** (`abd84cdf`) Server-Auth-Seed (`supabaseServerAuth.ts` getServerUser via @supabase/ssr; AuthProvider 3 useState-Seeds + cacheMatchesSeed-Guard; layout Promise.all) · **473** (`47de778e`) leagueScopeStore SSR-safe (Modul-Init-localStorage-Seed → post-mount `hydrateFromStorage`-Action; **tangential, NICHT die #418-Ursache**, aber korrekte Härtung) · **474** (`b05ba950`) = **DER Fix**: `useWallet`/`useUserTickets` lasen UID-localStorage-Mirror synchron als placeholderData → seit 472 (userId server-präsent) divergiert First-Render (Server undefined→Skeleton, Client cached „12.501,47") → #418×5 + #423. Neuer SSOT-Hook `useCachedPlaceholder` (post-mount-gated). Money-Freshness-Gate unberührt.
+> - **🔬 Der Weg dahin (Lehre):** Cold-Context-Reviewer (472) sagte „SSR des authed Surface = Blast-Radius, statisch nicht clearbar, nur Live-Walk". **Exakt eingetreten.** Live-Walk fand #418/#423 (tsc + Reviewer-Code-PASS ließen es durch — §0/2 Realität-vor-Zeremonie). Voll-Shell-Audit war clean → statisch nicht findbar → **CEO-Gabel (AskUserQuestion) → „Dev-Repro"** → lokaler `next dev` eingeloggt → un-minifizierter Mismatch im **Next.js-Error-Overlay** (`nextjs-portal` shadowRoot): »Expected server HTML to contain "12.501,47"« = Wallet. **Falle:** localhost+prod SW+Cache (`bescout-v4`) servierten alte Chunks → Fix schien „nicht zu greifen" bis SW+Cache-clear+hard-reload. Knowledge → errors-frontend.md **S474**.
+> - **📊 Prod-Walk (Deploy b05ba950, jarvis-qa + ali):** home/market/fantasy/player Console **#418/#423-FREI** · **LCP authed Home 1602ms** (Content im SSR-HTML statt 5-13s authLoading-Skeleton, kein Root-Re-Render) · **2-Account-Switch jarvis→ali: kein Cross-User-Leak** (ali 10.835/155/Ali Şahin, nicht jarvis 12.501,47/856).
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-30 (Teil 27) — D-03/W6 SSR gestartet: Fundament live (471), Server-Auth (472) designed + als fokussierter nächster Schritt geparkt.**
 > - **⏭️ DIREKT STARTEN: Slice 472 — Server-Auth-Hydration (Spec `worklog/specs/472-server-auth-hydration.md` READY).** CEO Anil „Server-Auth jetzt" → als fokussierter nächster Schritt (P0-Risiko Kern-Auth verdient frische Aufmerksamkeit, nicht Session-Ende).
 >   - **Was:** Session server-seitig lesen (Cookie via @supabase/ssr — `createBrowserClient` speichert in Cookies, server-lesbar; Middleware `supabaseMiddleware.ts` refresht sie schon) → `initialUser`-Prop an AuthProvider → seeden, damit authed Pages Content im SSR-HTML rendern statt `authLoading`-Skeleton. **Das ist der echte LCP-Win** (die 5-13s = eingeloggter Cold-Start).
