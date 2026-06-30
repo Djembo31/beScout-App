@@ -1,21 +1,28 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-30 02:12)
+# Session Handoff — Auto (2026-06-30 03:49)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Working Tree: Clean
+## Uncommitted Changes: 5 Files
+```
+ M memory/session-handoff.md
+ M src/app/(app)/club/[slug]/page.tsx
+ M worklog/active.md
+?? src/lib/getServerQueryClient.ts
+?? worklog/specs/471-club-ssr-prefetch.md
+```
 
 ## Session Commits: 10
+- db6463b5 docs(d03): SSR-Baseline gemessen (club/galatasaray LCP 4118ms, Load-delay 2049ms)
+- 98f1cfea docs(d03): SSR/Performance Ist-Analyse + phasierter Inkrement-Plan
+- b73188cd docs(register): Fakten-Reconcile D-06 (accept_offer money-korrekt, kein aktiver Bug -> P2)
+- 5a426532 docs(register): Fakten-Reconcile D-19 (kein Bug) + D-07 (P2-latent verifiziert)
+- 458694f8 docs(perf-lane): Perf-Lane-Reconcile — FK-Indizes geheilt (470), 3 Perf-Items geparkt-mit-Gruenden
+- 5cdeb501 perf(db): Slice 470 — 49 Covering-Indizes fuer unindexed Foreign Keys (live)
 - fc5c3d6e chore(security): P2-Hygiene-Lane — 468 search_path-Haertung (62 SECDEF) + 469 D-38 sponsorStats Silent-Fail (live)
 - 4900819b fix(ui): Slice 467 — D-23 Geld-Formatter konsolidieren (formatScout -> fmtScout, 2 Dez)
 - f2de961a chore(db): Slice 466 — W0 Security-Map-Recon-RPCs admin-only (REVOKE anon+auth) (live)
 - 0fe1aedd fix(security): Slice 465 — D-37b top_role='Admin'-Familie vollstaendig schliessen (live)
-- 54765397 fix(security): Slice 464 — D-37 SOLE-gate top_role-RPCs auf platform_admins (live)
-- 2bebeab1 fix(security): Slice 463 — D-36 Stats-Siblings Platform-Admin-Guard auf platform_admins (live)
-- 3214a86f fix(security): Slice 462 — D-35 get_club_dashboard_stats_v2 Admin-Guard + REVOKE anon (live)
-- c9534936 chore(db): Slice 461 — D-12 Dead-RPC GC: DROP get_club_dashboard_stats(text) v1 (live)
-- 055c839e fix(security): Slice 460 — INV-31 REVOKE no_guard SECDEF-RPCs (calculate_fan_rank + refund_wildcards_on_leave) (live)
-- b121ee9a fix(invariants): Slice 459 — INV-XS Doppel-Fix (success_fee + events-Snapshot)
 
 <!-- auto:handoff-end -->
 
@@ -23,6 +30,19 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-30 (Teil 27) — D-03/W6 SSR gestartet: Fundament live (471), Server-Auth (472) designed + als fokussierter nächster Schritt geparkt.**
+> - **⏭️ DIREKT STARTEN: Slice 472 — Server-Auth-Hydration (Spec `worklog/specs/472-server-auth-hydration.md` READY).** CEO Anil „Server-Auth jetzt" → als fokussierter nächster Schritt (P0-Risiko Kern-Auth verdient frische Aufmerksamkeit, nicht Session-Ende).
+>   - **Was:** Session server-seitig lesen (Cookie via @supabase/ssr — `createBrowserClient` speichert in Cookies, server-lesbar; Middleware `supabaseMiddleware.ts` refresht sie schon) → `initialUser`-Prop an AuthProvider → seeden, damit authed Pages Content im SSR-HTML rendern statt `authLoading`-Skeleton. **Das ist der echte LCP-Win** (die 5-13s = eingeloggter Cold-Start).
+>   - **4 Files:** `src/lib/supabaseServer.ts` (NEU, getServerUser via cookies()+getUser), `src/app/layout.tsx` (initialUser → Providers), `Providers.tsx` (durchreichen), `AuthProvider.tsx` (Seed).
+>   - **KRITISCHER Seed (sonst P0):** `user=initialUser, loading=(initialUser==null), profileLoading=(initialUser!=null)`. Das profileLoading=true ist Pflicht — sonst macht `AuthGuard` (`if(!profile && !profileLoading) return skeleton`, AuthGuard.tsx:53-63) bei authed SSR einen fälschlichen Onboarding-Redirect. Kein Hydration-Mismatch weil Prop-Seed (nicht localStorage; Kommentar AuthProvider:147-149 präzisieren).
+>   - **Verifikation PFLICHT (P0 Kern-Auth):** tsc + Cold-Context-Reviewer (Auth-Fokus) + Deploy + **logged-in** LCP-Messung (jarvis-qa@bescout.net) + Multi-Page-Regression-Walk (home/market/player/club/fantasy, Console kein Hydration-Error) + Login/Logout/2-Account-Switch (kein User-A-sieht-User-B).
+>   - **context7 vor Build:** @supabase/ssr Server-Client RSC-Pattern (setAll no-op in RSC, Middleware macht Refresh).
+> - **✅ 471 (live `3653bd31`):** SSR-Prefetch-Fundament — `src/lib/getServerQueryClient.ts` (per-Request cache()) + `/club/[slug]/page.tsx` Root-Prefetch + HydrationBoundary + **Provider-Request-Scoping** (`queryClient.ts` `getQueryClient()` = isServer ? frisch : Singleton; Reviewer-F2 gefixt). EHRLICH: KEIN LCP-Win allein (Reviewer-F1: ClubContent gated hinter authLoading) → 472 liefert den Win. No-regression smoke ok (bescout.net lädt, kein Hydration-Error). Baseline `/club/galatasaray` LCP **4.118 ms** / Load-delay **2.049 ms** (Trace scratchpad/d03-baseline-club.json).
+> - **D-03 Ist-Analyse + Plan:** `worklog/notes/d03-ssr-ist-analyse.md` (phasiert: 1 Prefetch ✅ · 2 Server-Auth ⬜next · 3 weitere Pages · 4 RSC).
+> - **🟢 SESSION-BILANZ (diese Session, alle live):** 460-470 (W0-Security + D-23 + D-38 + search_path + FK-Indizes) · D-19/D-07/D-06 Fakten-Reconcile (kein aktiver Bug, P2) · 471 W6-SSR-Fundament. **Meta-Befund:** aktive P0/P1-Risiken der Security/Money/Scoring/Data-Domänen sind geschlossen; Register-Rest = P2 oder CEO-Scope.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-30 (Teil 26) — Policies/Index Perf-Lane durchgearbeitet (Slice 470). Autonom „durcharbeiten + zurückkommen".**
 > - **CEO Anil:** „Policies/Index Perf-Lane durcharbeiten und zurückkommen" → autonom, Gabeln/Risiken geparkt.
 > - **✅ 470 (live, Migration `20260630160000`):** 49 advisor-autoritative **unindexed Foreign Keys** → Covering-Index additiv (CREATE INDEX IF NOT EXISTS, DO-Loop über die 49 connames, Spalten aus pg_constraint). 49/49 verifiziert, db-invariants unverändert. `unindexed_foreign_keys` 49→0. (Hand-Covering-Query gab 181 = PG-int2vector-Slice-Falle → Advisor-Liste vertraut.)
