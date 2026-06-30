@@ -1,0 +1,63 @@
+Slice 488 — Sentry-Blindspots: withLogger captured 5xx-Responses + push-Cleanup
+PROOF — 2026-07-01
+
+═══════════════════════════════════════════════════════════════════════
+PROBLEM (live verifiziert vor Build)
+═══════════════════════════════════════════════════════════════════════
+- 64 `status:500`-Returns über 24 API-Routen, app-weit nur 28 captureError.
+- sentry configs: tracesSampleRate 0.01, 0 web-vitals/BrowserTracing (separater Slice).
+- Root-Cause: withLogger captured nur bei THROW (apiLogger.ts re-throw-Pfad).
+  Routen mit `return NextResponse.json({error},{status:500})` werfen NIE → Sentry-blind.
+  Money-kritisch betroffen: cron/expire-orders, close-expired-bounties, gameweek-sync,
+  live-score-sync; user-facing: events, players.
+- Fakt: alle 24 api-Routen nutzen withLogger (0 unwrapped). Nur push captured explizit (S369).
+- Fakt: firePush (notifications.ts:205) = fire-and-forget (.catch(console.error), kein Body/Status-Read) → push darf throwen.
+
+═══════════════════════════════════════════════════════════════════════
+AC1/AC2/AC3 — vitest (apiLogger.test.ts)
+═══════════════════════════════════════════════════════════════════════
+$ CI=true npx vitest run src/lib/observability/__tests__/apiLogger.test.ts
+ Test Files  1 passed (1)
+      Tests  11 passed (11)        # 7 bestehend + 4 neu
+
+Neue Tests:
+- "captures a RETURNED 5xx response (S369/488 — not just thrown errors)"
+    → response.status===500 zurückgegeben UND captureError 1× mit
+      message='permission denied for table wallets', route='test.cron', extra.status=500  (AC1)
+- "captures a 5xx with no/non-JSON body via http_<status> fallback"
+    → message='http_503'  (AC1 fallback)
+- "does NOT capture 2xx / 4xx returned responses (no Sentry noise)"
+    → 200/201/400/401/404 → captureError NICHT aufgerufen  (AC2)
+- bestehend "calls captureError and re-throws on handler error" → throw-Pfad unverändert 1× capture + re-throw  (AC3)
+
+═══════════════════════════════════════════════════════════════════════
+AC4 — push-Cleanup (Schnitt-Regel: alter S369-Weg geschlossen)
+═══════════════════════════════════════════════════════════════════════
+$ grep -c "captureError" src/app/api/push/route.ts   → 0
+$ grep -cE "try \{|catch \(" src/app/api/push/route.ts → 0
+push wirft jetzt → withLogger.catch captured rich (original err + stack) + re-throw → 500.
+Kein Doppel-Capture: re-throw verlässt die Funktion VOR dem Response-5xx-Check
+(throw-Pfad und return-5xx-Pfad schließen sich pro Request aus).
+
+═══════════════════════════════════════════════════════════════════════
+AC5 — tsc + Diff
+═══════════════════════════════════════════════════════════════════════
+$ npx tsc --noEmit   → EXIT 0
+$ grep -n "response.status >= 500" src/lib/observability/apiLogger.ts → 79
+
+git diff --stat:
+ src/app/api/push/route.ts                         | 64 +++++-------------
+ src/lib/observability/__tests__/apiLogger.test.ts | 49 +++++++++++-
+ src/lib/observability/apiLogger.ts                | 28 ++++++++
+ (+ worklog/active.md, memory/session-handoff.md)
+
+═══════════════════════════════════════════════════════════════════════
+DESIGN (§0-kanonisch)
+═══════════════════════════════════════════════════════════════════════
+- EIN Mechanismus: withLogger ist der SSOT für Route-Observability → um 5xx-capture
+  erweitert. Deckt alle 24 Routen + alle künftigen ohne Per-Route-Replikation
+  (vermeidet die „von-allem-N"-captureError-Streuung).
+- response.clone() vor dem Body-Read → Original-Stream bleibt für Caller intakt.
+- Best-effort: Supabase-Routen legen error.message in den Body → echte Meldung;
+  non-JSON/leer → http_<status>-Fallback.
+- Scope-Out: web-vitals-Wiring, tracesSampleRate-Tuning (separate Slices).

@@ -52,11 +52,20 @@ function mockReq(opts: {
   } as unknown as NextRequest;
 }
 
-function mockResponse(status = 200): Response {
+function mockResponse(status = 200, body?: unknown): Response {
   const headers = new Headers();
   return {
     status,
     headers,
+    // Slice 488: withLogger reads clone().json() on 5xx to extract the error message.
+    clone() {
+      return {
+        json: async () => {
+          if (body === undefined) throw new Error('no body');
+          return body;
+        },
+      };
+    },
   } as unknown as Response;
 }
 
@@ -160,6 +169,44 @@ describe('withLogger (slice 175c)', () => {
     };
     expect(typeof payload.code).toBe('string');
     expect(typeof payload.latencyMs).toBe('number');
+  });
+
+  it('captures a RETURNED 5xx response (S369/488 — not just thrown errors)', async () => {
+    const wrapped = withLogger('test.cron', async () =>
+      mockResponse(500, { error: 'permission denied for table wallets' }),
+    );
+    const response = await wrapped(mockReq());
+
+    // Response is returned normally (not thrown) — caller still gets it.
+    expect(response.status).toBe(500);
+    // But it IS now captured to Sentry.
+    expect(captureErrorMock).toHaveBeenCalledTimes(1);
+    const [capturedErr, ctx] = captureErrorMock.mock.calls[0];
+    expect((capturedErr as Error).message).toBe('permission denied for table wallets');
+    const c = ctx as { route: string; requestId: string; extra: { status: number } };
+    expect(c.route).toBe('test.cron');
+    expect(typeof c.requestId).toBe('string');
+    expect(c.extra.status).toBe(500);
+  });
+
+  it('captures a 5xx with no/non-JSON body via http_<status> fallback', async () => {
+    const wrapped = withLogger('test.cron', async () => mockResponse(503));
+    await wrapped(mockReq());
+
+    expect(captureErrorMock).toHaveBeenCalledTimes(1);
+    const [capturedErr] = captureErrorMock.mock.calls[0];
+    expect((capturedErr as Error).message).toBe('http_503');
+  });
+
+  it('does NOT capture 2xx / 4xx returned responses (no Sentry noise)', async () => {
+    for (const status of [200, 201, 400, 401, 404]) {
+      vi.clearAllMocks();
+      const wrapped = withLogger('test.route', async () =>
+        mockResponse(status, { error: 'client error' }),
+      );
+      await wrapped(mockReq());
+      expect(captureErrorMock).not.toHaveBeenCalled();
+    }
   });
 
   it('passes params through to handler for dynamic routes', async () => {

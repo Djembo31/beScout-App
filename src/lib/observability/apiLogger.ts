@@ -71,6 +71,34 @@ export function withLogger<TParams = unknown>(
         'request.end',
       );
 
+      // Slice 488: a handler that RETURNS a 5xx (instead of throwing) bypasses the
+      // catch block below → captureError never fires = Sentry-blind (S369). Capture
+      // here so EVERY server-error response is visible, not just thrown ones. This is
+      // the systemic net: covers all routes' `return NextResponse.json(_, {status:500})`
+      // branches without touching them (withLogger is the route-observability SSOT).
+      if (response.status >= 500) {
+        let bodyMsg: string | undefined;
+        try {
+          // clone() so the original body stream stays intact for the caller.
+          // supabase-error routes put error.message in the body — read it best-effort.
+          const parsed: unknown = await response.clone().json();
+          if (
+            parsed &&
+            typeof parsed === 'object' &&
+            typeof (parsed as { error?: unknown }).error === 'string'
+          ) {
+            bodyMsg = (parsed as { error: string }).error;
+          }
+        } catch {
+          // Non-JSON or empty body — capture with status only.
+        }
+        captureError(new Error(bodyMsg ?? `http_${response.status}`), {
+          route,
+          requestId,
+          extra: { status: response.status },
+        });
+      }
+
       // Propagate RequestID to caller for distributed tracing.
       try {
         response.headers.set('x-request-id', requestId);

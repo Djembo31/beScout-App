@@ -1,14 +1,20 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-30 23:48)
+# Session Handoff — Auto (2026-07-01 00:16)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 1 Files
+## Uncommitted Changes: 6 Files
 ```
  M memory/session-handoff.md
+ M src/app/api/push/route.ts
+ M src/lib/observability/__tests__/apiLogger.test.ts
+ M src/lib/observability/apiLogger.ts
+ M worklog/active.md
+?? worklog/proofs/488-sentry-5xx.txt
 ```
 
 ## Session Commits: 10
+- 66a3fe4d docs(handoff): Teil 31 Session-Close — 480-487 (Konsistenz-Batch komplett + D-04 root-cause #2 + W6-LCP-Strang)
 - 2949c655 docs(487): chrome-devtools-Re-Trace — Preload löst Fetch-Timing, LCP ist render-/hydration-bound
 - d08a3dba perf(ssr): Slice 487 (W6 load-delay) — LCP-Stadion-Bild server-seitig preloaden
 - c88a128f docs(486): chrome-devtools LCP-Re-Trace — Bild fixed (AVIF 33ms), LCP jetzt load-delay-bound
@@ -18,7 +24,6 @@
 - b28cf1a2 feat(fantasy): Slice 485 — D-04 (W3) lineups DB-Integrität (Bench-FKs + Distinctness-Trigger)
 - a636b767 docs(484): D-24 AC-Visual live-verifiziert (bescout.net mobil, DE+TR)
 - f38cd97c fix(compliance): Slice 484 — D-24 Securities-Wording-Heal (SellModal/YourPosition)
-- f491958f refactor(utils): Slice 483 — D-33 Relativzeit-Formatter konsolidiert (1 kanonischer formatTimeAgo)
 
 <!-- auto:handoff-end -->
 
