@@ -28,6 +28,15 @@ tsc --noEmit: EXIT 0
 positionLabel/byPosition/positionMismatch/min_per_position etc. = SPIELPOSITION (GK/DEF/MID/ATT),
 business.md verbietet nur den Trading-Sinn → korrekt unberührt.
 
+=== AC-VISUAL — LIVE VERIFIZIERT (bescout.net, mobil 393px, jarvis-qa, 2026-06-30 post-Deploy f38cd97c) ===
+Player-Detail David Preu (jarvis hält 1 SC), Playwright MCP:
+- DE YourPosition-Karte (Handel-Tab): "DEIN KADER" · WERT 400 · Ø KAUFPREIS 400 · WERTÄNDERUNG +0,0%.
+  "Wertänderung"-Label-Box w145/h15 = 1 Zeile (kein Umbruch/Overflow). Kein "Deine Position"/"Avg. Kosten".
+- DE SellModal (Verkaufen): "Dein Kader"-Header + WalletCards-SVG (lucide-wallet-cards) present, lucide-briefcase=0.
+- TR YourPosition (Ticaret-Tab): "KADRON" · DEĞER 400 · ORT. ALIŞ 400 · DEĞER DEĞİŞİMİ +0,0%.
+  "Değer Değişimi"-Box w142/h15 = 1 Zeile. Kein "Pozisyonun"/"Ort. Maliyet".
+→ Beide Locales sauber, mobiles 3-Spalten-Grid hält alle Labels einzeilig. Layout-Sorge widerlegt. PASS.
+
 === §0 / Compliance ===
 Trading-Position-Vokabular user-facing eliminiert (Holdings-Karte = "Dein Kader"). disease-register D-24 → geheilt.
-TR-Wording CEO-approved (Anil). AC-Visual (Layout "Wertänderung" länger als "+/−") = post-Deploy bescout.net.
+TR-Wording CEO-approved (Anil). AC-Visual ✅ live-verifiziert DE+TR (s.o.).
