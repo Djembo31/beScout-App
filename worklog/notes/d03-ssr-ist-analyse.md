@@ -37,5 +37,17 @@
 - **RLS bei Prefetch**: user-scoped Daten (Holdings/Wallet) NICHT mit supabaseAdmin prefetchen (RLS-Bypass) → @supabase/ssr-Server-Client mit User-Session. Public Daten (Player-Stammdaten/Prices) = supabaseAdmin OK.
 - **context7 vor Build**: aktuelles @supabase/ssr + Next-14-App-Router + TanStack-v5 HydrationBoundary-Pattern via context7 verifizieren (Training-Drift, CLAUDE.md §7).
 
-## Empfehlung
-**Phase 1 (player/[id] SSR-Prefetch-Pilot)** als erster Slice — contained, messbar, beweist das Pattern, kein Auth-Risiko, höchster Traffic. Phase 2 (Server-Auth) danach als der größte Single-Win, aber bewusst getrennt (delikat).
+## Baseline-Messung (2026-06-30, Chrome-DevTools performance_start_trace, Desktop, kein Throttle)
+
+**Page: `https://www.bescout.net/club/galatasaray` (public Hot-Page, ungated):**
+- **LCP: 4.118 ms** (🔴 poor) · CLS 0,06 (🟢)
+- LCP-Breakdown: TTFB 525 ms · **Load-delay 2.049 ms** · Load-duration 1.069 ms · Render-delay 475 ms
+- **Smoking-Gun = die 2.049 ms Load-delay** = der client-Fetch-Wasserfall (LCP-Element startet erst nach 2s, weil erst Shell+Skeleton rendert, dann JS hydratet + client-fetcht). Kein Content im initialen HTML.
+- Kontext: public+ungated+Desktop+kein-Throttle. Login-gated Pages (player/home/market) + Mobile-Cold-Start addieren Auth-Skeleton → die 5-13s.
+- Insights: ImageDelivery (LCP-Saving ~550ms, 389kB un-optimierte Bilder), NetworkDependencyTree (kritische Request-Kette), ThirdParties.
+- Trace: `scratchpad/d03-baseline-club.json`.
+
+**Erwartung nach Phase 1 (SSR-Prefetch):** Load-delay kollabiert (Content/Daten im initialen HTML) → LCP deutlich runter.
+
+## Empfehlung (verfeinert nach Baseline)
+**Phase 1 = `/club/[slug]` SSR-Prefetch-Pilot** (statt player/[id]) — **besser**, weil public + Server-Component + **vor/nach ohne Login messbar** (player ist AuthGuard-gated, schwerer zu messen). Gleicher Pattern-Beweis (Server-queryClient + HydrationBoundary), aber sauber quantifizierbar gegen die Baseline 4.118 ms LCP. Player/home/market folgen in Phase 3. Phase 2 (Server-Auth) = größter Single-Win, bewusst getrennt (delikat).
