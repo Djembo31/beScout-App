@@ -2,6 +2,12 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 470 | 2026-06-30 | perf(db): 49 Covering-Indizes für unindexed Foreign Keys (live)
+- Stage-Chain: SPEC → IMPACT (skipped: additive Indizes) → BUILD (1 Migration, DO-Loop) → PROVE (49/49 covered + db-invariants) → REVIEW (self-review, additiv advisor-driven) → CEO-Apply → LOG. **Perf-Lane CTO; CEO autonom-Go Anil „Policies/Index".**
+- **Befund (Advisor `unindexed_foreign_keys`):** 49 FK-Constraints ohne Covering-Index (autoritativ aus get_advisors extrahiert; Hand-Covering-Query gab 181 = PG-int2vector-Slice-Falle → Advisor-Liste vertraut).
+- **Fix (live, Migration `20260630160000`):** DO-Loop über die 49 connames → `CREATE INDEX IF NOT EXISTS idx_<table>_<cols>` (Spalten aus pg_constraint.conkey, additiv/idempotent). split_part-Bug (unqualifizierter regclass-Name) → relname direkt gefixt.
+- **Proof:** total_49=49 → now_covered=49 (FK-col = leading index-col) + db-invariants unverändert 3 (kein Logic-Change). Proof `470-fk-indexes.txt`, Review `470-review.md`. `unindexed_foreign_keys` 49→0.
+
 ## 469 | 2026-06-30 | fix(silent-fail): D-38 — sponsorStats throw statt return [] (common-errors §1)
 - Stage-Chain: SPEC → BUILD (1 Edit) → REVIEW (self-review, XS common-errors-§1-Pattern) → PROVE (tsc + Consumer-Guard) → LOG. **CTO; P2-Hygiene-Lane.**
 - **Befund (Reviewer-Catch S467):** `sponsorStats.ts:14-17` `fetchSponsorStats` schluckte RPC-Error (`console.error` + `return []`) → React Query cached `[]` als SUCCESS (kein Retry/Error-State; Admin sah leere Sponsor-Stats ohne Fehler).

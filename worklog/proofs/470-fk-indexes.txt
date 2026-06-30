@@ -1,0 +1,35 @@
+Slice 470 — Perf: Covering-Indizes für 49 unindexed Foreign Keys
+Proof — 2026-06-30 · DB skzjfhvgccaeplydsunz · CEO autonom-Go (Anil "Policies/Index Perf-Lane")
+Migration: 20260630160000_slice_470_fk_indexes.sql (apply_migration → {success:true})
+
+================================================================================
+BEFORE
+================================================================================
+Supabase-Advisor unindexed_foreign_keys = 49 (autoritativ, aus get_advisors performance extrahiert).
+49 connames -> Covering-Index fehlt -> suboptimale Join-/Cascade-Perf.
+(Hand-Covering-Query gab 181 = PG-int2vector-Array-Semantik-Falle -> Advisor-Liste vertraut.)
+
+================================================================================
+FIX
+================================================================================
+DO-Loop ueber die 49 Advisor-connames: CREATE INDEX IF NOT EXISTS idx_<table>_<cols>
+ON public.<table>(<fk-cols>) — additiv, idempotent, KEIN Access/Integritaet/Body.
+Spalten aus pg_constraint.conkey aufgeloest (pg_class.relname; split_part-Bug gefixt).
+
+================================================================================
+AFTER (live, post-apply)
+================================================================================
+AC-01 [PERF] alle 49 FK-Constraints jetzt covered:
+  total_49 = 49, now_covered = 49  (FK-col = leading index-col: indkey[0]=conkey[1])
+  => PASS
+
+AC-02 [REGRESSION] kein Funktions-/Integritaets-Change:
+  $ npx vitest run db-invariants.test.ts -> 3 failed (INV-19/32/33 pre-existing, UNCHANGED)
+  => PASS (nur additive Indizes)
+
+AC-03 [IDEMPOTENZ] CREATE INDEX IF NOT EXISTS -> 2. Run no-op  => PASS (by construction)
+
+================================================================================
+VERDICT: all ACs PASS. 49 fehlende FK-Covering-Indizes additiv ergaenzt (advisor-autoritativ);
+unindexed_foreign_keys 49->0. Kein Access/Logic-Change (db-invariants unveraendert).
+================================================================================
