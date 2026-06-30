@@ -1,7 +1,7 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 492
 title: CLS systemisch (2) — SponsorBanner Höhen-Skeleton entfernen (0 aktive Sponsoren → immer null)
 size: S

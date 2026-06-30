@@ -1,29 +1,24 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-07-01 00:16)
+# Session Handoff — Auto (2026-07-01 01:23)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 6 Files
+## Uncommitted Changes: 1 Files
 ```
  M memory/session-handoff.md
- M src/app/api/push/route.ts
- M src/lib/observability/__tests__/apiLogger.test.ts
- M src/lib/observability/apiLogger.ts
- M worklog/active.md
-?? worklog/proofs/488-sentry-5xx.txt
 ```
 
 ## Session Commits: 10
+- 8a639690 docs(490): deploy + Feld-Verifikation-Plan (CLS / 0,282 → pending ~24h)
+- a82b642f fix(perf): Slice 490 — Startseiten-CLS: Layout-Fork erst bei dashboardReady entscheiden
+- 7011f4f0 fix(observability): Slice 489 — sync-contracts Leerdaten-als-500 → 200+skip (5xx-Audit)
+- 89e6da69 fix(observability): Slice 488 — withLogger captured returned 5xx + push-Cleanup (Sentry-Blindspots)
 - 66a3fe4d docs(handoff): Teil 31 Session-Close — 480-487 (Konsistenz-Batch komplett + D-04 root-cause #2 + W6-LCP-Strang)
 - 2949c655 docs(487): chrome-devtools-Re-Trace — Preload löst Fetch-Timing, LCP ist render-/hydration-bound
 - d08a3dba perf(ssr): Slice 487 (W6 load-delay) — LCP-Stadion-Bild server-seitig preloaden
 - c88a128f docs(486): chrome-devtools LCP-Re-Trace — Bild fixed (AVIF 33ms), LCP jetzt load-delay-bound
 - ca917f6f docs(486): W6 LCP-Bild live-verifiziert — Stadion AVIF q60, −45-47% Bytes
 - b5697c63 perf(image): Slice 486 (W6 Phase 3) — LCP-Bild entlasten (AVIF app-weit + ClubHero-Stadion sizes/quality)
-- 3d84d164 docs(masterplan): reconcile 480-485 — W2 D-27, W3 D-04, W5 D-26c+D-24, D-33
-- b28cf1a2 feat(fantasy): Slice 485 — D-04 (W3) lineups DB-Integrität (Bench-FKs + Distinctness-Trigger)
-- a636b767 docs(484): D-24 AC-Visual live-verifiziert (bescout.net mobil, DE+TR)
-- f38cd97c fix(compliance): Slice 484 — D-24 Securities-Wording-Heal (SellModal/YourPosition)
 
 <!-- auto:handoff-end -->
 
@@ -31,6 +26,17 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-07-01 (Teil 32) — Observability- + CLS-Arc: 5 Slices (488-492) alle live + gepusht, `main`==`origin`==`3fc3f4a9`. Elite-Senior/Mock→Pro W6.**
+> - **⏳ ZUERST IN ~24h (Pflicht-Folge-Check, Feld-getrieben):** Sentry p75 CLS re-queryn (org `bescout`, region `de.sentry.io`, dataset `spans`, `p75(measurements.cls)` group by `transaction`, 7-14d). **War: `/` 0,282 🔴 · `/market` 0,194 🟠 · `/community` 0,065 · `/transactions` 0,016 · `/login` 0,003.** 490+491+492 sollten `/` deutlich senken. **Entscheidungsbaum:** `/` <0,1 → CLS-Arc done · `/` 0,1–0,2 → **Hero-Folge-Slice** (490-Reviewer-#1, measure-gated): HomeStoryHeader `heroMode`-Flip (`cta-new`→`scout`) + CTA-Banner (`!loading && holdingsCount===0`, HomeStoryHeader:231) auf `dashboardReady` ODER `min-h` am Hero — gleiche Root-Cause-Klasse wie 490.
+> - **✅ 488 Sentry-Blindspots** (`89e6da69`): `withLogger` captured jetzt returned 5xx (nicht nur throw) → 64 `status:500`-Returns über 24 money/scoring-Routen nicht länger Sentry-blind (S369-Folge, §0-kanonisch: SSOT-Erweiterung statt N-Patch). push-Cleanup. Reviewer PASS. errors-infra S369-erw.
+> - **✅ 489 5xx-Noise-Cleanup** (`7011f4f0`): `sync-contracts` Leerdaten-als-500 → 200+skip (488-Reviewer #1). Audit aller 64 5xx: einzige Mis-Modellierung. Config-Guards + echte Errors korrekt belassen.
+> - **✅ 490 Home-CLS-Wurzel** (`a82b642f`, **Feld-pending**): `isNewUser = holdings.length===0` entschied Layout VOR Dashboard-Load → Bestandsnutzer sahen kurz Neu-User-Layout (~440px), dann Swap = der Sprung. `dashboardReady = !useHomeDashboard.isLoading` gatet 8 personalisierte Blöcke. Reviewer PASS (Linchpin S472-Server-Seed verifiziert, stationär byte-identisch). errors-frontend **S490**.
+> - **✅ 491+492 CLS-System-Sweep** (`a8f81362`/`3fc3f4a9`, **Feld-pending**): dynamic-`loading: h-NN`-Skeleton für **conditionally-null Komponente = reserve-then-collapse-CLS** (Gegenteil S116). **491** MissionHintList (rendert oft null) 3 Sites home/market/community → no-skeleton (wie fantasy/manager schon). **492** SponsorBanner (DB: **0 aktive Sponsoren** → IMMER null) 5 Sites → no-skeleton. Beide §0-„von-allem-zwei" (5-vs-5) mit-geheilt. errors-frontend **S491/S492**.
+> - **🔑 Methode/Lehre:** **Live-Daten falsifizierten eine Fehl-Prämisse** — der vermeintliche „web-vitals-wiring P1" war ein Nicht-Problem (Sentry erfasst sie längst via browserTracing, p75 LCP 1106/CLS 0,194/FCP 474/TTFB 215; `tracesSampleRate` NICHT bumpen = Quota ~390k nav/wk). Der Live-Check förderte STATTDESSEN das echte CLS-Finding zutage. Memory `reference_web_vitals_sentry`. NICHT erneut als Lücke hypothesieren.
+> - **Geparkt:** Hero-Residual (490, measure-gated, s.o.) · `/market`-Rest-CLS (diffus, nach Feld-Check) · Money-Konsolidierung D-05/D-08 (§3, „currently correct", frischer Context).
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-30 (Teil 31) — Großer Senior-Lauf: Konsistenz-Batch KOMPLETT + root-cause #2 + W6-LCP-Strang. 8 Slices (480-487) alle live + gepusht, `main`==`origin`==`2949c655`, `active.md`=idle.**
 > - **⏭️ NÄCHSTES (CEO-Entscheid Anil „Checkpoint + frisch"): W6 Option B — der EINZIGE verbleibende /club-LCP-Hebel.** Die LCP (2226ms) ist zu **100% render-/hydration-gebunden** (gemessen, chrome-devtools): Render-delay 1486ms (67%) — das Stadion-Bild ist @740ms fertig geladen (486 AVIF + 487 Preload erschöpft das Fetch), paintet aber erst, wenn `ClubHero` nach Hydration des riesigen `ClubContent` (`'use client'`, ~40 Imports) rendert. **Option B = eigener Architektur-Slice mit Recon+Design:** (Empfehlung, niedrigeres Risiko) **ClubContent entschlacken** — Below-Fold-Sektionen `dynamic()`/code-splitten, sodass der Hero-Teil zuerst+schnell hydratet; **ODER** den Stadion-Hero ins SSR-HTML painten (entangled mit Parallax/`onError`/`useState` → entkoppeln). Plan/Evidenz: `worklog/notes/d03-ssr-ist-analyse.md` (Post-487-Sektion). **Andere offene W6/Wellen:** TTFB (472 getServerUser ~600ms) · Player-Detail-Payload (usePlayers() ALLE ~632) · W4 Follow · W5 Dead-Feature-GC (D-14/15/16) · W7 Design-Sweep · **Sentry-Instrumentierungs-Audit** (Anil-Frage: nicht lückenlos — server-500-return-statt-throw=blind [S369], silent-fail-swallows, Web-Vitals vermutlich nicht erfasst).
 > - **✅ Konsistenz-Batch KOMPLETT (W5):** D-23(467)·D-24(484 Securities-Wording CEO-approved+Live-Visual DE+TR: „Deine Position"→„Dein Kader", Aktenkoffer→WalletCards, Ø-Kosten, P&L→Wertänderung)·D-25(479)·D-26/26b(477/478)·D-26c Display(481 no-DB offers/lineups/compare + 482 RPC trending/most-watched Server-Resolve). Nur D-26c-Cache-Race S286 geparkt.
