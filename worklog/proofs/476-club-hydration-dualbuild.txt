@@ -31,4 +31,7 @@ C. VERIFIKATION
 [C2] Dev-Repro (localhost, public club): »No QueryClient set« VERSCHWUNDEN nach dem Fix
      (Rest-Fehler = Dev-HMR-Stale-Signatur „Lazy/Cannot read 'call'" + ERR_NETWORK_IO_SUSPENDED
      nach Neu-Datei mid-session — kein echter Bug, Prod-Build clean).
-[ ] C3 Prod (nach Deploy): /club/galatasaray lädt Club-Content (KEINE Error-Boundary), Console clean — PENDING
+[x] C3 Prod (Deploy 96bc9341, SW+Cache geleert): /club/galatasaray rendert VOLL — GALATASARAY/Süper Lig/İstanbul,
+    37 Spieler, Kader (Cihan Akgun/Yunus Akgün…), Tabellenplatz 1. (74 Pkt), Spielplan GW33 GAL vs Antalyaspor,
+    Mitgliedschafts-Tiers. KEINE Error-Boundary, Console „no console errors". »No QueryClient set« ELIMINIERT.
+VERDICT: Dual-Build-Fix wirkt live. /club von „seit 471 komplett kaputt" → voll funktional.

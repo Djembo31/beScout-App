@@ -2,6 +2,21 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 476 | 2026-06-30 | fix(perf): /club Dual-Build-Crash gefixt (HydrationBoundary legacy→modern via Client-Wrapper)
+- Stage-Chain: SPEC (inline, via Dev-Repro) → BUILD (2 Files, 1 neu) → REVIEW (self-review) → PROVE (Dev + Prod) → LOG. **W6; 471-Folgefix, P0 broken-page.**
+- **Befund (Live-Walk im Rahmen 475):** `/club/[slug]` crashte **seit Slice 471 komplett** in die Error-Boundary („Etwas ist schiefgelaufen") — logged-in UND logged-out, **undetektiert** (471-Smoke lief home, nicht /club).
+- **Root-Cause (Dev-Repro, un-minifizierter Component-Stack):** `HydrationBoundary` aus `@tanstack/react-query/build/**legacy**` (direkt im SERVER-Component `page.tsx` importiert, 471) vs `QueryClientProvider` aus `build/**modern**` → zwei React-Context-Instanzen → `useQueryClient()` findet keinen Provider → »No QueryClient set« → Page-Crash.
+- **Fix:** NEU `src/app/(app)/club/[slug]/ClubHydration.tsx` (`'use client'`) wrappt HydrationBoundary → resolved zum modern-Build (matcht Provider). `dehydrate()` bleibt server-seitig (build-agnostisches JSON). 471-Prefetch erhalten.
+- **Verifiziert:** tsc 0 · Dev-Repro »No QueryClient set« nach Fix VERSCHWUNDEN. **Prod (Deploy `96bc9341`, SW/Cache-clear):** /club/galatasaray rendert voll (GALATASARAY/Süper Lig/Kader/Tabellenplatz 1./Spielplan/Mitgliedschaft), KEINE Error-Boundary, Console clean. Proof `476-*.txt`, Review `476-review.md`. Commit `96bc9341`.
+- **Honesty-Lehre:** 474-„Prod-Walk grün" war unvollständig — /club (einzige Page mit 471-HydrationBoundary, bypasst AuthGuard) nicht gewalkt → bei SSR-Slices JEDEN strukturell-distinkten Page-Typ walken. Knowledge → errors-frontend.md (Dual-Build-Klasse).
+
+## 475 | 2026-06-30 | refactor(db): 428b — DROP clubs.active_gameweek (§0-Schnitt-Regel, frozen Duplikat-Spalte)
+- Stage-Chain: SPEC (inline) → BUILD (5 Files) → REVIEW (self-review) → PROVE (live DROP + Verify) → LOG. **Welle-2-Residual; §0-Schnitt-Regel; TODO-vorgeplant „428b".**
+- **Befund (§0):** `clubs.active_gameweek` frozen seit Slice 428/D115 (SSOT = `leagues.active_gameweek`; Cron + `set_active_gameweek`-RPC schreiben leagues-only, alle Reader migriert). Getrackter zweiter Weg.
+- **DROP-Safety-Audit (live, read-only):** Spalte existiert · 0 Dependents (Views/Generated/Constraints) · 0 SQL-Funktionen lesen/schreiben · 0 Trigger · Werte frozen/stale (34,38).
+- **Fix (Expand/Contract, 2-Phasen zero-downtime):** Phase 1 Code (`ccb86c1a`): DbClub-Type + 3 club.ts by-name-Selects + 2 Seed-Scripts + schema-contracts.test → clubs.active_gameweek nicht mehr by-name gelesen; deploy. Phase 2: `apply_migration ALTER TABLE clubs DROP COLUMN active_gameweek`. `DbLeague.active_gameweek` (SSOT) unberührt.
+- **Verifiziert:** tsc 0 · club.test 79/79 · post-DROP live: clubs.active_gameweek=false (weg), leagues.active_gameweek=true (SSOT), clubs queryable 134. club-Page-Render via 476 (separater 471-Bug). Proof `475-*.txt`, Review `475-review.md`. Commit `ccb86c1a` + Migration `20260630170000`.
+
 ## 474 | 2026-06-30 | fix(perf): Wallet/Tickets cached-placeholder SSR-safe — der echte 472-Hydration-Fix (#418 weg, LCP-Win live)
 - Stage-Chain: SPEC (inline, via Dev-Repro root-caused) → BUILD (3 Files, 1 neu) → REVIEW (self-review, kein Money-Logic) → PROVE (Dev + Prod Live-Walk) → LOG. **W6; CEO-Entscheid „Dev-Repro → gezielt fixen" (AskUserQuestion-Gabel).**
 - **Root-Cause (Dev-Repro un-minifiziert):** lokaler `next dev` eingeloggt → Next.js Error-Overlay: »Expected server HTML to contain a matching text node for "12.501,47"« = Wallet-Balance im SideNav. `useWallet`/`useUserTickets` lasen den UID-keyed localStorage-Mirror SYNCHRON als `placeholderData`. Der `useMemo`-statt-`useState`-Schutz (S268) galt nur solange `userId` server-seitig undefined — **472 macht userId server-präsent** → Server liest undefined (Skeleton), Client den Cache → Divergenz × (Wallet+Tickets in SideNav/TopBar/Drawer) = die 5× #418 + #423 (voller Root-Re-Render → 472-LCP-Win zunichte). (React-Query-Persist scheidet aus: wallet/tickets in USER_SCOPED_DOMAINS.)

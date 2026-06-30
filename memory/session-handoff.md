@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-30 12:54)
+# Session Handoff — Auto (2026-06-30 14:44)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -8,7 +8,10 @@
  M memory/session-handoff.md
 ```
 
-## Session Commits: 5
+## Session Commits: 8
+- 96bc9341 fix(perf): Slice 476 — /club Dual-Build-Crash fixen (HydrationBoundary legacy->modern via Client-Wrapper)
+- ccb86c1a refactor(db): Slice 475 (428b) — clubs.active_gameweek entkoppeln (Phase 1 Code) vor DROP
+- bb05a013 docs(d03): W6 Server-Auth-SSR (472-474) LOG + Prod-Proof + Knowledge (errors-frontend S474)
 - b05ba950 fix(perf): Slice 474 — Wallet/Tickets cached-placeholder SSR-safe (der echte 472-Hydration-Fix)
 - 47de778e fix(perf): Slice 473 — leagueScopeStore SSR-safe (fix hydration mismatch, unblock 472 authed-SSR)
 - abd84cdf feat(perf): Slice 472 — W6 Server-Auth-Hydration (authed SSR-Render, der echte LCP-Win)
@@ -21,6 +24,14 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-30 (Teil 29) — 475 (DROP clubs.active_gameweek) + 476 (P0: /club seit 471 kaputt geheilt). Beide live + Prod-verifiziert.**
+> - **⏭️ NÄCHSTES (idle, CEO-Richtung):** W6 Phase 3 · Mock→Pro Welle 3 (Events/Aufstellung) · Ranking-Konsolidierung scout_scores↔user_stats — die „Nächster"-Items sind CEO-Vorlagen (NICHT autonom, TODO.md). Kein offener Blocker.
+> - **✅ 475 (= 428b, `ccb86c1a` + Migration `20260630170000`):** `clubs.active_gameweek` gedroppt (§0-Schnitt-Regel — frozen seit 428/D115, SSOT=leagues). DROP-Safety live auditiert (0 Dependents/SQL-Fns/Trigger). 2-Phasen zero-downtime (Code-deploy → DROP). Live: Spalte weg, leagues-SSOT intakt, clubs queryable 134.
+> - **✅ 476 (`96bc9341`) — P0-Fund + Heal:** beim 475-Walk entdeckt: **`/club/[slug]` war seit Slice 471 KOMPLETT kaputt** (Error-Boundary, logged-in+out, undetektiert). Root-Cause via Dev-Repro: `HydrationBoundary` (build/**legacy**, im Server-Component importiert) ↔ `QueryClientProvider` (build/**modern**) = Context-Mismatch → »No QueryClient set«. Fix: `ClubHydration.tsx` ('use client'-Wrapper). **Prod: club-Page rendert voll, Console clean.** Knowledge → errors-frontend.md **S476**.
+> - **🔬 Honesty-Lehre:** 474-„Prod-Walk grün" war unvollständig — /club (einzige Page mit 471-HydrationBoundary + bypasst AuthGuard) nicht gewalkt. **Regel: SSR-Slices walken JEDEN strukturell-distinkten Page-Typ.** + Tooling-Notiz: pre-commit-Hook (tsc+6 Audits+eslint) braucht bei vielen laufenden MCP-Node-Prozessen >6 min → mit langem Timeout committen, nicht --no-verify.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-30 (Teil 28) — W6 Server-Auth-SSR KOMPLETT + Prod-verifiziert (472+473+474): authed LCP-Win live, #418 eliminiert.**
 > - **⏭️ NÄCHSTES (idle, CEO-Richtung):** W6 Phase 3 (weitere Page-Prefetches / RSC-Migration, `worklog/notes/d03-ssr-ist-analyse.md`) ODER zurück in den Mock→Pro-Strom / TEIL-A-Rest. Kein offener Blocker.
 > - **✅ Geliefert (alle live + Prod-Walk grün):** **472** (`abd84cdf`) Server-Auth-Seed (`supabaseServerAuth.ts` getServerUser via @supabase/ssr; AuthProvider 3 useState-Seeds + cacheMatchesSeed-Guard; layout Promise.all) · **473** (`47de778e`) leagueScopeStore SSR-safe (Modul-Init-localStorage-Seed → post-mount `hydrateFromStorage`-Action; **tangential, NICHT die #418-Ursache**, aber korrekte Härtung) · **474** (`b05ba950`) = **DER Fix**: `useWallet`/`useUserTickets` lasen UID-localStorage-Mirror synchron als placeholderData → seit 472 (userId server-präsent) divergiert First-Render (Server undefined→Skeleton, Client cached „12.501,47") → #418×5 + #423. Neuer SSOT-Hook `useCachedPlaceholder` (post-mount-gated). Money-Freshness-Gate unberührt.
