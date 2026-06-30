@@ -1,0 +1,34 @@
+════════════════════════════════════════════════════════════════════════
+SLICE 476 — /club/[slug] Dual-Build-Fix (HydrationBoundary legacy→modern via Client-Wrapper)
+════════════════════════════════════════════════════════════════════════
+Datum: 2026-06-30 · Typ: Architektur (SSR/RSC) · S · P0 (broken public page)
+
+────────────────────────────────────────────────────────────────────────
+A. ROOT-CAUSE (un-minifiziert via Dev-Repro, Component-Stack)
+────────────────────────────────────────────────────────────────────────
+/club/[slug] crasht seit Slice 471 in die Error-Boundary („Etwas ist schiefgelaufen")
+— logged-in UND logged-out, undetektiert (471-Smoke lief home, nicht /club).
+Stack zeigt den Mismatch:
+  - HydrationBoundary aus @tanstack/react-query/build/LEGACY/HydrationBoundary.js
+    (direkt im SERVER-Component page.tsx importiert, Slice 471)
+  - QueryClientProvider aus @tanstack/react-query/build/MODERN/QueryClientProvider.js
+    (Client-Provider)
+Zwei Builds = zwei React-Context-Instanzen → useQueryClient() in der legacy-
+HydrationBoundary findet den modern-Provider NICHT → »No QueryClient set« → Page-Crash.
+
+────────────────────────────────────────────────────────────────────────
+B. FIX
+────────────────────────────────────────────────────────────────────────
+NEU `src/app/(app)/club/[slug]/ClubHydration.tsx` ('use client') wrappt HydrationBoundary
+→ resolved zum MODERN-Build (identisch zum Provider) → Context matcht. `dehydrate()` bleibt
+im Server-Component page.tsx (braucht den prefetch-Server-QueryClient; DehydratedState =
+build-agnostisches JSON, vom modern-hydrate korrekt konsumiert). 471-Prefetch bleibt erhalten.
+
+────────────────────────────────────────────────────────────────────────
+C. VERIFIKATION
+────────────────────────────────────────────────────────────────────────
+[C1] tsc --noEmit ........... EXIT 0
+[C2] Dev-Repro (localhost, public club): »No QueryClient set« VERSCHWUNDEN nach dem Fix
+     (Rest-Fehler = Dev-HMR-Stale-Signatur „Lazy/Cannot read 'call'" + ERR_NETWORK_IO_SUSPENDED
+     nach Neu-Datei mid-session — kein echter Bug, Prod-Build clean).
+[ ] C3 Prod (nach Deploy): /club/galatasaray lädt Club-Content (KEINE Error-Boundary), Console clean — PENDING

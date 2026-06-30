@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
+import { dehydrate } from '@tanstack/react-query';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { getServerQueryClient } from '@/lib/getServerQueryClient';
 import { qk } from '@/lib/queries/keys';
 import type { ClubWithAdmin } from '@/types';
 import ClubContent from './ClubContent';
+import { ClubHydration } from './ClubHydration';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -67,9 +68,13 @@ export default async function ClubSlugPage({ params }: Props) {
     },
   });
 
+  // Slice 476: HydrationBoundary via Client-Wrapper (modern-Build) — direkter
+  // Server-Import resolvte zum legacy-Build → Context-Mismatch zum modern
+  // QueryClientProvider → »No QueryClient set« (Page-Crash seit 471). dehydrate()
+  // bleibt server-seitig (build-agnostisches JSON-Result).
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
+    <ClubHydration state={dehydrate(queryClient)}>
       <ClubContent slug={slug} />
-    </HydrationBoundary>
+    </ClubHydration>
   );
 }

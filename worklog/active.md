@@ -2,16 +2,22 @@
 
 ```
 status: in-progress
-slice: 475
-title: 428b DROP clubs.active_gameweek (Welle-2-Residual, §0-Schnitt-Regel — frozen Duplikat-Spalte)
+slice: 476
+title: /club Dual-Build-Fix (HydrationBoundary legacy→modern Client-Wrapper) — P0 broken-page
 size: S
-type: Migration (Expand/Contract Contract-Phase)
-welle: Welle 2 (Spieltag/Scoring) — Residual
-stage: BUILD
-spec: inline (S, TODO-vorgeplant, DROP-Audit live bestätigt)
-proof: worklog/proofs/475-drop-clubs-active-gameweek.txt
-review: self-review (kein Money/Security/User-facing — Spalte frozen/unread seit Slice 428/D115)
+type: Architektur (SSR/RSC)
+welle: W6 (Performance/Architektur) — 471-Folgefix
+stage: PROVE (Dev: »No QueryClient set« weg; Prod-Verify pending Deploy)
+spec: inline (P0, via Dev-Repro root-caused)
+proof: worklog/proofs/476-club-hydration-dualbuild.txt
+review: worklog/reviews/476-review.md (self-review)
 ```
+
+## 475 (= 428b DROP clubs.active_gameweek) — DONE
+DROP live appliziert + verifiziert (Spalte weg, leagues-SSOT intakt, clubs queryable 134). Code-Phase ccb86c1a deployed. tsc 0, club.test 79/79. Der club-PAGE-Crash war ein SEPARATER 471-Bug (→ 476), nicht der DROP.
+
+## 476 (aktiv) — /club seit 471 kaputt
+Live-Walk fand /club/[slug] komplett broken (Error-Boundary). Dev-Repro: HydrationBoundary (legacy-Build, Server-Import) ↔ QueryClientProvider (modern) = Context-Mismatch → »No QueryClient set«. Fix: ClubHydration.tsx ('use client'-Wrapper). Dev: Fehler weg. ⏭️ Prod-Verify nach Deploy.
 
 ## Inline-Spec 475 (= 428b)
 **Problem (§0-Schnitt-Regel):** `clubs.active_gameweek` ist seit Slice 428/D115 frozen (SSOT = `leagues.active_gameweek`; Cron+Admin schreiben leagues-only). Getrackter zweiter Weg → DROP (Expand/Contract Contract-Phase).
