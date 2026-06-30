@@ -32,10 +32,25 @@ Falle gefangen (S474): SW `bescout-v4` + CDN servierten erst alte Chunks → SW+
 [✅] Visuell: /club/galatasaray Hero rendert klar/scharf, Overlays + Logo/Name/Stats sauber, KEINE
      sichtbare q60-Degradation (decorative bg unter 3 Overlays). Screenshot bestätigt.
 
-[~] Exakte LCP-ms-Re-Trace: getEntriesByType('largest-contentful-paint') lieferte keinen buffered
-     Wert (Observer-vor-Paint nötig); EHRLICH NICHT gemessen. Der −45% Byte-Cut auf dem LCP-Element
-     IST der direkte LCP-Load-Duration-Mechanismus (d03-Erwartung „LCP deutlich runter"). Formale
-     chrome-devtools-Trace gegen 2951ms-Baseline = optionaler Follow-up.
+[✅] chrome-devtools-Trace (Desktop 1366px, kein Throttle, /club/galatasaray, AUSGELOGGT):
+     LCP = 2233 ms (Baseline post-476 = 2951 ms LOGGED-IN; pre-471 = 4118 ms).
+     LCP-Element = IMG.object-cover (Stadion), Quelle `/_next/image?...galatasaray.jpg&w=1920&q=60`,
+     MIME image/avif, content-disposition galatasaray.avif → mein Change live in der Messung. ✓
+     LCP-Breakdown: TTFB 366ms(16%) · LOAD-DELAY 1432ms(64%) · load-duration 358ms(16%, echter
+     Download nur 33ms) · render-delay 77ms(3%). CLS 0,01.
+
+=== EHRLICHE LEHRE (chrome-devtools) ===
+1. Das Bild ist KEIN Transfer-Bottleneck mehr: AVIF-Download = 33ms. Mein Byte-Cut WIRKT (image/avif live).
+2. ABER auf Fast-Desktop-CDN war der Download nie der LCP-Treiber — LCP ist jetzt LOAD-DELAY-dominiert
+   (64%, Bild erst bei 1798ms angefragt = späte Discovery / Client-Render-Wasserfall = D-03 root-cause,
+   NICHT Bild). Der −45% Byte-Win zahlt primär auf MOBILE/langsame Netze + Datenvolumen ein (dort
+   dominiert Download-Zeit), nicht auf die Fast-Desktop-LCP-ms.
+3. Total-LCP 2233 vs 2951 ist login-konfundiert (mein Trace ausgeloggt TTFB 366 vs Baseline logged-in 710,
+   ~344ms davon = Login-State, nicht Bild) → KEINE saubere „−718ms"-Zuschreibung. Sauberer Befund =
+   der Breakdown, nicht die Total-Differenz.
+4. **Bestätigt die measure-first-Entscheidung:** Auflösungs-Cap (3840→2048) wäre WERTLOS für LCP gewesen
+   (Download schon 33ms). Nächster echter LCP-Hebel = LOAD-DELAY (LCP-Discovery/Hero früher rendern/
+   preloaden), NICHT mehr Bild-Arbeit.
 
 === Scope-Out ===
 Auflösungs-Cap (sizes desktop 3840→2048) = measure-first (erst wenn Bild post-AVIF noch Bottleneck).
