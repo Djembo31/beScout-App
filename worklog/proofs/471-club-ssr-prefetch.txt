@@ -1,0 +1,42 @@
+Slice 471 — W6 Phase 1: SSR-Prefetch-Infrastruktur + Provider-Request-Scoping
+Proof — 2026-06-30 · EHRLICHES FRAMING: Fundament/Infrastruktur, KEIN LCP-Win-Claim.
+
+================================================================================
+SCOPE-KORREKTUR (Reviewer-Finding 471-F1, verifiziert)
+================================================================================
+Die ursprüngliche Spec behauptete „Content im HTML / Hero rendert instant". FALSCH:
+ClubContent.tsx:179 schaltet ALLES hinter `if (authLoading || loading) return <ClubSkeleton/>`.
+`authLoading` ist server-seitig IMMER true (AuthProvider startet loading:true, resolve-useEffect
+läuft im SSR nicht) → SSR-HTML bleibt Skeleton, der prefetchte Content landet NICHT im HTML.
+→ Der sichtbare LCP-Win braucht SERVER-AUTH (Slice 472). 471 ist das KORREKTE FUNDAMENT dafür.
+
+================================================================================
+WAS 471 LIEFERT (korrekt + verifiziert)
+================================================================================
+1. SSR-Prefetch-Infrastruktur:
+   - src/lib/getServerQueryClient.ts (NEU): per-Request cache()-QueryClient für RSC-Prefetch.
+   - src/app/(app)/club/[slug]/page.tsx: prefetcht Root-Query ['clubs',slug,undefined]
+     (RPC get_club_by_slug via supabaseAdmin, p_user_id=null) + <HydrationBoundary>.
+   - Pattern context7-verifiziert (TanStack-v5 advanced-ssr).
+
+2. Provider-Request-Scoping (Reviewer-Finding 471-F2 GEFIXT):
+   - src/lib/queryClient.ts: getQueryClient() = isServer ? makeQueryClient() : browserSingleton.
+     Server = frische Instanz pro Render (kein Cross-Request-Leak/Memory-Akkumulation beim
+     SSR-Prefetch). Browser = stabiler Singleton (imperatives invalidate/clear konsistent,
+     `queryClient`-Export unverändert → 7 Importer brechen nicht).
+   - src/components/providers/QueryProvider.tsx: nutzt getQueryClient().
+
+================================================================================
+VERIFIKATION
+================================================================================
+- tsc --noEmit → EXIT 0 (grün).
+- Reviewer (Cold-Context) 471-review.md: Code PASS (Key-Match, Shape-Match, Security
+  [nur public Daten, kein PII], graceful Degradation alle bestätigt). CONCERNS = Win-Framing
+  (F1, hier korrigiert) + Provider-Scoping (F2, hier gefixt).
+- §3-Self-Check (CTO): get_club_by_slug p_user_id=null → nur public Club-Felder, keine PII.
+- 7 queryClient-Importer unverändert (client-Singleton bleibt exportiert).
+
+================================================================================
+VERDICT: Fundament korrekt + sicher + request-scoped. KEIN LCP-Win (by design, Auth-Gate).
+Sichtbarer Win + LCP-Messung vs Baseline 4.118 ms → Slice 472 (Server-Auth).
+================================================================================

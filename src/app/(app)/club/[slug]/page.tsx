@@ -1,6 +1,10 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { getServerQueryClient } from '@/lib/getServerQueryClient';
+import { qk } from '@/lib/queries/keys';
+import type { ClubWithAdmin } from '@/types';
 import ClubContent from './ClubContent';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -44,5 +48,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ClubSlugPage({ params }: Props) {
   const { slug } = await params;
-  return <ClubContent slug={slug} />;
+
+  // W6 Phase 1 (Slice 471): Root-Query server-seitig prefetchen → der logged-out
+  // ClubContent hydratet `useClubBySlug(slug, undefined)` sofort aus dem dehydrierten
+  // State (Key `['clubs', slug, undefined]` matcht), clubId ist instant da, gated
+  // Queries feuern ohne Roundtrip-Wartezeit. `prefetchQuery` wirft NICHT → ein
+  // RPC-Fehler degradiert still auf den bisherigen client-fetch (kein Page-Break).
+  const queryClient = getServerQueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: qk.clubs.bySlug(slug, undefined),
+    queryFn: async (): Promise<ClubWithAdmin | null> => {
+      const { data, error } = await supabaseAdmin.rpc('get_club_by_slug', {
+        p_slug: slug,
+        p_user_id: null,
+      });
+      if (error) throw new Error(error.message);
+      return (data ?? null) as ClubWithAdmin | null;
+    },
+  });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <ClubContent slug={slug} />
+    </HydrationBoundary>
+  );
 }

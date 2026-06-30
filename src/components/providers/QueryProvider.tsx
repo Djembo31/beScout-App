@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { persistQueryClient } from '@tanstack/react-query-persist-client';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { captureException as sentryCaptureException } from '@sentry/nextjs';
-import { queryClient } from '@/lib/queryClient';
+import { getQueryClient } from '@/lib/queryClient';
 
 // ============================================
 // Slice 261 (2026-04-30) — TanStack Query Persist-Cache
@@ -86,6 +86,10 @@ const UUID_REGEX =
   /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
+  // Slice 471 (W6): request-scoped auf dem Server, Singleton im Browser.
+  // Im Browser stabil (gleiche Instanz wie der imperative `queryClient`-Singleton).
+  const client = getQueryClient();
+
   useEffect(() => {
     // SSR-Guard: persist requires window.localStorage
     if (typeof window === 'undefined') return;
@@ -100,7 +104,7 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
       });
 
       const [persistUnsubscribe] = persistQueryClient({
-        queryClient,
+        queryClient: client,
         persister,
         maxAge: MAX_AGE_MS,
         buster: 'v2-slice267',
@@ -152,10 +156,10 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
     return () => {
       unsubscribe?.();
     };
-  }, []);
+  }, [client]);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={client}>
       {children}
       {process.env.NODE_ENV === 'development' && (
         <ReactQueryDevtools initialIsOpen={false} />

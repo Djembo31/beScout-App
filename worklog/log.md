@@ -2,6 +2,12 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 471 | 2026-06-30 | feat(perf): W6 Phase 1 — SSR-Prefetch-Infrastruktur + Provider-Request-Scoping (Fundament)
+- Stage-Chain: SPEC → IMPACT (skipped) → BUILD (3 Files) → REVIEW (Cold-Context, CONCERNS) → PROVE (Fundament-Korrektheit) → LOG. **W6 (Performance/Architektur); CEO-Go Anil „D-03 SSR Phase 1".**
+- **EHRLICH (Reviewer-Finding 471-F1, verifiziert):** KEIN LCP-Win. ClubContent.tsx:179 gated alles hinter `authLoading` (server-seitig immer true) → SSR-HTML bleibt Skeleton, Prefetch landet nicht im initialen HTML. 471 = korrektes **Fundament**, der sichtbare Win braucht Server-Auth (→ Slice 472, Anil-Go „Server-Auth jetzt").
+- **Geliefert:** (1) `getServerQueryClient.ts` (per-Request cache()-Client) + club-Root-Prefetch (`['clubs',slug,undefined]`, RPC via supabaseAdmin p_user_id=null) + HydrationBoundary. (2) **Provider-Request-Scoping (Finding 2 gefixt):** `getQueryClient()` = isServer ? frisch : Singleton — kein Cross-Request-Leak beim SSR-Prefetch; `queryClient`-Export unverändert (7 Importer brechen nicht).
+- **Verifiziert:** tsc 0 · Reviewer Code-PASS (Key/Shape-Match, Security nur-public-Daten, graceful Degradation) · §3-Self-Check (get_club_by_slug p_user_id=null → keine PII). Proof `471-club-ssr-prefetch.txt`, Review `471-review.md`.
+
 ## 470 | 2026-06-30 | perf(db): 49 Covering-Indizes für unindexed Foreign Keys (live)
 - Stage-Chain: SPEC → IMPACT (skipped: additive Indizes) → BUILD (1 Migration, DO-Loop) → PROVE (49/49 covered + db-invariants) → REVIEW (self-review, additiv advisor-driven) → CEO-Apply → LOG. **Perf-Lane CTO; CEO autonom-Go Anil „Policies/Index".**
 - **Befund (Advisor `unindexed_foreign_keys`):** 49 FK-Constraints ohne Covering-Index (autoritativ aus get_advisors extrahiert; Hand-Covering-Query gab 181 = PG-int2vector-Slice-Falle → Advisor-Liste vertraut).
