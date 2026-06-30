@@ -1,0 +1,44 @@
+Slice 482 — D-26c Teil 2: players.club Render-SSOT in Aggregat-RPCs
+Proof — 2026-06-30 · Migration 20260630180000 applied (apply_migration, {success:true})
+
+=== FIX ===
+2× CREATE OR REPLACE (Body-Rewrite, Signatur unverändert):
+- rpc_get_trending_players: + LEFT JOIN clubs c ON c.id=p.club_id, SELECT COALESCE(c.name, p.club) AS club, GROUP BY + c.name
+- rpc_get_most_watched_players (SECDEF, search_path='public'): analog
+Wrapper get_most_watched_players (SELECT *) + Service-Mapper unverändert (Shape identisch).
+
+=== AC1/AC2/AC5 functiondef (pg_proc) ===
+rpc_get_trending_players     : has_join=true  has_coalesce=true  secdef=false
+rpc_get_most_watched_players : has_join=true  has_coalesce=true  secdef=true
+get_most_watched_players     : has_join=false has_coalesce=false secdef=true (Wrapper UNVERÄNDERT — Shape erhalten)
+
+=== AC4 ACL preserved (proacl pre == post, S368c) ===
+                              PRE                                   POST
+get_most_watched_players      {postgres,authenticated,service_role} == {postgres,authenticated,service_role}
+rpc_get_most_watched_players  {postgres,service_role}               == {postgres,service_role}
+rpc_get_trending_players      {postgres,service_role,authenticated} == {postgres,service_role,authenticated}
+→ unverändert, KEIN anon-Grant neu.
+
+=== AC3 Resolve-Smoke (divergente Spieler → clubs.name statt stale Freitext) ===
+first_name        | freetext   | clubs_name  | rpc_club (COALESCE)
+Nicolò Zaniolo    | Udinese    | Galatasaray | Galatasaray  ✓
+Álvaro Morata     | Como       | Galatasaray | Galatasaray  ✓
+Halil Dervişoğlu  | Rizespor   | Galatasaray | Galatasaray  ✓
+Jankat Yılmaz     | Eyüpspor   | Galatasaray | Galatasaray  ✓
+→ Leihe-/Transfer-Freitext-Drift jetzt FK-resolved.
+
+=== AC6 Probe-Call (Row-Count-Neutralität) ===
+trending     : rows=0  distinct_players=0  (keine Trades letzte 24h — RPC fehlerfrei)
+most_watched : rows=1  distinct_players=1  (≤ limit 5, 1 Row/Spieler → GROUP-BY-Erweiterung c.name ändert Gruppierung nicht)
+
+=== AR-44 REVOKE-Block (pre-commit-Hook) ===
+Body-Rewrite erhält ACL (S368c), aber der AR-44-Hook verlangt einen REVOKE-Block → hinzugefügt,
+re-asserted die LIVE-Grants EXAKT (proacl nach REVOKE/GRANT == pre == post, keine Verbreiterung):
+- rpc_get_trending_players: REVOKE PUBLIC/anon + GRANT authenticated → {service_role, authenticated} (unverändert)
+- rpc_get_most_watched_players: REVOKE PUBLIC/anon/authenticated → {service_role}-only (NICHT authenticated —
+  sonst Bypass des auth-Wrappers get_most_watched_players; korrekt service_role-only erhalten)
+
+=== Fazit ===
+D-26c Teil 2 (RPC-Surfaces) geschlossen → D-26c Display-Teil KOMPLETT (481 no-DB + 482 RPC).
+Server-Resolve an der Aggregat-Quelle, kein Client-Change, ACL/Shape erhalten, graceful Freitext-Fallback.
+Cache-Race S286/D-03 bleibt geparkt (Architektur-Reaktivität).
