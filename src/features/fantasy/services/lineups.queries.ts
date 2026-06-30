@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabaseClient';
 import { notifText } from '@/lib/notifText';
+import { getClub } from '@/lib/clubs';
 import type { DbLineup, DbPlayer, Pos, UserFantasyResult } from '@/types';
 
 // ============================================
@@ -135,10 +136,10 @@ export async function getLineupWithPlayers(eventId: string, userId: string): Pro
   // Fetch player data
   const { data: playersData } = await supabase
     .from('players')
-    .select('id, first_name, last_name, position, club, perf_l5, image_url')
+    .select('id, first_name, last_name, position, club, club_id, perf_l5, image_url')
     .in('id', playerIds);
 
-  type SlotPlayerData = Pick<DbPlayer, 'id' | 'first_name' | 'last_name' | 'position' | 'club' | 'perf_l5' | 'image_url'>;
+  type SlotPlayerData = Pick<DbPlayer, 'id' | 'first_name' | 'last_name' | 'position' | 'club' | 'club_id' | 'perf_l5' | 'image_url'>;
   const playerMap = new Map<string, SlotPlayerData>(
     (playersData ?? []).map((p) => [p.id, p as SlotPlayerData])
   );
@@ -158,7 +159,8 @@ export async function getLineupWithPlayers(eventId: string, userId: string): Pro
         firstName: p?.first_name ?? '',
         lastName: p?.last_name ?? '',
         position: p?.position ?? 'MID',
-        club: p?.club ?? '',
+        // D-26c (S481): Club aus FK club_id auflösen (stale players.club-Freitext), Freitext-Fallback.
+        club: p ? (p.club_id ? (getClub(p.club_id)?.name ?? p.club) : p.club) : '',
         perfL5: p?.perf_l5 ?? 0,
         imageUrl: p?.image_url ?? null,
       },

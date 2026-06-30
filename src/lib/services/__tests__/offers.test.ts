@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { mockSupabase, mockSupabaseResponse, mockSupabaseRpc } from '@/test/mocks/supabase';
+import { mockSupabase, mockSupabaseResponse, mockSupabaseRpc, mockTable, resetMocks } from '@/test/mocks/supabase';
 
 // Mock side-effect modules before importing the service
 vi.mock('@/lib/services/activityLog', () => ({ logActivity: vi.fn() }));
@@ -8,6 +8,11 @@ vi.mock('@/lib/services/missions', () => ({ triggerMissionProgress: vi.fn() }));
 vi.mock('@/lib/services/social', () => ({ checkAndUnlockAchievements: vi.fn() }));
 vi.mock('@/lib/services/referral', () => ({ triggerReferralReward: vi.fn() }));
 vi.mock('@/lib/notifText', () => ({ notifText: vi.fn((key: string) => key) }));
+// Slice 481 (D-26c): enrichOffers resolves player_club from FK club_id via getClub.
+// Returns null by default → other tests see the freetext fallback (player.club).
+vi.mock('@/lib/clubs', () => ({
+  getClub: (id: string | null) => (id === 'club-bay' ? { id, name: 'Bayer Leverkusen' } : null),
+}));
 
 import {
   getIncomingOffers,
@@ -19,7 +24,38 @@ import {
   rejectOffer,
   counterOffer,
   cancelOffer,
+  enrichOffers,
 } from '../offers';
+import type { DbOffer } from '@/types';
+
+// ============================================
+// enrichOffers — club resolution (Slice 481, D-26c)
+// ============================================
+
+describe('enrichOffers club resolution (D-26c S481)', () => {
+  beforeEach(() => resetMocks()); // clears mockTable FIFO queues (vi.clearAllMocks does NOT)
+
+  const makeOffer = (playerId: string): DbOffer =>
+    ({ id: `o-${playerId}`, player_id: playerId, sender_id: 's1', receiver_id: null } as unknown as DbOffer);
+
+  it('resolves player_club from FK club_id via getClub (heals stale freetext)', async () => {
+    mockTable('players', [
+      { id: 'p1', first_name: 'Amine', last_name: 'Adli', position: 'ATT', club: 'Bournemouth', club_id: 'club-bay' },
+    ]);
+    mockTable('profiles', []);
+    const result = await enrichOffers([makeOffer('p1')]);
+    expect(result[0].player_club).toBe('Bayer Leverkusen'); // FK wins over stale 'Bournemouth'
+  });
+
+  it('falls back to freetext club when getClub returns null (cache not ready)', async () => {
+    mockTable('players', [
+      { id: 'p2', first_name: 'X', last_name: 'Y', position: 'MID', club: 'FreetextFC', club_id: 'unknown' },
+    ]);
+    mockTable('profiles', []);
+    const result = await enrichOffers([makeOffer('p2')]);
+    expect(result[0].player_club).toBe('FreetextFC');
+  });
+});
 
 // ============================================
 // getIncomingOffers

@@ -5,6 +5,12 @@ vi.mock('@/lib/notifText', () => ({
   notifText: vi.fn((key: string) => key),
 }));
 
+// Slice 481 (D-26c): lineups.queries resolves slot-player club from FK club_id via getClub.
+// Returns null by default → existing tests see the freetext fallback (player.club).
+vi.mock('@/lib/clubs', () => ({
+  getClub: (id: string | null) => (id === 'club-bay' ? { id, name: 'Bayer Leverkusen' } : null),
+}));
+
 import {
   getOwnedPlayerIds,
   getLineup,
@@ -261,6 +267,26 @@ describe('getLineupWithPlayers', () => {
     expect(gkSlot!.score).toBe(5); // from slot_scores.gk
     expect(gkSlot!.player.firstName).toBe('Ersin');
     expect(gkSlot!.player.position).toBe('GK');
+  });
+
+  it('resolves slot player club from FK club_id via getClub (D-26c S481)', async () => {
+    mockTable('lineups', makeLineupRow());
+    mockTable('players', [
+      makePlayerRow({ id: 'p-gk', first_name: 'Ersin', position: 'GK', club: 'Bournemouth', club_id: 'club-bay' }),
+    ]);
+    const result = await getLineupWithPlayers('evt-1', 'user-1');
+    const gk = result!.players.find(p => p.slotKey === 'gk');
+    expect(gk!.player.club).toBe('Bayer Leverkusen'); // FK 'club-bay' wins over stale 'Bournemouth'
+  });
+
+  it('falls back to freetext club when getClub returns null (D-26c S481)', async () => {
+    mockTable('lineups', makeLineupRow());
+    mockTable('players', [
+      makePlayerRow({ id: 'p-gk', position: 'GK', club: 'FreetextFC', club_id: 'unknown' }),
+    ]);
+    const result = await getLineupWithPlayers('evt-1', 'user-1');
+    const gk = result!.players.find(p => p.slotKey === 'gk');
+    expect(gk!.player.club).toBe('FreetextFC');
   });
 
   it('should return null when lineup not found', async () => {

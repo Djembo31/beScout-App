@@ -1,0 +1,45 @@
+Slice 481 — D-26c Teil 1: players.club Render-SSOT (no-DB-Surfaces)
+Proof — 2026-06-30
+
+=== FIX ===
+Stale players.club-Freitext → kanonisch `club_id ? (getClub(club_id)?.name ?? club) : club`
+(@/lib/clubs, wie 477/478) in 3 no-DB-Surfaces:
+- offers.ts:45 (enrichOffers → OffersTab Portfolio „Gebote") + Select +club_id
+- lineups.queries.ts:163 (Lineup-Slot-Spieler) + Select +club_id + Pick-Type +club_id
+- compare/page.tsx:23 (resolveClubName-Helper) → Search-Filter + 2 PlayerIdentity-Displays
+
+=== DB-Divergenz (skzjfhvgccaeplydsunz) — Bug real ===
+SELECT total, stale_freetext, pct FROM players LEFT JOIN clubs ON clubs.id=players.club_id
+WHERE players.club IS DISTINCT FROM clubs.name:
+  → total=4556 | stale_freetext=294 | pct=6.45%
+→ 294 Spieler zeigten in diesen Surfaces den falschen (stale) Club-Namen.
+
+=== Render-Kontext (Adversariell: getClub server-side null?) ===
+- grep src/app/api für offers-Queries → 0 Treffer (nicht server-seitig)
+- compare/page.tsx → 'use client'
+- OffersTab.tsx (player_club-Consumer) → 'use client'
+- lineups via Fantasy-Client-Hooks
+→ ALLE client-gerendert → getClub-Cache (ClubProvider) verfügbar → Fix greift.
+  Freitext-Fallback nur Cold-Load (S286-konform, kein Backfill).
+
+=== tsc --noEmit ===  EXIT 0 (clean)
+  (Zwischenfehler gefixt: getClub akzeptiert kein null → club_id?-Guard ergänzt)
+
+=== vitest offers + lineups ===  71 passed (71)
+- offers.test.ts „enrichOffers club resolution (D-26c S481)":
+  * resolves player_club from FK club_id via getClub → 'Bayer Leverkusen' (FK schlägt stale 'Bournemouth'). [AC1]
+  * falls back to freetext club when getClub null → 'FreetextFC'. [AC2]
+  (Falle gefixt: beforeEach resetMocks() statt vi.clearAllMocks() — Letzteres resettet mockTable-Queues nicht.)
+- lineups.test.ts getLineupWithPlayers:
+  * resolves slot player club from FK club_id via getClub → 'Bayer Leverkusen'. [AC3]
+  * falls back to freetext club when getClub null → 'FreetextFC'.
+  * Bestands-Test (firstName/position/score) grün.
+
+=== grep guarded-getClub (3 Files) [AC6] ===
+offers.ts:45        player_club: player ? (player.club_id ? (getClub(player.club_id)?.name ?? player.club) : player.club) : ''
+lineups.queries:163 club: p ? (p.club_id ? (getClub(p.club_id)?.name ?? p.club) : p.club) : ''
+compare/page.tsx:23 resolveClubName = (p) => (p.club_id ? getClub(p.club_id)?.name ?? p.club : p.club)
+
+=== Fazit ===
+D-26c Teil 1 (no-DB) geschlossen: 3 Surfaces lesen Club aus FK-SSOT statt stale Freitext.
+Teil 2 (RPC-Surfaces watchlist/trading-movers) = Slice 482. Cache-Race S286/D-03 geparkt.

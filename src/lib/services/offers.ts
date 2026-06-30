@@ -3,6 +3,7 @@ import { logSupabaseError } from '@/lib/supabaseErrors';
 import { mapErrorToKey } from '@/lib/errorMessages';
 import { notifText, getRecipientLocale } from '@/lib/notifText';
 import { logSilentRejects } from '@/lib/observability/silentRejects';
+import { getClub } from '@/lib/clubs';
 import type { DbOffer, OfferWithDetails } from '@/types';
 
 // ============================================
@@ -19,7 +20,7 @@ export async function enrichOffers(offers: DbOffer[]): Promise<OfferWithDetails[
   ]));
 
   const enrichResults = await Promise.allSettled([
-    supabase.from('players').select('id, first_name, last_name, position, club').in('id', playerIds),
+    supabase.from('players').select('id, first_name, last_name, position, club, club_id').in('id', playerIds),
     supabase.from('profiles').select('id, handle, display_name, avatar_url').in('id', userIds),
   ]);
   logSilentRejects('offers.enrichOffers', enrichResults);
@@ -40,7 +41,8 @@ export async function enrichOffers(offers: DbOffer[]): Promise<OfferWithDetails[
       player_first_name: player?.first_name ?? '',
       player_last_name: player?.last_name ?? '',
       player_position: (player?.position ?? 'MID') as OfferWithDetails['player_position'],
-      player_club: player?.club ?? '',
+      // D-26c (S481): Club aus FK club_id auflösen (stale players.club-Freitext), Freitext-Fallback.
+      player_club: player ? (player.club_id ? (getClub(player.club_id)?.name ?? player.club) : player.club) : '',
       sender_handle: sender?.handle ?? 'anonym',
       sender_display_name: sender?.display_name ?? null,
       sender_avatar_url: sender?.avatar_url ?? null,

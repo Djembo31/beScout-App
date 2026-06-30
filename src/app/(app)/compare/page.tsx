@@ -13,10 +13,14 @@ import { centsToBsd } from '@/lib/services/players';
 import { useRawPlayers } from '@/lib/queries/players';
 import { useToast } from '@/components/providers/ToastProvider';
 import { fmtScout, cn } from '@/lib/utils';
+import { getClub } from '@/lib/clubs';
 import type { DbPlayer, Pos } from '@/types';
 
 const COLORS = ['#38bdf8', '#fb7185', '#fbbf24', '#a78bfa', '#34d399'];
 const MAX_PLAYERS = 5;
+
+// D-26c (S481): Club aus FK club_id auflösen (stale players.club-Freitext), Freitext-Fallback.
+const resolveClubName = (p: DbPlayer): string => (p.club_id ? getClub(p.club_id)?.name ?? p.club : p.club);
 
 export default function ComparePage() {
   const searchParams = useSearchParams();
@@ -53,7 +57,7 @@ export default function ComparePage() {
     const q = search.toLowerCase();
     return allPlayers
       .filter(p => !selectedIds.includes(p.id))
-      .filter(p => `${p.first_name} ${p.last_name} ${p.club}`.toLowerCase().includes(q))
+      .filter(p => `${p.first_name} ${p.last_name} ${resolveClubName(p)}`.toLowerCase().includes(q))
       .slice(0, 20);
   }, [search, allPlayers, selectedIds]);
 
@@ -172,7 +176,7 @@ export default function ComparePage() {
                   </button>
                   <div className="flex flex-col items-center text-center gap-1">
                     <PlayerIdentity
-                      player={{ first: p.first_name, last: p.last_name, pos: p.position as Pos, status: 'fit', club: p.club, ticket: p.shirt_number ?? 0, age: p.age ?? 0, imageUrl: p.image_url }}
+                      player={{ first: p.first_name, last: p.last_name, pos: p.position as Pos, status: 'fit', club: resolveClubName(p), ticket: p.shirt_number ?? 0, age: p.age ?? 0, imageUrl: p.image_url }}
                       size="lg" showMeta={false} showStatus={false}
                     />
                   </div>
@@ -216,7 +220,7 @@ export default function ComparePage() {
                   className="w-full flex items-center gap-3 p-3 hover:bg-surface-base transition-colors text-left"
                 >
                   <PlayerIdentity
-                    player={{ first: p.first_name, last: p.last_name, pos: p.position as Pos, status: 'fit', club: p.club, ticket: p.shirt_number ?? 0, age: p.age ?? 0, imageUrl: p.image_url }}
+                    player={{ first: p.first_name, last: p.last_name, pos: p.position as Pos, status: 'fit', club: resolveClubName(p), ticket: p.shirt_number ?? 0, age: p.age ?? 0, imageUrl: p.image_url }}
                     size="sm" showStatus={false}
                   />
                   {/* Slice 312: matches-Guard — 0-Match-Spieler zeigt „—" statt DB-Default 50. */}
