@@ -11,6 +11,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui';
 import { Card } from '@/components/ui';
 import { TradingDisclaimer } from '@/components/legal/TradingDisclaimer';
+import { mapErrorToKey } from '@/lib/errorMessages';
 import { cn } from '@/lib/utils';
 
 type LoadingState = 'email' | 'password' | 'google' | 'apple' | 'demo' | null;
@@ -29,7 +30,14 @@ function LoginContent() {
   const t = useTranslations('auth');
   const tc = useTranslations('common');
   const td = useTranslations('demo');
+  const te = useTranslations('errors');
   const callbackError = searchParams.get('error');
+
+  // Slice 479 (D-25): rohe GoTrue/Service-Englisch-Strings nie direkt anzeigen — via
+  // zentrale mapErrorToKey auf den errors-Namespace übersetzen (DE+TR). „Invalid login
+  // credentials" bleibt der explizite auth-NS-Spezialfall (spezifischer als generic).
+  const authErrorMsg = (raw: string): string =>
+    raw === 'Invalid login credentials' ? t('invalidCredentials') : te(mapErrorToKey(raw));
 
 
   // Redirect authenticated users away from login — smart redirect by role
@@ -82,7 +90,7 @@ function LoginContent() {
       );
 
       if (authError) {
-        setError(authError.message);
+        setError(authErrorMsg(authError.message));
         setLoadingMethod(null);
       } else if (data.session) {
         // Email confirmation disabled → session exists → AuthProvider handles redirect to onboarding
@@ -97,11 +105,7 @@ function LoginContent() {
       const { error: authError } = await signInWithPassword(email, password);
 
       if (authError) {
-        setError(
-          authError.message === 'Invalid login credentials'
-            ? t('invalidCredentials')
-            : authError.message
-        );
+        setError(authErrorMsg(authError.message));
         setLoadingMethod(null);
       }
       // On success, AuthProvider handles redirect
@@ -118,7 +122,7 @@ function LoginContent() {
     );
 
     if (authError) {
-      setError(authError.message);
+      setError(authErrorMsg(authError.message));
       setLoadingMethod(null);
     } else {
       setEmailSent(true);
@@ -135,7 +139,7 @@ function LoginContent() {
     );
 
     if (authError) {
-      setError(authError.message);
+      setError(authErrorMsg(authError.message));
       setLoadingMethod(null);
     } else {
       // OAuth opens a new tab — if user closes it without completing,
@@ -158,7 +162,7 @@ function LoginContent() {
     setError(null);
     const { error: authError } = await signInWithPassword(account.email, account.pw);
     if (authError) {
-      setError(authError.message);
+      setError(authErrorMsg(authError.message));
       setLoadingMethod(null);
     }
   };

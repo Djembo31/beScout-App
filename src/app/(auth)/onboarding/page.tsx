@@ -16,6 +16,7 @@ import { signOut } from '@/lib/services/auth';
 import { uploadAvatar } from '@/lib/services/avatars';
 import { Button, Card } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { mapErrorToKey } from '@/lib/errorMessages';
 import { followClubsBatch } from '@/lib/services/club';
 
 type HandleStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'reserved';
@@ -25,6 +26,7 @@ function OnboardingContent() {
   const searchParams = useSearchParams();
   const { user, profile, loading, profileLoading, refreshProfile } = useUser();
   const t = useTranslations('auth');
+  const te = useTranslations('errors');
   // TIER_RESTRICTED users (TR) must not see Trading-related disclaimers
   // during onboarding. The onboarding flow itself (handle/name/avatar/language)
   // stays identical — only the Trading-framing is suppressed.
@@ -197,7 +199,9 @@ function OnboardingContent() {
       localStorage.setItem('bescout-tour-pending', '1');
       router.push('/');
     } catch (err) {
-      const msg = err instanceof Error ? err.message : t('profileCreateError');
+      // Slice 479 (D-25): non-Error → Key (nicht vor-übersetzen), sonst würde der
+      // bereits übersetzte String unten erneut durch mapErrorToKey → 'generic' degradiert.
+      const msg = err instanceof Error ? err.message : 'profileCreateError';
       // Profile already exists (duplicate key) — user shouldn't be on onboarding
       if (msg.includes('duplicate key') || msg.includes('already exists') || msg.includes('unique') || msg.includes('23505')) {
         await refreshProfile();
@@ -210,11 +214,13 @@ function OnboardingContent() {
         router.replace('/login');
         return;
       }
-      // Service layer throws i18n keys for validation errors — resolve them here
+      // Service layer throws i18n keys for validation errors — resolve them here.
+      // Slice 479 (D-25): Fallback nie roh (GoTrue/DB-Englisch) → zentrale mapErrorToKey
+      // (errors-NS, DE+TR). handleReserved/handleInvalid bleiben auth-NS-Spezialfälle.
       const translatedMsg =
-        msg === 'handleReserved' || msg === 'handleInvalid'
+        msg === 'handleReserved' || msg === 'handleInvalid' || msg === 'profileCreateError'
           ? t(msg)
-          : msg;
+          : te(mapErrorToKey(msg));
       setError(translatedMsg);
       setSubmitting(false);
     }

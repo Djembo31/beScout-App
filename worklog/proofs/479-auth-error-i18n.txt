@@ -1,0 +1,63 @@
+PROOF — Slice 479: D-25 Auth-Fehler-i18n (Login + Onboarding)
+Datum: 2026-06-30 · Type: UI (i18n-Wiring) · Größe: S · Scope: CTO-autonom (vorhandene Keys, kein TR-Review)
+
+================================================================
+ZUSAMMENFASSUNG
+================================================================
+/login + /onboarding zeigten rohe GoTrue/Service-Englisch-Strings (setError(authError.message)
+/ setError(msg)) an DE+TR-User = i18n-Leak auf dem ERSTEN Bildschirm. Fix: zentrale
+mapErrorToKey → errors-Namespace (vorhandene DE+TR-Keys), via te(mapErrorToKey(raw)).
+„Invalid login credentials" bleibt expliziter auth-NS-Spezialfall (spezifischer als generic).
+
+================================================================
+CODE-CHANGE (3 Files + 1 Test)
+================================================================
+src/app/(auth)/login/page.tsx:
+  +import mapErrorToKey · +const te = useTranslations('errors')
+  +Helper authErrorMsg(raw) = raw==='Invalid login credentials' ? t('invalidCredentials') : te(mapErrorToKey(raw))
+  5 Pfade umgestellt: signUp · signInWithPassword · Magic-Link · OAuth · Demo-Login
+src/app/(auth)/onboarding/page.tsx:
+  +import mapErrorToKey · +const te = useTranslations('errors')
+  Fallback-Zweig `: msg` → `: te(mapErrorToKey(msg))` (handleReserved/handleInvalid + dup-key/fkey-Redirects unverändert)
+src/lib/errorMessages.ts:
+  +2 ERROR_MAP-Regex (auth, → VORHANDENE Keys):
+    /user.*already.*regist|already.*regist/i → alreadyExists
+    /for.security.purposes|only.*request.*(this.*)?after/i → rateLimited
+src/lib/__tests__/errorMessages.test.ts (NEU): 4 AC-3-Tests.
+
+================================================================
+VERIFIKATION (AC-1..AC-5)
+================================================================
+npx tsc --noEmit  → TSC_EXIT=0
+npx vitest run errorMessages.test.ts error-keys-coverage.test.ts:
+  Test Files  2 passed (2)
+  Tests       6 passed (6)
+  → AC-3: mapErrorToKey('User already registered')='alreadyExists' · GoTrue-Cooldown='rateLimited'
+          · 'Email rate limit exceeded'='rateLimited' · known-pass-through · unknown→'generic'
+  → error-keys-coverage (INV-25) grün = die 2 neuen Regex → existierende Keys, keine Service-Throw-Drift.
+
+grep "setError(authError.message)" + ": msg;" in login+onboarding  → 0 Treffer (AC-1/AC-4: alle Pfade verdrahtet)
+AC-2: authErrorMsg behält den auth.invalidCredentials-Spezialfall explizit (Helper-Code).
+
+================================================================
+AC-6 LIVE-RENDER — PENDING post-Vercel-Deploy
+================================================================
+Login mit falschem Passwort (→ auth.invalidCredentials) + unbekannte Mail/Cooldown
+(→ errors.* DE/TR) → KEIN rohes Englisch. + Register „User already registered" → errors.alreadyExists.
+
+================================================================
+SCOPE / FLAG
+================================================================
+Keine neuen TR-Strings (nur vorhandene Keys verdrahtet) → kein TR-Review.
+OPTIONAL-Enhancement (eigener Slice, TR-Review): spezifische Auth-Keys
+(emailNotConfirmed/weakPassword/signupsDisabled) DE+TR für feinere UX statt generic.
+Rest GoTrue → generic (übersetzt statt roh) = Leak geschlossen.
+
+================================================================
+REVIEW (reviewer-Agent PASS, 3 Findings LOW/INFO)
+================================================================
+#1 (LOW) behoben: Regex enger geankert `only.*request.*after.*second` (war breit `…after`).
+#2 (LOW) behoben: Onboarding non-Error → Key 'profileCreateError' (statt vor-übersetzt) +
+   Spezialfall-Zweig → spezifische Meldung erhalten (kein generic-Degrade).
+#3 (INFO) Doku: DE+TR-Parität-Garantie = i18n-coverage.js (nicht INV-25). Proof oben korrekt.
+Re-Verifikation nach Fixes: tsc 0 · vitest 6/6 grün. Review-File: worklog/reviews/479-review.md.

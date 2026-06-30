@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 479 | 2026-06-30 | fix(auth): D-25 Auth-Fehler-i18n — Login + Onboarding te(mapErrorToKey) statt rohes GoTrue-Englisch
+- Stage-Chain: SPEC → BUILD (3 Files + 1 Test) → REVIEW (reviewer PASS, 2 LOW-Fixes) → PROVE (tsc+vitest+grep) → LOG. **Mock→Pro Konsistenz-Batch; autonom; P1 Hauptflow-UX.**
+- **Befund (Register D-25):** `/login` (5 Pfade: signUp/Passwort-non-„invalid"/Magic/OAuth/Demo) + `/onboarding`-Fallback zeigten rohe GoTrue/Service-Englisch-Strings via `setError(authError.message)`/`setError(msg)` an DE+TR-User — **i18n-Leak auf dem ersten Bildschirm** (Mock-statt-Pro). Nur „Invalid login credentials" war übersetzt.
+- **Fix:** kanonischer J1+J3-Pattern `te(mapErrorToKey(raw))` (errors-NS) statt roh — **vorhandene DE+TR-Keys, KEINE neuen TR-Strings → kein TR-Review**. Login: Helper `authErrorMsg` (behält `auth.invalidCredentials`-Spezialfall). Onboarding: Fallback-Zweig (handleReserved/handleInvalid + dup-key/fkey-Redirects unverändert). +2 auth-Regex in zentraler `mapErrorToKey` → vorhandene `alreadyExists`/`rateLimited`. Rest GoTrue → `generic` (übersetzt statt roh).
+- **Verifiziert:** tsc 0 · vitest **6/6** (4 neue errorMessages-AC-Tests + INV-25-Coverage grün) · **grep: 0 rohe Pfade**. **Reviewer PASS** (Regex-Over-Match-Fokus: keine reale Kollision, auth-exklusiv; 2 LOW-Findings behoben — Regex enger geankert + Onboarding-non-Error-Degrade gefixt). Proof `479-*.txt`, Review `479-review.md`. **AC-6 Live (Login-Fehler DE/TR) = post-Deploy.**
+- **§0:** kanonische `mapErrorToKey`-SSOT genutzt (kein zweiter Weg). disease-register D-25 → ✅ geheilt. **Flag (optional, TR-Review):** spezifische Auth-Keys (emailNotConfirmed/weakPassword/signupsDisabled) für feinere UX = eigener Slice.
+
 ## 478 | 2026-06-30 | fix(fantasy): D-26b Holdings + Search Mapper Club-FK-Resolve (eligibility-affecting)
 - Stage-Chain: SPEC → BUILD (2 Logik-Zeilen + 1 Import) → REVIEW (self-review, XS triviale 477-Wiederholung) → PROVE (tsc+vitest+Eligibility-Trace) → LOG. **Mock→Pro Konsistenz-Batch; autonom (Fortsetzung 477).**
 - **Befund (Reviewer-S477-#2, priorisiert):** 2 Mapper, die `dbToPlayer` NICHT durchlaufen, lasen weiter stale `players.club`-Freitext — beide haben `club_id` in der Row → 477-Muster anwendbar. **`holdingMapper.ts:45` (eligibility-affecting):** `UserDpcHolding.club` speist das Fantasy-Event-Requirement-Gate (`useLineupBuilder:358-362` substring-match `holding.club` gg. `specificClub`) → divergenter Spieler matcht „aus Club X"-Requirement falsch. **`search.ts:96`** (⌘K SearchOverlay).

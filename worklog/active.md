@@ -2,23 +2,25 @@
 
 ```
 status: idle
-slice: 478
-title: D-26b Holdings + Search Mapper Club-FK-Resolve — DONE
-size: XS
-type: Service
-welle: Mock→Pro Konsistenz-Batch (disease-register D-26b)
+slice: 479
+title: D-25 Auth-Fehler-i18n (Login + Onboarding) — DONE (AC-6 Live post-Deploy)
+size: S
+type: UI (i18n-Wiring)
+welle: Mock→Pro Konsistenz-Batch (disease-register D-25)
 stage: LOG (done)
-proof: worklog/proofs/478-d26b-holdings-search.txt
-review: worklog/reviews/478-review.md
+proof: worklog/proofs/479-auth-error-i18n.txt
+review: worklog/reviews/479-review.md
 ```
 
-## Slice 478 DONE (autonom, Fortsetzung 477)
-- **Fix:** `holdingMapper.ts:45` (reuse `clubLookup?.name` — eligibility-Gate `useLineupBuilder:358-362` geheilt) + `search.ts:96` (`getClub(club_id)?.name`). Beide hatten `club_id` → triviales 477-Muster. tsc 0 · vitest 14 (3 neue FK-Tests) · self-review PASS.
-- **D-26c angelegt (offen, CTO):** Rest-Mapper OHNE `club_id` (watchlist/lineups.queries/offers/trading-movers = Select/RPC-Change) + **Player-Detail Cold-Load-Cache-Race (S286/D-03)**.
+## Slice 479 DONE (autonom)
+- Login (5 Pfade) + Onboarding-Fallback: rohes GoTrue-Englisch → `te(mapErrorToKey(raw))` (errors-NS, vorhandene DE+TR-Keys, kein TR-Review). `invalidCredentials`/`handleReserved`/`handleInvalid` als Spezialfälle erhalten. +2 auth-Regex → alreadyExists/rateLimited.
+- tsc 0 · vitest 6 · grep 0-roh · **Reviewer PASS** (2 LOW-Fixes: Regex enger + Onboarding-non-Error-Degrade).
+- **AC-6 Live (Login mit falschem Passwort → DE/TR-Meldung) = post-Vercel-Deploy offen.**
+- Flag (optional, TR-Review): spezifische Auth-Keys (emailNotConfirmed/weakPassword) für feinere UX = eigener Slice.
 
 ## Zuletzt
-- **Slice 478** (2026-06-30) — D-26b Holdings/Search Club-FK (XS, self-review, `<commit>`).
+- **Slice 479** (2026-06-30) — D-25 Auth-Fehler-i18n (S, Reviewer PASS, `<commit>`).
+- **Slice 478** (2026-06-30) — D-26b Holdings/Search Club-FK (XS, self-review, `1fb18ad5`).
 - **Slice 477** (2026-06-30) — D-26 Player-Domain Club-FK (S, PASS, live `acab3db0`).
-- **Slice 476** (2026-06-30) — /club Dual-Build-Crash (S, live `96bc9341`).
 
-Nächstes (autonom-fähig): D-26c (Cache-Race S286 ODER Rest-Mapper Select-Changes) · D-25 Login-i18n · D-33 timeAgo-Leak — ODER CEO-Richtung (W3 Lineup-Fork / W6 Phase 3).
+Nächstes (autonom-fähig): D-33 (timeAgo EN-Leak) · D-26c (Cache-Race S286 / Rest-Mapper) — ODER CEO-Richtung (W3 Lineup-Fork / W6 Phase 3). Konsistenz-Batch: nur noch D-24 (Wording, Compliance/CEO) offen.

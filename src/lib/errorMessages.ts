@@ -141,9 +141,15 @@ const ERROR_MAP: [RegExp, string][] = [
 
   // Auth / General
   [/already.exists/i, 'alreadyExists'],
+  // Slice 479 (D-25) — GoTrue signUp: "User already registered" → vorhandener Key.
+  [/user.*already.*regist|already.*regist/i, 'alreadyExists'],
   [/not.found/i, 'notFound'],
   [/permission.denied|not.authorized/i, 'permissionDenied'],
   [/rate.limit/i, 'rateLimited'],
+  // Slice 479 (D-25) — GoTrue OTP/Magic-Link Cooldown: "For security purposes, you can
+  // only request this after N seconds" → rateLimited (vorhanden). Eng auf den GoTrue-
+  // Wortlaut geankert (…after N second…), damit kein Nicht-Auth-String fälschlich matcht.
+  [/for.security.purposes|only.*request.*after.*second/i, 'rateLimited'],
   [/network|fetch.failed|failed.to.fetch/i, 'networkError'],
   [/timeout/i, 'timeout'],
 
