@@ -28,6 +28,8 @@ const nextConfig = {
     instrumentationHook: true,
   },
   images: {
+    // Slice 486 (W6 Phase 3): AVIF zuerst (~30% kleiner als WebP), WebP-Fallback. App-weit.
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',

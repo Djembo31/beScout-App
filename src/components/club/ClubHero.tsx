@@ -100,6 +100,10 @@ export function ClubHero({
           fill
           className="object-cover"
           priority
+          // Slice 486 (W6 Phase 3): explizites sizes (Mobile zieht 828 statt 3840) + reduzierte
+          // quality — decorative Background unter 3 Gradient-/Vignette-Overlays, Kompression unsichtbar.
+          sizes="100vw"
+          quality={60}
           onError={() => setStadiumSrc('/stadiums/default.jpg')}
         />
         {/* Layer 1: Club gradient tint (moves with image) */}

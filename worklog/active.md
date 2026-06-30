@@ -1,25 +1,22 @@
 # Active Slice
 
 ```
-status: idle
-slice: 485
-title: D-04 W3 — lineups DB-Integrität (4 Bench-FKs + 16-Slot-Distinctness-Trigger) — DONE
-size: L
-type: Migration
-welle: Mock→Pro W3 Lineup-Datenmodell (disease-register D-04, root-cause #2)
-stage: LOG (done)
-proof: worklog/proofs/485-lineup-integrity.txt
-review: worklog/reviews/485-review.md
+status: in_progress
+slice: 486
+title: W6 Phase 3 — LCP-Bild-Entlastung (AVIF app-weit + ClubHero-Stadion sizes/quality)
+size: S
+type: Infra
+welle: Mock→Pro W6 Performance/Architektur (D-03 Phase 3, datengetrieben)
+proof: worklog/proofs/486-lcp-image.txt
+review: worklog/reviews/486-review.md (self-review + post-Deploy-Messung)
+stage: BUILD
 ```
 
-## Slice 485 DONE (D-04, additive DB-Defense-in-Depth)
-- `lineups` hat jetzt **DB-Level-Integrität** unabhängig vom 27k-RPC: 4 FK `bench_*→players(id)` + Trigger `trg_lineups_player_distinct` (BEFORE INS/UPD, 16-Slot-Distinctness, RAISE `duplicate_player`→i18n, GUC-Escape, search_path-pinned).
-- Daten 447/0/0/0 → additiv ohne Cleanup. force-rollback AC3-AC8 grün · vitest 62 · RPC unberührt (D-20 Wide-Column behalten).
-- **Reviewer R1 CONCERNS → Code PASS, Doku-Prämisse korrigiert:** der RPC validiert die volle 16-Slot-Distinctness BEREITS graceful (`bench_duplicate`/`bench_overlaps_starter`) — meine „RPC prüft nur Starter"-Prämisse war Fehllesung (nur v_seen-Starter-Schleife gelesen). Trigger = reiner DB-Backstop, kein RPC-Gap. **D-04b Phantom-Debt gestrichen.** Lehre → errors-db S485.
-
-## Zuletzt
-- **Slice 485** (2026-06-30) — D-04 lineups DB-Integrität (L, Reviewer R1 CONCERNS→Doku-fix, `<commit>`).
-- **Slice 484** (2026-06-30) — D-24 Securities-Wording (S, CEO-approved + Live-Visual, `a636b767`).
-- **Slice 483** (2026-06-30) — D-33 timeAgo-Konsolidierung (XS, `f491958f`).
-
-Nächstes (CEO-Richtung): W6 SSR Phase 3 · Mock→Pro Welle 3 (Events/Aufstellung). P2-Cleanup: Phantom-Event GW37 · Süper-Lig-max_gameweeks · D-26c-Cache-Race · D-20-Orphan-Typ `Lineup`.
+## Slice 486 — W6 Phase 3 (datengetrieben aus d03-Trace)
+**Befund (d03-ssr-ist-analyse, gemessen 2026-06-30):** nach 471+476 ist SSR-Prefetch bewiesen (/club LCP 4118→2951ms), aber der **verbleibende LCP-Engpass ist BILD-gebunden**: Stadion-Hero `ClubHero.tsx:97` via next/image **w=3840 (~389kB)** — `fill`+`priority`+`object-cover` aber **kein `sizes`**, decorative Background unter 3 Gradient-/Vignette-Overlays. Config: `next.config.mjs` `images:` hat NUR remotePatterns → Next-14-Default = nur WebP (AVIF inaktiv).
+**Fix (clean + zero-Risiko Byte-Cut, context7-verifiziert):**
+1. `next.config.mjs`: `images.formats = ['image/avif','image/webp']` — app-weit (AVIF ~30% < WebP, Fallback WebP/original).
+2. `ClubHero.tsx` Stadion-Image: `sizes="100vw"` (explizit, korrekter srcset, Mobile 3840→828) + `quality={60}` (decorative bg unter Overlays → unsichtbare Kompression, großer Byte-Cut).
+**Messen-vor-übertreiben:** Auflösungs-Cap (sizes desktop 3840→2048) bewusst NICHT jetzt — erst post-Deploy /club LCP messen; wenn Bild noch Bottleneck → Follow-up.
+**AC:** next build grün · post-Deploy bescout.net: Stadion-Transfer (AVIF, < 389kB) + /club LCP vs 2951ms-Baseline (DevTools-Trace).
+**Scope-Out:** Player/home/market-Prefetch-Replikation (abnehmender LCP-Ertrag laut Trace) · usePlayers()-Payload (separat, nicht LCP) · Auflösungs-Cap (measure-first).

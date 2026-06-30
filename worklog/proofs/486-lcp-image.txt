@@ -1,0 +1,26 @@
+Slice 486 — W6 Phase 3: LCP-Bild-Entlastung
+Proof — 2026-06-30
+
+=== BEFUND (d03-ssr-ist-analyse, gemessen 2026-06-30, /club/galatasaray Desktop) ===
+Nach 471+476: SSR-Prefetch bewiesen (LCP 4118→2951ms), aber Rest-LCP-Engpass = BILD:
+- Stadion-Hero ClubHero.tsx:97 via next/image w=3840 (~389kB), fill+priority aber KEIN sizes.
+- decorative Background unter 3 Overlays (club-gradient + bottom-fade + vignette).
+- next.config images: nur remotePatterns → Next-14-Default = nur WebP (AVIF inaktiv).
+
+=== FIX (context7-verifiziert: Next-14 formats-config + sizes-fill + quality-prop) ===
+1. next.config.mjs: images.formats = ['image/avif', 'image/webp'] (app-weit, WebP-Fallback)
+2. ClubHero.tsx Stadion: sizes="100vw" (Mobile zieht 828 statt 3840) + quality={60} (decorative)
+
+=== BUILD-VERIFIKATION ===
+node-parse next.config.mjs: OK · images.formats = ["image/avif","image/webp"]
+tsc --noEmit: EXIT 0
+→ Vercel-Deploy (post-Push) = die echte `next build`-Verifikation (deployt = Build grün).
+
+=== AC POST-DEPLOY (bescout.net, nach Vercel-Build) — [PENDING] ===
+- [ ] Stadion-Image Content-Type = image/avif (Network), Transfer < 389kB
+- [ ] /club/galatasaray LCP vs Baseline 2951ms (DevTools-Trace)
+- [ ] Visuell: Hero unverändert (Overlays verdecken Kompression)
+
+=== Scope-Out ===
+Auflösungs-Cap (sizes desktop 3840→2048) = measure-first (erst wenn Bild post-AVIF noch Bottleneck).
+Player/home/market-Prefetch (abnehmender LCP-Ertrag laut Trace). usePlayers()-Payload (separat).
