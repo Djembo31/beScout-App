@@ -74,7 +74,7 @@ export default function HomePage() {
   const {
     user, uid, loading, firstName,
     streak, shieldsRemaining, streakBenefits,
-    homeLoading, homeError,
+    homeLoading, homeError, dashboardReady,
     holdings, activeIPOs, trendingWithPlayers,
     topMovers, hasGlobalMovers,
     portfolioValue, pnl, pnlPct,
@@ -131,7 +131,7 @@ export default function HomePage() {
     <div className="max-w-[1200px] mx-auto space-y-8 md:space-y-10">
 
       {/* ── 0. WELCOME BONUS MODAL ── */}
-      {isNewUser && balanceCents != null && balanceCents > 0 && (
+      {dashboardReady && isNewUser && balanceCents != null && balanceCents > 0 && (
         <WelcomeBonusModal balanceCents={balanceCents} />
       )}
 
@@ -176,12 +176,15 @@ export default function HomePage() {
           request so it visually anchors the squad overview. */}
       <ScoutCardStats holdings={holdings} />
 
-      {/* ── 1a. NEW USER: Intro + Checklist + Founding Pass ── */}
-      {isNewUser && <BeScoutIntroCard />}
-      {isNewUser && retention?.onboarding && (
+      {/* ── 1a. NEW USER: Intro + Checklist + Founding Pass ──
+          Slice 490 (CLS): gate the whole personalized fork on dashboardReady so existing
+          users never briefly see the new-user layout (holdings=[] during load) and pass
+          holders never see the founding-upsell flash. No swap → CLS drop. */}
+      {dashboardReady && isNewUser && <BeScoutIntroCard />}
+      {dashboardReady && isNewUser && retention?.onboarding && (
         <OnboardingChecklist items={retention.onboarding} />
       )}
-      {uid && !highestPass && (
+      {dashboardReady && uid && !highestPass && (
         <div>
           <Link
             href="/founding"
@@ -221,15 +224,15 @@ export default function HomePage() {
       )}
 
       {/* ── 1c. ONBOARDING CHECKLIST (for active users — new users see it above) ── */}
-      {!isNewUser && retention?.onboarding && (
+      {dashboardReady && !isNewUser && retention?.onboarding && (
         <OnboardingChecklist items={retention.onboarding} />
       )}
 
       {/* ── 1c-2. Contextual Mission Hints (returns null if no active hints) ── */}
-      {!isNewUser && <MissionHintList context="fantasy" />}
+      {dashboardReady && !isNewUser && <MissionHintList context="fantasy" />}
 
       {/* ── 1d. WELCOME BONUS ── */}
-      {isNewUser && balanceCents != null && balanceCents > 0 && (
+      {dashboardReady && isNewUser && balanceCents != null && balanceCents > 0 && (
         <NewUserTip
           tipKey="welcome-bonus"
           icon={<Coins className="size-5" />}
@@ -469,7 +472,7 @@ export default function HomePage() {
           />}
 
           {/* Scout Activity (Following Feed) — active users only */}
-          {uid && !isNewUser && (
+          {uid && dashboardReady && !isNewUser && (
             <FollowingFeedRail userId={uid} limit={5} />
           )}
 

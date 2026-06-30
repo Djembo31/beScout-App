@@ -77,7 +77,15 @@ export function useHomeData() {
   // Slice 109: 4 per-user queries (holdings + user_stats + tickets + highest_pass)
   // consolidated into a single `get_home_dashboard_v1` RPC. Primes individual
   // query caches so TopBar / SideNav / etc. stay warm without extra roundtrips.
-  const { data: dashboard } = useHomeDashboard(uid);
+  const { data: dashboard, isLoading: dashboardLoading } = useHomeDashboard(uid);
+  // Slice 490 (CLS): the personalized layout fork (new-user vs existing-user) and the
+  // founding-upsell read dashboard-derived data (holdings, highest_pass). Rendering them
+  // before the dashboard settles makes every existing user briefly see the new-user layout,
+  // then swap → the worst CLS source on `/` (Sentry p75 0.282). Gate that fork on this flag.
+  // Disabled query (uid=null) → isLoading=false → ready=true (no infinite skeleton).
+  // Dashboard ERROR → loading=false → ready=true → holdings=[] → new-user fallback —
+  // intentional, identical to pre-490 behaviour (no infinite skeleton on error).
+  const dashboardReady = !dashboardLoading;
   const rawHoldings = dashboard?.holdings ?? [];
   const userStats = dashboard?.user_stats ?? null;
   const ticketData = dashboard?.tickets ?? null;
@@ -419,6 +427,8 @@ export function useHomeData() {
     streak, shieldsRemaining, streakBenefits,
     // Market data (Slice 282: kein volles `players` mehr — Children fetchen targeted)
     homeLoading, homeError, globalMovers,
+    // Slice 490 (CLS): dashboard-settled flag for the personalized layout fork
+    dashboardReady,
     holdings, activeIPOs, trendingPlayers, trendingWithPlayers,
     topMovers, hasGlobalMovers,
     // Portfolio

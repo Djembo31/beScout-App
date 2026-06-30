@@ -1,0 +1,40 @@
+Slice 490 — CLS-Fix Startseite (dashboardReady-Gate)
+PROOF — 2026-07-01
+
+═══════════════════════════════════════════════════════════════════════
+VORHER-BASELINE (Sentry Feld-Daten, echte User, p75)
+═══════════════════════════════════════════════════════════════════════
+CLS p75 pro Seite (14d, org bescout, de.sentry.io):
+  /            0,282  🔴 poor          (1100 Samples — meistbesucht)
+  /market      0,194  🟠 needs-improve (500)
+  /community   0,065  🟢 (1000)
+  /transactions 0,016 🟢 (100)
+  /login       0,003  🟢 (200)
+→ Ziel: `/` von 0,282 auf <0,1.
+
+ROOT-CAUSE (Sentry + Code verifiziert):
+  page.tsx:103 `isNewUser = holdings.length === 0` nicht ans Daten-Laden gekoppelt;
+  useHomeData `holdings = dashboard?.holdings ?? []` leer während Load →
+  jeder Bestandsnutzer sieht beim Laden kurz das Neu-User-Layout (~440px), dann Swap.
+  homeLoading deckt das Dashboard-Laden NICHT ab.
+
+═══════════════════════════════════════════════════════════════════════
+BUILD (tsc + gate-Verifikation)
+═══════════════════════════════════════════════════════════════════════
+$ npx tsc --noEmit → EXIT 0
+useHomeData.ts: +`dashboardReady = !dashboardLoading` (useHomeDashboard.isLoading) im Return.
+page.tsx: 8 personalisierte dashboard-abhängige Blöcke auf `dashboardReady &&` gegatet:
+  WelcomeBonusModal · BeScoutIntroCard · OnboardingChecklist(new) · founding-upsell(!highestPass)
+  · OnboardingChecklist(active) · MissionHintList · NewUserTip · FollowingFeedRail.
+$ grep ungatete isNewUser/highestPass-Render-Forks → 0 (alle gegatet).
+
+REVIEW: reviewer-agent PASS (worklog/reviews/490-review.md, 22 min).
+  Onboarding-Korrektheit PASS · Linchpin (S472-Server-Seed → uid ab Frame 1) verifiziert ·
+  disabled-query kein Infinite-Skeleton · stationärer Zustand byte-identisch (keine Regression).
+  Findings #1/#2 (LOW, measure): Hero heroMode-Flip + Insertion-Residual → in PROVE messen.
+
+═══════════════════════════════════════════════════════════════════════
+NACHHER-MESSUNG (chrome-devtools, authed `/`, post-Deploy) — PENDING
+═══════════════════════════════════════════════════════════════════════
+[wird nach Vercel-Deploy ergänzt: CLS-Trace authed Home jarvis-qa —
+ Swap weg? CLS-Wert? Hero-Residual >0,1? + Sentry-Feld-p75 über die nächsten Tage]
