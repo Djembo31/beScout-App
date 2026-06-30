@@ -46,9 +46,11 @@ const OnboardingChecklist = dynamic(() => import('@/components/home/OnboardingCh
   ssr: false,
   loading: () => <div className="h-72 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
 });
+// Slice 491 (CLS): no loading-skeleton — MissionHintList renders null while its query
+// loads AND when there are no hints (common) → a fixed-height skeleton would reserve
+// 112px then collapse = reserve-then-collapse CLS. Canonical (fantasy/manager) = no skeleton.
 const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), {
   ssr: false,
-  loading: () => <div className="h-28 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
 });
 const WelcomeBonusModal = dynamic(() => import('@/components/onboarding/WelcomeBonusModal'), {
   ssr: false,

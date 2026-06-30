@@ -28,8 +28,9 @@ import PortfolioTab from './portfolio/PortfolioTab';
 import MarktplatzTab from './marktplatz/MarktplatzTab';
 import StalePipelineBanner from '@/components/system/StalePipelineBanner';
 
-// Slice 116 CLS-Fix: Modals haben position:fixed → keine Layout-Shift. MissionHintList ist
-// inline und braucht Skeleton mit fixed-height um CLS zu verhindern.
+// Slice 116/491 CLS: Modals haben position:fixed → keine Layout-Shift. MissionHintList
+// rendert null während Query-Load + bei keinen Hints → KEIN Höhen-Skeleton (das würde
+// reserve-then-collapse-CLS erzeugen), no-skeleton wie fantasy/manager.
 const TradeSuccessCard = dynamic(() => import('./shared/TradeSuccessCard'), { ssr: false, loading: () => null });
 // Slice 404: Container resolved die günstigste Fremd-Order (useSellOrders) und rendert
 // BuyConfirmModal — order-gebundener Markt-Kauf statt Floor-Anzeige + buy_player_sc.
@@ -38,7 +39,6 @@ const MarketBuyConfirmContainer = dynamic(() => import('./shared/MarketBuyConfir
 // Wenn Matching-Engine live ist: `FEATURE_BUY_ORDERS = true` + hier re-adden.
 const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), {
   ssr: false,
-  loading: () => <div className="h-28 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
 });
 
 // ── Tab config ──

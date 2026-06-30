@@ -2,43 +2,35 @@
 
 ```
 status: in-progress
-slice: 490
-title: CLS-Fix Startseite — Neu-/Bestand-Layout nicht vor Daten-Load entscheiden (dashboardReady-Gate)
+slice: 491
+title: CLS systemisch — MissionHintList Höhen-Skeleton (reserve-then-collapse) entfernen, an no-skeleton angleichen
 size: S
 type: UI
 welle: Mock→Pro W6 / Performance (CLS, measure-driven)
-proof: worklog/proofs/490-home-cls.txt
-review: worklog/reviews/490-review.md
-stage: PROVE (deployed a82b642f; Feld-CLS-Verifikation ~24h pending)
+proof: worklog/proofs/491-missionhint-cls.txt
+review: self-review (S, entfernt loading-Skeleton zum Angleich an 2 bestehende korrekte Sites; kein Money/Logik)
+stage: LOG (deployed-pending: code done, Feld-CLS ~24h mit 490)
 ```
 
-## Slice 490 — DEPLOYED, Feld-Verifikation pending
-- **Code live (a82b642f):** Fork-Swap strukturell eliminiert (Reviewer PASS, Logik-Proof). `dashboardReady` gatet 8 personalisierte Blöcke.
-- **NÄCHSTER MESS-SCHRITT (in ~1 Tag):** Sentry p75 CLS `/` re-queryn (war 0,282). Entscheidungsbaum:
-  - `/` <0,1 → Slice done.
-  - `/` 0,1–0,2 → **Hero-Folge-Slice** (Reviewer #1): `heroMode`-Flip (`cta-new`→`scout`) + CTA-Banner (`!loading && holdingsCount===0`, HomeStoryHeader:231) auf `dashboardReady` ODER `min-h` am Hero. Gleiche Root-Cause-Klasse.
-- **Geparkt:** `/market` CLS 0,194 (eigener Slice). Sentry: org bescout, de.sentry.io, dataset spans.
+## Slice 491 — Problem (Code-verifiziert)
+- `MissionHintList` (`components/missions/MissionHintList.tsx:30`) rendert **`null`** bei `isLoading` ODER `(hints.length===0 && contextHints.length===0)` → sehr häufig leer.
+- Auf **3 Seiten** (home `page.tsx:51`, market `MarketContent:41`, community `page.tsx:38`) als dynamic-Import mit `loading: () => <div h-28 …>` geladen → der 112px-Skeleton kollabiert garantiert/häufig zu `null` (während des eigenen isLoading bzw. bei keinen Hints) → **reserve-then-collapse = CLS** (verschiebt alles darunter hoch). Gegenteil von Slice-116s Annahme: Höhen-Skeleton hilft nur, wenn die Komponente verlässlich Inhalt dieser Höhe rendert.
+- **§0-Smell:** fantasy (`FantasyContent:45`) + manager (`ManagerContent:20`) laden DIESELBE Komponente bereits **ohne** loading-Skeleton (`{ ssr:false }`) = korrekt. „von-allem-zwei".
+- **Beitrag zu:** home CLS 0,282 (490-Residual) + market CLS 0,194 + community.
 
----
-
-## Slice 490 — Problem (Sentry-Feld-Daten + Code-verifiziert)
-- **Sentry p75 CLS (echte User, 14d): `/` = 0,282 🔴 poor** (1100 Samples, meistbesuchte Seite). `/market` 0,194, Rest grün. Field-weiter, real-user-Impact.
-- **Root-Cause (verifiziert):** `page.tsx:103 isNewUser = holdings.length === 0` ist **NICHT ans Laden gekoppelt**. `useHomeData:81 holdings = dashboard?.holdings ?? []` → während des Ladens leer → jeder Bestandsnutzer sieht zuerst das **Neu-User-Layout** (BeScoutIntroCard + OnboardingChecklist + NewUserTip, ~440px), dann kommt das Dashboard → Umschwung aufs Bestands-Layout (MissionHintList + FollowingFeedRail). Der Umbau = der Sprung. **`homeLoading` deckt das Dashboard-Laden NICHT ab** (Z.117 = nur IPOs/movers/trending/miniPlayers; `useHomeDashboard` Z.80 nur als `data` destrukturiert).
-- **Gleiche Klasse:** founding-upsell (`page.tsx:184 uid && !highestPass`) — `highestPass` kommt auch aus dem Dashboard → flasht für Pass-Halter auf + verschwindet.
-
-## Lösung (chirurgisch, 2 Files)
-- `useHomeData.ts`: `useHomeDashboard(uid)` zusätzlich `isLoading: dashboardLoading` destrukturieren → `dashboardReady = !dashboardLoading` in den Return. (Disabled-Query bei uid=null → isLoading=false → ready=true, kein Infinite-Skeleton.)
-- `page.tsx`: die personalisierten dashboard-abhängigen Blöcke (Neu-User-Fork + Bestand-Fork + founding-upsell + WelcomeBonusModal) auf `dashboardReady && …` gaten. Während des Ladens rendert KEINER → kein Umschwung. Nach Load genau EIN Layout.
-- **v1 = gate-only** (kein geratenes Skeleton). Dominanter Swap (~440px Collapse) eliminiert → CLS soll deutlich fallen. Residual (einmaliges Erscheinen nach Load) wird **gemessen** (chrome-devtools); falls >0,1 → getunte Platz-Reservierung als Iteration (messen-vor-optimieren).
+## Lösung (chirurgisch, 3 Sites angleichen)
+- home/market/community: `loading: () => <div h-28 …>` entfernen → nur `{ ssr: false }` (kanonisch = fantasy/manager). Kein Skeleton → kein reserve-then-collapse. Bei vorhandenen Hints erscheinen sie ohne Vor-Reservierung (kleinerer Shift als collapse-then-reappear; common-case null = 0 Shift). Market-Slice-116-Kommentar mit-korrigiert.
 
 ## Acceptance Criteria
-- AC1: Bestandsnutzer sieht beim Load NIE das Neu-User-Layout (kein IntroCard/OnboardingChecklist-Flash). Nach Load korrektes Bestands-Layout.
-- AC2: Neu-User sieht nach Load weiterhin Intro+Checklist+Welcome (Funktion erhalten, nur nicht mehr während des Ladens).
-- AC3: founding-upsell flasht nicht mehr für Pass-Halter.
-- AC4: tsc 0. chrome-devtools CLS-Trace `/` (authed, prod) vorher/nachher — Ziel <0,1 (mind. deutlich < 0,282).
-- AC5: kein neuer Hydration-/Render-Fehler (Console-clean).
+- AC1: MissionHintList dynamic-Imports auf allen 5 Seiten identisch (kein loading-Skeleton).
+- AC2: tsc 0. Funktion unverändert (Komponente rendert wie zuvor, nur kein 112px-Flash-Skeleton mehr).
+- AC3 (Feld, ~24h): Sentry p75 CLS `/`+`/market`+`/community` — Beitrag dieses Fixes mitgemessen (zusammen mit 490).
 
 ## Scope-Out
-- `/market` CLS 0,194 (separater Slice). · ScoutCardStats/QuickActions Residual (erst messen ob nötig). · Geratenes Skeleton ohne Messung.
+- `SponsorBanner` (gleiche Anti-Pattern-Klasse, return null bei kein-Sponsor) → eigener Audit (null-Frequenz + Sites prüfen). · Hero-Residual (490, measure-gated). · Andere dynamic Height-Skeletons (Modals=fixed/Tab-Content=verlässlich → NICHT anfassen).
 
-## Stage-Chain: SPEC(inline) → BUILD → REVIEW(reviewer-agent, UI+Onboarding-Korrektheit) → PROVE(tsc + chrome-devtools CLS vorher/nachher + Sentry-Feld über Tage) → LOG
+## Stage-Chain: SPEC(inline) → BUILD → REVIEW(self, Pattern-Angleich) → PROVE(tsc + grep-Konsistenz + Feld ~24h mit 490) → LOG
+
+---
+## Vorheriger Slice 490 (DEPLOYED, Feld-Verifikation pending)
+- Code live (a82b642f): Fork-Swap eliminiert. **In ~24h Sentry p75 CLS `/` prüfen** (war 0,282): <0,1 done · 0,1–0,2 Hero-Folge-Slice (heroMode/CTA-Banner auf dashboardReady). 491 trägt zur selben Messung bei.

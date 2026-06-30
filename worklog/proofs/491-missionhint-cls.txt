@@ -1,0 +1,36 @@
+Slice 491 — CLS systemisch: MissionHintList Höhen-Skeleton entfernen (reserve-then-collapse)
+PROOF — 2026-07-01
+
+═══════════════════════════════════════════════════════════════════════
+PROBLEM (Code-verifiziert)
+═══════════════════════════════════════════════════════════════════════
+MissionHintList.tsx:30: `if (isLoading || (hints.length===0 && contextHints.length===0)) return null;`
+→ rendert null während eigenem Query-Load UND bei keinen Hints (häufig).
+
+Geladen als dynamic-Import mit `loading: () => <div h-28 …>` (112px Skeleton) auf:
+  - src/app/(app)/page.tsx (home)
+  - src/features/market/components/MarketContent.tsx (market)
+  - src/app/(app)/community/page.tsx (community)
+→ Skeleton reserviert 112px, Komponente kollabiert zu null → reserve-then-collapse = CLS
+  (verschiebt alles darunter hoch). Beitrag zu CLS / 0,282 + /market 0,194 + /community.
+
+§0-Smell: fantasy (FantasyContent:45) + manager (ManagerContent:20) laden DIESELBE
+Komponente bereits OHNE loading-Skeleton (`{ ssr:false }`) = korrekt → von-allem-zwei.
+
+═══════════════════════════════════════════════════════════════════════
+FIX (3 Sites an kanonisch no-skeleton angleichen)
+═══════════════════════════════════════════════════════════════════════
+home/market/community: `loading: () => <div h-28 …>` entfernt → nur `{ ssr: false }`.
+Market+Community Slice-116-Kommentare mit-korrigiert.
+
+AC1: alle 5 MissionHintList-Sites loading-Skeleton-frei (grep loading-Zeilen = 0/0/0/0/0). ✅
+AC2: $ npx tsc --noEmit → EXIT 0. Komponenten-Render unverändert (nur kein 112px-Flash mehr). ✅
+AC3 (Feld, ~24h): Sentry p75 CLS /+/market+/community — zusammen mit 490 gemessen.
+
+REVIEW: self-review (S, entfernt loading-Skeleton zum Angleich an 2 bestehende korrekte
+Sites fantasy/manager; reine UI-Loading-Semantik, kein Money/Logik; Komponente rendert
+identisch). Knowledge → errors-frontend.md.
+
+Prinzip: ein dynamic-`loading`-Höhen-Skeleton hilft NUR, wenn die Komponente verlässlich
+Inhalt ~dieser Höhe rendert. Für conditionally-null Komponenten verursacht er CLS
+(reserve→collapse) statt ihn zu verhindern — Gegenteil von Slice-116s pauschaler Annahme.

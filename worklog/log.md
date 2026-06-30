@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 491 | 2026-07-01 | fix(perf): CLS systemisch — MissionHintList Höhen-Skeleton entfernen (reserve-then-collapse)
+- Stage-Chain: SPEC (inline) → BUILD (3 Files) → REVIEW (self, Pattern-Angleich) → PROVE (tsc + grep-Konsistenz; Feld ~24h mit 490) → LOG. **Mock→Pro W6; Performance; kein Money/Logik.**
+- **Befund (Code-verifiziert):** `MissionHintList` rendert `null` bei eigenem Query-`isLoading` ODER keinen Hints (häufig). Auf home/market/community als dynamic-Import mit `loading: () => <div h-28>` → 112px-Skeleton kollabiert zu null = **reserve-then-collapse-CLS**. §0-Smell: fantasy + manager laden DIESELBE Komponente bereits ohne Skeleton (`{ssr:false}`) = korrekt → von-allem-zwei.
+- **Fix:** 3 Sites (home/market/community) `loading`-Skeleton entfernt → an kanonisch no-skeleton (fantasy/manager) angeglichen. CLS-Fix + §0-Konsistenz. Slice-116-Kommentare mit-korrigiert.
+- **PROVE:** tsc 0 · AC1-grep alle 5 Sites loading-frei (0/0/0/0/0) · Proof `491-missionhint-cls.txt`. Feld-CLS (~24h, zusammen mit 490).
+- **Knowledge:** errors-frontend.md **S490** (Layout-Fork vor Load) + **S491** (Höhen-Skeleton für null-Komponente = CLS, Gegenteil S116). Offen-gleiche Klasse: SponsorBanner (return null bei kein-Sponsor) → eigener Audit.
+
 ## 490 | 2026-07-01 | fix(perf): Startseiten-CLS — Layout-Fork erst bei dashboardReady (deployed, Feld-Verifikation pending)
 - Stage-Chain: SPEC (inline) → BUILD (2 Files) → REVIEW (reviewer-agent PASS) → PROVE (tsc + Logik-Proof; Feld-CLS ~24h pending) → LOG. **Mock→Pro W6; Performance; Sentry-Feld-getrieben; kein Money.**
 - **Befund (Sentry-Feld, NICHT aus Memory):** p75 CLS `/` = **0,282 🔴 poor** (echte User, meistbesuchte Seite). `/market` 0,194, Rest grün. Web-Vitals waren bereits live erfasst (siehe Memory `reference_web_vitals_sentry` — KEIN Wiring-Slice nötig, das war eine falsche Prämisse; der Live-Check förderte STATTDESSEN dieses echte CLS-Finding zutage).

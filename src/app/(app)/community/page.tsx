@@ -23,8 +23,9 @@ import dynamic from 'next/dynamic';
 import { useCommunityData, useCommunityActions } from '@/components/community/hooks';
 import type { CommunityState, CommunityAction } from '@/components/community/hooks';
 
-// Slice 116 CLS-Fix: Modals (fixed position) brauchen keine Layout-Skeleton. Inline
-// Components (SponsorBanner, MissionHintList) brauchen fixed-height Skeleton.
+// Slice 116/491 CLS: Modals (fixed position) brauchen keine Layout-Skeleton.
+// MissionHintList rendert oft null (Query-Load + keine Hints) → KEIN Höhen-Skeleton
+// (reserve-then-collapse-CLS), no-skeleton wie fantasy/manager. SponsorBanner = eigener Audit.
 const CreatePostModal = dynamic(() => import('@/components/community/CreatePostModal'), { ssr: false, loading: () => null });
 const CreateResearchModal = dynamic(() => import('@/components/community/CreateResearchModal'), { ssr: false, loading: () => null });
 const CreateBountyModal = dynamic(() => import('@/components/community/CreateBountyModal'), { ssr: false, loading: () => null });
@@ -35,7 +36,6 @@ const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBa
 });
 const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), {
   ssr: false,
-  loading: () => <div className="h-28 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
 });
 
 // ============================================
