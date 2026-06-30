@@ -2,27 +2,24 @@
 
 ```
 status: idle
-slice: 482
-title: D-26c Teil 2 — players.club Render-SSOT in Aggregat-RPCs (Server-Resolve) — DONE (schließt D-26c Display)
-size: S
-type: Migration
-welle: Mock→Pro Konsistenz-Batch (disease-register D-26c)
+slice: 483
+title: D-33 — Relativzeit-Formatter konsolidiert (totes timeAgo raus, 2 Kopien → formatTimeAgo) — DONE
+size: XS
+type: Service
+welle: Mock→Pro Anti-Akkretion (dup-registry D-33)
 stage: LOG (done)
-proof: worklog/proofs/482-rpc-club-resolve.txt
-review: worklog/reviews/482-review.md
+proof: worklog/proofs/483-timeago-consolidation.txt
+review: worklog/reviews/483-review.md (self-review)
 ```
 
-## Slice 482 DONE (autonom, P1 Display-Konsistenz)
-- 2 Aggregat-RPCs (`rpc_get_trending_players` Movers + `rpc_get_most_watched_players` Watchlist via SECDEF-Wrapper) lesen Club FK-resolved: `LEFT JOIN clubs + COALESCE(c.name, p.club)`. Keine Signatur-Änderung (ACL/Shape/SECDEF erhalten S368c) → kein Client-/Service-/Test-Change.
-- Migration `20260630180000` applied · functiondef-verifiziert · proacl pre==post · Live-Resolve-Smoke (Zaniolo Udinese→Galatasaray) · Probe-Call row-count-neutral · self-review PASS.
-- **D-26c Display-Teil KOMPLETT** (481 no-DB offers/lineups/compare + 482 RPC). §0: Surface-Typ-Split (Raw-Row→Client-getClub, Aggregat→Server-Resolve), beide lesen clubs-SSOT.
-
-## 🅿️ Geparkt (D-26c-Rest, Architektur)
-- Player-Detail Cold-Load-Cache-Race S286/D-03 (`usePlayerDetailData` useMemo vor Club-Cache-ready) — Reaktivitäts-Signal, kein Display-SSOT-Problem.
+## Slice 483 DONE (autonom, §0-Konsolidierung)
+- 3 Relativzeit-Formatter → 1 kanonischer `formatTimeAgo`: totes EN-leakendes `utils.ts:timeAgo(number)` (0 Prod-Consumer) + 4 Tests gelöscht; 2 lokale Kopien (NotificationDropdown exakt, AdminWithdrawalTab reduziert) → `formatTimeAgo`; FollowingFeedRail-Variable `timeAgo`→`relativeTime`.
+- `timeAgo`-Symbol grep-bewiesen restlos weg. AdminWithdrawal/NotificationDropdown <1min → `tc('timeNow')` (Jetzt/Şimdi, common-Key existiert → kein neuer TR-String).
+- tsc 0 · vitest 57+2 · self-review PASS. dup-registry D-33 → ✅ geheilt.
 
 ## Zuletzt
-- **Slice 482** (2026-06-30) — D-26c Teil 2 RPC Server-Resolve (S, self-review, `<commit>`). **D-26c Display done.**
+- **Slice 483** (2026-06-30) — D-33 timeAgo-Konsolidierung (XS, self-review, `<commit>`).
+- **Slice 482** (2026-06-30) — D-26c Teil 2 RPC Server-Resolve (S, self-review, `49510cb5`). **D-26c Display done.**
 - **Slice 481** (2026-06-30) — D-26c Teil 1 no-DB (S, self-review, `29dd6b93`).
-- **Slice 480** (2026-06-30) — D-27 Gameweek-Guard SSOT (S, Reviewer R2 PASS, `40831fab`).
 
-Nächstes (autonom-fähig): D-33 (timeAgo EN-Leak, XS) — ODER CEO-Richtung (W3 Lineup-Fork D-04 / W6 Phase 3 / Mock→Pro Welle 3 Events). Konsistenz-Batch: nur noch D-24 (Wording, Compliance/CEO) offen. P2-Cleanup: Phantom-Event GW37 + Süper-Lig-max_gameweeks.
+Nächstes (CEO-Richtung): Konsistenz-Batch leer bis auf **D-24** (Wording, Compliance/CEO + TR). Große Hebel (CEO-Scope): W3 Lineup-Datenmodell (D-04) · W6 SSR Phase 3 · Mock→Pro Welle 3 (Events). P2-Cleanup: Phantom-Event GW37 + Süper-Lig-max_gameweeks.

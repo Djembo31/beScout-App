@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Bell, FileText, UserPlus, Trophy, Vote, Info, MessageCircle, Check, Loader2, Target, CheckCircle, XCircle, Banknote, ArrowLeftRight, Send, RotateCcw, Crown, TrendingUp, Star, Crosshair, Play, Clock, Zap, Gift, Coins, UserCheck, Sparkles, Megaphone, Award, BarChart3, Settings } from 'lucide-react';
 import NotificationPreferencesPanel from '@/components/layout/NotificationPreferencesPanel';
 import { useTranslations, useLocale } from 'next-intl';
-import { cn } from '@/lib/utils';
+import { cn, formatTimeAgo } from '@/lib/utils';
 import type { DbNotification, NotificationType } from '@/types';
 import { getPlayerById } from '@/lib/services/players';
 
@@ -117,19 +117,7 @@ function getNotifHref(notif: DbNotification): string | null {
   }
 }
 
-function timeAgo(dateStr: string, nowLabel = 'just now', dateLocale = 'de-DE'): string {
-  const now = Date.now();
-  const then = new Date(dateStr).getTime();
-  const diffMs = now - then;
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return nowLabel;
-  if (mins < 60) return `${mins}m`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString(dateLocale);
-}
+// Slice 483 (D-33): lokale timeAgo-Kopie entfernt → kanonischer formatTimeAgo aus @/lib/utils.
 
 interface NotificationDropdownProps {
   userId: string;
@@ -365,7 +353,7 @@ export default function NotificationDropdown({ userId, open, onClose, notificati
                   {resolvedBody && (
                     <div className="text-xs text-white/40 mt-0.5 line-clamp-2">{resolvedBody}</div>
                   )}
-                  <div className="text-xs text-white/25 mt-1">{timeAgo(notif.created_at, tc('timeNow'), dateLocale)}</div>
+                  <div className="text-xs text-white/25 mt-1">{formatTimeAgo(notif.created_at, tc('timeNow'), dateLocale)}</div>
                 </div>
                 {!notif.read && (
                   <div className="size-2 rounded-full bg-gold shrink-0 mt-2" />

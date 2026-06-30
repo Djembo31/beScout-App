@@ -1,0 +1,30 @@
+Slice 483 — D-33: Relativzeit-Formatter konsolidieren (§0)
+Proof — 2026-06-30
+
+=== BEFUND ===
+3 Relativzeit-Formatter statt 1:
+- utils.ts:timeAgo(number) — EN-Leak ('just now'/'Xm ago'), 0 Prod-Consumer (nur utils.test.ts) = TOT
+- utils.ts:formatTimeAgo(string, nowLabel, locale) — kanonisch i18n-aware, 8 Consumer
+- NotificationDropdown.tsx:120 timeAgo — exakte Kopie von formatTimeAgo (ruft schon tc('timeNow'))
+- AdminWithdrawalTab.tsx:18 timeAgo — reduzierte Variante (kein nowLabel, <1min='0m')
+
+=== FIX (§0 Schnitt-Regel → 1 kanonischer) ===
+1. utils.ts:timeAgo + 4 Tests gelöscht (totes EN-leakendes Duplikat)
+2. NotificationDropdown: lokale Kopie raus → import formatTimeAgo, call formatTimeAgo(created_at, tc('timeNow'), dateLocale) [drop-in, identische Signatur]
+3. AdminWithdrawalTab: lokale Variante raus → import formatTimeAgo + tc=useTranslations('common'),
+   calls formatTimeAgo(x, tc('timeNow')) [common.timeNow=Jetzt/Şimdi existiert DE+TR → KEIN neuer TR-String]
+4. FollowingFeedRail: lokale Variable `timeAgo` → `relativeTime` (Symbol-Eliminierung, kein Dup)
+
+=== VERIFIKATION ===
+tsc --noEmit: EXIT 0
+grep '\btimeAgo\b' src/ (außer formatTimeAgo/Kommentar): 0 Treffer → timeAgo-Symbol RESTLOS weg
+vitest: utils.test.ts + duplication-check.test.ts = 57 passed; NotificationDropdown.test.tsx = 2 passed
+
+=== EDGES ===
+- AdminWithdrawalTab <1min: vorher '0m' → jetzt 'Jetzt'/'Şimdi' (lokalisiert, UX-Plus statt EN-Default-Risiko)
+- NotificationDropdown <1min: vorher (lokale Kopie) bereits tc('timeNow') → unverändert
+- >7d Datum-Fallback: formatTimeAgo identisch (toLocaleDateString(locale))
+
+=== §0 ===
+EIN Relativzeit-Formatter (formatTimeAgo). dup-registry D-33 → geheilt. Latenter EN-Leak (totes
+timeAgo) entfernt; AdminWithdrawal-EN-Default-Risiko geschlossen. Kein Money, kein DB.

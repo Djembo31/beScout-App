@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Wallet, ArrowDownToLine, Clock, CheckCircle, XCircle, Loader2, ArrowUpRight, ArrowDownLeft, ReceiptText } from 'lucide-react';
 import { Card, Skeleton } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { cn, formatTimeAgo } from '@/lib/utils';
 import { getClubBalance, getClubWithdrawals, getClubTreasuryLedger, requestClubWithdrawal } from '@/lib/services/club';
 import { formatScout } from '@/lib/services/wallet';
 import type { ClubWithAdmin, ClubBalance, DbClubWithdrawal, DbTreasuryLedgerEntry } from '@/types';
@@ -15,20 +15,11 @@ const KNOWN_LEDGER_TYPES = new Set([
   'event_prize', 'poll_reward', 'bounty', 'poll_revenue',
 ]);
 
-function timeAgo(dateStr: string): string {
-  const now = Date.now();
-  const then = new Date(dateStr).getTime();
-  const mins = Math.floor((now - then) / 60000);
-  if (mins < 60) return `${mins}m`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d`;
-  return new Date(dateStr).toLocaleDateString();
-}
+// Slice 483 (D-33): lokale timeAgo-Variante entfernt → kanonischer formatTimeAgo aus @/lib/utils.
 
 export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
   const t = useTranslations('admin');
+  const tc = useTranslations('common');
   const [balance, setBalance] = useState<ClubBalance | null>(null);
   const [withdrawals, setWithdrawals] = useState<(DbClubWithdrawal & { requester_handle: string })[]>([]);
   const [ledger, setLedger] = useState<DbTreasuryLedgerEntry[]>([]);
@@ -212,7 +203,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
                   </div>
                   <div className="text-right">
                     <div className={cn('text-xs font-semibold', status.color)}>{status.label}</div>
-                    <div className="text-[10px] text-white/25">{timeAgo(w.created_at)}</div>
+                    <div className="text-[10px] text-white/25">{formatTimeAgo(w.created_at, tc('timeNow'))}</div>
                   </div>
                 </div>
               );
@@ -253,7 +244,7 @@ export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
                       {isCredit ? '+' : '−'}{formatScout(entry.amount)} CR
                     </div>
                     <div className="text-[10px] text-white/25 tabular-nums">
-                      {timeAgo(entry.created_at)} · {formatScout(entry.balance_after)} CR
+                      {formatTimeAgo(entry.created_at, tc('timeNow'))} · {formatScout(entry.balance_after)} CR
                     </div>
                   </div>
                 </div>

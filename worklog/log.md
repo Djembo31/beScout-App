@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 483 | 2026-06-30 | refactor(utils): D-33 — Relativzeit-Formatter konsolidiert (totes EN-leakendes timeAgo raus, 2 Kopien → formatTimeAgo)
+- Stage-Chain: SPEC (inline XS) → BUILD (5 Files) → REVIEW (self-review, §0-Subtraktion) → PROVE (tsc+vitest+grep) → LOG. **Mock→Pro Anti-Akkretion; autonom; §0-Konsolidierung (kein Money/DB).**
+- **Befund (dup-registry D-33, TOOL-FUND S434):** 3 Relativzeit-Formatter statt 1: `utils.ts:timeAgo(number)` hartcodierte EN „just now"/„Xm ago" (i18n-Leak) — aber **0 Prod-Consumer** (nur utils.test.ts) = totes Duplikat des kanonischen `formatTimeAgo` (8 Consumer); + 2 lokale Kopien `NotificationDropdown.tsx:120` (byte-exakte Kopie) + `AdminWithdrawalTab.tsx:18` (reduzierte Variante ohne nowLabel).
+- **Fix (§0 Schnitt-Regel → 1 kanonischer):** (1) `utils.ts:timeAgo` + 4 Tests gelöscht. (2) NotificationDropdown lokale Kopie → `formatTimeAgo` (drop-in, identische Signatur, ruft schon `tc('timeNow')`). (3) AdminWithdrawalTab → `formatTimeAgo(x, tc('timeNow'))` (+ `tc=useTranslations('common')`; `common.timeNow`=Jetzt/Şimdi existiert DE+TR → **kein neuer TR-String**). (4) FollowingFeedRail lokale Variable `timeAgo`→`relativeTime` (Symbol-Eliminierung).
+- **Verifiziert:** tsc 0 · **grep `\\btimeAgo\\b` src/ = 0** (Symbol restlos weg, nur `formatTimeAgo` bleibt) · vitest 57 (utils+dup-check) + 2 (NotificationDropdown). self-review PASS. Proof `483-*.txt`, Review `483-review.md`.
+- **§0:** EIN Relativzeit-Formatter. dup-registry D-33 → ✅ geheilt. Nebenbei geheilt: latenter EN-Leak (totes timeAgo) + AdminWithdrawal-EN-Default-Risiko (<1min jetzt lokalisiert „Jetzt"/„Şimdi").
+
 ## 482 | 2026-06-30 | fix(market): D-26c Teil 2 — players.club Render-SSOT in Aggregat-RPCs (Server-Resolve) — schließt D-26c Display
 - Stage-Chain: SPEC → IMPACT (skipped: read-only RPC-Body, Shape identisch → kein Consumer-Contract-Change) → BUILD (1 Migration) → REVIEW (self-review + DB-Smoke, Pattern-Wiederholung) → PROVE (functiondef+proacl+Resolve-Smoke+Probe) → LOG. **Mock→Pro Konsistenz-Batch; autonom; P1 Display (kein Money).**
 - **Befund (Register D-26c Rest):** die 2 Aggregat-RPCs lieferten `players.club`-Freitext (stale, 294/4556=6,45%) — anders als die 481-Surfaces tragen ihre Service-Rows kein `club_id` → RPC-Change nötig. `rpc_get_trending_players` (SQL STABLE → trading `getTrendingPlayers` Movers) + `rpc_get_most_watched_players` (SQL SECDEF, via auth-Wrapper `get_most_watched_players` → watchlist `getMostWatchedPlayers`).

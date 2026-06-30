@@ -152,7 +152,7 @@ type FeedItemCardProps = {
 
 function FeedItemCard({ item, playerMap, t }: FeedItemCardProps) {
   const displayName = item.displayName || item.handle;
-  const timeAgo = formatTimeAgo(item.createdAt, t('justNow'));
+  const relativeTime = formatTimeAgo(item.createdAt, t('justNow'));
   const actionLabel = getActionLabel(item, playerMap, t);
   const initial = displayName[0]?.toUpperCase() ?? '?';
 
@@ -180,7 +180,7 @@ function FeedItemCard({ item, playerMap, t }: FeedItemCardProps) {
           <span className="font-bold">@{item.handle}</span>{' '}
           <span className="text-white/50">{actionLabel}</span>
         </div>
-        <div className="text-[10px] text-white/30 tabular-nums mt-0.5">{timeAgo}</div>
+        <div className="text-[10px] text-white/30 tabular-nums mt-0.5">{relativeTime}</div>
       </div>
     </Link>
   );

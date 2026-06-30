@@ -32,18 +32,8 @@ export function humanTimeLeft(timestamp: number): string {
   return `${days}d ${hh}h`;
 }
 
-export function timeAgo(timestamp: number): string {
-  const ms = Date.now() - timestamp;
-  const mins = Math.floor(ms / 60_000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
-}
-
-/** Relative time from ISO date string — "5m", "3h", "2d" or localized date */
+/** Relative time from ISO date string — "5m", "3h", "2d" or localized date.
+ *  Slice 483 (D-33): kanonischer Relativzeit-Formatter (EN-leakendes timeAgo(number) entfernt). */
 export function formatTimeAgo(dateStr: string, nowLabel = 'just now', dateLocale = 'de-DE'): string {
   const diffMs = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diffMs / 60000);

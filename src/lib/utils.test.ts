@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { cn, fmtScout, fmtCompact, fmtPct, clamp, truncate, humanTimeLeft, timeAgo, withTimeout } from './utils';
+import { cn, fmtScout, fmtCompact, fmtPct, clamp, truncate, humanTimeLeft, withTimeout } from './utils';
 
 // ============================================
 // cn (classNames helper)
@@ -181,36 +181,7 @@ describe('humanTimeLeft', () => {
   });
 });
 
-// ============================================
-// timeAgo
-// ============================================
-
-describe('timeAgo', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-02-23T12:00:00Z'));
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it('returns "just now" for < 1 minute', () => {
-    expect(timeAgo(Date.now() - 30_000)).toBe('just now');
-  });
-
-  it('returns minutes format', () => {
-    expect(timeAgo(Date.now() - 5 * 60_000)).toBe('5m ago');
-  });
-
-  it('returns hours format', () => {
-    expect(timeAgo(Date.now() - 3 * 60 * 60_000)).toBe('3h ago');
-  });
-
-  it('returns days format', () => {
-    expect(timeAgo(Date.now() - 2 * 24 * 60 * 60_000)).toBe('2d ago');
-  });
-});
+// timeAgo(number) entfernt in Slice 483 (D-33): totes EN-leakendes Duplikat von formatTimeAgo.
 
 // ============================================
 // withTimeout
