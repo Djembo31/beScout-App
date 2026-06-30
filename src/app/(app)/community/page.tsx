@@ -24,15 +24,14 @@ import { useCommunityData, useCommunityActions } from '@/components/community/ho
 import type { CommunityState, CommunityAction } from '@/components/community/hooks';
 
 // Slice 116/491 CLS: Modals (fixed position) brauchen keine Layout-Skeleton.
-// MissionHintList rendert oft null (Query-Load + keine Hints) → KEIN Höhen-Skeleton
-// (reserve-then-collapse-CLS), no-skeleton wie fantasy/manager. SponsorBanner = eigener Audit.
+// MissionHintList + SponsorBanner rendern oft null (Query-Load/keine Hints bzw. 0 aktive
+// Sponsoren) → KEIN Höhen-Skeleton (reserve-then-collapse-CLS, S491/S492), no-skeleton.
 const CreatePostModal = dynamic(() => import('@/components/community/CreatePostModal'), { ssr: false, loading: () => null });
 const CreateResearchModal = dynamic(() => import('@/components/community/CreateResearchModal'), { ssr: false, loading: () => null });
 const CreateBountyModal = dynamic(() => import('@/components/community/CreateBountyModal'), { ssr: false, loading: () => null });
 const FollowListModal = dynamic(() => import('@/components/profile/FollowListModal'), { ssr: false, loading: () => null });
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
   ssr: false,
-  loading: () => <div className="h-16 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
 });
 const MissionHintList = dynamic(() => import('@/components/missions/MissionHintList'), {
   ssr: false,

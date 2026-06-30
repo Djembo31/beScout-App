@@ -21,7 +21,6 @@ import dynamic from 'next/dynamic';
 // Slice 116 CLS-Fix: Skeleton mit fixed-height.
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
   ssr: false,
-  loading: () => <div className="h-16 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
 });
 import { DEFAULT_SORT } from './kaderHelpers';
 import type { KaderLens } from './kaderHelpers';

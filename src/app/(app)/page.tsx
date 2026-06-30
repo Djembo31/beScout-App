@@ -34,9 +34,10 @@ const NewUserTip = dynamic(() => import('@/components/onboarding/NewUserTip'), {
   ssr: false,
   loading: () => <div className="h-20 rounded-2xl bg-surface-minimal/50 motion-reduce:animate-none" />,
 });
+// Slice 492 (CLS): no loading-skeleton — SponsorBanner renders null when no active
+// sponsor (live: 0 active) → a fixed-height skeleton would reserve-then-collapse = CLS.
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
   ssr: false,
-  loading: () => <div className="h-16 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
 });
 const MysteryBoxModal = dynamic(() => import('@/components/gamification/MysteryBoxModal'), {
   ssr: false,

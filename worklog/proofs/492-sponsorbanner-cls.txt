@@ -1,0 +1,23 @@
+Slice 492 — CLS systemisch (2): SponsorBanner Höhen-Skeleton entfernen
+PROOF — 2026-07-01
+
+PROBLEM (DB + Code-verifiziert):
+  Live-DB: SELECT count(*) FROM sponsors WHERE is_active=true → 0 (21 total, alle inaktiv).
+  SponsorBanner.tsx:92 `if (!sponsor) return null` → rendert IMMER null (kein aktiver Sponsor).
+  Geladen als dynamic mit `loading: () => <div h-16 …>` (64px) auf 5 Sites:
+    home page.tsx:39 · community:35 · club ClubContent:20 · kader KaderTab:24 · marktplatz MarktplatzTab:36
+  → 64px-Skeleton kollabiert GARANTIERT zu null = reserve-then-collapse-CLS bei JEDEM Load.
+  §0-Smell: 5 weitere Sites (LeaderboardPanel/HistoryTab/SpieltagTab/ProfileView/OffersTab)
+  laden dieselbe Komponente bereits OHNE Skeleton = korrekt. 5-vs-5 von-allem-zwei.
+
+FIX: die 5 `loading: h-16`-Sites → nur `{ ssr: false }` (kanonisch = die anderen 5).
+  Identisch zu S491 (MissionHintList). Community-Kommentar aktualisiert.
+
+PROVE:
+  AC1: $ grep SponsorBanner=dynamic ... | grep -c loading: → 0 (alle 12 Sites skeleton-frei). ✅
+  AC2: $ npx tsc --noEmit → EXIT 0. Render unverändert (immer null bei 0 Sponsoren;
+       künftige Aktivierung zeigt Banner ohne Vor-Reservierung). ✅
+  AC3 (Feld ~24h): mit 490+491 gemessen (Sentry p75 CLS by transaction).
+
+REVIEW: self-review (S, Angleich an 5 bestehende no-skeleton-Sites; DB-belegt always-null;
+  reine UI-Loading-Semantik, kein Money/Logik). Pattern errors-frontend S491/S492.

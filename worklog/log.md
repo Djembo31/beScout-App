@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 492 | 2026-07-01 | fix(perf): CLS systemisch (2) — SponsorBanner Höhen-Skeleton entfernen (0 aktive Sponsoren)
+- Stage-Chain: SPEC (inline) → BUILD (5 Files) → REVIEW (self) → PROVE (DB + tsc + grep; Feld ~24h mit 490/491) → LOG. **Mock→Pro W6; Performance; kein Money/Logik.**
+- **Befund (DB + Code):** Live `active_sponsors=0` (21 total, alle inaktiv) → `SponsorBanner` (`:92 if(!sponsor) return null`) rendert IMMER null. Auf 5 Sites (home/community/club/kader/marktplatz) als dynamic mit `loading: h-16` → 64px-Skeleton kollabiert GARANTIERT zu null = reserve-then-collapse-CLS bei jedem Load. §0: 5 weitere Sites laden dieselbe Komponente schon ohne Skeleton → 5-vs-5 von-allem-zwei.
+- **Fix:** 5 `loading: h-16`-Sites an kanonisch no-skeleton angeglichen (wie S491). Alle 12 SponsorBanner-Sites jetzt einheitlich.
+- **PROVE:** tsc 0 · grep alle Sites loading-frei (0) · Proof `492-sponsorbanner-cls.txt`. Feld mit 490/491.
+- **Knowledge:** errors-frontend S491/S492 (Höhen-Skeleton für conditionally-null Komponente = CLS). CLS-System-Sweep (MissionHintList + SponsorBanner) abgeschlossen.
+
 ## 491 | 2026-07-01 | fix(perf): CLS systemisch — MissionHintList Höhen-Skeleton entfernen (reserve-then-collapse)
 - Stage-Chain: SPEC (inline) → BUILD (3 Files) → REVIEW (self, Pattern-Angleich) → PROVE (tsc + grep-Konsistenz; Feld ~24h mit 490) → LOG. **Mock→Pro W6; Performance; kein Money/Logik.**
 - **Befund (Code-verifiziert):** `MissionHintList` rendert `null` bei eigenem Query-`isLoading` ODER keinen Hints (häufig). Auf home/market/community als dynamic-Import mit `loading: () => <div h-28>` → 112px-Skeleton kollabiert zu null = **reserve-then-collapse-CLS**. §0-Smell: fantasy + manager laden DIESELBE Komponente bereits ohne Skeleton (`{ssr:false}`) = korrekt → von-allem-zwei.

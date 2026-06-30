@@ -33,7 +33,6 @@ const WatchlistView = dynamic(() => import('./WatchlistView'), {
 });
 const SponsorBanner = dynamic(() => import('@/components/player/detail/SponsorBanner'), {
   ssr: false,
-  loading: () => <div className="h-16 rounded-2xl bg-surface-minimal animate-pulse motion-reduce:animate-none" />,
 });
 
 type Props = {
