@@ -1,0 +1,64 @@
+════════════════════════════════════════════════════════════════════════
+SLICE 472 — Server-Auth-Hydration (W6 Phase 2) — PROOF
+════════════════════════════════════════════════════════════════════════
+Datum: 2026-06-30
+Typ: Architektur (Auth/Performance) — P0-Risiko Kern-Auth
+Stage-Chain: SPEC → IMPACT(inline) → BUILD → REVIEW(CONCERNS) → PROVE → LOG
+
+────────────────────────────────────────────────────────────────────────
+A. BUILD-VERIFIKATION (statisch)
+────────────────────────────────────────────────────────────────────────
+[A1] tsc --noEmit ......................... EXIT 0 (2× — nach Build + nach Promise.all-F2-Fix)
+[A2] Unit-Tests (berührter Auth-Bereich) .. 10/10 PASS
+     - src/components/providers/__tests__/AuthProvider-slice268.test.tsx (Cross-User-Cache-Clear)
+     - src/components/providers/__tests__/Providers.test.tsx
+[A3] Call-Site-Bruch ...................... KEINER (initialUser? beide optional, Default null
+     → bestehende Tests ohne Prop verhalten sich unverändert)
+
+────────────────────────────────────────────────────────────────────────
+B. FAKTENCHECK VOR BUILD (Spec-Korrekturen)
+────────────────────────────────────────────────────────────────────────
+[B1] supabaseServer.ts EXISTIERT bereits (Anon-Route-Handler-Client, createClient,
+     Consumer: src/app/api/players/route.ts + src/app/api/events/route.ts)
+     → NEU = src/lib/supabaseServerAuth.ts (kollisionsfrei, JSDoc-Abgrenzung). NICHT überschrieben.
+[B2] Prämisse verifiziert: supabaseClient.ts nutzt createBrowserClient (@supabase/ssr)
+     → Session in Cookies (server-lesbar). Middleware (supabaseMiddleware.ts:77) refresht via getUser().
+[B3] context7 @supabase/ssr 0.8.0 RSC-Pattern: setAll try/catch no-op (RSC read-only),
+     getUser() validiert JWT. Next 14.2.35 → cookies() sync, `await cookies()` safe.
+
+────────────────────────────────────────────────────────────────────────
+C. REVIEW (Cold-Context reviewer-Agent, Auth-Fokus) — worklog/reviews/472-review.md
+────────────────────────────────────────────────────────────────────────
+Verdict: CONCERNS — Code korrekt auf allen 8 Auth-Achsen (Hydration/Onboarding/User-A-B/
+Token/File-Kollision/RSC/Perf/Deps), CONCERNS NUR wegen Blast-Radius (erstmaliges SSR des
+authed-Surface) → PASS sobald Live-Walk grün. Findings:
+- F1 MEDIUM (PROVE-gated): Blast-Radius — Live-Walk ist das Gate. (kein Code-Fix)
+- F2 LOW: Promise.all für getLocale/getMessages/getServerUser → GEFIXT (layout.tsx).
+- F3 LOW: transienter Server-valid/Client-null-Flash — akzeptabel, nur fixen wenn im Walk beobachtet.
+
+────────────────────────────────────────────────────────────────────────
+D. BLAST-RADIUS STATIC DE-RISK (proaktiv, Finding F1)
+────────────────────────────────────────────────────────────────────────
+AuthGuard mountet in app/(app)/layout.tsx:103 → gatet alle (app)-Routen AUSSER public /club/*
+(umging AuthGuard schon immer = war bereits SSR, kein neuer Blast-Radius).
+Neue SSR-Fläche = home/market/player/fantasy/manager/community/profile.
+
+Scan auf throw-on-server-Muster über die neue Fläche:
+[D1] Zustand persist() / createJSONStorage / skipHydration .... 0 Treffer (keine LS-Store-Hydration)
+[D2] Module-Scope `const x = window/document/localStorage/...` ... 0 Treffer (kein Import-Zeit-Crash)
+[D3] localStorage/sessionStorage in src/app/(app) ............... 4 Treffer, alle SSR-safe:
+     - error.tsx:15-16  → in attemptStaleCodeRecovery(), nur aus useEffect(Z.53) + try/catch
+     - ClubContent:118/122 → useEffect (+ club = kein neuer Blast-Radius)
+     - useHomeData:170 → useEffect(Z.166) + try/catch
+     - missions/page:84 → nur Kommentar
+FAZIT: Hoch-Crash-Risiko-Muster auf der neuen Fläche = frei. Live-Walk = definitives Gate.
+
+────────────────────────────────────────────────────────────────────────
+E. LIVE-WALK (PROVE — gegen bescout.net, logged-in jarvis-qa@bescout.net) — PENDING DEPLOY
+────────────────────────────────────────────────────────────────────────
+[ ] E1 AC-01 LCP: eingeloggte Hot-Page vorher/nachher (Content im SSR-HTML, Skeleton-Fenster weg)
+[ ] E2 AC-02 Regression: home/market/player/club/fantasy — Console KEIN Hydration-Error / KEIN MISSING_MESSAGE / KEIN SSR-500
+[ ] E3 AC-02 Auth: Login/Logout-Zyklus funktioniert
+[ ] E4 AC-02 Sicherheit: 2-Account-Switch (User-A → User-B kein Daten-Leak)
+[ ] E5 AC-02 Logged-out: unverändert (initialUser=null → Skeleton wie bisher)
+→ Ergebnisse werden hier nach Deploy angehängt.

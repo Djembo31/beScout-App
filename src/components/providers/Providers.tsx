@@ -1,5 +1,6 @@
 'use client';
 
+import type { User } from '@supabase/supabase-js';
 import { QueryProvider } from './QueryProvider';
 import { AuthProvider, useUser } from './AuthProvider';
 import { ClubProvider } from './ClubProvider';
@@ -32,10 +33,17 @@ function AuthGatedProviders({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({
+  children,
+  initialUser = null,
+}: {
+  children: React.ReactNode;
+  /** Slice 472: server-validated user (RootLayout → getServerUser) for SSR auth seeding. */
+  initialUser?: User | null;
+}) {
   return (
     <QueryProvider>
-      <AuthProvider>
+      <AuthProvider initialUser={initialUser}>
         <AuthGatedProviders>{children}</AuthGatedProviders>
       </AuthProvider>
     </QueryProvider>

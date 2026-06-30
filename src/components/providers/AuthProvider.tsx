@@ -143,14 +143,34 @@ export function useRequireProfile() {
   return { profile, loading: loading || profileLoading };
 }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({
+  children,
+  initialUser = null,
+}: {
+  children: React.ReactNode;
+  /**
+   * Slice 472: server-validated user (RootLayout → getServerUser, validated via
+   * getUser()). Seeds the initial auth state so authed pages render content in
+   * the SSR HTML instead of the authLoading skeleton (the real LCP win).
+   */
+  initialUser?: User | null;
+}) {
   // IMPORTANT: Never read localStorage in useState initializers — it doesn't
   // exist during SSR, causing a hydration mismatch (server=loading, client=cached).
   // Instead, always start as loading and hydrate from cache in useEffect.
-  const [user, setUser] = useState<User | null>(null);
+  //
+  // Slice 472: `initialUser` is the ONE allowed seed source — it is a PROP
+  // (server→client serialized), identical on server-render and client-first-
+  // render, so it does NOT cause a hydration mismatch (unlike localStorage).
+  // When set: user known → loading=false; profile not yet loaded → profileLoading=true
+  // (AuthGuard line 61 `!profile && !profileLoading` then falls through to children,
+  // no false /onboarding redirect — replicates the Slice-264 "user-known,
+  // profile-loading" state, now also server-side). When null (logged out):
+  // loading=true → SSR skeleton, exactly as before.
+  const [user, setUser] = useState<User | null>(initialUser);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [profileLoading, setProfileLoading] = useState(false);
+  const [loading, setLoading] = useState(initialUser == null);
+  const [profileLoading, setProfileLoading] = useState(initialUser != null);
   const [platformRole, setPlatformRole] = useState<PlatformAdminRole | null>(null);
   const [clubAdmin, setClubAdmin] = useState<ClubAdminInfo | null>(null);
 
@@ -272,7 +292,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const cachedProfile = lsGet<Profile>(LS_PROFILE);
     const cachedPlatformRole = lsGet<PlatformAdminRole>(LS_PLATFORM_ROLE);
     const cachedClubAdmin = lsGet<ClubAdminInfo>(LS_CLUB_ADMIN);
-    if (cachedUser && cachedProfile) {
+    // Slice 472: when the server seeded a validated user, only hydrate from
+    // localStorage if it belongs to the SAME user. A stale cross-user cache
+    // (tab-shared localStorage from a prior account) would otherwise transiently
+    // overwrite the correct server user (A→B→A flash) before onAuthStateChange's
+    // user-switch-detect cleans up. The server cookie is the source of truth;
+    // for a matching user the cache just fills the profile faster.
+    const cacheMatchesSeed = !initialUser || cachedUser?.id === initialUser.id;
+    if (cachedUser && cachedProfile && cacheMatchesSeed) {
       setUser(cachedUser);
       setProfile(cachedProfile);
       setPlatformRole(cachedPlatformRole);
@@ -411,7 +438,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       clearTimeout(safetyTimer);
       if (graceTimer) clearTimeout(graceTimer);
     };
-  }, [loadProfile]);
+    // initialUser is server-serialized + referentially stable for the session
+    // (RootLayout does not re-render on client nav) → no re-subscription churn.
+  }, [loadProfile, initialUser]);
 
   const value = useMemo<AuthContextValue>(
     () => ({ user, profile, loading, profileLoading, refreshProfile, platformRole, clubAdmin }),

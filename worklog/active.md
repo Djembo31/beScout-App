@@ -1,17 +1,24 @@
 # Active Slice
 
 ```
-status: idle
-slice: 471
-title: W6 Phase 1 — SSR-Prefetch-Fundament — DONE (live 3653bd31)
+status: in-progress
+slice: 472
+title: W6 Phase 2 — Server-Auth-Hydration (der echte LCP-Win)
 size: M
-type: UI/Architektur (Performance)
+type: Architektur (Auth/Performance) — P0-Risiko Kern-Auth
 welle: W6 (Performance/Architektur)
-stage: LOG (done)
-spec: worklog/specs/471-club-ssr-prefetch.md
-proof: worklog/proofs/471-club-ssr-prefetch.txt
-review: worklog/reviews/471-review.md (CONCERNS → F1 ehrlich umframt, F2 gefixt)
+stage: PROVE
+spec: worklog/specs/472-server-auth-hydration.md
+proof: worklog/proofs/472-server-auth-hydration.txt
+review: worklog/reviews/472-review.md
+proof-status: BUILD+REVIEW+static-de-risk ✓ · Live-Walk pending Deploy (Gate, F1)
+review-verdict: CONCERNS — Code korrekt auf 8 Achsen, F2 gefixt, Gate = Live-Walk
 ```
+
+## Build-Korrekturen ggü. Spec (Faktencheck vor BUILD)
+- **File #1 umbenannt:** `supabaseServer.ts` existiert bereits (Anon-Route-Handler-Client, Consumer: api/players + api/events) → NEU = `src/lib/supabaseServerAuth.ts` (`getServerUser()`, createServerClient + cookies()).
+- **P0-Härtung (über Spec hinaus):** AuthProvider localStorage-Hydration nur anwenden wenn `cachedUser.id === initialUser.id` — verhindert transienten User-A→B→A-Flash bei stale Cross-User-Cache (Pre-Mortem #3).
+- context7 @supabase/ssr RSC-Pattern verifiziert: setAll try/catch no-op (RSC read-only), Middleware refresht. getUser() validiert JWT.
 
 ## Letzter Slice DONE
 471 (W6 SSR-Prefetch-Fundament + Provider-Request-Scoping) — live `3653bd31`, no-regression smoke-verifiziert (bescout.net lädt, kein Hydration-Error).
