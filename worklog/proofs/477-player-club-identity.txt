@@ -1,0 +1,70 @@
+PROOF — Slice 477: D-26 Player-Domain Club-Identität (dbToPlayer FK-Resolve)
+Datum: 2026-06-30 · Type: Service · Größe: S · Scope: CTO-autonom (Display, money-neutral)
+
+================================================================
+ZUSAMMENFASSUNG
+================================================================
+Bug (disease-register D-26): players.club ist stale Freitext. Fantasy/Liga-Domäne
+liest seit 422-425 FK club_id, Player-Domäne las weiter Freitext → falscher Club+Wappen,
+widersprüchlich zur (bereits FK-resolved) Liga-Badge auf derselben Karte.
+
+Fix: EINE Zeile im zentralen Mapper dbToPlayer (players.ts) — Club aus FK club_id auflösen,
+graceful Fallback auf Freitext bei NULL club_id ODER Cache-cold. Parallel zur Liga-Auflösung.
+
+================================================================
+1. LIVE-DB MAGNITUDE (skzjfhvgccaeplydsunz, 2026-06-30) — DB unverändert, Fix = Anzeige
+================================================================
+SELECT divergent (players.club IS DISTINCT FROM FK clubs.name, WHERE club_id NOT NULL):
+  divergent_now_shown_correct = 294
+  mapped                      = 4472
+  pct                         = 6.57 %
+Stichprobe (echte Falsch-Clubs, keine Formatierung):
+  Amine Adli      : freetext "Bournemouth" → FK "Bayer Leverkusen"
+  Edson Álvarez   : freetext "Fenerbahçe"  → FK "West Ham"
+  Sofyan Amrabat  : freetext "Real Betis"  → FK "Fenerbahçe"
+→ 294 Spieler zeigen ab Fix den korrekten Club+Wappen (konsistent zur Liga-Badge).
+
+================================================================
+2. CODE-CHANGE (1 Logik-Zeile + Kommentar)
+================================================================
+src/lib/services/players.ts:211:
+    club: db.club_id ? (getClub(db.club_id)?.name ?? db.club) : db.club,
+(vorher: club: db.club)
+
+git diff --stat (Code-Files):
+  src/lib/services/__tests__/players.test.ts | 32 +++ (3 neue D-26-Tests + getClub-Mock)
+  src/lib/services/players.ts                |  6 ++ (1 Logik-Zeile + 4 Z. Kommentar)
+
+================================================================
+3. tsc + vitest (AC-3/4/5)
+================================================================
+npx tsc --noEmit            → TSC_EXIT=0 (0 Fehler)
+npx vitest run players + player-detail:
+  Test Files  17 passed (17)
+  Tests      235 passed (235)
+  → inkl. 3 neue D-26-Tests:
+     AC-1 resolves club name from FK club_id when cache is ready  → PASS (Bournemouth→Bayer Leverkusen)
+     AC-2 falls back to freetext when club_id is null             → PASS (Bournemouth)
+     AC-3 falls back to freetext when getClub null (cache cold)   → PASS (Sakaryaspor, bestehender Pfad unverändert)
+
+================================================================
+4. CASCADE (geheilt über den EINEN Mapper-Fix; dbToPlayer/dbToPlayers grep-verifiziert)
+================================================================
+  usePlayerDetailData.ts:125  → PlayerHero (Player-Detail-Karte)
+  lib/queries/players.ts      → Markt-Liste / ByIds / Global-Movers / Suche
+  useClubData.ts:70           → Club-Seiten-Spieler (inkl. IPO/ClubVerkaufSection)
+  useAdminPlayersState.ts     → Admin-Player-Tab
+  components/player/index.tsx → Player-Card (getClub(player.club) resolved jetzt korrekt)
+
+================================================================
+5. AC-6 LIVE-RENDER (Playwright bescout.net) — PENDING post-Vercel-Deploy
+================================================================
+Nach Deploy: Player-Detail eines divergenten Spielers (Adli) → Club-Name == Liga konsistent
+(Bayer Leverkusen + Bundesliga), Wappen = Leverkusen. → 477-player-club-live.png
+
+================================================================
+SCOPE-OUT (ehrlich, D-26 Teil-geheilt — NICHT komplett)
+================================================================
+Watchlist (watchlist.ts), Home-Strips (eigene RPCs, .club server-seitig Freitext),
+OffersTab/Compare (raw-DB-Rows) = separate Mapper → bleiben stale → eigene Folge-Slice (D-26-Rest).
+Kein Backfill von players.club (S303-Klasse verboten; FK = Wahrheit, Freitext bleibt ungelesen).

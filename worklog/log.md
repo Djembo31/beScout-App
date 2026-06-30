@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 477 | 2026-06-30 | fix(player): D-26 Player-Domain Club-Identität — dbToPlayer FK-Resolve (stale players.club-Freitext → club_id)
+- Stage-Chain: SPEC → IMPACT (inline, dbToPlayer-Consumer-Grep) → BUILD (2 Files) → REVIEW (reviewer PASS) → PROVE (vitest+DB; Live-Playwright post-Deploy) → LOG. **Mock→Pro Konsistenz-Batch; P1 sichtbar falsche Wahrheit.**
+- **Befund (Live-DB `skzjfhvgccaeplydsunz` verifiziert):** `players.club` ist stale Freitext — **294/4472 Spieler (6,57 %)** divergieren vom FK-aufgelösten `clubs.name` via `club_id`. Echte Falsch-Clubs (Adli „Bournemouth" vs FK „Bayer Leverkusen", Álvarez „Fenerbahçe" vs „West Ham"). Fantasy/Liga-Domäne migrierte 422-425 auf `club_id`, Player-Domäne las weiter Freitext → **PlayerHero zeigte Freitext-Name+Wappen MIT FK-basierter Liga-Badge = selbst-widersprüchliche Karte.**
+- **Root-Cause:** `dbToPlayer`-Mapper (players.ts) löste Liga schon FK-basiert auf (Z.214-218), Club-Name (Z.207 `club: db.club`) blieb Freitext — genau diese Inkonsistenz.
+- **Fix (1 Logik-Zeile, SSOT-Schnitt §0.3):** `players.ts:211` `club: db.club_id ? (getClub(db.club_id)?.name ?? db.club) : db.club` — parallel zur Liga-Auflösung, round-trip-sicher (`getClub(club_id).name` ist selbst Cache-Key → PlayerHero `getClub(player.club)` resolved korrektes Wappen), graceful Fallback bei NULL/Cache-cold. Cascaded zu **Player-Detail/Markt/Suche/Club/Admin** (alle dbToPlayer-Konsumenten) über EINE Zeile. Kein Backfill (S303-Klasse verboten), money/score-neutral.
+- **Verifiziert:** tsc 0 · vitest **235/235** (3 neue D-26-Tests: FK-Resolve/NULL-Fallback/Cache-cold). **Reviewer PASS** („ein Senior merged das", 4 Findings alle NITPICK/INFO). Proof `477-player-club-identity.txt`, Review `477-review.md`. **AC-6 Live-Playwright (bescout.net, divergenter Spieler) = post-Deploy offen.**
+- **§0-Schnitt-Regel:** alter Freitext-Pfad für Player-Domäne geschlossen; Rest ehrlich getrackt als **D-26b** (Holdings-Mapper [priorisiert — eligibility-affecting, Reviewer #2], Watchlist, Home-Strips-RPCs, search.ts, lineups.queries, offers, compare). disease-register D-26 → ✅ Player-Domäne geheilt.
+
 ## 476 | 2026-06-30 | fix(perf): /club Dual-Build-Crash gefixt (HydrationBoundary legacy→modern via Client-Wrapper)
 - Stage-Chain: SPEC (inline, via Dev-Repro) → BUILD (2 Files, 1 neu) → REVIEW (self-review) → PROVE (Dev + Prod) → LOG. **W6; 471-Folgefix, P0 broken-page.**
 - **Befund (Live-Walk im Rahmen 475):** `/club/[slug]` crashte **seit Slice 471 komplett** in die Error-Boundary („Etwas ist schiefgelaufen") — logged-in UND logged-out, **undetektiert** (471-Smoke lief home, nicht /club).

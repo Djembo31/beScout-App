@@ -204,7 +204,11 @@ export function dbToPlayer(db: DbPlayer): Player {
     ticket: db.shirt_number ?? 0,
     first: db.first_name,
     last: db.last_name,
-    club: db.club,
+    // Slice 477 (D-26): Club-Identität = FK-aufgelöster clubs.name (Wahrheit), NICHT
+    // der stale players.club-Freitext (6,57% divergent, S368b-Klasse). Parallel zur
+    // bereits FK-resolved Liga (unten). Fallback auf Freitext bei NULL club_id ODER
+    // Cache-cold (getClub→null) — graceful, identisch zur Liga-Auflösung.
+    club: db.club_id ? (getClub(db.club_id)?.name ?? db.club) : db.club,
     clubId: db.club_id ?? undefined,
     // Slice 326: leagueId (UUID) = Filter-Wahrheit; `league` (Name) bleibt Display.
     leagueId: db.club_id ? (getClub(db.club_id)?.league_id ?? undefined) : undefined,

@@ -1,7 +1,18 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import '@/test/mocks/supabase'; // Must be imported before any service that uses supabaseClient
+
+// Slice 477 (D-26): dbToPlayer resolves club name from FK club_id via getClub().
+// Mock it configurable — default (reset) returns undefined → fallback to freetext,
+// preserving the pre-477 behavior all other tests assume (empty club cache).
+const { mockGetClub } = vi.hoisted(() => ({ mockGetClub: vi.fn() }));
+vi.mock('@/lib/clubs', () => ({ getClub: mockGetClub }));
+
 import { centsToBsd, bsdToCents, dbToPlayer, dbToPlayers } from '../players';
 import type { DbPlayer } from '@/types';
+
+// getClub returns undefined by default → all existing tests see the freetext fallback
+// (identical to the old empty-cache behavior). D-26 tests set a return value explicitly.
+beforeEach(() => mockGetClub.mockReset());
 
 // ============================================
 // centsToBsd
@@ -123,6 +134,25 @@ describe('dbToPlayer', () => {
     expect(p.league).toBeUndefined();
     // contract_end not in mock → calcContractMonths returns 0
     expect(p.contractMonthsLeft).toBe(0);
+  });
+
+  // Slice 477 (D-26): club identity = FK-resolved clubs.name, not stale players.club freetext.
+  it('resolves club name from FK club_id when cache is ready (D-26 AC-1)', () => {
+    mockGetClub.mockReturnValue({ id: 'lev-uuid', name: 'Bayer Leverkusen', league_id: 'bl-uuid' });
+    // freetext says "Bournemouth" (stale), FK club_id resolves to the truth:
+    const p = dbToPlayer(createMockDbPlayer({ club: 'Bournemouth', club_id: 'lev-uuid' }));
+    expect(p.club).toBe('Bayer Leverkusen');
+  });
+
+  it('falls back to freetext club when club_id is null (D-26 AC-2)', () => {
+    const p = dbToPlayer(createMockDbPlayer({ club: 'Bournemouth', club_id: null }));
+    expect(p.club).toBe('Bournemouth');
+  });
+
+  it('falls back to freetext club when cache not ready / getClub null (D-26 AC-3)', () => {
+    mockGetClub.mockReturnValue(null);
+    const p = dbToPlayer(createMockDbPlayer({ club: 'Sakaryaspor', club_id: '2bf30014-db88-4567-9885-9da215e3a0d4' }));
+    expect(p.club).toBe('Sakaryaspor');
   });
 
   it('converts prices from cents to bCredits', () => {
