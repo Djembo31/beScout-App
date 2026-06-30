@@ -6,7 +6,7 @@ import SellModal from '../SellModal';
 
 vi.mock('lucide-react', () => {
   const Stub = () => null;
-  return { Send: Stub, Briefcase: Stub, Loader2: Stub, CheckCircle2: Stub, XCircle: Stub, Lock: Stub, Zap: Stub };
+  return { Send: Stub, WalletCards: Stub, Loader2: Stub, CheckCircle2: Stub, XCircle: Stub, Lock: Stub, Zap: Stub };
 });
 vi.mock('@/lib/utils', () => ({
   cn: (...c: (string | boolean | undefined | null)[]) => c.filter(Boolean).join(' '),

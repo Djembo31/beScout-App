@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { Briefcase, Loader2, Zap } from 'lucide-react';
+import { WalletCards, Loader2, Zap } from 'lucide-react';
 import { Card } from '@/components/ui';
 import { fmtScout } from '@/lib/utils';
 import { centsToBsd } from '@/lib/services/players';
@@ -65,7 +65,7 @@ export default function SellModal({
     <Card className="overflow-hidden">
       <div className="bg-gradient-to-r from-green-500/20 to-green-500/5 border-b border-green-500/20 p-4">
         <div className="flex items-center gap-2">
-          <Briefcase className="size-5 text-green-500" aria-hidden="true" />
+          <WalletCards className="size-5 text-green-500" aria-hidden="true" />
           <span className="font-black text-green-500">{t('yourPosition')}</span>
         </div>
       </div>

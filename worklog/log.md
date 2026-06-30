@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 484 | 2026-06-30 | fix(compliance): D-24 — Securities-Wording-Heal (Deine Position→Dein Kader, Ø-Kosten, P&L→Wertänderung, Briefcase→WalletCards)
+- Stage-Chain: SPEC (inline) → BUILD (4 Files) → REVIEW (self-review + CEO-Wording-Approval) → PROVE (JSON+tsc+vitest+grep) → LOG. **Mock→Pro Konsistenz-Batch; Compliance/CEO; kein Money-Verhalten.**
+- **Befund (Register D-24):** Aktiendepot-Vokabular user-facing in `YourPosition.tsx` + `SellModal.tsx` (business.md Slice-224-Verbot, Guard nie verkabelt): „Deine Position"/„Pozisyonun" (Holdings-Karten-Titel, 2×) + Aktenkoffer-Icon (Briefcase, Depot-Bild) + „Avg. Kosten"/„Ort. Maliyet" (Kostenbasis) + P&L-Frame.
+- **Fix (CEO-Wording approved, Anil via AskUserQuestion):** `positionTitle`+`yourPosition` → **„Dein Kader"/„Kadron"** (business.md-sanktionierte Portfolio→Kader/Kadro-Ersetzung, FM-Frame) · Briefcase → **WalletCards** (Sammelkarten-Icon) · `positionAvgCost` → **„Ø Kaufpreis"/„Ort. Alış"** (faktisch statt Kostenbasis) · `positionPnL` „+/−" → **„Wertänderung"/„Değer Değişimi"** (% + grün/rot bleiben, neutrales Label). „Wert"/„Değer" + Werte unverändert (neutral).
+- **Scope-Disziplin:** NUR Trading-Position-Strings. Football-„Position" (positionLabel/byPosition/min_per_position = Spielposition GK/DEF/MID/ATT) **unberührt** — business.md verbietet nur den Trading-Sinn.
+- **Verifiziert:** JSON valide DE+TR (`node JSON.parse`, S399-Pflicht; Ø/ä/ğ/ş sauber) · tsc 0 · vitest SellModal **4/4** (Test-Mock Briefcase→WalletCards mitgezogen) · grep Briefcase=0 · neue Werte bestätigt. **TR-Wording CEO-approved** (business.md „TR vor Commit" erfüllt). Proof `484-*.txt`, Review `484-review.md`. **AC-Visual (Label-Länge mobile) = post-Deploy bescout.net.**
+- **§0/Compliance:** Trading-Position-Vokabular eliminiert. disease-register D-24 → ✅ geheilt → **Konsistenz-Batch KOMPLETT** (D-23/24/25/26/26b/26c/27; nur D-26c-Cache-Race S286 geparkt).
+
 ## 483 | 2026-06-30 | refactor(utils): D-33 — Relativzeit-Formatter konsolidiert (totes EN-leakendes timeAgo raus, 2 Kopien → formatTimeAgo)
 - Stage-Chain: SPEC (inline XS) → BUILD (5 Files) → REVIEW (self-review, §0-Subtraktion) → PROVE (tsc+vitest+grep) → LOG. **Mock→Pro Anti-Akkretion; autonom; §0-Konsolidierung (kein Money/DB).**
 - **Befund (dup-registry D-33, TOOL-FUND S434):** 3 Relativzeit-Formatter statt 1: `utils.ts:timeAgo(number)` hartcodierte EN „just now"/„Xm ago" (i18n-Leak) — aber **0 Prod-Consumer** (nur utils.test.ts) = totes Duplikat des kanonischen `formatTimeAgo` (8 Consumer); + 2 lokale Kopien `NotificationDropdown.tsx:120` (byte-exakte Kopie) + `AdminWithdrawalTab.tsx:18` (reduzierte Variante ohne nowLabel).

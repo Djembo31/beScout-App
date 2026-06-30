@@ -2,24 +2,28 @@
 
 ```
 status: idle
-slice: 483
-title: D-33 — Relativzeit-Formatter konsolidiert (totes timeAgo raus, 2 Kopien → formatTimeAgo) — DONE
-size: XS
-type: Service
-welle: Mock→Pro Anti-Akkretion (dup-registry D-33)
+slice: 484
+title: D-24 — Securities-Wording-Heal (CEO-approved) — DONE
+size: S
+type: i18n
+welle: Mock→Pro Konsistenz-Batch (disease-register D-24)
 stage: LOG (done)
-proof: worklog/proofs/483-timeago-consolidation.txt
-review: worklog/reviews/483-review.md (self-review)
+proof: worklog/proofs/484-wording-heal.txt
+review: worklog/reviews/484-review.md
 ```
 
-## Slice 483 DONE (autonom, §0-Konsolidierung)
-- 3 Relativzeit-Formatter → 1 kanonischer `formatTimeAgo`: totes EN-leakendes `utils.ts:timeAgo(number)` (0 Prod-Consumer) + 4 Tests gelöscht; 2 lokale Kopien (NotificationDropdown exakt, AdminWithdrawalTab reduziert) → `formatTimeAgo`; FollowingFeedRail-Variable `timeAgo`→`relativeTime`.
-- `timeAgo`-Symbol grep-bewiesen restlos weg. AdminWithdrawal/NotificationDropdown <1min → `tc('timeNow')` (Jetzt/Şimdi, common-Key existiert → kein neuer TR-String).
-- tsc 0 · vitest 57+2 · self-review PASS. dup-registry D-33 → ✅ geheilt.
+## Slice 484 DONE (D-24, CEO-Wording approved)
+- Aktiendepot-Vokabular in YourPosition/SellModal eliminiert (business.md Slice-224-Verbot):
+  „Deine Position"/„Pozisyonun" → **Dein Kader/Kadron** · Aktenkoffer → **WalletCards** · „Avg. Kosten" → **Ø Kaufpreis/Ort. Alış** · P&L „+/−" → **Wertänderung/Değer Değişimi** (% + Farbe bleiben).
+- CEO-Wording approved (Anil via AskUserQuestion). Football-„Position" (Spielposition) unberührt.
+- JSON valide DE+TR · tsc 0 · vitest SellModal 4/4 · self-review PASS. **AC-Visual (Label-Länge mobile) post-Deploy.**
+
+## ✅ Konsistenz-Batch KOMPLETT
+- D-23 (467) · D-25 (479) · D-26/26b (477/478) · D-26c Display (481/482) · D-27 (480) · **D-24 (484)**. Nur D-26c-Cache-Race S286/D-03 (Architektur) geparkt.
 
 ## Zuletzt
-- **Slice 483** (2026-06-30) — D-33 timeAgo-Konsolidierung (XS, self-review, `<commit>`).
-- **Slice 482** (2026-06-30) — D-26c Teil 2 RPC Server-Resolve (S, self-review, `49510cb5`). **D-26c Display done.**
-- **Slice 481** (2026-06-30) — D-26c Teil 1 no-DB (S, self-review, `29dd6b93`).
+- **Slice 484** (2026-06-30) — D-24 Securities-Wording (S, CEO-approved + self-review, `<commit>`).
+- **Slice 483** (2026-06-30) — D-33 timeAgo-Konsolidierung (XS, `f491958f`).
+- **Slice 482** (2026-06-30) — D-26c Teil 2 RPC (S, `49510cb5`).
 
-Nächstes (CEO-Richtung): Konsistenz-Batch leer bis auf **D-24** (Wording, Compliance/CEO + TR). Große Hebel (CEO-Scope): W3 Lineup-Datenmodell (D-04) · W6 SSR Phase 3 · Mock→Pro Welle 3 (Events). P2-Cleanup: Phantom-Event GW37 + Süper-Lig-max_gameweeks.
+Nächstes (CEO-Richtung): große Hebel — W3 Lineup-Datenmodell (D-04, root-cause #2) · W6 SSR Phase 3 · Mock→Pro Welle 3 (Events/Aufstellung). P2-Cleanup: Phantom-Event GW37 · Süper-Lig-max_gameweeks · D-26c-Cache-Race.

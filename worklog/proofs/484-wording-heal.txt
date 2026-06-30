@@ -1,0 +1,33 @@
+Slice 484 — D-24: Securities-Wording-Heal (SellModal/YourPosition)
+Proof — 2026-06-30 · CEO-Wording approved (Anil, AskUserQuestion)
+
+=== BEFUND (business.md Slice-224-Verbot, Guard nie verkabelt) ===
+Aktiendepot-Vokabular in YourPosition.tsx + SellModal.tsx:
+- "Deine Position"/"Pozisyonun" (positionTitle + yourPosition) = Trading-Position-Vokabular
+- Aktenkoffer-Icon (Briefcase, SellModal:68) = Depot-Bild
+- "Avg. Kosten"/"Ort. Maliyet" (positionAvgCost) = Kostenbasis-Frame
+- P&L-Frame (positionPnL)
+
+=== CEO-ENTSCHEIDUNG (3 Wording-Fragen via AskUserQuestion) ===
+| Stelle               | Alt DE / TR                 | Neu DE        | Neu TR          |
+| positionTitle+yourPosition | Deine Position / Pozisyonun | Dein Kader    | Kadron          |
+| positionAvgCost      | Avg. Kosten / Ort. Maliyet  | Ø Kaufpreis   | Ort. Alış       |
+| positionPnL          | +/−                         | Wertänderung  | Değer Değişimi  |
+| Briefcase-Icon       | Aktenkoffer                 | WalletCards   | —               |
+- "Kader/Kadro" = business.md-sanktionierte Portfolio-Ersetzung (FM-Frame).
+- Wertänderung: % + grün/rot bleiben (neutrales Label statt P&L). "Wert"/"Değer" + Werte unverändert (neutral).
+
+=== VERIFIKATION ===
+JSON valide: de.json OK · tr.json OK (node JSON.parse, S399-Pflicht)
+Neue Werte bestätigt (grep de+tr): Dein Kader/Kadron · Ø Kaufpreis/Ort. Alış · Wertänderung/Değer Değişimi
+Briefcase aus SellModal.tsx: 0 Treffer (→ WalletCards, Import + Usage + Test-Mock)
+vitest SellModal.test.tsx: 4 passed
+tsc --noEmit: EXIT 0
+
+=== RESTLICHE "Position"-Strings (NICHT angefasst — legitim) ===
+positionLabel/byPosition/positionMismatch/min_per_position etc. = SPIELPOSITION (GK/DEF/MID/ATT),
+business.md verbietet nur den Trading-Sinn → korrekt unberührt.
+
+=== §0 / Compliance ===
+Trading-Position-Vokabular user-facing eliminiert (Holdings-Karte = "Dein Kader"). disease-register D-24 → geheilt.
+TR-Wording CEO-approved (Anil). AC-Visual (Layout "Wertänderung" länger als "+/−") = post-Deploy bescout.net.
