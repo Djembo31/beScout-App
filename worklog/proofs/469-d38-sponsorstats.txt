@@ -1,0 +1,37 @@
+Slice 469 — D-38: sponsorStats Silent-Fail (throw statt return [])
+Proof — 2026-06-30 · CTO
+
+================================================================================
+BEFORE (src/lib/queries/sponsorStats.ts:14-17)
+================================================================================
+  if (error) {
+    console.error('[SponsorStats] fetch failed:', error);
+    return [];                       // <- React Query cached [] als SUCCESS (kein Retry, kein Error-State)
+  }
+
+================================================================================
+FIX
+================================================================================
+  if (error) throw new Error(error.message);   // common-errors §1: throw -> React Query Error-State + Retry
+
+================================================================================
+PROOF
+================================================================================
+AC-01 [ERROR] throw statt return []:
+  $ grep -n "throw new Error" src/lib/queries/sponsorStats.ts -> "if (error) throw new Error(error.message);"
+  => PASS
+
+AC-02 [REGRESSION] Consumer-Guard (kein Crash bei undefined data):
+  AdminSponsorsTab.tsx:204  <SponsorStatsSection stats={stats ?? []} ... />   (SponsorStatsSection nutzt stats-Prop)
+  AdminSponsorTab.tsx:49     const stats = (allStats ?? []).filter(...)
+  => beide guarden undefined -> throw aendert nur Silent->Error-State, kein Crash. beide admin-gated.
+  => PASS
+
+AC-03 [REGRESSION] tsc:
+  $ npx tsc --noEmit -> exit 0
+  => PASS
+
+================================================================================
+VERDICT: all ACs PASS. Silent-Fail geschlossen — RPC-Error wird geworfen (React Query
+retried + Error-State) statt [] als SUCCESS zu cachen. Consumer guarden bereits (kein Crash).
+================================================================================

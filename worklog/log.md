@@ -2,6 +2,20 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 469 | 2026-06-30 | fix(silent-fail): D-38 — sponsorStats throw statt return [] (common-errors §1)
+- Stage-Chain: SPEC → BUILD (1 Edit) → REVIEW (self-review, XS common-errors-§1-Pattern) → PROVE (tsc + Consumer-Guard) → LOG. **CTO; P2-Hygiene-Lane.**
+- **Befund (Reviewer-Catch S467):** `sponsorStats.ts:14-17` `fetchSponsorStats` schluckte RPC-Error (`console.error` + `return []`) → React Query cached `[]` als SUCCESS (kein Retry/Error-State; Admin sah leere Sponsor-Stats ohne Fehler).
+- **Fix:** `if (error) throw new Error(error.message)`. Consumer-Guard-Check: `AdminSponsorsTab:204` (`stats ?? []`) + `AdminSponsorTab:49` (`allStats ?? []`) guarden undefined → kein Crash, nur kein Silent-Cache mehr. Beide admin-gated.
+- **Proof:** grep throw-Zeile + Consumer-Guards + tsc 0. Proof `469-d38-sponsorstats.txt`, Review `469-review.md` (self-review). Disease-Register D-38 → geheilt.
+
+## 468 | 2026-06-30 | chore(db): search_path-Härtung 62 SECDEF-Fns + update_club_assets anon-REVOKE (live)
+- Stage-Chain: SPEC → IMPACT (skipped: reine Fn-Config + 1 REVOKE) → BUILD (1 Migration, DO-Loop) → PROVE (count 62→0 + Money-force-rollback + db-invariants) → REVIEW (Cold-Context **CONCERNS** = Evidenz-Auditierbarkeit, Korrektheit PASS, beide adressiert) → CEO-Apply → LOG. **Security-Härtung §3 (touched Money body-erhaltend); CEO autonom-Go Anil „P2-Security-Hygiene".**
+- **Befund (Advisor `function_search_path_mutable`):** 62 SECDEF-non-trigger-Fns (inkl. Money-RPCs) ohne gepinntes search_path = Hijack-Vektor (Owner-Kontext + Aufrufer-search_path). Risk-Scan (unqualifizierte Extension/vault/etc-Refs) = **leer** → `'public'`-Pin body-erhaltend. + `update_club_assets` vestigial anon-granted (Mutation, guard-geschützt).
+- **Fix (live, Migration `20260630150000`):** DO-Loop `ALTER FUNCTION … SET search_path TO 'public'` (KEIN CREATE OR REPLACE, prosrc byte-identisch) auf alle 62 + trailing Count-Assertion (RAISE wenn remaining>0 = selbst-verifizierend) + `REVOKE update_club_assets FROM anon`.
+- **Proof:** `function_search_path_mutable` (SECDEF-non-trigger) **62→0** + `remaining_mutable=0` (Assertion) + Money-force-rollback (`grant_founding_pass` Mint ok=true/250000, rolled back = search_path-Pin bricht Money-Body nicht) + `is_club_admin`-Stichprobe + db-invariants unverändert 3 (INV-31 ruft gepinnte Audit-RPC) + Risk-Scan-Query committed. update_club_assets anon=FALSE/auth=TRUE. **Bonus (Reviewer):** REVOKE schließt echtes AR-44/default-privileges-Loch (altes REVOKE-ALL-FROM-PUBLIC strippt anon-Grant nicht). Proof `468-search-path.txt`, Review `468-review.md`.
+- **Knowledge:** errors-db **S468** (ALTER-SET-search_path body-erhaltend; DO-Loop+Count-Assertion; Break-Risiko nur unqualifizierte `extensions`-Refs; Scan-Query committen; anon-Grant trotz REVOKE-ALL-FROM-PUBLIC). Disease-Register: search_path SECDEF-non-trigger geheilt; INVOKER(11)+Trigger(15) offen (niedriger). MASTERPLAN W0.
+- **Scope-Out:** INVOKER/Trigger-search_path (kein Escalation) · anon-Hygiene-Rest (Trigger AR-44-unnötig, Kalkulatoren RLS-Risiko, Leaderboard anon behalten) = P2 geparkt.
+
 ## 467 | 2026-06-30 | fix(ui): D-23 — Geld-Formatter konsolidieren (formatScout → fmtScout, 2 Dez)
 - Stage-Chain: SPEC → IMPACT (skipped: reine Display-Logik) → BUILD (1 Service + 2 Tests) → REVIEW (Cold-Context **CONCERNS** = LOG-Housekeeping, Code PASS, alle adressiert) → PROVE (tsc + Tests) → LOG. **Display-Konsolidierung CTO; CEO-Format-Entscheid Anil 2026-06-30: 2 Dezimalstellen.**
 - **Befund (D-23, dup-registry):** `fmtScout(credits)` (utils.ts, 2-Dez) vs `formatScout(cents)` (wallet.ts, 0-Dez, versteckte Cent-Anteil) → SideNav „11.708,27" vs TopBar „11.708" für dieselbe Wallet (~45% fractional). Sichtbare Geld-Divergenz (visible-false-truth).

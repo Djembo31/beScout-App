@@ -1,0 +1,64 @@
+Slice 468 — W0: search_path-Härtung (62 SECDEF-Fns) + update_club_assets anon-REVOKE
+Proof — 2026-06-30 · DB skzjfhvgccaeplydsunz · CEO autonom-Go (Anil, §3)
+Migration: 20260630150000_slice_468_search_path_hardening.sql (apply_migration → {success:true})
+
+================================================================================
+BEFORE (read-only)
+================================================================================
+function_search_path_mutable: 62 SECDEF non-trigger public fns OHNE gepinntes search_path
+  = Hijack-Vektor (Owner-Kontext + Aufrufer-search_path; inkl. Money-RPCs grant_founding_pass etc.).
+Risk-Ref-Scan (Extensions/vault/net/graphql/http/pgcrypto unqualifiziert): LEER
+  -> alle referenzieren nur public + pg_catalog-Builtins + qualifizierte auth.* -> 'public'-Pin body-erhaltend.
+update_club_assets(uuid,uuid,text,text): SECDEF-Mutation, vestigial anon-granted (anon=true);
+  guard-geschuetzt (auth.uid()!=p_admin_id->RAISE); app-Caller club.ts:790 = authenticated.
+
+================================================================================
+FIX
+================================================================================
+DO-Loop: ALTER FUNCTION public.<fn>(<args>) SET search_path TO 'public'  (alle 62, body-erhaltend, KEIN CREATE OR REPLACE)
++ REVOKE EXECUTE ON FUNCTION public.update_club_assets(uuid,uuid,text,text) FROM anon;
+
+================================================================================
+AFTER (live, post-apply)
+================================================================================
+AC-01 [SECURITY] search_path-mutable SECDEF-non-trigger: 62 -> 0   => PASS
+AC-04 [SECURITY] update_club_assets: anon=FALSE, authenticated=TRUE   => PASS
+       grant_founding_pass jetzt SET search_path TO 'public' = TRUE
+
+AC-02/AC-05 [REGRESSION/Stichprobe, force-rollback, JWT-sub]:
+  SMOKE >>> is_club_admin_ran=t | gfp ok=true bcredits=250000 (rolled back)
+  - is_club_admin (search_path-pinned Kalkulator) laeuft   => PASS
+  - grant_founding_pass (search_path-pinned MONEY-RPC) mintet end-to-end ok=true/250000   => PASS
+  => search_path-Pin body-erhaltend (Money-Body + Resolution unveraendert)
+
+AC-03 [REGRESSION] db-invariants (Live-DB-Fns, inkl. gepinnte get_security_definer_user_param_audit):
+  $ npx vitest run db-invariants.test.ts -> 3 failed (INV-19/32/33 pre-existing, UNCHANGED)
+  INV-31 NICHT in failed list = ruft die search_path-gepinnte Audit-RPC erfolgreich (sonst 4).
+  => PASS (keine der 62 gepinnten Fns bricht)
+
+================================================================================
+VERDICT: all ACs PASS. 62 SECDEF-Fns search_path-gehaertet (Hijack-Vektor zu, inkl. Money-RPCs,
+body-erhaltend via ALTER SET); update_club_assets anon-Mutations-Grant entzogen. Money-Mint
+end-to-end bewiesen, db-invariants unveraendert. function_search_path_mutable (SECDEF-non-trigger) = 0.
+================================================================================
+
+================================================================================
+RISK-REF-SCAN (committed, Reviewer S468 Finding #1) — reproduzierbar
+================================================================================
+-- Break-Risiko bei 'public'-Pin = NUR unqualifizierte Refs auf ein Schema, das im Runtime-
+-- search_path liegt aber nicht public ist = in Supabase NUR `extensions`. auth./storage./
+-- realtime./cron. sind NICHT im Default-Pfad -> muessen ohnehin qualifiziert sein -> Pin aendert
+-- ihre Resolution nicht. pg_catalog bleibt implizit. -> Scan deckt die einzige reale Klasse.
+SELECT p.proname FROM pg_proc p JOIN pg_namespace ns ON ns.oid=p.pronamespace
+WHERE ns.nspname='public' AND p.prosecdef AND p.prorettype<>'trigger'::regtype
+  AND (p.prosrc ~* '\b(gen_salt|crypt|uuid_generate|pgp_|armor|digest|hmac|extensions\.|vault\.|graphql\.|net\.|http_)');
+  => risky_ref_count = 0  (keine Fn nutzt unqualifizierte extensions-Refs)
+
+SELF-VERIFYING ASSERTION (Reviewer S468 Finding #2, jetzt in der Migration):
+  remaining mutable (SECDEF-non-trigger-public ohne search_path) MUST be 0 else RAISE EXCEPTION
+  => remaining_mutable = 0  (Assertion passt live; greenfield-replay self-checks)
+
+REVIEWER-VERDICT: CONCERNS (Evidenz-Auditierbarkeit, NICHT Korrektheit) — beide Findings adressiert.
+Bonus-Befund Reviewer: update_club_assets-REVOKE schliesst ein echtes latentes AR-44/default-
+privileges-Loch (067 REVOKE ALL FROM PUBLIC liess anon-Grant live stehen).
+================================================================================

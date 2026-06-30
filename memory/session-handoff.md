@@ -1,19 +1,23 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-30 01:08)
+# Session Handoff — Auto (2026-06-30 01:56)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 6 Files
+## Uncommitted Changes: 9 Files
 ```
- M src/lib/services/__tests__/wallet-v2.test.ts
- M src/lib/services/__tests__/wallet.test.ts
- M src/lib/services/wallet.ts
+ M memory/session-handoff.md
+ M src/lib/queries/sponsorStats.ts
  M worklog/active.md
-?? worklog/proofs/467-d23-formatter.txt
-?? worklog/specs/467-d23-money-formatter-consolidate.md
+?? supabase/migrations/20260630150000_slice_468_search_path_hardening.sql
+?? worklog/proofs/468-search-path.txt
+?? worklog/proofs/469-d38-sponsorstats.txt
+?? worklog/reviews/469-review.md
+?? worklog/specs/468-search-path-hardening.md
+?? worklog/specs/469-d38-sponsorstats-silent-fail.md
 ```
 
 ## Session Commits: 10
+- 4900819b fix(ui): Slice 467 — D-23 Geld-Formatter konsolidieren (formatScout -> fmtScout, 2 Dez)
 - f2de961a chore(db): Slice 466 — W0 Security-Map-Recon-RPCs admin-only (REVOKE anon+auth) (live)
 - 0fe1aedd fix(security): Slice 465 — D-37b top_role='Admin'-Familie vollstaendig schliessen (live)
 - 54765397 fix(security): Slice 464 — D-37 SOLE-gate top_role-RPCs auf platform_admins (live)
@@ -23,7 +27,6 @@
 - 055c839e fix(security): Slice 460 — INV-31 REVOKE no_guard SECDEF-RPCs (calculate_fan_rank + refund_wildcards_on_leave) (live)
 - b121ee9a fix(invariants): Slice 459 — INV-XS Doppel-Fix (success_fee + events-Snapshot)
 - 06ab5d62 chore(db): Slice 458 — Dead-Feature-GC-Batch D-13 (season_reset_scores) + D-10 (2. Mission-System) (live)
-- b1432588 chore(db): Slice 457 — D-11 Dead-Scoring-Modell GC (bescout_scores+score_events+award_score_points gedroppt, live)
 
 <!-- auto:handoff-end -->
 
@@ -31,6 +34,16 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-30 (Teil 25) — P2-Security-Hygiene-Lane durchgearbeitet (Slices 468+469). Autonom „durcharbeiten + zurückkommen".**
+> - **CEO Anil:** „Alle P2-Security-Hygiene durcharbeiten und zurückkommen" → autonome Lane, echte Gabeln geparkt.
+> - **✅ 468 (live, Migration `20260630150000`):** `function_search_path_mutable`-Härtung — 62 SECDEF-non-trigger-Fns (inkl. Money-RPCs) `ALTER SET search_path='public'` (body-erhaltend, Risk-Scan leer = nur `extensions`-Refs wären riskant, keine vorhanden). 62→0 + selbst-verifizierende Count-Assertion. Money-Mint (grant_founding_pass ok=true/250000 rolled back) + db-invariants unverändert. + `update_club_assets` anon-REVOKE (Bonus: echtes AR-44/default-privileges-Loch). Reviewer CONCERNS=Auditierbarkeit (Scan-Query+Assertion nachgereicht), Korrektheit PASS. Knowledge errors-db **S468**.
+> - **✅ 469 (live):** D-38 sponsorStats Silent-Fail → `throw` (Consumer guarden `?? []`, kein Crash; common-errors §1). Self-review.
+> - **🅿️ GEPARKT (bewusst, kein Wert/Risiko-Missverhältnis):** kosmetische anon-Hygiene — Trigger-REVOKEs (AR-44: Trigger brauchen keinen EXECUTE-Grant, unnötig) · Pure-Kalkulator-REVOKEs (RLS/View-Eval-Risiko bei P2-Wert) · 4 Leaderboard/Markt-RPCs anon **behalten** (öffentlich-anzeigbare Daten, kein PII) · search_path INVOKER(11)+Trigger(15) (kein Privilege-Escalation, niedriger) · 81 permissive Policies + 26 unused + 51 FK-Index (= Perf-Domäne, eigene Lane).
+> - **🟢 SESSION-BILANZ autonom (460-469, 10 Slices, alle live+gepusht):** W0-Security-Block KOMPLETT (no_guard/Dead-RPC/v2-PII/top_role-Familie-7-RPCs/Recon-Leak/**search_path-62-Fns**) + D-23 Geld-Divergenz + D-38 Silent-Fail. Die substanziellen Security/Money-Display-Risiken dieser Domänen geschlossen.
+> - **⏭️ NÄCHSTES (CEO-Richtung nötig — Hochwert-Stoff erschöpft):** **AC-05 Visual D-23** post-Deploy (fractional-Konto). Dann **CEO-Scope:** D-24 Wording-Compliance (Securities-Vokabular, business.md, +TR) · Dead-GC D-14/15/16 (Money) · ODER 81 Policies/Index (Perf-Lane, autonom-fähig). P2-Security-Hygiene ist durch.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-30 (Teil 24) — D-23 Geld-Formatter-Divergenz geheilt (Slice 467). Autonom-Modus.**
 > - **CEO Anil:** Format-Entscheid „2 Dezimalstellen" → CTO-Umsetzung autonom.
 > - **Fix (Commit folgt):** `formatScout(cents)` (wallet.ts, war 0-Dez, versteckte Cent-Anteil) delegiert jetzt an kanonischen `fmtScout(Math.round(cents)/100)` (utils.ts, 2-Dez). EINE Formatierungs-Wahrheit; SideNav/TopBar zeigen konsistent 2-Dez. 1-Zeilen-Delegation statt 604-Caller/201-File-Refactor. `maximumFractionDigits:2` (kein min) → ganze Credits unverändert „10.000", nur fractional „…,27".
