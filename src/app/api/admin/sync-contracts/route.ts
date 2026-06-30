@@ -145,8 +145,21 @@ export const POST = withLogger('admin.sync-contracts', async (req, { log }) => {
       .filter(c => clubApiIdMap.has(c.id as string))
       .map(c => ({ ...c, _apiFootballId: clubApiIdMap.get(c.id as string)! }));
 
-    if (!clubs?.length) return NextResponse.json({ error: 'No clubs with api_football external ID' }, { status: 500 });
-    if (!extIds.length) return NextResponse.json({ error: 'No mapped players' }, { status: 500 });
+    // Slice 489: empty input is "nothing to sync", NOT a server error — return 200
+    // so the withLogger 5xx-net (S488) does not capture it as a false Sentry alert.
+    const nothingToSync = (reason: string) =>
+      NextResponse.json({
+        message: `Nothing to sync: ${reason}`,
+        skipped: true,
+        apiCalls: 0,
+        totalMapped: 0,
+        contractsFound: 0,
+        updated: 0,
+        errors: [],
+        preview: [],
+      });
+    if (!clubs?.length) return nothingToSync('no clubs with api_football external ID');
+    if (!extIds.length) return nothingToSync('no mapped players');
 
     const playerNameMap = new Map<string, string>();
     for (const p of (players ?? [])) {

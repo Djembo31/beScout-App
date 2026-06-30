@@ -1,0 +1,41 @@
+Slice 489 — 5xx-Status-Code-Audit: sync-contracts Leerdaten-als-500 → 200+skip
+PROOF — 2026-07-01  (488 Reviewer-Finding #1)
+
+═══════════════════════════════════════════════════════════════════════
+AUDIT (alle 64 status:500-Returns über 24 Routen kategorisiert)
+═══════════════════════════════════════════════════════════════════════
+A) Config-Guard (env missing → 500):  API_FOOTBALL_KEY/SUPABASE_SERVICE_ROLE_KEY/
+   serviceKeyMissing/cronSecretMissing — feuert NUR bei Fehl-Deploy (Prod konfiguriert
+   → 0 Noise), missing critical env = legitimes Ops-Signal → LASSEN.
+B) Echter Supabase-Error (if (error)/if (leagueErr)/… → 500):  expire-orders, events,
+   players, dedup-cleanup, close-expired-bounties, sync-* (fixtures/injuries/players/
+   standings/transfers/transfermarkt), calculate-*, gameweek-sync, live-score-sync,
+   invite-club-admin, players-csv — SOLLEN captured werden → LASSEN.
+C) MIS-MODELLIERT (Leerdaten-als-500):  admin/sync-contracts/route.ts:148-149 NUR.
+   `!clubs?.length` / `!extIds.length` → Leerdaten = nichts zu syncen = KEIN Server-Fehler.
+   → reklassifiziert.
+Grenzfall (bewusst LASSEN): gameweek-sync:268 `!activeLeagues` → 500 = „System ohne Ligen
+   = kaputt" (feuert ~nie, dann berichtenswert).
+
+═══════════════════════════════════════════════════════════════════════
+FIX (chirurgisch, 1 File, 2 Zeilen → Helper)
+═══════════════════════════════════════════════════════════════════════
+sync-contracts:148-149:  500 'No clubs…'/'No mapped players'  →  200
+  { message:'Nothing to sync: <reason>', skipped:true, apiCalls:0, totalMapped:0,
+    contractsFound:0, updated:0, errors:[], preview:[] }   (spiegelt Erfolgs-Shape)
+
+═══════════════════════════════════════════════════════════════════════
+PROVE
+═══════════════════════════════════════════════════════════════════════
+$ npx tsc --noEmit  → EXIT 0
+
+AC1: sync-contracts Leerdaten → 200+skip (Helper nothingToSync), Erfolgs-Shape mit zeros. ✅
+AC2: Consumer-Check — grep sync-contracts in src/app|components|features|lib (ohne route.ts)
+     → nur src/lib/schemas/syncContracts.schema.ts (Body-Schema, kein fetch-Consumer).
+     Kein hartes status===500-Handling → 200+skip bricht nichts. ✅
+AC3: $ grep -rnE "!.*\?\.length|length === 0|!extIds|!clubs" src/app/api | grep 500
+     → 0 Treffer (keine Leerdaten-als-500 mehr). ✅
+     sync-contracts verbleibende 500er: Z.60 (config-guard, korrekt) + Z.280 (catch err, korrekt).
+
+REVIEW: self-review (XS, reine Status-Code-Semantik, kein Money/Security/Logik-Change;
+   488-Reviewer hatte die Stelle bereits als #1 benannt → Diagnose extern bestätigt).

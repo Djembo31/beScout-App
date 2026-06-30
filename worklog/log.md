@@ -2,6 +2,12 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 489 | 2026-07-01 | fix(observability): 5xx-Status-Code-Audit — sync-contracts Leerdaten-als-500 → 200+skip
+- Stage-Chain: SPEC (inline) → BUILD (1 File) → REVIEW (self, XS) → PROVE (tsc + audit-grep + consumer-check) → LOG. **488-Reviewer-Finding #1; P2 (CEO „p2"); Observability-Noise-Reduktion; kein Money/Logik.**
+- **Audit:** alle 64 `status:500`-Returns über 24 Routen kategorisiert — die EINZIGE Leerdaten-als-500-Mis-Modellierung ist `admin/sync-contracts/route.ts:148-149` (`!clubs?.length`/`!extIds.length`). Rest = Config-Guards (feuern nur bei Fehl-Deploy, legitimes Signal) + echte Supabase-Errors (sollen captured werden). `gameweek-sync:268` (`!activeLeagues`) = Grenzfall „System kaputt" → bewusst gelassen.
+- **Fix:** 500 → **200** mit Skip-Shape (`{message:'Nothing to sync: …', skipped:true, …zeros}`, spiegelt Erfolgs-Shape). Leerdaten = nichts zu syncen = kein Server-Fehler → der 488-`withLogger`-5xx-Net captured es nicht mehr als False-Alert.
+- **PROVE:** tsc 0 · AC3-grep 0 verbleibende Leerdaten-als-500 · Consumer-Check (nur Body-Schema, kein fetch-Consumer mit `status===500`-Handling → bricht nichts) · Proof `489-5xx-statuscode.txt`. Schließt 488-P2 (TODO).
+
 ## 488 | 2026-07-01 | fix(observability): Sentry-Blindspots — withLogger captured returned 5xx + push-Cleanup
 - Stage-Chain: SPEC (inline) → BUILD (3 Files) → REVIEW (reviewer-agent PASS) → PROVE (tsc + 11 vitest + grep) → LOG. **Mock→Pro W6/Observability; Money-Sichtbarkeit (§3-nah); S369-Folge.**
 - **Problem (live verifiziert):** `withLogger` (apiLogger.ts) captured Errors NUR beim throw (re-throw-Pfad). 64 `status:500`-Returns über 24 Routen werfen NIE → Sentry-blind (S369). Money-kritisch betroffen: `cron/expire-orders` (Escrow-Release), `close-expired-bounties` (Bounty-Refund), `gameweek-/live-score-sync` (Scoring); user-facing `events`/`players`. App-weit nur 28 captureError; nur `push` captured explizit (S369-Einzelfix). Alle 24 Routen nutzen withLogger (0 unwrapped).
