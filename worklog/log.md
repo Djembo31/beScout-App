@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 478 | 2026-06-30 | fix(fantasy): D-26b Holdings + Search Mapper Club-FK-Resolve (eligibility-affecting)
+- Stage-Chain: SPEC → BUILD (2 Logik-Zeilen + 1 Import) → REVIEW (self-review, XS triviale 477-Wiederholung) → PROVE (tsc+vitest+Eligibility-Trace) → LOG. **Mock→Pro Konsistenz-Batch; autonom (Fortsetzung 477).**
+- **Befund (Reviewer-S477-#2, priorisiert):** 2 Mapper, die `dbToPlayer` NICHT durchlaufen, lasen weiter stale `players.club`-Freitext — beide haben `club_id` in der Row → 477-Muster anwendbar. **`holdingMapper.ts:45` (eligibility-affecting):** `UserDpcHolding.club` speist das Fantasy-Event-Requirement-Gate (`useLineupBuilder:358-362` substring-match `holding.club` gg. `specificClub`) → divergenter Spieler matcht „aus Club X"-Requirement falsch. **`search.ts:96`** (⌘K SearchOverlay).
+- **Fix:** `holdingMapper.ts:45` `club: clubLookup?.name ?? h.player.club ?? ''` (reuse des Z.33 bereits berechneten `clubLookup`) + `search.ts:96` `club: getClub(p.club_id)?.name ?? p.club` (+getClub-Import). Server `rpc_save_lineup` bleibt autoritativ → Client-Preview-Korrektheit, kein Money-Bug.
+- **Verifiziert:** tsc 0 · vitest **14/14** (3 neue FK-Tests: holdingMapper FK+Fallback, search FK). Mock-Lücke gefixt (search.test mockte `@/lib/clubs` ohne `getClub` = Transitive-Mock-Expansion, testing.md; +holdingMapper vi.hoisted getClub-Mock). Proof `478-*.txt`, self-review `478-review.md`.
+- **§0-Schnitt-Regel:** Freitext-Pfad in diesen 2 Mappern auf FK kanonisiert. **D-26c** angelegt: Rest-Mapper ohne `club_id` (watchlist/lineups.queries/offers/trading-movers = Select/RPC-Change) + Player-Detail Cold-Load-Cache-Race (S286). disease-register D-26b → ✅ geheilt.
+
 ## 477 | 2026-06-30 | fix(player): D-26 Player-Domain Club-Identität — dbToPlayer FK-Resolve (stale players.club-Freitext → club_id)
 - Stage-Chain: SPEC → IMPACT (inline, dbToPlayer-Consumer-Grep) → BUILD (2 Files) → REVIEW (reviewer PASS) → PROVE (vitest+DB; Live-Playwright post-Deploy) → LOG. **Mock→Pro Konsistenz-Batch; P1 sichtbar falsche Wahrheit.**
 - **Befund (Live-DB `skzjfhvgccaeplydsunz` verifiziert):** `players.club` ist stale Freitext — **294/4472 Spieler (6,57 %)** divergieren vom FK-aufgelösten `clubs.name` via `club_id`. Echte Falsch-Clubs (Adli „Bournemouth" vs FK „Bayer Leverkusen", Álvarez „Fenerbahçe" vs „West Ham"). Fantasy/Liga-Domäne migrierte 422-425 auf `club_id`, Player-Domäne las weiter Freitext → **PlayerHero zeigte Freitext-Name+Wappen MIT FK-basierter Liga-Badge = selbst-widersprüchliche Karte.**

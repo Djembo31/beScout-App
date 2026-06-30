@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
-import { getAllClubsCached } from '@/lib/clubs';
+import { getAllClubsCached, getClub } from '@/lib/clubs';
 import { logSupabaseError } from '@/lib/supabaseErrors';
 import { logSilentRejects } from '@/lib/observability/silentRejects';
 import type { Pos } from '@/types';
@@ -93,7 +93,9 @@ export async function spotlightSearch(
               firstName: p.first_name,
               lastName: p.last_name,
               position: p.position as Pos,
-              club: p.club,
+              // Slice 478 (D-26b): FK-aufgelöster clubs.name statt stale players.club-Freitext
+              // (club_id ist im Select). Fallback auf Freitext bei NULL/Cache-cold (wie 477).
+              club: getClub(p.club_id)?.name ?? p.club,
               clubId: p.club_id,
               imageUrl: p.image_url,
               floorPrice: p.floor_price,

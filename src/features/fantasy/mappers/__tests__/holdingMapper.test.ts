@@ -7,6 +7,12 @@ vi.mock('@/lib/observability/silentRejects', () => ({
 }));
 import { logSilentCatch } from '@/lib/observability/silentRejects';
 
+// Slice 478 (D-26b): holdingMapper resolves club name from FK club_id via getClub.
+// Default (reset) returns undefined → fallback to freetext (= old empty-cache behavior,
+// so the non-D26b tests below are unaffected).
+const { mockGetClub } = vi.hoisted(() => ({ mockGetClub: vi.fn() }));
+vi.mock('@/lib/clubs', () => ({ getClub: mockGetClub }));
+
 const PLAYER_FULL = {
   first_name: 'Mert',
   last_name: 'Çelik',
@@ -29,6 +35,26 @@ const PLAYER_FULL = {
 describe('dbHoldingToUserDpcHolding (Slice 192 defensive guard)', () => {
   beforeEach(() => {
     vi.mocked(logSilentCatch).mockClear();
+    mockGetClub.mockReset();
+  });
+
+  // Slice 478 (D-26b): club identity = FK-resolved clubs.name, not stale players.club.
+  it('resolves club name from FK club_id, overriding stale freetext (D-26b)', () => {
+    mockGetClub.mockReturnValue({ id: 'lev', name: 'Bayer Leverkusen', league: 'Bundesliga' });
+    const holding = {
+      user_id: 'u1', player_id: 'p1', quantity: 1, created_at: '2026-04-24T00:00:00Z',
+      player: { ...PLAYER_FULL, club: 'Bournemouth', club_id: 'lev' },
+    } as HoldingWithPlayer;
+    expect(dbHoldingToUserDpcHolding(holding).club).toBe('Bayer Leverkusen');
+  });
+
+  it('falls back to freetext club when getClub null / club_id null (D-26b)', () => {
+    mockGetClub.mockReturnValue(null);
+    const holding = {
+      user_id: 'u1', player_id: 'p1', quantity: 1, created_at: '2026-04-24T00:00:00Z',
+      player: { ...PLAYER_FULL, club: 'Sivasspor', club_id: null },
+    } as unknown as HoldingWithPlayer;
+    expect(dbHoldingToUserDpcHolding(holding).club).toBe('Sivasspor');
   });
 
   it('maps full holding row correctly', () => {

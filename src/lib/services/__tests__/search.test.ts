@@ -1,12 +1,17 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { mockSupabase, mockTable, resetMocks } from '@/test/mocks/supabase';
 
-vi.mock('@/lib/clubs', () => ({
-  getAllClubsCached: () => [
+vi.mock('@/lib/clubs', () => {
+  const CLUBS = [
     { id: 'c1', name: 'Sakaryaspor', short: 'SAK', slug: 'sakaryaspor', logo: '/sak.png', league: 'TFF 1. Lig', colors: { primary: '#00AA00' } },
     { id: 'c2', name: 'Bursaspor', short: 'BUR', slug: 'bursaspor', logo: '/bur.png', league: 'TFF 1. Lig', colors: { primary: '#008800' } },
-  ],
-}));
+  ];
+  return {
+    getAllClubsCached: () => CLUBS,
+    // Slice 478 (D-26b): search.ts resolves club name from club_id via getClub.
+    getClub: (idOrName: string) => CLUBS.find(c => c.id === idOrName || c.name === idOrName || c.slug === idOrName) ?? null,
+  };
+});
 
 import { spotlightSearch } from '../search';
 
@@ -44,6 +49,8 @@ describe('spotlightSearch', () => {
     expect(players).toHaveLength(1);
     expect(players[0].firstName).toBe('John');
     expect(players[0].href).toBe('/player/p1');
+    // Slice 478 (D-26b): club = FK-resolved (club_id 'c1' → Sakaryaspor), NOT freetext 'FC Test'.
+    expect(players[0].club).toBe('Sakaryaspor');
   });
 
   it('searches profiles with stats enrichment', async () => {

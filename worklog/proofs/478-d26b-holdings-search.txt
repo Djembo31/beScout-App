@@ -1,0 +1,52 @@
+PROOF — Slice 478: D-26b Holdings + Search Mapper Club-FK-Resolve
+Datum: 2026-06-30 · Type: Service · Größe: XS · Scope: CTO-autonom (Display + Eligibility-Preview)
+
+================================================================
+ZUSAMMENFASSUNG
+================================================================
+Fortsetzung 477 (Reviewer-S477-#2 priorisiert): 2 weitere Mapper lasen stale players.club-Freitext.
+Beide haben club_id in der Row → identisches 477-SSOT-Muster (getClub(club_id)?.name ?? freetext).
+
+1) holdingMapper.ts:45 (eligibility-affecting): UserDpcHolding.club speist das Fantasy-Event-
+   Requirement-Gate (useLineupBuilder.ts:358-362 substring-match holding.club gg. specificClub).
+   Stale Freitext → divergenter Spieler matcht "aus Club X"-Requirement falsch. clubLookup war
+   Z.33 BEREITS berechnet (für die Liga) → club: clubLookup?.name ?? h.player.club ?? ''.
+2) search.ts:96 (⌘K SearchOverlay via spotlightSearch): club: getClub(p.club_id)?.name ?? p.club
+   (+ getClub-Import ergänzt).
+
+================================================================
+CODE-CHANGE (2 Logik-Zeilen + 1 Import + Tests)
+================================================================
+src/features/fantasy/mappers/holdingMapper.ts:45  club: clubLookup?.name ?? h.player.club ?? ''
+src/lib/services/search.ts:2                       import { getAllClubsCached, getClub } ...
+src/lib/services/search.ts:96                       club: getClub(p.club_id)?.name ?? p.club
+
+================================================================
+tsc + vitest (AC-1..AC-5)
+================================================================
+npx tsc --noEmit  → TSC_EXIT=0
+npx vitest run src/features/fantasy/mappers src/lib/services/__tests__/search.test.ts:
+  Test Files  2 passed (2)
+  Tests      14 passed (14)
+  → AC-1 holdingMapper FK-Resolve: club_id 'lev'+getClub → "Bayer Leverkusen" überschreibt Freitext "Bournemouth" — PASS
+  → AC-2 holdingMapper Fallback: getClub null / club_id null → Freitext "Sivasspor" — PASS
+  → AC-3 search.ts FK-Resolve: club_id 'c1' → "Sakaryaspor" überschreibt Freitext "FC Test" — PASS
+  → AC-4 bestehende Mapper-/Search-Tests grün (Fallback-Pfad unverändert)
+  Mock-Lücke gefixt: search.test mockte @/lib/clubs ohne getClub (Transitive-Dependency-Mock-
+  Expansion, testing.md) → getClub-Lookup ergänzt; holdingMapper.test getClub-Mock (vi.hoisted) ergänzt.
+
+================================================================
+AC-5 ELIGIBILITY-TRACE (useLineupBuilder.ts:358-362)
+================================================================
+  const player = effectiveHoldings.find(h => h.id === sp.playerId);
+  return player?.club.toLowerCase().includes(event.requirements.specificClub.toLowerCase());
+→ holding.club ist jetzt der FK-Name (= kanonisch, wie event.requirements.specificClub aus der
+  Club-Liste) → divergenter Spieler matcht das korrekte Requirement. Server rpc_save_lineup bleibt
+  autoritativ (Client-Preview-Fix, kein Money-Bug).
+
+================================================================
+SCOPE-OUT (→ D-26c, kein club_id in Row = Select/RPC-Change)
+================================================================
+watchlist.ts:123 · lineups.queries.ts:161 · offers.ts:43 · trading.ts:410 (getGlobalMovers/Trending
+= RPC liefert nur Freitext) + Player-Detail Cold-Load-Cache-Race (S286). Alle = eigener Slice mit
+Impact-Analyse auf Select-Consumer bzw. RPC-Shape.

@@ -38,7 +38,11 @@ export function dbHoldingToUserDpcHolding(h: HoldingWithPlayer): UserDpcHolding 
     first: h.player.first_name ?? '',
     last: h.player.last_name ?? '',
     pos: h.player.position ?? 'MID',
-    club: h.player.club ?? '',
+    // Slice 478 (D-26b): Club-Identität = FK-aufgelöster clubs.name (reuse clubLookup
+    // von oben), NICHT stale players.club-Freitext — sonst matcht das Fantasy-Event-
+    // Requirement-Gate (useLineupBuilder substring-match gg. specificClub) divergente
+    // Spieler falsch. Fallback auf Freitext bei NULL club_id / Cache-cold (wie 477).
+    club: clubLookup?.name ?? h.player.club ?? '',
     clubId: h.player.club_id ?? null,
     leagueShort: league?.short,
     leagueLogoUrl: league?.logoUrl ?? undefined,
