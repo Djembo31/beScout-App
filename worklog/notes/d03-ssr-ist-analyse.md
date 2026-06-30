@@ -49,5 +49,20 @@
 
 **Erwartung nach Phase 1 (SSR-Prefetch):** Load-delay kollabiert (Content/Daten im initialen HTML) → LCP deutlich runter.
 
+## Post-Implementation-Messung (2026-06-30, nach 471+476, /club/galatasaray, ali eingeloggt, Desktop/kein-Throttle)
+
+| Metrik | Baseline (vor 471) | Jetzt (post-476) | Δ |
+|--------|--------------------|--------------------|---|
+| **LCP** | 4.118 ms 🔴 | **2.951 ms** | **−1.167 ms (−28%)** |
+| Load-delay | 2.049 ms | 1.725 ms | −324 ms |
+| TTFB | 525 ms | 710 ms | +185 ms (472 getServerUser-Roundtrip) |
+| Render-delay | 475 ms | 105 ms | −370 ms |
+
+**Wichtig — Phase-3-Umlenkung (Messung statt Annahme):**
+1. **Der 471-Prefetch liefert** (jetzt wo 476 den Dual-Build-Crash gefixt hat): LCP 4118→2951 ms. Pattern bestätigt.
+2. **Der verbleibende LCP-Engpass ist BILD-gebunden, nicht Daten:** LCP-Knoten = Stadion-Hero-Bild (`/stadiums/<club>.jpg` via next/image **w=3840** = massiv überdimensioniert, ~389 kB). Top-Insights: **LCPDiscovery** (LCP-Bild nicht früh auffindbar/lazy) + **DocumentLatency** (605 ms, TTFB/Kompression).
+3. **Folge:** „mechanische Prefetch-Wiederholung auf player/home/market" (Phase 3 wie ursprünglich geplant) hat **abnehmenden LCP-Ertrag** — der Daten-Wasserfall ist nicht mehr der LCP-Treiber. **Höherer Hebel = LCP-Bild-Optimierung** (hero `priority` + korrekte `sizes` + realistische Breite statt w=3840; cross-page, weil Stadion/Player-Fotos überall LCP-Element sind). TTFB ist der zweite Hebel (472 addierte +185 ms getServerUser; via Middleware-Header-Durchreichung optimierbar, Pre-Mortem-472-#5).
+4. **Empfohlener nächster W6-Slice:** LCP-Bild-Slice (hero-Bilder messbar entlasten) STATT blinder Prefetch-Replikation. Player-Detail-Perf-Item (usePlayers() lädt ALLE ~632 Spieler client-seitig) bleibt separat valide (Payload, nicht LCP).
+
 ## Empfehlung (verfeinert nach Baseline)
 **Phase 1 = `/club/[slug]` SSR-Prefetch-Pilot** (statt player/[id]) — **besser**, weil public + Server-Component + **vor/nach ohne Login messbar** (player ist AuthGuard-gated, schwerer zu messen). Gleicher Pattern-Beweis (Server-queryClient + HydrationBoundary), aber sauber quantifizierbar gegen die Baseline 4.118 ms LCP. Player/home/market folgen in Phase 3. Phase 2 (Server-Auth) = größter Single-Win, bewusst getrennt (delikat).

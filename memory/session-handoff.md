@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-30 14:44)
+# Session Handoff — Auto (2026-06-30 14:58)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -8,7 +8,9 @@
  M memory/session-handoff.md
 ```
 
-## Session Commits: 8
+## Session Commits: 9
+- ea7b3151 docs(masterplan): W6 + W2 reconcile — 472-476 done (Server-Auth-SSR LCP-Win + /club 471-fix + 428b DROP)
+- 23c5b644 docs: Slice 475 + 476 LOG + Knowledge (errors-frontend S476 Dual-Build) + Handoff Teil 29
 - 96bc9341 fix(perf): Slice 476 — /club Dual-Build-Crash fixen (HydrationBoundary legacy->modern via Client-Wrapper)
 - ccb86c1a refactor(db): Slice 475 (428b) — clubs.active_gameweek entkoppeln (Phase 1 Code) vor DROP
 - bb05a013 docs(d03): W6 Server-Auth-SSR (472-474) LOG + Prod-Proof + Knowledge (errors-frontend S474)
@@ -16,7 +18,6 @@
 - 47de778e fix(perf): Slice 473 — leagueScopeStore SSR-safe (fix hydration mismatch, unblock 472 authed-SSR)
 - abd84cdf feat(perf): Slice 472 — W6 Server-Auth-Hydration (authed SSR-Render, der echte LCP-Win)
 - 652dc4e6 docs(d03): W6 Slice 472 Server-Auth-Spec (ready) + Reconcile — 471 live, 472 fokussierter Next
-- 3653bd31 feat(perf): Slice 471 — W6 SSR-Prefetch-Infrastruktur + Provider-Request-Scoping (Fundament)
 
 <!-- auto:handoff-end -->
 
