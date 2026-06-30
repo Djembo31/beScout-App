@@ -54,10 +54,10 @@ Die Synthese fand selbstkritisch: keiner der 34/32 Befunde hatte die **Supabase-
 | `authenticated` SECURITY-DEFINER-RPCs (Review nötig) | 190 | 🟠 | CEO/Security |
 | `function_search_path_mutable` (Hijack-Vektor) | 87 | ✅ **SECDEF-non-trigger geheilt S468** (62→0, `ALTER SET search_path='public'` body-erhaltend, Risk-Scan leer; Money-Mint + db-invariants bewiesen). Rest = INVOKER (11) + Trigger (15) = niedriger (kein Escalation), offen. | Security |
 | `rls_enabled_no_policy` (Tabelle RLS an, 0 Policies = alles dicht ODER Leak) | 9 | 🟠 | Security |
-| `multiple_permissive_policies` (RLS-Akkretion: neue Policy angehängt, alte nie gemergt) | 81 | 🟡 Perf+Klarheit | DB |
-| `auth_rls_initplan` (RLS-Perf) | 71 | 🟡 | DB |
-| `unindexed_foreign_keys` | 51 | 🟡 | DB |
-| `unused_index` (nie entfernt = Index-Akkretion) | 26 | 🟡 | DB |
+| `multiple_permissive_policies` (RLS-Akkretion: neue Policy angehängt, alte nie gemergt) | 81 | 🅿️ **GEPARKT (S471-Triage):** Mergen = Access-Control-Äquivalenz-Urteil pro Tabelle → kein blinder Batch, dedizierter Slice mit per-Tabelle-Analyse. | DB |
+| `auth_rls_initplan` (RLS-Perf) | 71 | 🅿️ **GEPARKT (S471-Triage):** Transform (`auth.uid()`→`(select auth.uid())`) provably-äquivalent (Round-Trip 0 Fails), ABER Scope-Ambiguität (Advisor 71 = top-level vs 155 inkl. Subquery-internal) + 71-155 access-control-Policies = große security-kritische Fläche → dedizierter Slice mit Advisor-exakter Liste + Access-Spot-Check, NICHT autonom-blind (§1 caution). Höchster Perf-Wert. | DB |
+| `unindexed_foreign_keys` | ~~51~~ 49 | ✅ **geheilt S470** (49 advisor-autoritative FKs → Covering-Index additiv; 49/49 verifiziert; 49→0). | DB |
+| `unused_index` (nie entfernt = Index-Akkretion) | 21 | 🅿️ **GEPARKT (S471-Triage):** `idx_scan=0`-Signal in Low-Traffic-Pilot-DB **unzuverlässig** (Feature-nicht-exerziert ≠ nutzlos) → kein DROP jetzt, revisit post-Traffic. | DB |
 | Storage: `avatars` / `public_bucket_allows_listing` | — | 🟡 | Security |
 | Leaked-password-protection | off | 🟡 | Security (1 Toggle) |
 

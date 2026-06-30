@@ -1,22 +1,12 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-30 01:56)
+# Session Handoff — Auto (2026-06-30 02:12)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
-## Uncommitted Changes: 9 Files
-```
- M memory/session-handoff.md
- M src/lib/queries/sponsorStats.ts
- M worklog/active.md
-?? supabase/migrations/20260630150000_slice_468_search_path_hardening.sql
-?? worklog/proofs/468-search-path.txt
-?? worklog/proofs/469-d38-sponsorstats.txt
-?? worklog/reviews/469-review.md
-?? worklog/specs/468-search-path-hardening.md
-?? worklog/specs/469-d38-sponsorstats-silent-fail.md
-```
+## Working Tree: Clean
 
 ## Session Commits: 10
+- fc5c3d6e chore(security): P2-Hygiene-Lane — 468 search_path-Haertung (62 SECDEF) + 469 D-38 sponsorStats Silent-Fail (live)
 - 4900819b fix(ui): Slice 467 — D-23 Geld-Formatter konsolidieren (formatScout -> fmtScout, 2 Dez)
 - f2de961a chore(db): Slice 466 — W0 Security-Map-Recon-RPCs admin-only (REVOKE anon+auth) (live)
 - 0fe1aedd fix(security): Slice 465 — D-37b top_role='Admin'-Familie vollstaendig schliessen (live)
@@ -26,7 +16,6 @@
 - c9534936 chore(db): Slice 461 — D-12 Dead-RPC GC: DROP get_club_dashboard_stats(text) v1 (live)
 - 055c839e fix(security): Slice 460 — INV-31 REVOKE no_guard SECDEF-RPCs (calculate_fan_rank + refund_wildcards_on_leave) (live)
 - b121ee9a fix(invariants): Slice 459 — INV-XS Doppel-Fix (success_fee + events-Snapshot)
-- 06ab5d62 chore(db): Slice 458 — Dead-Feature-GC-Batch D-13 (season_reset_scores) + D-10 (2. Mission-System) (live)
 
 <!-- auto:handoff-end -->
 
@@ -34,6 +23,18 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-30 (Teil 26) — Policies/Index Perf-Lane durchgearbeitet (Slice 470). Autonom „durcharbeiten + zurückkommen".**
+> - **CEO Anil:** „Policies/Index Perf-Lane durcharbeiten und zurückkommen" → autonom, Gabeln/Risiken geparkt.
+> - **✅ 470 (live, Migration `20260630160000`):** 49 advisor-autoritative **unindexed Foreign Keys** → Covering-Index additiv (CREATE INDEX IF NOT EXISTS, DO-Loop über die 49 connames, Spalten aus pg_constraint). 49/49 verifiziert, db-invariants unverändert. `unindexed_foreign_keys` 49→0. (Hand-Covering-Query gab 181 = PG-int2vector-Slice-Falle → Advisor-Liste vertraut.)
+> - **🅿️ GEPARKT-mit-Gründen (3 von 4 Perf-Items — echte Risiken/Urteile, kein blinder Autonom-Batch):**
+>   - **`auth_rls_initplan` (71)** = HÖCHSTER Perf-Wert, Transform `auth.uid()`→`(select auth.uid())` **provably-äquivalent** (Round-Trip-Invariant 0 Fails über alle 155 unwrapped). ABER: Scope-Ambiguität (Advisor 71 = vermutlich **top-level** auth.uid() vs. mein Scan 155 inkl. **Subquery-internal** `EXISTS(SELECT…WHERE x=auth.uid())`) + 71-155 access-control-Policies = große security-kritische Fläche → **dedizierter careful Slice** (Advisor-exakte 71-Liste holen + per-Policy Round-Trip-Guard in Migration + Live-Access-Spot-Check auf Money-Tabelle). §1 caution: nicht autonom-blind über RLS-weite Access-Control.
+>   - **`unused_index` (21)** = `idx_scan=0`-Signal in **Low-Traffic-Pilot-DB unzuverlässig** (Feature-nicht-exerziert ≠ nutzlos) → kein DROP jetzt, revisit nach echtem Traffic.
+>   - **`multiple_permissive_policies` (81)** = Mergen = **Access-Control-Äquivalenz-Urteil pro Tabelle** → dedizierter Slice mit per-Tabelle-Analyse, kein Blind-Merge.
+> - **🟢 SESSION-BILANZ autonom (460-470, 11 Slices, alle live+gepusht):** W0-Security-Block komplett + D-23 Geld-Divergenz + D-38 Silent-Fail + search_path-62-Fns + 49 FK-Indizes.
+> - **⏭️ NÄCHSTES (CEO-Richtung):** AC-05 Visual D-23 · **auth_rls_initplan** als dedizierter careful Perf-Slice (höchster Wert, braucht Advisor-exakte Liste + Access-Verify) · D-24 Wording (CEO) · Dead-GC Money. Perf-Lane sonst durch.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-30 (Teil 25) — P2-Security-Hygiene-Lane durchgearbeitet (Slices 468+469). Autonom „durcharbeiten + zurückkommen".**
 > - **CEO Anil:** „Alle P2-Security-Hygiene durcharbeiten und zurückkommen" → autonome Lane, echte Gabeln geparkt.
 > - **✅ 468 (live, Migration `20260630150000`):** `function_search_path_mutable`-Härtung — 62 SECDEF-non-trigger-Fns (inkl. Money-RPCs) `ALTER SET search_path='public'` (body-erhaltend, Risk-Scan leer = nur `extensions`-Refs wären riskant, keine vorhanden). 62→0 + selbst-verifizierende Count-Assertion. Money-Mint (grant_founding_pass ok=true/250000 rolled back) + db-invariants unverändert. + `update_club_assets` anon-REVOKE (Bonus: echtes AR-44/default-privileges-Loch). Reviewer CONCERNS=Auditierbarkeit (Scan-Query+Assertion nachgereicht), Korrektheit PASS. Knowledge errors-db **S468**.
