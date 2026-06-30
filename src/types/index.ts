@@ -339,7 +339,6 @@ export type DbClub = {
   primary_color: string | null;
   secondary_color: string | null;
   community_guidelines: string | null;
-  active_gameweek: number;
   referral_code?: string | null;
   plan: string;
   is_verified: boolean;

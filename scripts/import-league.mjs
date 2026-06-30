@@ -143,7 +143,6 @@ async function importLeague(league) {
           secondary_color: '#FFFFFF',
           api_football_id: team.id,
           is_verified: false,
-          active_gameweek: 1,
         })
         .select('id')
         .single();

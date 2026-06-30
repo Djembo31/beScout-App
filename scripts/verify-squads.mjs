@@ -185,7 +185,6 @@ async function main() {
               secondary_color: '#FFFFFF',
               api_football_id: teamEntry.team.id,
               is_verified: false,
-              active_gameweek: 1,
             })
             .select('id')
             .single();

@@ -1,0 +1,45 @@
+════════════════════════════════════════════════════════════════════════
+SLICE 475 (= 428b) — DROP clubs.active_gameweek (Welle-2-Residual, §0-Schnitt-Regel)
+════════════════════════════════════════════════════════════════════════
+Datum: 2026-06-30 · Typ: Migration (Expand/Contract Contract-Phase) · S
+
+────────────────────────────────────────────────────────────────────────
+A. BEGRÜNDUNG (§0 Schnitt-Regel)
+────────────────────────────────────────────────────────────────────────
+clubs.active_gameweek = frozen Legacy-Dual-Write-Spalte seit Slice 428/D115.
+SSOT = leagues.active_gameweek (Cron gameweek-sync + RPC set_active_gameweek schreiben
+leagues-only; alle Reader migriert: getLeagueActiveGameweek/useGameweek/FantasyContent/cron).
+Getrackter zweiter Weg → DROP (TODO „428b", D78-Alternative (d) jetzt entblockt).
+
+────────────────────────────────────────────────────────────────────────
+B. DROP-SAFETY-AUDIT (live DB, read-only, VOR Code/DROP)
+────────────────────────────────────────────────────────────────────────
+[B1] column_exists ............... true  (→ 428b genuinely offen)
+[B2] column_dependents ........... NONE  (keine Views/Generated/Constraints via pg_depend)
+[B3] fns_ref_clubs_active_gw ...... NONE  (0 SQL-Funktionen lesen/schreiben clubs.active_gameweek; set_active_gameweek schreibt leagues)
+[B4] triggers_on_clubs ........... NONE
+[B5] distinct_values_on_clubs .... 34, 38  (frozen/stale — echter GW lebt in leagues)
+→ DROP verliert nichts, keine Runtime-Abhängigkeit.
+
+────────────────────────────────────────────────────────────────────────
+C. SCOPE (5 Files, exakt wie TODO vorgeplant; DbLeague.active_gameweek BLEIBT)
+────────────────────────────────────────────────────────────────────────
+- src/types/index.ts:342 — DbClub.active_gameweek entfernt (DbLeague:314 unberührt)
+- src/lib/services/club.ts — 3 by-name-Selects (getClubById/getAllClubs/getClubBySlug) active_gameweek raus
+- scripts/verify-squads.mjs:188 + scripts/import-league.mjs:146 — Seed-INSERT active_gameweek:1 raus
+- src/lib/__tests__/contracts/schema-contracts.test.ts:265 — CONTRACT-16 erwartet active_gameweek nicht mehr
+- supabase/migrations/20260630170000_slice_475_drop_clubs_active_gameweek.sql — DROP COLUMN IF EXISTS
+
+────────────────────────────────────────────────────────────────────────
+D. BUILD-VERIFIKATION (Phase 1, statisch)
+────────────────────────────────────────────────────────────────────────
+[D1] tsc --noEmit ........... EXIT 0
+[D2] club.test.ts ........... 79/79 PASS
+
+────────────────────────────────────────────────────────────────────────
+E. DEPLOY + DROP (zero-downtime, 2-Phasen) — PENDING
+────────────────────────────────────────────────────────────────────────
+[ ] E1 Phase 1: Code-Commit+Push (Selects raus) → Vercel-Deploy live (sonst by-name-Select-Error)
+[ ] E2 Phase 2: apply_migration DROP → Spalte weg (pg_attribute-Verify)
+[ ] E3 club-Page (bescout.net) lädt post-DROP (kein PostgREST-Error)
+→ Ergebnisse nach Ausführung angehängt.

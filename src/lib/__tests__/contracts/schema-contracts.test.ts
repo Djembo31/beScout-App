@@ -262,9 +262,10 @@ describe('Schema Contract Tests', () => {
     const cols = await getColumnNames('clubs');
     if (!cols) return;
     expectColumns(cols, [
-      'id', 'slug', 'name', 'logo_url', 'league_id', 'active_gameweek',
+      'id', 'slug', 'name', 'logo_url', 'league_id',
       // [Slice 406] treasury_balance_cents entfernt — write-only Orphan, Club-Treasury
       // ist kanonisch der club_treasury_ledger (SUM-on-read, D97).
+      // [Slice 475/428b] active_gameweek entfernt — frozen Duplikat (SSOT leagues.active_gameweek), DROP.
     ], 'clubs');
   });
 

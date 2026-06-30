@@ -1,17 +1,24 @@
 # Active Slice
 
 ```
-status: idle
-slice: 474
-title: W6 Server-Auth-SSR (472+473+474) — DONE, LCP-Win live, #418 eliminiert
-size: XS
-type: Service/Hook (SSR-Hydration-Korrektheit)
-welle: W6 (Performance/Architektur)
-stage: LOG (done)
-spec: inline (XS, via Dev-Repro root-caused)
-proof: worklog/proofs/474-wallet-tickets-ssr-placeholder.txt
-review: worklog/reviews/474-review.md
+status: in-progress
+slice: 475
+title: 428b DROP clubs.active_gameweek (Welle-2-Residual, §0-Schnitt-Regel — frozen Duplikat-Spalte)
+size: S
+type: Migration (Expand/Contract Contract-Phase)
+welle: Welle 2 (Spieltag/Scoring) — Residual
+stage: BUILD
+spec: inline (S, TODO-vorgeplant, DROP-Audit live bestätigt)
+proof: worklog/proofs/475-drop-clubs-active-gameweek.txt
+review: self-review (kein Money/Security/User-facing — Spalte frozen/unread seit Slice 428/D115)
 ```
+
+## Inline-Spec 475 (= 428b)
+**Problem (§0-Schnitt-Regel):** `clubs.active_gameweek` ist seit Slice 428/D115 frozen (SSOT = `leagues.active_gameweek`; Cron+Admin schreiben leagues-only). Getrackter zweiter Weg → DROP (Expand/Contract Contract-Phase).
+**DROP-Safety-Audit (live, ✅):** Spalte existiert · 0 Dependents (Views/Generated/Constraints) · 0 SQL-Funktionen lesen/schreiben sie · 0 Trigger · Werte frozen/stale (34,38 — echter GW in leagues). Kein Runtime-Reader (alle auf leagues migriert).
+**Scope:** DbClub-Type (index.ts:342) · 3 club.ts by-name-Selects (34/46/377) · 2 Seed-Scripts (verify-squads:188, import-league:146) · schema-contracts.test:265. DbLeague.active_gameweek BLEIBT.
+**Reihenfolge (zero-downtime):** Phase 1 Code (Selects raus) → push → deploy → Phase 2 `ALTER TABLE clubs DROP COLUMN active_gameweek` (sonst PostgREST-Error bei live-altem by-name-Select).
+**AC:** (1) tsc 0 (2) schema-contracts + club Tests grün (3) Code deploy → club-Page lädt (4) DROP applied → Spalte weg (5) club-Page lädt post-DROP.
 
 ## Letzter Slice DONE — W6 SSR-Trilogie (472+473+474), alle live + Prod-verifiziert
 - **472** (`abd84cdf`) Server-Auth-Seed · **473** (`47de778e`) leagueScopeStore SSR-safe (tangential) · **474** (`b05ba950`) Wallet/Tickets cached-placeholder SSR-safe = DER Fix.
