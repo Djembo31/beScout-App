@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-06-30 18:28)
+# Session Handoff — Auto (2026-06-30 23:48)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -9,16 +9,16 @@
 ```
 
 ## Session Commits: 10
-- d1050dba fix(auth): Slice 479 — D-25 Auth-Fehler-i18n (Login + Onboarding)
-- cc2ff2de docs(masterplan): W5 reconcile — D-26b (478) Holdings+Search DONE; D-26c offen
-- 1fb18ad5 fix(fantasy): Slice 478 — D-26b Holdings + Search Mapper Club-FK-Resolve
-- fa57b1c6 docs(masterplan): W5 reconcile — 467 (D-23) + 477 (D-26 Player-Club-FK) DONE; D-26b + Cache-Race offen
-- bda5433a docs(477): AC-6 Live-Verifikation — warm-path PASS (Adli→BAY) + Cold-Load-Cache-Race ehrlich getrackt
-- acab3db0 fix(player): Slice 477 — D-26 Player-Domain Club-Identität via dbToPlayer FK-Resolve
-- d5259320 docs(d03): W6 Post-Impl-Messung — /club LCP 4118->2951ms (471-Prefetch liefert post-476); Phase-3 auf LCP-Bild umlenken
-- ea7b3151 docs(masterplan): W6 + W2 reconcile — 472-476 done (Server-Auth-SSR LCP-Win + /club 471-fix + 428b DROP)
-- 23c5b644 docs: Slice 475 + 476 LOG + Knowledge (errors-frontend S476 Dual-Build) + Handoff Teil 29
-- 96bc9341 fix(perf): Slice 476 — /club Dual-Build-Crash fixen (HydrationBoundary legacy->modern via Client-Wrapper)
+- 2949c655 docs(487): chrome-devtools-Re-Trace — Preload löst Fetch-Timing, LCP ist render-/hydration-bound
+- d08a3dba perf(ssr): Slice 487 (W6 load-delay) — LCP-Stadion-Bild server-seitig preloaden
+- c88a128f docs(486): chrome-devtools LCP-Re-Trace — Bild fixed (AVIF 33ms), LCP jetzt load-delay-bound
+- ca917f6f docs(486): W6 LCP-Bild live-verifiziert — Stadion AVIF q60, −45-47% Bytes
+- b5697c63 perf(image): Slice 486 (W6 Phase 3) — LCP-Bild entlasten (AVIF app-weit + ClubHero-Stadion sizes/quality)
+- 3d84d164 docs(masterplan): reconcile 480-485 — W2 D-27, W3 D-04, W5 D-26c+D-24, D-33
+- b28cf1a2 feat(fantasy): Slice 485 — D-04 (W3) lineups DB-Integrität (Bench-FKs + Distinctness-Trigger)
+- a636b767 docs(484): D-24 AC-Visual live-verifiziert (bescout.net mobil, DE+TR)
+- f38cd97c fix(compliance): Slice 484 — D-24 Securities-Wording-Heal (SellModal/YourPosition)
+- f491958f refactor(utils): Slice 483 — D-33 Relativzeit-Formatter konsolidiert (1 kanonischer formatTimeAgo)
 
 <!-- auto:handoff-end -->
 
@@ -26,6 +26,17 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-06-30 (Teil 31) — Großer Senior-Lauf: Konsistenz-Batch KOMPLETT + root-cause #2 + W6-LCP-Strang. 8 Slices (480-487) alle live + gepusht, `main`==`origin`==`2949c655`, `active.md`=idle.**
+> - **⏭️ NÄCHSTES (CEO-Entscheid Anil „Checkpoint + frisch"): W6 Option B — der EINZIGE verbleibende /club-LCP-Hebel.** Die LCP (2226ms) ist zu **100% render-/hydration-gebunden** (gemessen, chrome-devtools): Render-delay 1486ms (67%) — das Stadion-Bild ist @740ms fertig geladen (486 AVIF + 487 Preload erschöpft das Fetch), paintet aber erst, wenn `ClubHero` nach Hydration des riesigen `ClubContent` (`'use client'`, ~40 Imports) rendert. **Option B = eigener Architektur-Slice mit Recon+Design:** (Empfehlung, niedrigeres Risiko) **ClubContent entschlacken** — Below-Fold-Sektionen `dynamic()`/code-splitten, sodass der Hero-Teil zuerst+schnell hydratet; **ODER** den Stadion-Hero ins SSR-HTML painten (entangled mit Parallax/`onError`/`useState` → entkoppeln). Plan/Evidenz: `worklog/notes/d03-ssr-ist-analyse.md` (Post-487-Sektion). **Andere offene W6/Wellen:** TTFB (472 getServerUser ~600ms) · Player-Detail-Payload (usePlayers() ALLE ~632) · W4 Follow · W5 Dead-Feature-GC (D-14/15/16) · W7 Design-Sweep · **Sentry-Instrumentierungs-Audit** (Anil-Frage: nicht lückenlos — server-500-return-statt-throw=blind [S369], silent-fail-swallows, Web-Vitals vermutlich nicht erfasst).
+> - **✅ Konsistenz-Batch KOMPLETT (W5):** D-23(467)·D-24(484 Securities-Wording CEO-approved+Live-Visual DE+TR: „Deine Position"→„Dein Kader", Aktenkoffer→WalletCards, Ø-Kosten, P&L→Wertänderung)·D-25(479)·D-26/26b(477/478)·D-26c Display(481 no-DB offers/lineups/compare + 482 RPC trending/most-watched Server-Resolve). Nur D-26c-Cache-Race S286 geparkt.
+> - **✅ D-27 Gameweek-Guard SSOT (480, W2):** `createNextGameweekEvents` Hardcode `>38` → `leagues.max_gameweeks` (Anker Club-Liga; Reviewer fing event.league_id-Fehlanker, 207/208 Events NULL). Verhindert Phantom-Events GW35-38 in BL/2.BL=34. 🅿️ P2: 1 Demo-Phantom GW37 + Süper-Lig max_gameweeks=38.
+> - **✅ D-33 (483):** 3 Relativzeit-Formatter → 1 kanonischer `formatTimeAgo` (totes EN-leakendes `timeAgo` weg).
+> - **✅ D-04 lineups DB-Integrität (485, L, root-cause #2 ZU):** 4 FK `bench_*→players` + Trigger `trg_lineups_player_distinct` (16-Slot-Distinctness → `duplicate_player`, GUC-Escape). **Reviewer R1 CONCERNS = wertvoll:** meine „RPC prüft Bench nicht"-Prämisse war Fehllesung (RPC validiert die Bench BEREITS graceful via separate Schleife `bench_duplicate`/`bench_overlaps_starter`) → Trigger = reiner DB-Backstop; **Phantom-D-04b gestrichen**. Lehre → errors-db S485. D-20 Wide-Column behalten (kein Normalisierungs-Refactor).
+> - **✅ W6 LCP-Strang (486+487):** 486 AVIF app-weit + Stadion sizes/quality → Bild-Bytes **−45%** (Mobile/slow-network-Win). 487 `ReactDOM.preload` → Fetch-Timing gelöst (load-delay 1432→93ms). **measure-first ×2 hat den Bottleneck eingekreist = Hydration, nicht Bild** → Option B (s.o.).
+> - **Methode/Lehre:** Elite-Senior-Modus durchgehend — jeder Slice faktenbasiert (Live-DB/RPC/Trace vor Urteil), 3 Reviewer-Catches ehrlich korrigiert (480 Anker, 485 RPC-Fehllesung+Phantom-Debt), Sentry-Post-Deploy-Check als Prozess-Lücke erkannt (0 neue Prod-Errors heute verifiziert). Knowledge → errors-db S480/S485. MASTERPLAN W2/W3/W5/W6 reconciled.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-06-30 (Teil 30) — 3 autonome Konsistenz-Slices (477+478+479), alle live + gepusht, `main`==`origin`==`d1050dba`, `active.md`=idle. Elite-Senior-Modus / Mock→Pro Konsistenz-Batch W5.**
 > - **⏭️ NÄCHSTES (autonom-fähig, klein):** **D-33** (timeAgo EN-i18n-Leak, XS) · **D-26c** (Player-Detail Cold-Load-Cache-Race S286 ODER Rest-Mapper ohne club_id = watchlist/lineups.queries/offers/trading-movers Select/RPC-Change). **Große Hebel (CEO-Scope-Fork):** W3 Lineup-Datenmodell (D-04, root-cause #2) · W6 Phase 3. **Konsistenz-Batch W5 fast leer:** D-23 ✅467 · D-26 ✅477 · D-26b ✅478 · D-25 ✅479 → offen nur **D-24** (Wording, Compliance/CEO).
 > - **✅ 477 (`acab3db0` + AC-6-Doku `bda5433a`) — D-26 Player-Domäne Club-Identität:** `dbToPlayer`-Mapper (`players.ts:211`) löst Club aus FK `club_id` statt stale Freitext (294/4472 = **6,57 % live divergent**, z.B. Adli Freitext „Bournemouth" vs FK „Bayer Leverkusen"). SSOT-Schnitt parallel zur bereits FK-resolved Liga → heilt Player-Detail/Markt/Suche/Club/Admin. tsc 0 · vitest 235 (3 FK-Tests) · Reviewer PASS. **AC-6 live warm-path bewiesen (Suche Adli→„BAY")**; **Cold-Direct-Load Player-Detail = pre-existing S286/D-03 useMemo-Cache-Race** (dbToPlayer läuft vor Club-Cache-ready → club+league Fallback, recomputet nicht bei warm; betrifft Liga identisch, KEIN 477-Regression) → D-26c.
