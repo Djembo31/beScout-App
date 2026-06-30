@@ -231,7 +231,18 @@ export async function createNextGameweekEvents(
   leagueId?: string | null
 ): Promise<{ created: number; skipped: boolean; error?: string; skippedInsufficient?: number }> {
   const nextGw = currentGw + 1;
-  if (nextGw > 38) return { created: 0, skipped: true, error: 'Max GW 38 reached' };
+
+  // Slice 480 (D-27): Saison-Ende-Guard aus der SSOT `leagues.max_gameweeks`.
+  // Anker = Liga des CLUBS (die Gameweek-Kadenz eines Clubs folgt seiner Liga; der Cron
+  // advanced per Liga). NICHT die `event.league_id`: fast alle Events sind `league_id=NULL`
+  // ("offen / alle Ligen") und fielen damit auf den 38-Fallback zurück → der Phantom-Bug
+  // (BL/2.BL = 34 Spieltage) bliebe ungelöst. Dieselbe Auflösung scoped auch die Fixture-Timing-Query.
+  const { data: clubRow, error: clubErr } = await supabase.from('clubs').select('league_id').eq('id', clubId).maybeSingle();
+  if (clubErr) console.warn('[Events] createNextGameweekEvents: club league lookup failed → 38-GW fallback guard', clubErr);
+  const resolvedLeagueId = leagueId ?? ((clubRow?.league_id as string | null) ?? null);
+  const { getLeagueMaxGameweeks } = await import('@/lib/services/club');
+  const maxGw = await getLeagueMaxGameweeks(resolvedLeagueId);
+  if (nextGw > maxGw) return { created: 0, skipped: true, error: `Max GW ${maxGw} reached` };
 
   // Check if events already exist for next GW
   const { data: existing } = await supabase
@@ -256,8 +267,8 @@ export async function createNextGameweekEvents(
     return { created: 0, skipped: false, error: tplErr?.message ?? 'No events found to clone' };
   }
 
-  // Derive timing from fixture data for the next GW (liga-scoped when leagueId is provided)
-  const fixtures = await getFixturesByGameweek(nextGw, leagueId ?? null);
+  // Derive timing from fixture data for the next GW (liga-scoped via the club's resolved league)
+  const fixtures = await getFixturesByGameweek(nextGw, resolvedLeagueId);
   let startsAt: string;
   let locksAt: string;
   let endsAt: string;

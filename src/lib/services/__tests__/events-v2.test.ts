@@ -201,10 +201,39 @@ describe('createEvent', () => {
 // createNextGameweekEvents
 // ============================================
 describe('createNextGameweekEvents', () => {
-  it('returns early when nextGw > 38', async () => {
-    const result = await createNextGameweekEvents('club-1', 38);
+  // Slice 480 (D-27): Saison-Ende-Guard kommt aus der SSOT `leagues.max_gameweeks`,
+  // verankert an der CLUB-Liga (nicht dem hartcodierten 38). Fast alle Events sind league_id=NULL;
+  // die Gameweek-Kadenz folgt der Club-Liga → BL/2.BL = 34 sonst Phantom-Events GW 35-38.
+  it('skips when nextGw exceeds the club league max_gameweeks (SSOT 34)', async () => {
+    mockTable('clubs', { league_id: 'bl-league' }); // club's league = Bundesliga
+    mockTable('leagues', { max_gameweeks: 34 });     // getLeagueMaxGameweeks → 34
+    const result = await createNextGameweekEvents('club-1', 34); // nextGw=35 > 34
+    expect(result).toEqual({ created: 0, skipped: true, error: 'Max GW 34 reached' });
+    expect(mockGetFixtures).not.toHaveBeenCalled(); // guard short-circuits before fixtures
+  });
+
+  it('clones at the club-league boundary (GW33→34, max 34) instead of over-blocking', async () => {
+    mockTable('clubs', { league_id: 'bl-league' }); // Bundesliga, max_gameweeks 34
+    mockTable('leagues', { max_gameweeks: 34 });
+    mockTable('events', []); // no existing GW34 events
+    mockTable('events', [{   // GW33 templates (open events, league_id=NULL — the common case)
+      name: 'Spieltag 33 Classic', type: 'bescout', format: '5-a-side', entry_fee: 5000,
+      prize_pool: 50000, max_entries: 100, club_id: 'club-1', league_id: null,
+      created_by: 'admin-1', sponsor_name: null, sponsor_logo: null, event_tier: 'club',
+      tier_bonuses: null, min_tier: null, min_subscription_tier: null, salary_cap: null,
+    }]);
+    mockTable('events', null); // insert
+    mockGetFixtures.mockResolvedValue([{ played_at: '2026-04-26T16:00:00Z' }]);
+    const result = await createNextGameweekEvents('club-1', 33); // nextGw=34 == max → must clone
+    expect(result.created).toBe(1);
+    expect(result.skipped).toBe(false); // boundary nextGw==maxGw is NOT a season-end skip
+  });
+
+  it('uses the 38 fallback when the club has no league_id', async () => {
+    mockTable('clubs', { league_id: null }); // → getLeagueMaxGameweeks(null) = 38, no leagues query
+    const result = await createNextGameweekEvents('club-1', 38); // nextGw=39 > 38 fallback
     expect(result).toEqual({ created: 0, skipped: true, error: 'Max GW 38 reached' });
-    expect(mockSupabase.from).not.toHaveBeenCalled();
+    expect(mockGetFixtures).not.toHaveBeenCalled();
   });
 
   it('skips when events already exist for next GW (idempotent)', async () => {

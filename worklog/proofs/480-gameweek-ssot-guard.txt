@@ -1,0 +1,54 @@
+Slice 480 — D-27 Gameweek-Season-Guard aus SSOT leagues.max_gameweeks
+Proof — 2026-06-30
+
+=== KERN-FIX ===
+createNextGameweekEvents (events.mutations.ts) hatte `if (nextGw > 38)` hartcodiert.
+SSOT = leagues.max_gameweeks (per Liga). Anker = CLUB-Liga (clubs.league_id), NICHT event.league_id.
+
+=== ANKER-KORREKTUR (nach Round-1-Review-CONCERNS) ===
+Round-1-Reviewer (MED #1): templates[0].league_id ist nicht-deterministisch + event.league_id
+ist vom Club entkoppelt (Default NULL). Live-DB-Verifikation:
+  SELECT rel, COUNT(*) ... → event_league_NULL: 207 | matches_club_league: 1 | differs: 0
+→ 207/208 Events sind league_id=NULL. templates[0] UND die per-Clone-event.league_id-Empfehlung
+  wären beide auf 38-Fallback gefallen → Phantom-Bug NICHT gefixt.
+→ Korrekter Anker = CLUB-Liga (clubs.league_id, immer gesetzt: 0 clubs_without_league).
+  Konsistent mit bestehendem getActiveGameweek (club.ts:585, gleiche club.league_id→leagues-Quelle).
+
+=== DB-Beweis: Fix hätte das reale Phantom verhindert ===
+Bestehendes Phantom: "BeScout-Saison Bundesliga (Demo)" GW37 (FC Augsburg), status=ended,
+  entry_fee=0, prize_pool=0, real_entries=0 (P2-Cleanup geparkt, kein Geld).
+SELECT club, league, max_gameweeks, (35 > max_gameweeks) AS would_skip_gw35 WHERE club=FC Augsburg:
+  → FC Augsburg | Bundesliga | 34 | would_skip_gw35 = TRUE
+  Mit Club-Liga-Anker: finalize GW34 → resolvedLeagueId=BL → maxGw=34 → 35>34 → SKIP. ✓
+
+=== DB-Snapshot leagues.max_gameweeks (skzjfhvgccaeplydsunz) ===
+2. Bundesliga DE active=34 max=34  ← live scharf
+Bundesliga    DE active=34 max=34  ← live scharf
+La Liga/PL/Serie A/TFF1: max=38 ; Süper Lig active=34 max=38 (Daten-Smell, separat geparkt)
+
+=== tsc --noEmit ===  EXIT 0 (clean)
+
+=== vitest events-v2 + scoring-v2 ===  107 passed (107)  [final: events-v2 78 passed nach Härtung]
+- "skips when nextGw exceeds the club league max_gameweeks (SSOT 34)" → clubs{bl-league}+leagues{34},
+  createNextGameweekEvents('club-1',34) ⇒ {created:0,skipped:true,error:'Max GW 34 reached'},
+  getFixtures NICHT aufgerufen (Guard-at-top short-circuit). [AC1]
+- "clones at the club-league boundary (GW33→34, max 34) instead of over-blocking" → created:1, skipped:false. [AC3, Reviewer-#3a]
+- "uses the 38 fallback when the club has no league_id" → clubs{league_id:null}, call('club-1',38)
+  ⇒ 'Max GW 38 reached' (getLeagueMaxGameweeks(null)=38, keine leagues-Query). [AC2]
+- Bestands-Tests grün (clones-with-timing, idempotent-skip, no-templates, treasury-skip): unmockte
+  clubs → {data:null} → resolvedLeagueId null → maxGw 38 → altes Verhalten, 0 Regression.
+- scoring-v2.test.ts: createNextGameweekEvents toHaveBeenCalledWith(CLUB_ID, GW) — Caller 2-arg unverändert. [AC4]
+
+=== grep Hardcode-38 (events.mutations.ts) [AC5] ===
+$ grep -n "> 38|Max GW 38" → kein Treffer (nur dynamisch `Max GW ${maxGw}`).
+
+=== REVIEW ===
+Round 1: CONCERNS (MED templates[0]-Anker, LOW Reorder, LOW Test-Lücke, LOW Register-Flip).
+Round 2 (neuer Club-Liga-Anker): PASS. Findings: LOW #1 clubs-Query Silent-Fail-Härtung (umgesetzt:
+  error-Destructuring + console.warn vor 38-Fallback), NIT #2 Fixtures-Assertion (Bridge-Mock-Limit,
+  @/lib/services/fixtures ist Re-Export-Bridge → Test-Mock greift den ./fixtures-Call nicht ab).
+
+=== Fazit ===
+P1 geschlossen: zweite hartcodierte Gameweek-Wahrheit (38) → kanonische SSOT leagues.max_gameweeks,
+verankert an der Club-Liga. Keine NEUEN Phantom-Events in 34-GW-Ligen. Caller-Signatur unverändert.
+Fixture-Timing-Scoping latent mitgeheilt. 1 bestehendes Phantom (frei/ended/0 Entries) = P2 geparkt.
