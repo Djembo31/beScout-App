@@ -7,8 +7,14 @@ import { qk } from '@/lib/queries/keys';
 import type { ClubWithAdmin } from '@/types';
 import ClubContent from './ClubContent';
 import { ClubHydration } from './ClubHydration';
+import { PreloadStadium } from './PreloadStadium';
 
 type Props = { params: Promise<{ slug: string }> };
+
+// Slice 487 (W6): next/image-deviceSizes (next.config-Default) für den Stadion-Preload-srcset.
+const DEVICE_SIZES = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
+const stadiumOptimized = (url: string, w: number) =>
+  `/_next/image?url=${encodeURIComponent(url)}&w=${w}&q=60`;
 
 async function getClubMeta(slug: string) {
   const { data } = await supabaseAdmin
@@ -68,13 +74,24 @@ export default async function ClubSlugPage({ params }: Props) {
     },
   });
 
+  // Slice 487 (W6 load-delay): das LCP-Stadion-Hero früh preloaden. Die Club-Daten aus dem
+  // 471-Prefetch sind schon im Cache → stadium_image_url ohne Extra-Read lesen; bei Cache-Miss
+  // (Club nicht gefunden) Fallback auf das slug-Asset (harmloser Preload). srcset spiegelt
+  // ClubHeros <Image sizes="100vw" quality={60}> → Cache-Hit beim Render statt Doppel-Fetch.
+  const club = queryClient.getQueryData<ClubWithAdmin | null>(qk.clubs.bySlug(slug, undefined));
+  const stadiumUrl = club?.stadium_image_url || `/stadiums/${slug}.jpg`;
+  const stadiumSrcSet = DEVICE_SIZES.map((w) => `${stadiumOptimized(stadiumUrl, w)} ${w}w`).join(', ');
+
   // Slice 476: HydrationBoundary via Client-Wrapper (modern-Build) — direkter
   // Server-Import resolvte zum legacy-Build → Context-Mismatch zum modern
   // QueryClientProvider → »No QueryClient set« (Page-Crash seit 471). dehydrate()
   // bleibt server-seitig (build-agnostisches JSON-Result).
   return (
-    <ClubHydration state={dehydrate(queryClient)}>
-      <ClubContent slug={slug} />
-    </ClubHydration>
+    <>
+      <PreloadStadium href={stadiumOptimized(stadiumUrl, 1920)} srcSet={stadiumSrcSet} />
+      <ClubHydration state={dehydrate(queryClient)}>
+        <ClubContent slug={slug} />
+      </ClubHydration>
+    </>
   );
 }

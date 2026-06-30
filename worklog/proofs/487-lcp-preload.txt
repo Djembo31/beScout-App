@@ -1,0 +1,29 @@
+Slice 487 — W6 load-delay: LCP-Stadion-Bild server-seitig preloaden
+Proof — 2026-06-30
+
+=== BEFUND (chrome-devtools-Trace 486) ===
+LCP 2233ms = load-delay-dominiert (64% = 1432ms). Stadion-Bild erst @1798ms angefragt, weil
+ClubHero voll client-gerendert (nach Hydration+Daten) → <Image priority> nicht im SSR-HTML → kein
+früher Preload. Bild-Download selbst nur 33ms (AVIF, kein Transfer-Problem).
+
+=== FIX (Option A, contained, kein Hero-Umbau; context7-verifiziert) ===
+- Neue 'use client' PreloadStadium.tsx: ReactDOM.preload(href, {as:'image', imageSrcSet, imageSizes:'100vw',
+  fetchPriority:'high'}) → emittiert <link rel=preload as=image> im SSR-Head.
+- page.tsx (Server): liest die 471-geprefetchte Club-Row (getQueryData, kein Extra-DB-Read) →
+  stadium_image_url || /stadiums/<slug>.jpg → baut next/image-srcset (deviceSizes, q60) → <PreloadStadium>.
+- srcset spiegelt ClubHeros <Image sizes="100vw" quality={60}> EXAKT (URL-Format aus 486-Trace:
+  /_next/image?url=<enc>&w=W&q=60) → Browser-Preload dedupet die spätere <Image>-Anfrage (Cache-Hit).
+
+=== BUILD-VERIFIKATION ===
+tsc --noEmit: EXIT 0 (ReactDOM.preload-Typen + getQueryData kompilieren).
+→ Vercel-Deploy (post-Push) = next-build-Gate.
+
+=== AC POST-DEPLOY (bescout.net, chrome-devtools-Re-Trace) — [PENDING] ===
+- [ ] <link rel="preload" as="image" imagesrcset=... imagesizes="100vw"> im /club-SSR-Head
+- [ ] Stadion-Bild früh angefragt (Request-Zeit << 1798ms) → load-delay/load-duration ↓
+- [ ] LCP vs 2233ms (Baseline 486). Erwartung: ~−358ms (Bild beim Render gecached).
+- [ ] Visuell /club unverändert, Console clean, kein Doppel-Fetch des Stadions (Cache-Hit).
+
+=== Scope-Out ===
+SSR-Decouple des Hero (Option B = der 1432ms Render-Wait, Parallax/onError-entangled) = gemessener
+Follow-up, FALLS Re-Trace zeigt dass Render-Delay dann dominiert. Inkrementell statt Big-Bang (d03).
