@@ -1,0 +1,48 @@
+Slice 485 — D-04 (W3): lineups DB-Integrität
+Proof — 2026-06-30 · Migration 20260630190000 applied ({success:true})
+
+=== DATEN-BASELINE (read-only, vor Apply) ===
+447 Lineups · 0 Doppel-Spieler · 0 befüllte Bench · 0 Orphan-Bench → additiv ohne Cleanup.
+
+=== FIX ===
+(a) 4 FK bench_gk/o1/o2/o3 → players(id)  (12 Starter-Slots hatten FK, Bench nie)
+(b) Trigger trg_lineups_player_distinct BEFORE INSERT/UPDATE: alle 16 Slots (Starter+Bench)
+    mutually distinct → RAISE 'duplicate_player' (reuse RPC-Code → i18n duplicatePlayer DE+TR).
+    GUC-Escape bescout.allow_lineup_dup. SET search_path='public'.
+RPC unberührt. KORREKTUR (Reviewer R1, HIGH): der RPC validiert die VOLLE 16-Slot-Distinctness bereits
+graceful — Starter (RETURN {ok:false,'duplicate_player'}) + separate Bench-Schleife (RETURN {ok:false,
+'bench_duplicate'/'bench_overlaps_starter'}, mig 20260626160000:187-188, beide i18n-gemappt). Die initiale
+Prämisse „RPC prüft nur 12 Starter, Bench nicht" war eine Fehllesung (nur die v_seen-Starter-Schleife gelesen).
+→ Trigger = REINER DB-Backstop für Direkt-/Nicht-RPC-Writes (Register-Kern „Integrität lebt nur im RPC" jetzt
+DB-enforced), KEINE RPC-Lücken-Schließung. Phantom-Follow-up D-04b gestrichen.
+
+=== AC1/AC2 Schema (pg_constraint/pg_trigger/pg_proc) ===
+bench_fks = {lineups_bench_gk_fkey, lineups_bench_o1_fkey, lineups_bench_o2_fkey, lineups_bench_o3_fkey} ✓
+trigger   = trg_lineups_player_distinct, timing=BEFORE ✓
+fn        = enforce_lineup_player_distinct, deckt 16 Slots (bench_gk…bench_o3 + COUNT DISTINCT) ✓
+fn_acl    = {postgres, authenticated, service_role} (PUBLIC+anon revoked; authenticated=Supabase-
+            Default-Privilege auf Trigger-Fn = harmlos, Trigger-Fn nicht direkt sinnvoll aufrufbar)
+
+=== AC3-AC8 force-rollback-Smoke (DO-Block, Savepoint-isoliert, finaler RAISE 'REPORT'>>>) ===
+Lauf 1 (Lineup 382b4f27, ended-Event):
+- AC4_bench_dup        = BLOCKED:duplicate_player        ✓ (mein Trigger — die neue Bench-Abdeckung)
+- AC5_noop             = PASS                            ✓ (Bestands-Lineup re-save = trigger-valide, 0 Regression)
+- AC6_fk_orphan        = BLOCKED (FK violation)          ✓ (Bench-FK greift)
+- AC7_bench_valid      = PASS                            ✓ (valider distinct Bench-Spieler → FK erlaubt, Bench nutzbar)
+- AC3/AC8 (Starter)    = vom Pre-existing Ended-Event-Guard abgefangen (Status:ended) → Lauf 2
+Lauf 2 (Off-Season: KEIN Lineup auf nicht-beendetem Event → Bench-Pfad, Ended-Guard lässt Bench durch):
+- AC8_guc_escape       = PASS (GUC an → bench_gk=slot_gk Dup erlaubt)   ✓ (Escape funktioniert)
+- AC3eq_dup_noEscape   = BLOCKED:duplicate_player (bench_gk=slot_def1 + bench_o1=slot_def1, kein Escape) ✓
+→ Trigger-Logik über alle 16 Slots uniform (Starter-vs-Starter identisch zu bewiesenen Dup-Fällen).
+
+=== AC9 No-Regression (RPC/Service unberührt, kein TS-Change) ===
+vitest lineups (lib + features): 62 passed. db-invariants RPC-'duplicate_player'-Check-Invariant unberührt (RPC nicht angefasst).
+
+=== Atomizität (No-Regression-Basis) ===
+rpc_save_lineup: INSERT (alle 16 Slots) + UPDATE-ELSE (alle 16 Slots) = je 1 atomare Anweisung →
+BEFORE-Trigger feuert einmal auf finaler Row, kein transienter Zwischen-Dup.
+
+=== Fazit ===
+D-04 DB-Integrität geschlossen: lineups hat jetzt DB-Backstop (4 Bench-FK + 16-Slot-Distinctness-Trigger)
+unabhängig vom 27k-RPC. Additive Defense-in-Depth, 0 Daten-Cleanup, 0 Regression. D-20 Wide-Column behalten.
+Kein Follow-up (D-04b war Phantom — RPC validiert Bench bereits graceful; R1-Korrektur).
