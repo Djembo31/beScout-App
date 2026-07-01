@@ -40,17 +40,26 @@ export async function getSystemStats(): Promise<SystemStats> {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const results = await Promise.allSettled([
     supabase.from('profiles').select('*', { count: 'exact', head: true }),
-    supabase.from('wallets').select('balance').limit(5000),
+    // D-08: total credits in circulation via the canonical treasury RPC (server-side
+    // SUM(wallets.balance), uncapped). Replaces `wallets.select('balance').limit(5000)`
+    // client-SUM — PostgREST silently caps at ~1000 rows regardless of `.limit(5000)`
+    // (common-errors PostgREST-1000-cap = MONEY-CRITICAL), so the old path undercounts
+    // "Scout Total" once wallets > 1000. Semantic parity verified: total_circulating_cents
+    // = COALESCE(SUM(balance) FROM wallets, 0). Caller is platform-admin-only
+    // (BescoutAdminContent, middleware-gated) so the platform_admins-gated RPC authorizes.
+    supabase.rpc('get_treasury_stats'),
     supabase.from('trades').select('price, quantity').gte('executed_at', since).limit(5000),
     supabase.from('events').select('*', { count: 'exact', head: true }).in('status', ['upcoming', 'registering', 'late-reg', 'running']),
     supabase.from('offers').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
   ]);
   logSilentRejects('platformAdmin.getSystemStats', results);
-  const [usersRes, walletsRes, tradesRes, eventsRes, offersRes] = results;
+  const [usersRes, treasuryRes, tradesRes, eventsRes, offersRes] = results;
 
   const totalUsers = usersRes.status === 'fulfilled' ? (usersRes.value.count ?? 0) : 0;
-  const wallets = walletsRes.status === 'fulfilled' ? (walletsRes.value.data ?? []) : [];
-  const totalBsdCirculation = wallets.reduce((sum, w) => sum + ((w.balance as number) || 0), 0);
+  const treasury = treasuryRes.status === 'fulfilled'
+    ? (treasuryRes.value.data as { total_circulating_cents?: number | string } | null)
+    : null;
+  const totalBsdCirculation = Number(treasury?.total_circulating_cents ?? 0);
   const trades = tradesRes.status === 'fulfilled' ? (tradesRes.value.data ?? []) : [];
   const volume24h = trades.reduce((sum, t) => sum + ((t.price as number) * (t.quantity as number)), 0);
   const activeEvents = eventsRes.status === 'fulfilled' ? (eventsRes.value.count ?? 0) : 0;

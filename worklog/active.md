@@ -1,16 +1,23 @@
 # Active Slice
 
 ```
-status: idle
-slice: 496
-title: D-39 — anon /club: 3 authed-only Read-RPCs für Ausgeloggte gaten (GATE, CEO Anil gewählt)
-size: XS
-type: UI (Hook)
-welle: Mock→Pro W6 / D-03 (D-39, direkte Fortsetzung 495)
-proof: worklog/proofs/496-anon-club-read-gates.txt
-review: self-review (XS, gleiches enabled:!!userId-Gate-Pattern wie 495 + Zeile-143-Precedent im selben File)
-stage: LOG (DONE — live anon-verifiziert: anon /club Console 8 Errors → 0; D-39 für /club geschlossen)
+status: in-progress
+slice: 497
+title: D-08 — getSystemStats „Scout Total" aus kanonischer Treasury-RPC (gecappten Client-SUM killen)
+size: S
+type: Service
+welle: Mock→Pro Money-Konsolidierung (D-08, §0-Subtraktion, CEO Anil endorsed)
+proof: worklog/proofs/497-d08-scout-total-uncapped.txt
+review: self-review (§3 Money, aber display-only/read; Semantik-Parität DB-bewiesen, keine Mutation)
+stage: BUILD
 ```
+
+## Slice 497 — D-08 getSystemStats „Scout Total" uncapped (§0-Subtraktion)
+**Problem (Live-verifiziert):** `getSystemStats` (platformAdmin.ts:43) summiert `wallets.select('balance').limit(5000)` client-seitig → PostgREST cappt real bei **~1000** (common-errors „PostgREST-1000-cap MONEY-CRITICAL"; `.limit(5000)` ist KEIN Override). Feeds „Scout Total" im Platform-Admin (`BescoutAdminContent.tsx:63`). **Latent:** 128 Wallets heute → undercount=0; **falsch ab >1000 Wallets** (Launch-Wachstum). Kanonischer Zwilling `get_treasury_stats.total_circulating_cents` (SECDEF, admin-gated, server-SUM ohne Cap) existiert.
+**Semantik-Parität (D87, live functiondef):** `total_circulating_cents = COALESCE(SUM(balance) FROM wallets, 0)` = EXAKT die alte `totalBsdCirculation`-Semantik (SUM balance), nur uncapped. Live true SUM = 850.935.524 cents.
+**Fix (§0-Subtraktion):** in `getSystemStats` den gecappten wallets-Client-SUM durch `supabase.rpc('get_treasury_stats')` ersetzen, `totalBsdCirculation = Number(total_circulating_cents ?? 0)`. Caller = platform-admin-only (Middleware-gated) → RPC-Auth (platform_admins) authorisiert. SystemStats-Shape unverändert (1 Consumer, kein Impact).
+**Scope-Out:** D-09 (getTreasuryStats-Fallback `.limit(5000)`) = nur RPC-Ausfall-Branch (doppelter Fehlerfall), gleiche Klasse, niedrigere Prio → im Register notiert, nicht mit-gefixt (kein Misch-Commit). volume24h `.limit(5000)` (24h-Trades) bleibt (< 1000 unkritisch).
+**AC:** (1) getSystemStats sourced totalBsdCirculation aus get_treasury_stats (kein wallets-Cap-SUM mehr). (2) tsc 0 · platformAdmin-Tests grün. (3) Live: Admin „Scout Total" == Treasury-Tab „circulating" (beide 850.935.524-basiert, konsistent), kein Regress. → schließt D-08.
 
 ## Slice 496 — D-39 anon /club Read-Gates (GATE-für-anon, CEO Anil 2026-07-01)
 **Problem:** ClubContent läuft für anon (ssrConfirmedAnon-Pfad, ClubContent.tsx:183 rendert durch; PublicClubView = späterer early-return :209) → alle Top-Level-Hooks feuern für anon. 3 davon rufen authed-only RPCs (`anon_exec=false` live-verifiziert) → 401-Kaskade in der öffentlichen Club-Console.
