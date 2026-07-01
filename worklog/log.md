@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 495 | 2026-07-01 | fix(club): anon /club — resolveExpiredResearch für Ausgeloggte gaten
+- Stage-Chain: SPEC(inline) → BUILD (1 Effect, useClubData.ts) → REVIEW(self) → PROVE(Live anon-Walk) → LOG. **Mock→Pro W6 / D-03 Option 2 (Anil vorab gewählt).** Größe XS.
+- **Fix:** `useClubData.ts` feuerte `resolveExpiredResearch()` ungated bei jedem /club-Mount, auch anon. Live-DB: `resolve_expired_research` = `anon_exec=false` (REVOKE anon) + **kein pg_cron** → anon-Call scheiterte garantiert mit 401 "permission denied" in der Console der öffentlichen Club-Seite, Client-Trigger = einziger Auflösungspfad. Gate `if (!userId) return;` + deps `[]`→`[userId]`: authed triggert weiter (Pfad intakt), anon feuert nie.
+- **PROVE (live bescout.net, Deploy 598046a7):** anon (Session/SW/Cache geleert, anon bestätigt: 0 sb-Cookies/keine Credits-UI) /club Console **0× resolve_expired_research** (weg). authed Console 0 Errors (unverändert). tsc 0 · useClubData.test 27/27. Proof `495-anon-club-resolve-gate.txt`.
+- **Mess-Lehre (493-bestätigt):** Playwright-Browser war persistent eingeloggt → erste Messung maß authed-Pfad. Session leeren + anon-Diskriminator prüfen VOR jedem anon-Console-Urteil. Ein Cookie-Clear-Mid-Session erzeugte selbst Artefakt-401s (get_club_by_slug + AuthProvider-Retries) → nur sauberer Reload zählt.
+- **🔎 NEUER BEFUND (parked, CEO-Direktion):** anon /club feuert 3 authed-only Read-RPCs (`get_club_news_teasers` + `rpc_get_club_recent_trades` + `get_event_player_pick_rates`, alle `anon_exec=false`) → 401-Kaskade. Gleiche Klasse wie 495. Fix-Direktion = GATE-für-anon (verhaltens-erhaltend) vs GRANT-anon (Data-Exposure-Review) = Produktentscheid. Detail: `active.md` + `disease-register.md` D-39.
+- Scope-Out: `get_club_news_teasers`-anon-Grant blieb CEO-Scope (nicht mit-gefixt). Lazy-cron-Smell (Maintenance-Mutation an /club-Mount + kein Cron) P2-geparkt.
+- Commit: `598046a7` (fix) + docs-Folge.
+
 ## 494 | 2026-07-01 | perf(ssr): W6/D-03 Teil 2 — authed /club SSR VERSUCHT → REVERTED (#425/#422 Hydration-Regress)
 - Stage-Chain: SPEC(inline) → BUILD (page.tsx user-scoped Club-Prefetch) → PROVE (tsc 0 → **Live-Walk fing Regress**) → REVERT → LOG. **Mock→Pro W6 / D-03.**
 - **Versuch:** 493-Finding #3 schließen — authed /club skeletont im SSR, weil der Club-Prefetch den anon-Key `bySlug(slug, undefined)` nutzt (authed Client: `bySlug(slug, userId)` → nicht hydratet). Fix: `getServerAuthState` → `ssrUserId` → Prefetch user-gescopt (`p_user_id: ssrUserId`). Parität DB-verifiziert (`get_club_by_slug` nutzt p_user_id, SECDEF). tsc 0.

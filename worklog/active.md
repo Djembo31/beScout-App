@@ -1,7 +1,7 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 495
 title: anon /club — resolveExpiredResearch für Ausgeloggte gaten (Console permission-denied + lazy-cron-Smell)
 size: XS
@@ -9,8 +9,13 @@ type: UI (Hook)
 welle: Mock→Pro W6 / D-03 (Option 2, von Anil vorab gewählt)
 proof: worklog/proofs/495-anon-club-resolve-gate.txt
 review: self-review (XS, dokumentiertes enabled:!!userId-Gate-Pattern)
-stage: BUILD
+stage: LOG (DONE — live anon-verifiziert: resolve_expired_research aus anon-Console weg)
 ```
+
+## 🔎 NEUER BEFUND (Slice-495-Walk) — anon /club feuert authed-only Read-RPCs (CEO-Direktion nötig)
+Beim Live-anon-Walk aufgedeckt: der anon-`/club`-Client feuert **3 authed-only Read-RPCs** (alle `anon_exec=false` live-verifiziert) → 401-Kaskade in der Console:
+- `get_club_news_teasers` (schon als CEO-Scope geführt) · `rpc_get_club_recent_trades` · `get_event_player_pick_rates`
+Gleiche Klasse wie der 495-Fix (authed-only Call ungated für anon). **Fix-Direktion = CEO-Produktentscheid pro RPC:** GATE-für-anon (`enabled:!!userId` — verhaltens-erhaltend, anon sieht ohnehin nichts, Console clean) ODER GRANT-anon (anon SIEHT die Daten — braucht Data-Exposure-Review: sind recent_trades/pick_rates PII-frei?). **Artefakt-Klarstellung:** get_club_by_slug-401 + AuthProvider-Retries im Zwischenlauf = Cookie-Clear-Artefakt, KEIN echtes anon-Problem.
 
 ## Slice 495 — anon /club resolveExpiredResearch-Gate
 

@@ -33,5 +33,23 @@ authed: triggert weiter (einziger Pfad intakt). anon: no-op (kann's ohnehin nich
 - npx tsc --noEmit → exit 0
 - npx vitest run useClubData.test.ts → 27/27 passed
 
-[LIVE PROOF — anon /club Console post-Deploy]  (PROVE-Gate, wird nach Vercel-Deploy ergänzt)
-  <pending: chrome-devtools/playwright anon bescout.net/club/<slug> → Console 0× resolve_expired_research permission-denied>
+[LIVE PROOF — anon /club Console post-Deploy]  (Vercel 598046a7 Ready, Playwright anon bescout.net/club/galatasaray)
+Mess-Hygiene (493-Lehre): Browser war persistent eingeloggt (sb-auth-token 2878B + Credits-UI)
+→ Session/Cookies/localStorage/SW/Caches geleert → anon bestätigt (sbCookieCount=0, keine Credits-UI,
+Seite gerendert) VOR der Console-Messung.
+
+Sauberer anon /club Console (settled):
+  ✅ resolve_expired_research: 0× — WEG (Slice-495-Fix greift, kein 401, kein permission-denied)
+  ⏳ VERBLEIBEND (pre-existing, NICHT Scope 495):
+     - get_club_news_teasers        → 401 + "permission denied" (CEO-Scope, Scope-Out oben)
+     - rpc_get_club_recent_trades   → 401 (×N React-Query-Retries)
+     - get_event_player_pick_rates  → 401 (×N React-Query-Retries)
+  Alle drei anon_exec=false (Live-DB verifiziert) → anon-Client feuert authed-only Read-RPCs.
+  = SEPARATER Befund "anon /club feuert authed-only Reads" (siehe log.md 495 Notes + Report).
+
+Artefakt-Klärung (Ehrlichkeit): ein Mess-Zwischenlauf zeigte zusätzlich get_club_by_slug-401 +
+7× "[AuthProvider] Profile load failed after retry" — das war ein Cookie-Clear-Mid-Session-Artefakt
+(stale Auth-Refetch), im sauberen anon-Reload NICHT vorhanden → KEIN echtes anon-Problem.
+
+AC-Ergebnis: (1) ✅ resolve_expired_research aus anon-Console eliminiert. (2) authed-Pfad
+unverändert (feuert weiter; authed Console 0 Errors). (3) ✅ tsc 0 · useClubData.test 27/27.
