@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 500 | 2026-07-01 | refactor(clubs): W4 — Discovery-Liste in React Query + onSettled-Reconciliation (W4 KOMPLETT)
+- Stage-Chain: SPEC → BUILD → REVIEW (self, Frontend-RQ-Pattern, kein Money/Security) → PROVE (tests+diff) → LOG. **Mock→Pro W4-Abschluss. CEO Anil „mach W4 fertig".** Größe S.
+- **Problem:** `/clubs` lud `getClubsWithStats`+`getNextFixturesByClub` via page-lokalem useState/useEffect (Promise.all) — kein RQ-Cache (Re-Fetch pro Mount), kein Cache-Sharing, follower_count nur page-lokal optimistisch (driftet von Server-Wahrheit). `useToggleFollowClub` (bereits voll RQ) invalidierte die Liste nicht. = Architektur-Inkonsistenz im W4-Pfad (P1).
+- **Fix:** NEU `useClubsWithStats({activeOnly})` (`lib/hooks/`) + `qk.clubs.withStats(activeOnly)` (staleTime 2min) · Fixtures via bestehendem `useNextFixtures` (managerData) **wiederverwendet** (kein 3. Duplikat, §0) · `clubs/page.tsx` useState/useEffect → Hooks (loading/error/refetch aus Query-State, Optimistic follower_count via setQueryData auf Cache) · `useToggleFollowClub.onSettled` +`invalidateQueries(['clubs','withStats'])` → Server-Reconciliation (refetcht nur wenn /clubs mounted).
+- **W4-Item 2 (fanRanking-Freshness):** verifiziert **bereits erledigt** — `useFanRanking` staleTime 30s (FIX-06/J9F-08). MASTERPLAN-Eintrag war stale → reconciled, kein Bau (feedback_verify_before_claiming_open).
+- **PROVE:** tsc 0 · ClubsDiscoveryPage 7/7 (Service-Mock via QueryClient-Provider, kein Test-Change) · Follow-Flow useClubActions/ClubProvider/ClubContent 33/33 · diff −33 netto (page). `worklog/proofs/500-discovery-rq.txt` · Review `worklog/reviews/500-review.md`. Live-Walk /clubs = post-Deploy.
+- **→ W4 (Follow/Discovery) KOMPLETT:** Voting-Konsolidierung (499) + Discovery-RQ (500) + fanRanking (done). MASTERPLAN W4 reconciled. Commit `<hash>`.
+
 ## 499 | 2026-07-01 | refactor(community): W4 §0-Schnitt — altes club_votes-Voting-System entfernt, community_polls = einzige Wahrheit (Wave 1)
 - Stage-Chain: SPEC → IMPACT(§3) → BUILD (Wave 1 code-only, 14 Live-Files + 5 Tests) → REVIEW (Cold-Context, CONCERNS→Doc-Fix→PASS) → PROVE → LOG. **Mock→Pro W4, §0-R1-Konsolidierung. CEO Anil „Voll konsolidieren".** Größe L.
 - **Befund (P1-latent, live-verifiziert):** `club_votes` = altes Voting-System, von `community_polls` (Superset, D86/D92-Money-Maschine) voll abgelöst, nie entfernt. **0 Rows live.** `cast_vote`-RPC (`pg_get_functiondef`): belastet Voter `balance -= cost_bsd` + `vote_fee`-Ledger, routet aber **kein Gegenkonto** (kein Treasury/Creator/PBT) = money-model-divergenter Sink vs. kanonische `cast_community_poll_vote` (70/30-Split). **Reachable** via live Admin-„Neu Vote"-Button → echter P1, nicht totes Relikt.

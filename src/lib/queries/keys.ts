@@ -211,6 +211,7 @@ export const qk = {
 
   // ── Club Detail ──
   clubs: {
+    withStats: (activeOnly: boolean) => ['clubs', 'withStats', activeOnly] as const,
     bySlug: (slug: string, uid?: string) => ['clubs', slug, uid] as const,
     followers: (cid: string) => ['clubs', 'followers', cid] as const,
     isFollowing: (uid: string, cid: string) => ['clubs', 'isFollowing', uid, cid] as const,

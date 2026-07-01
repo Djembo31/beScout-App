@@ -104,6 +104,10 @@ export function useToggleFollowClub(): {
       // deterministic → Liste frisch holen. Die anderen beiden Keys bleiben
       // auf optimistic-value (deterministic ±1), kein invalidate noetig.
       await qc.invalidateQueries({ queryKey: qk.clubs.followedByUser(user.id) });
+      // Slice 500 (W4): Discovery-Liste (`qk.clubs.withStats`, both activeOnly-Varianten
+      // via Prefix) reconcilen → eingebettete follower_count auf Server-Wahrheit ziehen.
+      // Refetch nur wenn die /clubs-Seite gemountet ist (sonst nur stale-markiert).
+      await qc.invalidateQueries({ queryKey: ['clubs', 'withStats'] });
       await refreshProfile();
     },
     errorToast: t('followError'),

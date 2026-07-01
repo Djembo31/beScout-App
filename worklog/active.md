@@ -2,16 +2,22 @@
 
 ```
 status: idle
-slice: 499
-title: W4-Konsolidierung club_votes → community_polls (§0 Schnitt) — KOMPLETT (Wave 1 Code + Wave 2 DB, live)
-size: L
-type: Migration (+ Service + UI)
-welle: Mock→Pro W4 Follow/Discovery (§0-R1, CEO Anil „Voll konsolidieren")
-spec: worklog/specs/499-club-votes-consolidation.md
-proof: worklog/proofs/499-club-votes.txt
-review: worklog/reviews/499-review.md (CONCERNS→Doc-Fix→PASS)
-stage: DONE — Wave 1 (Code, Commit 4860e4ab, Live-Walk PASS) + Wave 2 (DB DROP + refresh_user_stats-Swap, live). D-18 bleibt geparkt (passive P2).
+slice: 500
+title: W4 Discovery-Liste in React Query + onSettled-Reconciliation — DONE (W4 KOMPLETT)
+size: S
+type: Service/Hook (+ UI-Refactor)
+welle: Mock→Pro W4 Follow/Discovery (Architektur, CEO Anil „mach W4 fertig")
+spec: worklog/specs/500-discovery-react-query.md
+proof: worklog/proofs/500-discovery-rq.txt
+review: worklog/reviews/500-review.md (self-review, Frontend-RQ-Pattern, kein Money/Security)
+stage: DONE — useClubsWithStats-Hook + clubs/page RQ-Migration + useToggleFollowClub.onSettled-Invalidate. tsc 0, Tests 7+33 grün. Item 2 (fanRanking) bereits erledigt (staleTime 30s). → W4 KOMPLETT.
 ```
+
+## Slice 500 — W4 Discovery-Liste React Query (DONE)
+Discovery-Liste (`/clubs`) von page-lokalem useState/useEffect → React Query (`useClubsWithStats` + reuse `useNextFixtures`): Cache + Server-Reconciliation der follower_count via `useToggleFollowClub.onSettled`. Item 2 (fanRanking-Freshness) verifiziert **bereits erledigt** (useFanRanking staleTime 30s, FIX-06). **→ W4 (Follow/Discovery) KOMPLETT** (Voting-Konsolidierung 499 + Discovery-RQ 500 + fanRanking-done). Live-Walk /clubs = post-Deploy.
+
+## Slice 499 — W4 club_votes → community_polls (§0 Schnitt) — KOMPLETT
+Wave 1 (Code, `4860e4ab`, Live-Walk PASS) + Wave 2 (DB DROP + refresh_user_stats-Swap, `c3badc52`, live). D-18 bleibt geparkt (passive P2).
 
 ## Slice 499 — W4 club_votes → community_polls (§0 Schnitt)
 **Befund (live-verifiziert):** club_votes = altes Voting-System, von community_polls (Superset, D86/D92-Money-Maschine, live) voll abgelöst, nie entfernt. **club_votes 0 Rows**; `cast_vote` belastet Voter OHNE Treasury/Creator-Split (reiner Sink) = money-model-divergent + reachable (live „Neu Vote"-Button) → **P1-latent**. CreatePollButton (kanonisch) liegt bereits im selben AdminVotesTab → kein Feature-Verlust.

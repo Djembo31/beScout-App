@@ -1,0 +1,26 @@
+Slice 500 — W4: Discovery-Liste in React Query + onSettled-Reconciliation
+Proof · 2026-07-01
+
+(A) BUILD — §0 kein neues Duplikat
+  NEU src/lib/hooks/useClubsWithStats.ts (einziger RQ-Wrap um getClubsWithStats, vorher 0 Hooks)
+  qk.clubs.withStats(activeOnly) Key
+  useNextFixtures (managerData) WIEDERVERWENDET (kein 3. Fixtures-Wrapper)
+  clubs/page.tsx: useState/useEffect-Promise.all → Hooks; Optimistic follower_count auf Cache; Retry=refetch
+  useToggleFollowClub.onSettled: +invalidateQueries(['clubs','withStats'])
+
+(B) tsc + vitest
+  npx tsc --noEmit                                             → 0 Fehler
+  ClubsDiscoveryPage.test.tsx                                  → 7/7 passed
+  useClubActions + ClubProvider + ClubContent (Follow-Flow)   → 33/33 passed
+
+(C) diff-stat (Refactor-ohne-sichtbaren-Behavior-Change)
+  clubs/page.tsx        65 changed (-33 netto: useState/useEffect-Ladung raus)
+  useToggleFollowClub   +4 (onSettled invalidate)
+  keys.ts               +1 (withStats-Key)
+  NEU useClubsWithStats.ts
+
+(D) W4-Item 2 (fanRanking-Freshness) — verifiziert BEREITS ERLEDIGT
+  useFanRanking staleTime=30s (FIX-06/J9F-08, „tier-up feedback needs to feel live").
+  MASTERPLAN-Eintrag war stale → reconcilen, kein Bau.
+
+(E) Live-Walk /clubs (post-Deploy) — Follow/Unfollow, follower_count-Update, Console 0 Errors.

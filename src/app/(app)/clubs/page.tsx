@@ -13,32 +13,30 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useClub } from '@/components/providers/ClubProvider';
 import { useFollowedClubs } from '@/lib/hooks/useFollowedClubs';
 import { useToggleFollowClub } from '@/lib/hooks/useToggleFollowClub';
-import { getClubsWithStats } from '@/lib/services/club';
-import { getNextFixturesByClub } from '@/lib/services/fixtures';
+import { useClubsWithStats, type ClubWithStats } from '@/lib/hooks/useClubsWithStats';
+import { useNextFixtures } from '@/lib/queries/managerData';
 import { useMostOwnedPlayersPerClubBatch } from '@/lib/queries/trades';
 import { getLeaguesByCountry } from '@/lib/leagues';
-import type { NextFixtureInfo } from '@/lib/services/fixtures';
-import type { DbClub } from '@/types';
+import { useQueryClient } from '@tanstack/react-query';
+import { qk } from '@/lib/queries/keys';
 import { FanWishModal } from '@/components/fan-wishes/FanWishModal';
 
 // Slice 207 — Threshold consistent mit K-03 PickRateBadge (Slice 204).
 const MOST_OWNED_HINT_MIN_PCT = 5;
-
-type ClubWithStats = DbClub & { follower_count: number; player_count: number };
 
 export default function ClubsDiscoveryPage() {
   const { user } = useUser();
   const { activeClub, setActiveClub } = useClub();
   const { data: followedClubs = [] } = useFollowedClubs();
   const { toggleAsync } = useToggleFollowClub();
+  const qc = useQueryClient();
   const followedIds = useMemo(() => new Set(followedClubs.map((c) => c.id)), [followedClubs]);
   const isFollowing = useCallback((clubId: string) => followedIds.has(clubId), [followedIds]);
   const t = useTranslations('clubs');
-  const [clubs, setClubs] = useState<ClubWithStats[]>([]);
-  const [nextFixtures, setNextFixtures] = useState<Map<string, NextFixtureInfo>>(new Map());
-  const [loading, setLoading] = useState(true);
-  const [dataError, setDataError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
+  // Slice 500 (W4): Discovery-Liste + Fixtures als React-Query (Cache + Server-Reconciliation
+  // der follower_count via useToggleFollowClub.onSettled) statt page-lokalem useState/useEffect.
+  const { data: clubs = [], isLoading: loading, isError: dataError, refetch } = useClubsWithStats({ activeOnly: true });
+  const { data: nextFixtures } = useNextFixtures();
   const [searchQuery, setSearchQuery] = useState('');
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [wishOpen, setWishOpen] = useState(false);
@@ -60,24 +58,6 @@ export default function ClubsDiscoveryPage() {
       setLeagueScope({ id: single.id, name: single.name, country: single.country });
     }
   }, [filterCountry, filterLeague, setLeagueScope]);
-
-  useEffect(() => {
-    let cancelled = false;
-    setDataError(false);
-    Promise.all([getClubsWithStats({ activeOnly: true }), getNextFixturesByClub()])
-      .then(([clubData, fixtureData]) => {
-        if (!cancelled) {
-          setClubs(clubData);
-          setNextFixtures(fixtureData);
-        }
-      })
-      .catch(err => {
-        console.error('[Clubs] Failed to load:', err);
-        if (!cancelled) setDataError(true);
-      })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [retryCount]);
 
   const filtered = clubs.filter(c => {
     // Search text filter
@@ -113,24 +93,23 @@ export default function ClubsDiscoveryPage() {
     if (!user) return;
     setTogglingId(club.id);
     const wasFollowing = isFollowing(club.id);
+    const listKey = qk.clubs.withStats(true);
+    // Optimistic follower-count bump auf der gecachten Discovery-Liste. Button-State
+    // (isFollowing) + Follower-Count-Caches macht useToggleFollowClub.onMutate; dessen
+    // onSettled invalidiert `qk.clubs.withStats` → Server-Reconciliation. Hier nur Sofort-Bump.
+    const bump = (delta: number) =>
+      qc.setQueryData<ClubWithStats[]>(listKey, prev =>
+        prev?.map(c => c.id === club.id
+          ? { ...c, follower_count: Math.max(0, c.follower_count + delta) }
+          : c));
 
-    // Optimistic follower-count bump auf der Discovery-Karte. Die
-    // followedClubs-Liste + isFollowing + Follower-Count-Caches werden von
-    // useToggleFollowClub.onMutate deterministisch geupdated; hier nur der
-    // page-lokale `ClubWithStats.follower_count` auf der Scroll-Liste.
-    setClubs(prev => prev.map(c => {
-      if (c.id !== club.id) return c;
-      return { ...c, follower_count: c.follower_count + (wasFollowing ? -1 : 1) };
-    }));
+    bump(wasFollowing ? -1 : 1);
 
     try {
       await toggleAsync({ club, follow: !wasFollowing });
     } catch (err) {
       console.error('[Clubs] Toggle follow failed:', err);
-      setClubs(prev => prev.map(c => {
-        if (c.id !== club.id) return c;
-        return { ...c, follower_count: c.follower_count + (wasFollowing ? 1 : -1) };
-      }));
+      bump(wasFollowing ? 1 : -1);
     } finally {
       setTogglingId(null);
     }
@@ -172,7 +151,7 @@ export default function ClubsDiscoveryPage() {
 
       {/* Error */}
       {!loading && dataError && (
-        <ErrorState onRetry={() => { setLoading(true); setRetryCount(c => c + 1); }} />
+        <ErrorState onRetry={() => refetch()} />
       )}
 
       {/* Empty */}
@@ -290,7 +269,7 @@ export default function ClubsDiscoveryPage() {
                   </div>
 
                   {/* Next Fixture */}
-                  {nextFixtures.get(club.id) && (() => {
+                  {nextFixtures?.get(club.id) && (() => {
                     const nf = nextFixtures.get(club.id)!;
                     return (
                       <div className="flex items-center gap-2 mt-2 px-2 py-1.5 bg-surface-minimal rounded-lg text-xs text-white/50">
