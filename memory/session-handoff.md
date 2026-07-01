@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-07-01 01:23)
+# Session Handoff — Auto (2026-07-01 04:21)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -9,16 +9,16 @@
 ```
 
 ## Session Commits: 10
-- 8a639690 docs(490): deploy + Feld-Verifikation-Plan (CLS / 0,282 → pending ~24h)
-- a82b642f fix(perf): Slice 490 — Startseiten-CLS: Layout-Fork erst bei dashboardReady entscheiden
-- 7011f4f0 fix(observability): Slice 489 — sync-contracts Leerdaten-als-500 → 200+skip (5xx-Audit)
-- 89e6da69 fix(observability): Slice 488 — withLogger captured returned 5xx + push-Cleanup (Sentry-Blindspots)
-- 66a3fe4d docs(handoff): Teil 31 Session-Close — 480-487 (Konsistenz-Batch komplett + D-04 root-cause #2 + W6-LCP-Strang)
-- 2949c655 docs(487): chrome-devtools-Re-Trace — Preload löst Fetch-Timing, LCP ist render-/hydration-bound
-- d08a3dba perf(ssr): Slice 487 (W6 load-delay) — LCP-Stadion-Bild server-seitig preloaden
-- c88a128f docs(486): chrome-devtools LCP-Re-Trace — Bild fixed (AVIF 33ms), LCP jetzt load-delay-bound
-- ca917f6f docs(486): W6 LCP-Bild live-verifiziert — Stadion AVIF q60, −45-47% Bytes
-- b5697c63 perf(image): Slice 486 (W6 Phase 3) — LCP-Bild entlasten (AVIF app-weit + ClubHero-Stadion sizes/quality)
+- 16eac5e4 docs(494): Revert live-verifiziert — authed /club #425/#422 weg, anon 493-Win erhalten
+- 6b189d5a perf(ssr): Slice 494 REVERTED — authed /club SSR erzeugte #425/#422 Hydration-Regress
+- 6c74736d perf(ssr): Slice 494 (W6/D-03 Teil 2) — authed /club Hero ins SSR-HTML
+- 790b8ea9 docs(reconcile): TODO — 493 (W6/D-03 /club SSR −43% LCP) + audit:dup FP=0 erledigt
+- 198d6b3e docs(493): LOG + Knowledge — /club anon LCP 2226→1269ms (−43%) live-verifiziert
+- f055f31f perf(ssr): Slice 493 (W6/D-03) — /club Hero ins SSR-HTML für Ausgeloggte
+- ce51b9e0 chore(tooling): audit:dup FP geklärt — D-33 Tracked-Symbol timeAgo statt formatTimeAgo (FP=0)
+- 542ec43b docs(reconcile): Tracker-Wahrheit — D-22/D-02/D-11/W2 stale-Status live-korrigiert
+- bc70ab1c docs(handoff): Teil 32 Session-Close — Observability+CLS-Arc (488-492), Feld-CLS-Check pending ~24h
+- 3fc3f4a9 fix(perf): Slice 492 — CLS: SponsorBanner Höhen-Skeleton entfernen (0 aktive Sponsoren)
 
 <!-- auto:handoff-end -->
 
@@ -26,6 +26,19 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-07-01 (Teil 33) — W6/D-03 /club SSR: anon-Win gebankt (−43%), authed-Versuch ehrlich zurückgerollt. `main`==`origin`==`16eac5e4`. Elite-Senior/Mock→Pro W6.**
+> - **⏭️ ANIL WÄHLTE „2, dann 3" — frischer Start hier ansetzen:**
+>   - **(2, jetzt-machbar, CTO-klein):** anon `/club` Console-Permission-Errors — `resolve_expired_research` (MUTATION, `research.ts:397`) läuft für **anon** → „permission denied". Fix = die Mutation für anon gaten (`enabled:!!userId` / nicht aufrufen). `useClubData` feuert clubNews/clubResearch für anon (`useClubData.ts:48-49`, via `getClubNewsTeasers` posts.ts:186 + `useClubResearch` research.ts:18). **`get_club_news_teasers`-anon-Grant = §3/Produkt-Entscheidung (soll anon Club-News sehen? = CEO), separat.**
+>   - **(3, danach, GROSS + delikat, frischer Kopf):** authed `/club`-SSR richtig = **below-hero-Streaming-Refactor** (Hero aus SSR, die ~15 datenschweren Below-Hero-Sektionen client-gated hinter eigenem loading). Weitet den −43%-Win auf Eingeloggte aus. Eigener Recon+Design. **NICHT naiv „loading false machen"** — das war 494 und erzeugte #425/#422 (s.u.).
+> - **✅ 493 /club anon-SSR (live, `f055f31f`+`198d6b3e`):** LCP **2226→1269ms (−43%)**, render-delay 1486→545ms, Hydration sauber. Fix = `authLoading`-Gate-Term für server-bestätigt-anon entkoppeln (`getServerAuthState`→`{user,resolved}`→`ssrConfirmedAnon`, cache()-dedupt mit layout) + players-Prefetch (DI-SSOT). R1 REWORK (fing den übersehenen authLoading-Term) → R2 PASS. Mess-Lehre: Browser-Auth-Zustand VOR LCP-Messung prüfen (die ersten 3 Traces waren fälschlich eingeloggt → „flach"). Knowledge errors-frontend **S493**.
+> - **⛔ 494 authed /club-SSR (VERSUCHT → REVERTED, `6c74736d`→`6b189d5a`→`16eac5e4`):** user-scoped Club-Prefetch → authed Hero ins SSR. **Live-Walk (eingeloggt) fing React #425/#422** — der VOLLE authed ClubContent-Baum rendert server mit leeren Sekundär-Daten (Standings/Events/Trades nicht geprefetcht), client mit geladenen → Text-Mismatch. anon REDUZIERTE PublicClubView war safe, authed VOLLE nicht. **Revert live-verifiziert (#425/#422 weg).** anon-493-Win erhalten. Knowledge errors-frontend **S494** (reduced-view-SSR ≠ full-view-SSR). **Der Live-Walk war der eigentliche Gate — tsc + DB-Parität + Reasoning ließen den Regress durch (genau S472/476).**
+> - **✅ Weitere diese Session (live):** `audit:dup` **FP=0** (`ce51b9e0`, D-33 content-FP an Wurzel geheilt → entsperrt den WARN→BLOCK-Flip) · Tracker-Wahrheit D-22/D-02/D-11/W2 (`542ec43b`) · **D-21 Scoring-„Loch" widerlegt** (3-stufig self-healing: pei squad+fixture → Name/Shirt-Bridge → Auto-Reconcile; 168 fehlen in pei, alle per Name gedeckt → P2-Smell, kein Bruch).
+> - **⏳ MORGEN ~24h (2026-07-02, Pflicht-Folge-Check aus Teil 32):** Sentry p75 CLS re-queryn (org `bescout`, `de.sentry.io`, dataset `spans`, `p75(measurements.cls)` by transaction). War `/` 0,282 · `/market` 0,194. 490+491+492 sollten `/` senken. `/` <0,1 → CLS-Arc done; sonst Hero-Folge-Slice.
+> - **🅿️ Geparkt:** residual anon /club render-delay 545ms (LCP-Element teil-animation-gebunden, diminishing) · `get_club_news_teasers`-anon-Grant (§3/CEO) · W4 Follow · W5-Rest (Dead-GC D-14/15/16 Money/CEO) · W7 Design-Sweep.
+> - **📊 MASTERPLAN oben um „Landkarte" (8-Wellen-Überblick) + W6-Stand 493/494 ergänzt (CEO fühlte sich verloren → einfache Struktur).**
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-07-01 (Teil 32) — Observability- + CLS-Arc: 5 Slices (488-492) alle live + gepusht, `main`==`origin`==`3fc3f4a9`. Elite-Senior/Mock→Pro W6.**
 > - **⏳ ZUERST IN ~24h (Pflicht-Folge-Check, Feld-getrieben):** Sentry p75 CLS re-queryn (org `bescout`, region `de.sentry.io`, dataset `spans`, `p75(measurements.cls)` group by `transaction`, 7-14d). **War: `/` 0,282 🔴 · `/market` 0,194 🟠 · `/community` 0,065 · `/transactions` 0,016 · `/login` 0,003.** 490+491+492 sollten `/` deutlich senken. **Entscheidungsbaum:** `/` <0,1 → CLS-Arc done · `/` 0,1–0,2 → **Hero-Folge-Slice** (490-Reviewer-#1, measure-gated): HomeStoryHeader `heroMode`-Flip (`cta-new`→`scout`) + CTA-Banner (`!loading && holdingsCount===0`, HomeStoryHeader:231) auf `dashboardReady` ODER `min-h` am Hero — gleiche Root-Cause-Klasse wie 490.
 > - **✅ 488 Sentry-Blindspots** (`89e6da69`): `withLogger` captured jetzt returned 5xx (nicht nur throw) → 64 `status:500`-Returns über 24 money/scoring-Routen nicht länger Sentry-blind (S369-Folge, §0-kanonisch: SSOT-Erweiterung statt N-Patch). push-Cleanup. Reviewer PASS. errors-infra S369-erw.
