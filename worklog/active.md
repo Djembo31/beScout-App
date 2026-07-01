@@ -1,26 +1,36 @@
 # Active Slice
 
 ```
-status: idle
-slice: 493
-title: W6/D-03 — /club Hero ins SSR-HTML (authLoading-Decouple + players-Prefetch)
-size: M
-type: Service + SSR
+status: in-progress
+slice: 494
+title: W6/D-03 Teil 2 — authed /club Hero ins SSR-HTML (user-scoped Club-Prefetch, Finding #3)
+size: S
+type: SSR (page.tsx)
 welle: Mock→Pro W6 / D-03 SSR-Architektur
-proof: worklog/proofs/493-club-ssr-players-prefetch.txt
-review: worklog/reviews/493-review.md (R1 REWORK → R2 PASS)
-stage: DONE — anon /club LCP 2226→1269ms (−43%), Hydration sauber, authed 0 Regress
+proof: worklog/proofs/494-club-ssr-authed.txt
+review: self-review (minimal user-scoped-Key-Change; Parität DB-verifiziert p_user_id; anon byte-identisch zu 493; 493-R2 hat den authed-Pfad bereits logisch abgedeckt) — Live-Walk = decisive Gate (S472/476 Hydration nur live clearbar)
+stage: PROVE (deployed-pending)
 ```
 
-## Slice 493 — DONE (SUCCESS)
+## Slice 494 — Kurz
 
-**Ergebnis (Live bescout.net, ausgeloggt sauber):** LCP **2226 → 1269 ms (−43%)** · render-delay 1486→545ms · CLS 0,04 · Hydration sauber (kein #418/#422/#425/MISSING_MESSAGE) · authed /club voll korrekt (kein PublicClubView-Leak). Proof `493-...txt`, Review `493-review.md`.
+**Root-Cause (493-Finding #3, pre-existing 471/472):** eingeloggter /club-SSR bleibt Skeleton — der Club-Prefetch (page.tsx) nutzt **anon-Key** `qk.clubs.bySlug(slug, undefined)` + `p_user_id: null`; der authed Client nutzt `bySlug(slug, userId)` → NICHT hydratet → `clubLoading=true` → `loading=true` → Gate blockt (obwohl authLoading via 472-Seed schon false). → 493-Win nur für Ausgeloggte.
 
-**Fix:** `authLoading`-Gate-Term für server-bestätigt-anon (`getServerAuthState`→`{user,resolved}`→`ssrConfirmedAnon`) entkoppelt + `players`-Prefetch (DI) → PublicClubView+ClubHero+Stadion-`<Image>` im SSR-HTML statt Skeleton.
+**Fix (minimal):** Club-Prefetch **user-gescopt** — `getServerAuthState` zuerst → `ssrUserId = serverUser?.id ?? null` → Prefetch-Key `bySlug(slug, ssrUserId ?? undefined)` + RPC `p_user_id: ssrUserId`. Für authed matcht der Prefetch jetzt den Client-Key → `loading` false → authed ClubHero (+Stadion-`<Image>`) im SSR-HTML.
 
-## Nächste Hebel (offen, NICHT 493 — für CEO/nächste Session)
-- **Option 2 (Backdrop server-rendern) = REDUNDANT** — Option 1 hat das Bild ins SSR gebracht.
-- **Eingeloggter /club-SSR bleibt Skeleton** (Finding #3, pre-existing 471/472): Club-Prefetch nutzt anon-Key `bySlug(slug,undefined)`, authed Client `bySlug(slug,userId)` → clubLoading true → Skeleton. Fix = user-gescopter Club-Prefetch (page.tsx kennt user via getServerAuthState). Separater W6-Slice.
-- **Residual render-delay 545ms** (anon): LCP-Element noch teil-hydration/animation-gebunden.
-- **P2 pre-existing:** anon /club Console-Errors (`resolve_expired_research`/`get_club_news_teasers` permission denied + 401) — anon triggert auth-gated useClubData-Queries ohne anon-Grant/`enabled:!!user`.
-- **⏳ CLS-Feld-Check (490/491/492) ~24h** (2026-07-02): Sentry p75 CLS re-queryn.
+**Parität verifiziert:**
+- `get_club_by_slug(p_slug, p_user_id)` nutzt `p_user_id`-Param (nicht `auth.uid()`), SECDEF → `supabaseAdmin` + userId == authed-Client. ✓
+- `useCachedPlaceholder` (S474-localStorage-#418-Falle) NUR in useWallet/useUserTickets (SSR-gehärtet seit 474), NICHT useClubData. ✓
+- players-Prefetch unverändert (public, gleicher Key für alle User).
+
+**Risiko:** erster SSR des VOLLEN authed ClubContent-Baums (S472/476-Blast-Radius) → Live-Walk eingeloggt (Console #418/#422/#425) = decisive proof.
+
+**Anon-Pfad (493) unberührt:** ssrUserId=null → `bySlug(slug, undefined)` + `p_user_id: null` = identisch. ssrConfirmedAnon-Logik unverändert.
+
+## AC
+- AC1 tsc 0.
+- AC2 anon /club unverändert (LCP + Render, kein Regress vs 493).
+- AC3 (Live, authed) /club SSR-HTML enthält Stadion-`<img>` (nicht Skeleton) → LCP < authed-Baseline; Console eingeloggt kein #418/#422/#425.
+- AC4 (Live) authed /club voll korrekt (Follow-Button, Sektionen), kein Cross-User-Leak (2-Account).
+
+## Stage-Chain: SPEC(inline) → BUILD → REVIEW(cold-context authed-SSR) → PROVE(tsc+Live-Walk aus+eingeloggt) → LOG

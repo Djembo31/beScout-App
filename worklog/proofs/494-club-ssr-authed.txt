@@ -1,0 +1,29 @@
+=== Slice 494 — W6/D-03 Teil 2: authed /club Hero ins SSR-HTML (user-scoped Club-Prefetch) — PROOF ===
+Datum: 2026-07-01
+
+--- STATISCH (BUILD) ---
+[AC1] tsc --noEmit → EXIT 0.
+[Change] page.tsx: getServerAuthState nach oben → ssrUserId = serverUser?.id ?? null.
+        Club-Prefetch Key `bySlug(slug, ssrUserId ?? undefined)` + RPC `p_user_id: ssrUserId`.
+        (Vorher: hart `bySlug(slug, undefined)` + `p_user_id: null` = nur anon-Key.)
+
+[Parität — Live-DB verifiziert]
+  - get_club_by_slug: uses_p_user_id=true, uses_auth.uid()=false, is_secdef=true, args (p_slug text, p_user_id uuid)
+    → supabaseAdmin.rpc(..., {p_user_id: userId}) == authed-Client (useClubBySlug(slug,userId) → getClubBySlug → same RPC/p_user_id). Byte-identisch.
+  - Client-Key: useClubBySlug(slug, userId) → qk.clubs.bySlug(slug, userId) → matcht Prefetch-Key.
+  - useCachedPlaceholder (S474 localStorage-#418-Falle): NUR useWallet + useUserTickets (SSR-gehärtet seit 474),
+    NICHT useClubData → authed ClubContent-Baum hat keinen neuen #418-Vektor.
+  - players-Prefetch unverändert (public, gleicher Key für alle User).
+
+[AC2 anon Regress] ssrUserId=null → `bySlug(slug, undefined)` + `p_user_id: null` = byte-identisch zu 493.
+        ssrConfirmedAnon-Logik unverändert. → anon-Pfad (493 −43% Win) unberührt.
+
+--- LIVE-WALK (PROVE, post-Deploy — PENDING) ---
+[AC3 authed] chrome-devtools eingeloggt (ali): /club/galatasaray SSR-HTML enthält Stadion-<img> (nicht Skeleton)
+        → LCP < authed-Baseline; Console kein #418/#422/#425/MISSING_MESSAGE. [nach Deploy]
+[AC4 2-Account] kein Cross-User-Leak (ali vs jarvis: kein fremder Wallet/Holdings im SSR). [nach Deploy]
+[AC2-Live anon] /club ausgeloggt weiterhin LCP ~1269ms (kein Regress vs 493). [nach Deploy]
+
+--- REVIEW ---
+self-review (Ops-Rationale: minimaler user-scoped-Key-Change, Parität DB-verifiziert, anon byte-identisch,
+493-R2 deckte den authed-Pfad logisch ab). Live-Walk = decisive Gate.
