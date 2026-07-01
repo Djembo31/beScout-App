@@ -1,16 +1,20 @@
 # Active Slice
 
 ```
-status: idle
-slice: 497
-title: D-08 — getSystemStats „Scout Total" aus kanonischer Treasury-RPC (gecappten Client-SUM killen)
-size: S
-type: Service
-welle: Mock→Pro Money-Konsolidierung (D-08, §0-Subtraktion, CEO Anil endorsed)
-proof: worklog/proofs/497-d08-scout-total-uncapped.txt
-review: self-review (§3 Money, aber display-only/read; Semantik-Parität DB-bewiesen, keine Mutation)
-stage: LOG (DONE — live: Admin „Scout Total" 8.509.355,24 aus get_treasury_stats, Console clean, D-08 zu)
+status: in-progress
+slice: 498
+title: D-18 Full Consolidation — events.entry_fee + events.prize_pool DROP (Money-Schema-L, 2-Phasen)
+size: L
+type: Migration (+ Service + UI)
+welle: Mock→Pro Datenmodell-SSOT (D-18, §0-Schnitt, CEO Anil „Full consolidation")
+spec: worklog/specs/498-d18-event-fee-prize-consolidation.md
+proof: worklog/proofs/498-d18-drop.txt
+review: Cold-Context-Reviewer PFLICHT (Money-RPC create_user_event PATCH-AUDIT-Fokus)
+stage: BUILD (Wave 1 = Code: Reader/Writer/SELECTs off entry_fee/prize_pool; Wave 2 = DbEvent-Type + DROP-Migration)
 ```
+
+## Slice 498 — D-18 Full Consolidation (Spec: worklog/specs/498-*)
+CEO Anil „Full consolidation" (P2-live-verifiziert, aber §0 + Pre-Launch). 2-Phasen-Pflicht: Code-Deploy (Reads/Writes/SELECTs killen) → Live-Verify → DROP-Migration. Money-RPC `create_user_event` PATCH-AUDIT (S156). Kanonisch: `ticket_cost`+`currency` (Fee) · `reward_structure` (Prize). Details + Impact-Map + Pre-Mortem in Spec.
 
 ## Slice 497 — D-08 getSystemStats „Scout Total" uncapped (§0-Subtraktion)
 **Problem (Live-verifiziert):** `getSystemStats` (platformAdmin.ts:43) summiert `wallets.select('balance').limit(5000)` client-seitig → PostgREST cappt real bei **~1000** (common-errors „PostgREST-1000-cap MONEY-CRITICAL"; `.limit(5000)` ist KEIN Override). Feeds „Scout Total" im Platform-Admin (`BescoutAdminContent.tsx:63`). **Latent:** 128 Wallets heute → undercount=0; **falsch ab >1000 Wallets** (Launch-Wachstum). Kanonischer Zwilling `get_treasury_stats.total_circulating_cents` (SECDEF, admin-gated, server-SUM ohne Cap) existiert.
