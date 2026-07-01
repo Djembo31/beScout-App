@@ -1,36 +1,26 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 494
-title: W6/D-03 Teil 2 — authed /club Hero ins SSR-HTML (user-scoped Club-Prefetch, Finding #3)
+title: W6/D-03 Teil 2 — authed /club SSR (VERSUCHT → REVERTED: #425/#422 Hydration-Regress)
 size: S
 type: SSR (page.tsx)
 welle: Mock→Pro W6 / D-03 SSR-Architektur
 proof: worklog/proofs/494-club-ssr-authed.txt
-review: self-review (minimal user-scoped-Key-Change; Parität DB-verifiziert p_user_id; anon byte-identisch zu 493; 493-R2 hat den authed-Pfad bereits logisch abgedeckt) — Live-Walk = decisive Gate (S472/476 Hydration nur live clearbar)
-stage: PROVE (deployed-pending)
+review: self-review + Live-Walk (der den Regress fing)
+stage: REVERTED (Live-Walk fing #425/#422 auf authed → zurückgerollt; anon 493-Win erhalten)
 ```
 
-## Slice 494 — Kurz
+## Slice 494 — REVERTED (Live-Walk fing Regress)
 
-**Root-Cause (493-Finding #3, pre-existing 471/472):** eingeloggter /club-SSR bleibt Skeleton — der Club-Prefetch (page.tsx) nutzt **anon-Key** `qk.clubs.bySlug(slug, undefined)` + `p_user_id: null`; der authed Client nutzt `bySlug(slug, userId)` → NICHT hydratet → `clubLoading=true` → `loading=true` → Gate blockt (obwohl authLoading via 472-Seed schon false). → 493-Win nur für Ausgeloggte.
+**Versuch:** authed /club Hero ins SSR-HTML via user-scoped Club-Prefetch (`ssrUserId`).
+**Live-Walk (authed, bescout.net):** React **#425 (Text-Mismatch) + #422 (Hydration-Error)** → der volle authed ClubContent-Baum rendert server-seitig mit leeren Sekundär-Daten (Standings/Events/Trades nicht geprefetcht) → Mismatch. Die anon reduzierte PublicClubView (493) war safe; die authed volle nicht (S472/476-Blast-Radius, live materialisiert).
+**Revert:** page.tsx auf 493-Stand. Gründe: echter Hydration-Regress · LCP-Nutzen marginal (authed LCP-Element = below-hero, render-delay 914ms) · /club authed non-core · Fix (alle Sektionen SSR-safe / below-hero-Streaming) = großer Scope, unverhältnismäßig (§1 caution). **anon 493-Win (−43%) bleibt erhalten.**
+**Lehre → errors-frontend S494:** reduced-view-SSR ≠ full-view-SSR; großer client-Baum erstmals server-rendern braucht alle Sektionen SSR-safe ODER below-hero-Streaming; Live-Walk beider Auth-Zustände Pflicht.
 
-**Fix (minimal):** Club-Prefetch **user-gescopt** — `getServerAuthState` zuerst → `ssrUserId = serverUser?.id ?? null` → Prefetch-Key `bySlug(slug, ssrUserId ?? undefined)` + RPC `p_user_id: ssrUserId`. Für authed matcht der Prefetch jetzt den Client-Key → `loading` false → authed ClubHero (+Stadion-`<Image>`) im SSR-HTML.
-
-**Parität verifiziert:**
-- `get_club_by_slug(p_slug, p_user_id)` nutzt `p_user_id`-Param (nicht `auth.uid()`), SECDEF → `supabaseAdmin` + userId == authed-Client. ✓
-- `useCachedPlaceholder` (S474-localStorage-#418-Falle) NUR in useWallet/useUserTickets (SSR-gehärtet seit 474), NICHT useClubData. ✓
-- players-Prefetch unverändert (public, gleicher Key für alle User).
-
-**Risiko:** erster SSR des VOLLEN authed ClubContent-Baums (S472/476-Blast-Radius) → Live-Walk eingeloggt (Console #418/#422/#425) = decisive proof.
-
-**Anon-Pfad (493) unberührt:** ssrUserId=null → `bySlug(slug, undefined)` + `p_user_id: null` = identisch. ssrConfirmedAnon-Logik unverändert.
-
-## AC
-- AC1 tsc 0.
-- AC2 anon /club unverändert (LCP + Render, kein Regress vs 493).
-- AC3 (Live, authed) /club SSR-HTML enthält Stadion-`<img>` (nicht Skeleton) → LCP < authed-Baseline; Console eingeloggt kein #418/#422/#425.
-- AC4 (Live) authed /club voll korrekt (Follow-Button, Sektionen), kein Cross-User-Leak (2-Account).
-
-## Stage-Chain: SPEC(inline) → BUILD → REVIEW(cold-context authed-SSR) → PROVE(tsc+Live-Walk aus+eingeloggt) → LOG
+## Offene W6/D-03-Hebel (für CEO/nächste Session)
+- **authed /club-SSR bleibt offen** (494 reverted): bräuchte below-hero-Streaming-Refactor (Hero aus SSR, Sektionen client-gated) — größerer Slice, non-core, niedrige Prio.
+- Residual anon render-delay 545ms (LCP-Element teil-animation-gebunden).
+- P2 pre-existing: anon /club Console-Permission-Errors (`resolve_expired_research`/`get_club_news_teasers`).
+- ⏳ CLS-Feld-Check (490/491/492) ~24h (2026-07-02).

@@ -58,30 +58,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ClubSlugPage({ params }: Props) {
   const { slug } = await params;
 
-  // Slice 493/494 (W6/D-03): getServerAuthState ZUERST (cache-dedupt mit layout, kein
-  // Extra-Roundtrip) → liefert zwei Signale für den SSR-Hero:
-  // - ssrConfirmedAnon (493): entkoppelt den authLoading-Gate-Term NUR für server-bestätigt-anon.
-  //   `resolved` schützt vor Fehl-anon bei transientem getUser-Fehler (kein #418-Content-Swap).
-  // - ssrUserId (494): scoped den Club-Prefetch auf den CLIENT-Key. Der authed Client nutzt
-  //   `useClubBySlug(slug, userId)` → Key `bySlug(slug, userId)`; mit dem alten anon-Key
-  //   (`undefined`) bliebe clubLoading true → authed /club-Hero bliebe Skeleton (493-Finding #3).
-  //   `get_club_by_slug` ist SECDEF + nutzt `p_user_id` (nicht auth.uid()) → supabaseAdmin+userId
-  //   liefert byte-identisch zum authed-Client (Parität, wie players via RLS {public}).
-  const { user: serverUser, resolved: authResolved } = await getServerAuthState();
-  const ssrUserId = serverUser?.id ?? null;
-  const ssrConfirmedAnon = authResolved && serverUser === null;
-
-  // W6 Phase 1 (Slice 471; Slice 494 user-scoped): Root-Query server-seitig prefetchen → der
-  // ClubContent hydratet `useClubBySlug(slug, ssrUserId)` sofort aus dem dehydrierten State
-  // → clubId instant da, gated Queries feuern ohne Roundtrip. `prefetchQuery` wirft NICHT →
+  // W6 Phase 1 (Slice 471): Root-Query server-seitig prefetchen → der logged-out
+  // ClubContent hydratet `useClubBySlug(slug, undefined)` sofort aus dem dehydrierten
+  // State (Key `['clubs', slug, undefined]` matcht), clubId ist instant da, gated
+  // Queries feuern ohne Roundtrip-Wartezeit. `prefetchQuery` wirft NICHT → ein
   // RPC-Fehler degradiert still auf den bisherigen client-fetch (kein Page-Break).
   const queryClient = getServerQueryClient();
   await queryClient.prefetchQuery({
-    queryKey: qk.clubs.bySlug(slug, ssrUserId ?? undefined),
+    queryKey: qk.clubs.bySlug(slug, undefined),
     queryFn: async (): Promise<ClubWithAdmin | null> => {
       const { data, error } = await supabaseAdmin.rpc('get_club_by_slug', {
         p_slug: slug,
-        p_user_id: ssrUserId,
+        p_user_id: null,
       });
       if (error) throw new Error(error.message);
       return (data ?? null) as ClubWithAdmin | null;
@@ -89,10 +77,10 @@ export default async function ClubSlugPage({ params }: Props) {
   });
 
   // Slice 487 (W6 load-delay): das LCP-Stadion-Hero früh preloaden. Die Club-Daten aus dem
-  // Prefetch sind schon im Cache → stadium_image_url ohne Extra-Read lesen; bei Cache-Miss
+  // 471-Prefetch sind schon im Cache → stadium_image_url ohne Extra-Read lesen; bei Cache-Miss
   // (Club nicht gefunden) Fallback auf das slug-Asset (harmloser Preload). srcset spiegelt
   // ClubHeros <Image sizes="100vw" quality={60}> → Cache-Hit beim Render statt Doppel-Fetch.
-  const club = queryClient.getQueryData<ClubWithAdmin | null>(qk.clubs.bySlug(slug, ssrUserId ?? undefined));
+  const club = queryClient.getQueryData<ClubWithAdmin | null>(qk.clubs.bySlug(slug, undefined));
   const stadiumUrl = club?.stadium_image_url || `/stadiums/${slug}.jpg`;
   const stadiumSrcSet = DEVICE_SIZES.map((w) => `${stadiumOptimized(stadiumUrl, w)} ${w}w`).join(', ');
 
@@ -110,6 +98,17 @@ export default async function ClubSlugPage({ params }: Props) {
       queryFn: () => getPlayersByClubId(clubId, { activeOnly: true }, supabaseAdmin),
     });
   }
+
+  // Slice 493 (W6/D-03): server-confirmed-anon-Signal. Der SSR-Gate (ClubContent:178)
+  // ist `authLoading || loading` — für AUSGELOGGTE ist authLoading beim SSR true
+  // (AuthProvider:172 `initialUser==null`, 472-Design). Der players-Prefetch oben macht
+  // nur `loading` false; ohne dieses Signal bliebe der Hero fürs anon-SSR im Skeleton.
+  // getServerAuthState (cache-dedupt mit layout, kein Extra-Roundtrip) sagt ClubContent, dass
+  // der Server anon bestätigt hat → Gate ignoriert authLoading NUR dann → PublicClubView
+  // (inkl. ClubHero+Stadion-<Image>) landet im SSR-HTML. Eingeloggt unberührt (anon=false).
+  // `resolved` schützt vor Fehl-anon bei transientem getUser-Fehler (kein Content-Swap).
+  const { user: serverUser, resolved: authResolved } = await getServerAuthState();
+  const ssrConfirmedAnon = authResolved && serverUser === null;
 
   // Slice 476: HydrationBoundary via Client-Wrapper (modern-Build) — direkter
   // Server-Import resolvte zum legacy-Build → Context-Mismatch zum modern

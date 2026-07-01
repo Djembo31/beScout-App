@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 494 | 2026-07-01 | perf(ssr): W6/D-03 Teil 2 — authed /club SSR VERSUCHT → REVERTED (#425/#422 Hydration-Regress)
+- Stage-Chain: SPEC(inline) → BUILD (page.tsx user-scoped Club-Prefetch) → PROVE (tsc 0 → **Live-Walk fing Regress**) → REVERT → LOG. **Mock→Pro W6 / D-03.**
+- **Versuch:** 493-Finding #3 schließen — authed /club skeletont im SSR, weil der Club-Prefetch den anon-Key `bySlug(slug, undefined)` nutzt (authed Client: `bySlug(slug, userId)` → nicht hydratet). Fix: `getServerAuthState` → `ssrUserId` → Prefetch user-gescopt (`p_user_id: ssrUserId`). Parität DB-verifiziert (`get_club_by_slug` nutzt p_user_id, SECDEF). tsc 0.
+- **Live-Walk (authed, bescout.net, Commit 6c74736d):** 🔴 **React #425 (Text-Content-Mismatch) + #422 (Hydration-Error)** in der authed Console. Root-Cause: der VOLLE authed ClubContent-Baum rendert server-seitig mit leeren Sekundär-Daten (Standings/Events/Trades nicht geprefetcht → leer server, geladen client) → Text-Mismatch. Die anon REDUZIERTE PublicClubView (493) war safe; die authed VOLLE ClubContent nicht. LCP-Nutzen zudem marginal (authed LCP-Element = below-hero, render-delay 914ms).
+- **REVERT (page.tsx auf 493-Stand):** echter Hydration-Regress + marginaler LCP-Nutzen + /club authed non-core + Fix (below-hero-Streaming-Refactor) unverhältnismäßig (§1 caution). **anon 493-Win (−43%) bleibt erhalten.**
+- **Prozess-Sieg:** der Live-Walk (S472/476-Pflicht für authed SSR) fing den Regress, den tsc + Parität-Recon + logisches Reasoning durchließen — genau wozu die Regel existiert. Kurze Prod-Exposition (sofort zurückgerollt).
+- **Knowledge:** errors-frontend S494 (reduced-view-SSR ≠ full-view-SSR; großer client-Baum erstmals server-rendern braucht alle Sektionen SSR-safe ODER below-hero-Streaming).
+
 ## 493 | 2026-07-01 | perf(ssr): W6/D-03 — /club Hero ins SSR-HTML für Ausgeloggte (authLoading-Decouple + players-Prefetch)
 - Stage-Chain: SPEC → IMPACT(inline) → BUILD (5 Files) → REVIEW (R1 REWORK → korrigiert → R2 PASS) → PROVE (tsc + Live-Walk) → LOG. **Mock→Pro W6 / D-03 SSR.**
 - **Root-Cause (gemessen, R1-Reviewer-korrigiert):** /club LCP 2226ms, render-delay 1486ms (67%). SSR-Gate `ClubContent:178 = authLoading || loading`. BEIDE Terme blocken den Hero: `loading` (club+players — page.tsx/471 prefetcht nur club) UND `authLoading` (= `AuthProvider:172 initialUser==null`, für Ausgeloggte im SSR true, 472-Design). curl prod bestätigt: Skeleton, kein Stadion-`<img>`.

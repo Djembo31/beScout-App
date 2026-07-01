@@ -18,12 +18,26 @@ Datum: 2026-07-01
 [AC2 anon Regress] ssrUserId=null → `bySlug(slug, undefined)` + `p_user_id: null` = byte-identisch zu 493.
         ssrConfirmedAnon-Logik unverändert. → anon-Pfad (493 −43% Win) unberührt.
 
---- LIVE-WALK (PROVE, post-Deploy — PENDING) ---
-[AC3 authed] chrome-devtools eingeloggt (ali): /club/galatasaray SSR-HTML enthält Stadion-<img> (nicht Skeleton)
-        → LCP < authed-Baseline; Console kein #418/#422/#425/MISSING_MESSAGE. [nach Deploy]
-[AC4 2-Account] kein Cross-User-Leak (ali vs jarvis: kein fremder Wallet/Holdings im SSR). [nach Deploy]
-[AC2-Live anon] /club ausgeloggt weiterhin LCP ~1269ms (kein Regress vs 493). [nach Deploy]
+--- LIVE-WALK (PROVE, post-Deploy 6c74736d, bescout.net, eingeloggt ali) → 🔴 REGRESS → REVERTED ---
+[AC3 authed] chrome-devtools authed /club: **React #425 (Text-Content-Mismatch) + #422 (Hydration-Error)**
+        in der Console. LCP 1824ms / render-delay 914ms (KEIN SSR-Win — LCP-Element ist zudem below-hero).
+        → **494 hat die authed-Hydration GEBROCHEN.** Der volle authed ClubContent-Baum rendert server-seitig
+        mit teils leeren Sekundär-Daten (Standings/Events/Trades NICHT geprefetcht → leer server, geladen client)
+        → Text-Mismatch. Die anon REDUZIERTE PublicClubView (493) war safe; die authed VOLLE ClubContent ist es NICHT.
+        = exakt die S472/476-Blast-Radius-Warnung, live materialisiert (nur Live-Walk clearbar, kein Agent-Review).
+
+VERDIKT: 🔴 **494 REVERTED** (page.tsx auf 493-Stand, Commit-Revert). Gründe:
+  - Echter Hydration-Regress (#425/#422) auf authed /club — inakzeptabel.
+  - LCP-Nutzen ohnehin marginal (authed LCP-Element = below-hero, nicht der Hero → render-delay 914ms).
+  - /club authed = non-core (Eingeloggte nutzen home/market/fantasy). Fix (alle authed-Sektionen SSR-safe
+    machen = below-hero-Streaming-Refactor) = großer Scope, unverhältnismäßig. §1 caution-over-speed.
+  - anon 493-Win (−43%) bleibt vollständig erhalten (page.tsx-493-Stand rendert anon-Hero weiter im SSR).
+
+LEHRE: Reduced-view-SSR (anon PublicClubView) ≠ full-view-SSR (authed ClubContent). Ein SSR-Slice der einen
+GROSSEN client-Baum mit vielen sekundär-daten-abhängigen Sektionen erstmals server-rendert braucht ENTWEDER
+alle Sektionen SSR-safe (empty-state == client-first-render) ODER below-hero-Streaming (nur Hero aus SSR,
+Rest client-gated). Live-Walk BEIDER Auth-Zustände ist Pflicht — der authed-Regress war statisch unsichtbar.
 
 --- REVIEW ---
-self-review (Ops-Rationale: minimaler user-scoped-Key-Change, Parität DB-verifiziert, anon byte-identisch,
-493-R2 deckte den authed-Pfad logisch ab). Live-Walk = decisive Gate.
+self-review + Live-Walk (der den Regress fing = der eigentliche Gate). Reverted, kein Merge-in-Prod-Schaden
+über den kurzen Deploy hinaus (sofort zurückgerollt).
