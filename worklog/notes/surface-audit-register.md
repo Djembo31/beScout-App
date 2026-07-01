@@ -27,12 +27,12 @@
 
 Legende: ⬜ offen · 🔄 in Arbeit · ✅ CEO-abgenommen
 
-### Einstieg (User-Akquise-kritisch — zuerst)
+### Einstieg (User-Akquise-kritisch — zuerst) — 🔄 IN ARBEIT (Screen 1)
 | Seite | Route | Status | Soll notiert? | offene Funde |
 |-------|-------|--------|---------------|--------------|
-| Welcome/Landing | `/welcome` (+ `/`?) | ⬜ | – | – |
-| Register/Login | `/login` | ⬜ | – | – |
-| Onboarding | `/onboarding` | 🔄 **← START** | – | – |
+| Welcome/Landing | `/welcome` | 🔄 Soll ✅, wartet auf Landing-Entscheid | ✅ (1) `/`→`/welcome`-Redirect · (2) GLOBAL, kein Sakaryaspor-Fokus, „finde deinen Lieblingsverein" · (3) Stats/„Beta" korrigieren | 🔴 `/` redirectet auf `/login` statt `/welcome` (Marketing übersprungen) · 🟠 Stats widersprüchlich (25 Spieler/1 Partnerverein/7 Ligen) · „Beta Phase" stale (D111) · TFF1-gepinnt. **Landing-Ref `be-scout-landing-xmqq` = Design 🟢 übernehmen, Content 🔴 nicht schiffbar (BSD/DPC/€-Founding-Pass-Token-Sale/ROI/Gambling — Phase 2/Securities). Synthese wartet auf CEO-OK.** |
+| Register/Login | `/login` | ⬜ | – | Headline TFF1-gepinnt |
+| Onboarding | `/onboarding` | ⬜ | – | (noch nicht gewalkt — braucht Wegwerf-Account für vollen Flow) |
 
 ### Kern-Loop
 | Seite | Route | Status | Soll notiert? | offene Funde |

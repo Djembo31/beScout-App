@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-07-01 11:47)
+# Session Handoff — Auto (2026-07-01 16:45)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -8,11 +8,14 @@
  M memory/session-handoff.md
 ```
 
-## Session Commits: 4
-- 3f1a59b1 docs(498): D-18 De-Risking committed — Live-Verifikation + create_user_event Money-Baseline (S156-Anker)
-- 7b5c9c54 docs(spec): 498 — D-18 Full Consolidation Spec (events.entry_fee + prize_pool DROP, L Money-Schema)
-- ebc42e25 docs(497): LOG + Live-Proof — Admin "Scout Total" 8.509.355,24 aus get_treasury_stats; D-08 geschlossen
-- 74edf620 fix(admin): D-08 — getSystemStats "Scout Total" aus kanonischer Treasury-RPC (gecappten Client-SUM killen)
+## Session Commits: 7
+- 564a35c6 docs(masterplan): TEIL C — Page-by-Page E2E-Glättung (Oberflächen-Wahrheit + CEO-Intent)
+- 14fe4d8e docs(501): Live-Walk Gesamtflow PASS — W4 EHRLICH KOMPLETT
+- 4939af56 refactor(profile): 501 — W4-Rest User-Follow auf React Query (kanonische useToggleFollowUser)
+- 53c8a041 docs(masterplan): W4-Korrektur — User-Follow-Lücke (verfrüht KOMPLETT deklariert)
+- fa5d182a refactor(clubs): 500 — W4 Discovery-Liste in React Query + onSettled-Reconciliation
+- c3badc52 refactor(db): 499 Wave 2 — DROP club_votes system (cast_vote/club_votes/vote_entries), live
+- 4860e4ab refactor(community): 499 — W4 §0-Schnitt club_votes → community_polls (Wave 1, code-only)
 
 <!-- auto:handoff-end -->
 
@@ -20,6 +23,17 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 PAUSE 2026-07-01 (Teil 35) — W4 EHRLICH KOMPLETT (499/500/501) + NEUE PLAN-ACHSE „TEIL C" etabliert. `main`==`origin`==`564a35c6`. Mitten im 1. TEIL-C-Screen (New-User-Einstieg), Schritt 1 fertig, wartet auf CEO-Richtung zur Landing.**
+>
+> - **⏭️ DIREKT WEITER (New-User-Einstieg, TEIL C Screen 1):** CEO-Soll steht (siehe unten); OFFEN = **CEO-Entscheid zur Landing-Synthese**, dann baue ich `/welcome` neu + `/`→`/welcome`-Redirect e2e (SHIP-Loop). Register-Zeile: `worklog/notes/surface-audit-register.md` (Onboarding-Row).
+>   - **CEO-Soll (2026-07-01):** (1) kalter Besucher → **`/welcome`-Redirect** (heute landet `/` fälschlich auf `/login`, die gute Marketing-Seite wird übersprungen = Kalt-Traffic-Absprung, wohl Mitgrund für 1. Beta-Flop). (2) **GLOBAL** positionieren, **kein Sakaryaspor-Fokus mehr** (war nur Ursprungsidee) — „finde & unterstütze deinen Lieblingsverein", alle 7 Ligen. (3) Stats/„Beta"-Wording raus/korrigieren.
+>   - **Landing-Referenz geprüft** (`https://be-scout-landing-xmqq.vercel.app/`, CEO's alte Seite, Screenshot `teilc-old-landing-ref.png`): **Design/Struktur 🟢 stark** (Problem→Lösung→3-Schritte→Für-Clubs→FAQ, Hero + Stats-Ticker + Revenue-Dashboard-Mockup — als Gerüst übernehmen). **Content 🔴 NICHT schiffbar** (alte Strategie pre-D99/D111): verkauft **BSD-Tokens** (=Credits, D99) + **DPCs** (=Scout Cards) + **Founding-Pass €99-999-Token-Vorverkauf mit +25/50%-Bonus** (Phase 2 „NICHT BAUEN" + **Securities/MiCA/ROI-Verbot**) + „DPC IPO 2M€"-Invest-Framing + FAQ „Ist das nicht Gambling?" + Sakaryaspor-Fokus + „Beta". **Mein Vorschlag (wartet auf CEO-OK):** Struktur/Energie übernehmen, Content compliant+global neu (Credits/Scout-Cards, CTA „kostenlos registrieren +1000 Credits gratis", KEIN €-Token-Sale, kein ROI/Gambling, Sakaryaspor höchstens „Start-Partner"-Fußnote). Heutige `/welcome` ist inhaltlich sauberer (kostenlos, Credits) aber schwächer im Design → Synthese.
+> - **🆕 GROSSE PLAN-ÄNDERUNG — TEIL C (in MASTERPLAN + Register, Commit `564a35c6`):** CEO-Erkenntnis: Mock→Pro-Wellen (TEIL B) waren die *Maschine* (Code/DB-Struktur, ~fertig), aber der 1. Beta-Flop lag an der *Oberfläche* — Seiten taten nicht, was der CEO wollte. **TEIL C = Page-by-Page E2E-Glättung, kollaborativ:** Ritual (Zeigen&Ausrichten → Abgleichen → Glätten e2e → **CEO-Live-Abnahme**), **7 Linsen** (Daten-Wahrheit · Verhalten&Freshness · Money/Zero-Sum · Berechtigung&Leak · Sprache&Compliance · A11y&Mobile · Design-Kohärenz) × **5 Achsen** (7 Ligen/DE-TR/Rollen/Geräte/User-Reife). **Fund-Klassen A** (Anzeige/Verhalten-Bug → Code-Fix) vs **B** (Daten/Frische → global + Launch-Reset, NICHT pro Seite jagen). Perf→W6, Security→W0. Seiten-Reihenfolge im MASTERPLAN. **W6-Sequenz: TEIL C zuerst (Korrektheit > Speed), großer W6-SSR-Umbau danach.**
+> - **📋 Pilot-Funde (schon im Register):** /club: „3700 Karten im Umlauf" **erfunden** (real 0 gehalten, Flat-Mock 37×100), „0 Fans" **falsch** (DB 5), „Spieltag 33 vs ANT" **stale** (aktiv GW34, systemisch ALLE Ligen: Fixtures vergangener GW nie gesettled = Klasse B eingefrorene Mock-Saison), Spieler 0-bepreist. /market: IPO-Anzeige **korrekt**, aber Daten sparse. /player: Daten fast korrekt, „9 Fans"=9 Holder-**Mislabel**, **Buy-Modal-Verhalten korrekt** (Saldo-Vorschau stimmt, money-safe). Details `worklog/notes/surface-audit-register.md`.
+> - **✅ Diese Session live+gepusht (7 Commits):** 499 club_votes→community_polls §0-Schnitt (Wave1 Code + Wave2 DB-DROP, Live-Walk) · 500 Club-Discovery→React-Query · 501 User-Follow→React-Query (2 Surfaces, Live-Walk Gesamtflow PASS). W4 (Follow/Discovery) EHRLICH KOMPLETT. Plus TEIL-C-Plan + Register.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-07-01 (Teil 34) — anon /club-Hygiene KOMPLETT (D-39) + D-08 Money-Display + D-18 de-risked-pausiert. `main`==`origin`==`3f1a59b1` (+ session-close docs). Elite-Senior/Mock→Pro.**
 > - **⏭️ DIREKT STARTEN (CEO Anil „frisch"): Slice 498 = D-18 Full Consolidation — Wave-1-BUILD.** De-Risking KOMPLETT + committed: Spec `worklog/specs/498-d18-event-fee-prize-consolidation.md` (Impact-Map + 2-Phasen-Wave-Plan + Pre-Mortem), Live-Verifikation (P2-Redundanz, kein aktiver Bug), Money-RPC-Baseline im Proof `worklog/proofs/498-d18-drop.txt` (`create_user_event` functiondef = S156-PATCH-AUDIT-Anker). **Aufgabe:** `events.entry_fee` + `events.prize_pool` DROP. Kanonisch = `ticket_cost`+`currency` (Fee) · `reward_structure` (Prize). **STRIKT 2-phasig:** (1) Client-Code (Reader/Writer/SELECTs off, ~20 Files + ~10 Test-Files) + `create_user_event`-RPC-INSERT-Edit (nur `entry_fee,prize_pool`-Spalten raus, Rest byte-true) → tsc-grün-Commit → Deploy → Live-Verify (kein SELECT-400, /fantasy+Admin+Club rendern, `fmtScout`-currency-Falle Pre-Mortem #3) → (2) DROP-Migration via `apply_migration` → `information_schema`-Verify. Reviewer-PFLICHT (Money-RPC-Fokus). **NIE DROP vor Code-Deploy.**
 > - **✅ Diese Session (5 Slices live + gepusht, alle live-verifiziert):** **495** anon /club `resolveExpiredResearch`-Mutation gegated (Console-Error weg) · **496** anon /club 3 authed-only Read-RPCs gegated (GATE, CEO-Wahl; anon-Console **8→0 Errors** live) → **D-39 KOMPLETT** (Sweep: Muster nur auf /club/[slug]) · **497** D-08 Admin „Scout Total" aus kanonischer `get_treasury_stats` statt gecapptem Client-SUM (§0-Subtraktion, live 8.509.355,24) · **498** D-18 de-risked (s.o.). Knowledge → errors-frontend **S495/S496**.
