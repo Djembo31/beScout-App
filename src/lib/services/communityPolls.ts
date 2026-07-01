@@ -153,7 +153,7 @@ export async function createCommunityPoll(params: CreateCommunityPollParams): Pr
   const result = data as { success: boolean; error?: string; poll_id?: string };
   if (!result.success || !result.poll_id) throw new Error(result.error ?? 'poll_create_failed');
 
-  // Activity log (best-effort, wie createVote)
+  // Activity log (best-effort)
   import('@/lib/services/activityLog').then(({ logActivity }) => {
     logActivity(params.userId, 'poll_create', 'community', { pollId: result.poll_id, question: params.question });
   }).catch(err => console.error('[Polls] Activity log failed:', err));

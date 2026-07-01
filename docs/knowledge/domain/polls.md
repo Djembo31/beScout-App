@@ -1,11 +1,11 @@
 ---
 title: Polls & Community-Monetarisierung — Vereins-Geldmaschine (Kanon)
 created: 2026-06-17
-updated: 2026-06-24
+updated: 2026-07-01
 status: active
 tags: [polls, community, monetization, treasury, poll_revenue, discovery, follower, fan-rank]
 consult_when: Polls, Umfragen, poll_revenue, Verein→Treasury vs User→Wallet, Follower-Tor, Discovery, Identitätsgrenze Club-Admin, Bezug Verein/Spieler
-verified-against: .claude/rules/community.md @ 2026-06-18
+verified-against: .claude/rules/community.md @ 2026-07-01
 ---
 
 # Polls & Community-Monetarisierung — Zielmodell (Kanon)
@@ -32,11 +32,11 @@ Fans äußern überall ihre Meinung über Spieler/Vereine, aber **der Verein kan
 
 ---
 
-## 2. Die drei Anlege-Spuren
+## 2. Die Anlege-Spuren (2 aktiv seit Slice 499)
 
 | Spur | Wer legt an | Im Namen von | Kosten Fan? | Geld an | Status heute |
 |------|-------------|--------------|-------------|---------|--------------|
-| **Gratis-Club-Vote** (`club_votes`) | Club-Admin | Verein | nein | niemand | ✅ existiert (`createVote`, `AdminVotesTab`) |
+| ~~**Gratis-Club-Vote** (`club_votes`)~~ | Club-Admin | Verein | nein | niemand | ❌ **entfernt Slice 499** (§0-Schnitt: `cast_vote` = money-divergenter Sink ohne Treasury-Split, 0 Rows, von bezahlten community_polls voll abgelöst) |
 | **Bezahlte Vereins-Umfrage** | **Club-Admin** | **Verein (offiziell)** | ja | **Vereins-Treasury** | ✅ **gebaut** (Slice 333: `create_community_poll` `source='club'` → `poll_revenue` REIN-Credit; UI `CreatePollButton`/`CreatePollModal` in AdminVotesTab) |
 | **Bezahlte User-Umfrage** | **User (ab 50 Followern)** | **eigener Name** | ja | **User-Wallet** | ✅ **gebaut** (Slice 333: `source='user'`, Follower-Tor 50; UI-Einstieg im Community-Feed) |
 

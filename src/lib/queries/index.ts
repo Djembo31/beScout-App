@@ -18,7 +18,6 @@ export { useTrendingPlayers } from './trending';
 export { useAllPriceHistories } from './priceHist';
 export { useWatchlist, useMostWatchedPlayers } from './watchlist';
 export { useIncomingOffers } from './offers';
-export { useClubVotes } from './votes';
 export { useResearchPosts } from './research';
 export { useActiveBounties } from './bounties';
 export { useCommunityPolls } from './polls';

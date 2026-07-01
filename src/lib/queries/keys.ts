@@ -145,12 +145,6 @@ export const qk = {
     forUser: (uid: string, clubId?: string) => ['bounties', uid, clubId] as const,
   },
 
-  // ── Votes ──
-  votes: {
-    all: ['votes'] as const,
-    byClub: (cid: string) => ['votes', cid] as const,
-  },
-
   // ── Notifications ──
   notifications: {
     byUser: (uid: string) => ['notifications', uid] as const,
@@ -223,7 +217,6 @@ export const qk = {
     followedByUser: (uid: string) => ['clubs', 'followedByUser', uid] as const,
     recentTrades: (cid: string) => ['clubs', 'recentTrades', cid] as const,
     subscription: (uid: string, cid: string) => ['clubs', 'subscription', uid, cid] as const,
-    votedIds: (uid: string) => ['clubs', 'votedIds', uid] as const,
     standing: (cid: string) => ['clubs', 'standing', cid] as const,
     /** Slice 199 K-02 — Most-Owned Players per Club (anonymized aggregate). */
     mostOwned: (cid: string, limit: number) => ['clubs', 'mostOwned', cid, limit] as const,

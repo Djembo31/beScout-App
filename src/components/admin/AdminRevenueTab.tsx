@@ -1,20 +1,18 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { DollarSign, Package, Vote, TrendingUp, ArrowRightLeft, Landmark, PiggyBank } from 'lucide-react';
+import { DollarSign, Package, TrendingUp, ArrowRightLeft, Landmark, PiggyBank } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card, Skeleton } from '@/components/ui';
 import { getClubDashboardStats, getClubTradingFees } from '@/lib/services/club';
 import { getPlayersByClubId, centsToBsd } from '@/lib/services/players';
-import { getAllVotes } from '@/lib/services/votes';
 import { fmtScout } from '@/lib/utils';
 import { formatScout } from '@/lib/services/wallet';
-import type { ClubWithAdmin, ClubDashboardStats, DbClubVote } from '@/types';
+import type { ClubWithAdmin, ClubDashboardStats } from '@/types';
 
 export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
   const t = useTranslations('admin');
   const [stats, setStats] = useState<ClubDashboardStats | null>(null);
-  const [votes, setVotes] = useState<DbClubVote[]>([]);
   const [totalVolume, setTotalVolume] = useState(0);
   const [tradingFees, setTradingFees] = useState<{ totalClubFee: number; totalPlatformFee: number; totalPbtFee: number; tradeCount: number } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -24,16 +22,14 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
     async function load() {
       setLoading(true);
       try {
-        const [s, p, v, fees] = await Promise.all([
+        const [s, p, fees] = await Promise.all([
           getClubDashboardStats(club.id),
           getPlayersByClubId(club.id, { activeOnly: true }),
-          getAllVotes(club.id),
           getClubTradingFees(club.id),
         ]);
         if (!cancelled) {
           setStats(s);
           setTotalVolume(centsToBsd(p.reduce((sum, pl) => sum + pl.volume_24h, 0)));
-          setVotes(v);
           setTradingFees(fees);
         }
       } catch (err) { console.error('[AdminRevenue] loadData:', err); }
@@ -43,9 +39,8 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
     return () => { cancelled = true; };
   }, [club.id]);
 
-  const voteRevenue = votes.reduce((sum, v) => sum + v.total_votes * v.cost_bsd, 0);
   const clubFeeRevenue = tradingFees?.totalClubFee ?? 0;
-  const totalRevenue = (stats?.ipo_revenue_cents ?? 0) + voteRevenue + clubFeeRevenue;
+  const totalRevenue = (stats?.ipo_revenue_cents ?? 0) + clubFeeRevenue;
 
   return (
     <div className="space-y-6">
@@ -77,15 +72,6 @@ export default function AdminRevenueTab({ club }: { club: ClubWithAdmin }) {
           </div>
           {loading ? <Skeleton className="h-7 w-24" /> : (
             <div className="text-xl font-mono font-black text-emerald-400">{formatScout(clubFeeRevenue)} CR</div>
-          )}
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Vote className="w-5 h-5 text-purple-400" />
-            <span className="text-xs text-white/50">{t('voteRevenue')}</span>
-          </div>
-          {loading ? <Skeleton className="h-7 w-24" /> : (
-            <div className="text-xl font-mono font-black text-purple-400">{formatScout(voteRevenue)} CR</div>
           )}
         </Card>
       </div>

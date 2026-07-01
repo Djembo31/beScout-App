@@ -5,7 +5,6 @@ import { useToast } from '@/components/providers/ToastProvider';
 import { createPost, uploadPostImage, votePost, deletePost, adminDeletePost, adminTogglePin } from '@/lib/services/posts';
 import { createResearchPost, unlockResearch, rateResearch } from '@/lib/services/research';
 import { submitBountyResponse, createUserBounty } from '@/lib/services/bounties';
-import { castVote } from '@/lib/services/votes';
 import { castCommunityPollVote, cancelCommunityPoll } from '@/lib/services/communityPolls';
 import { qk, invalidateResearchQueries } from '@/lib/queries';
 import { mapErrorToKey, normalizeError } from '@/lib/errorMessages';
@@ -21,13 +20,12 @@ interface UseCommunityActionsParams {
   scopeClubId: string | undefined;
   myPostVotes: Map<string, number>;
   setMyPostVotes: React.Dispatch<React.SetStateAction<Map<string, number>>>;
-  setUserVotedIds: React.Dispatch<React.SetStateAction<Set<string>>>;
   setUserPollVotedIds: React.Dispatch<React.SetStateAction<Set<string>>>;
 }
 
 export function useCommunityActions({
   userId, state, dispatch, scopeClubId,
-  myPostVotes, setMyPostVotes, setUserVotedIds, setUserPollVotedIds,
+  myPostVotes, setMyPostVotes, setUserPollVotedIds,
 }: UseCommunityActionsParams) {
   const { addToast } = useToast();
   const t = useTranslations('community');
@@ -283,22 +281,6 @@ export function useCommunityActions({
     }
   }, [userId, addToast, t, dispatch]);
 
-  const handleCastVote = useCallback(async (voteId: string, optionIndex: number) => {
-    if (!userId) return;
-    dispatch({ type: 'SET_VOTING_ID', value: voteId });
-    try {
-      await castVote(userId, voteId, optionIndex);
-      setUserVotedIds(prev => new Set([...Array.from(prev), voteId]));
-      queryClient.invalidateQueries({ queryKey: qk.votes.all });
-      addToast(t('voteCast'), 'success');
-    } catch (err) {
-      // Slice 051: i18n-Key-Leak-Schutz
-      addToast(tErrors(mapErrorToKey(normalizeError(err))), 'error');
-    } finally {
-      dispatch({ type: 'SET_VOTING_ID', value: null });
-    }
-  }, [userId, addToast, queryClient, t, dispatch, setUserVotedIds]);
-
   const handleCastPollVote = useCallback(async (pollId: string, optionIndex: number) => {
     if (!userId) return;
     dispatch({ type: 'SET_POLL_VOTING_ID', value: pollId });
@@ -376,7 +358,6 @@ export function useCommunityActions({
     handleBountySubmit,
     handleUnlockResearch,
     handleRateResearch,
-    handleCastVote,
     handleCastPollVote,
     handleCancelPoll,
     handleCreateBounty,

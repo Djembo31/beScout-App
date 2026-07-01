@@ -1,0 +1,73 @@
+Slice 499 — W4-Konsolidierung club_votes → community_polls (§0 Schnitt)
+Proof — Wave 1 (code-only Removal). Wave 2 (DROP) = separat, gated.
+Datum: 2026-07-01
+
+═══════════════════════════════════════════════════════════════════
+(A) BEFUND-EVIDENZ — warum P1 (Live-DB + pg_get_functiondef)
+═══════════════════════════════════════════════════════════════════
+
+Live-DB (Projekt skzjfhvgccaeplydsunz):
+  club_votes           = 0 rows
+  vote_entries         = 0 rows
+  community_polls      = 4 rows (aktiv, newest 2026-06-24)
+  community_poll_votes = 3 rows
+
+Money-Divergenz (pg_get_functiondef, verifiziert):
+  RPC                        wallet  treasury/creator-Split  ledger  body_len
+  cast_community_poll_vote   ✓       ✓ (70% D86/D92)         ✓       6014
+  cast_vote (alt)            ✓       ✗ KEIN Split            ✓       2528
+
+  cast_vote-Body: `balance -= cost_bsd` + INSERT transactions(type='vote_fee', -cost)
+  → Voter belastet, KEIN Gegenkonto gutgeschrieben (reiner Sink).
+  Reachable via live AdminVotesTab „Neu Vote"-Button.
+  → P1-latent (0 Daten heute, aber reachable money-model-divergenter Zweitweg).
+
+community_polls = strikter Superset: create_community_poll deckt source='club'
+  (Club-Admin-Poll, 70% → Vereins-Treasury) UND source='user' ab. Kanonische
+  Create-UI (CreatePollButton source="club") lag bereits im selben AdminVotesTab.
+
+═══════════════════════════════════════════════════════════════════
+(B) AC1 — 0 club_votes-Code-Refs in src/ (Wave 1)
+═══════════════════════════════════════════════════════════════════
+
+grep -rnE "\b(club_votes|vote_entries|cast_vote|DbClubVote|DbVoteEntry|getAllVotes|
+  castVote|createVote|useClubVotes|useUserVotedIds|getUserVotedIds|handleCastVote|
+  SET_VOTING_ID)\b" src/
+
+→ 0 Treffer im App-Code (services/queries/components/hooks/types).
+→ Verbleibend NUR in src/lib/__tests__/db-invariants.test.ts (Live-DB-Test, CI-excluded):
+   :1057  cast_vote RPC-Shape-Invariant
+   :1588  club_votes Tabellen-Doku-Map
+   :1626  vote_entries Tabellen-Doku-Map
+   = beschreiben die noch LEBENDEN DB-Objekte → korrekt auf Wave 2 (DROP) verschoben.
+
+═══════════════════════════════════════════════════════════════════
+(C) AC2 + AC3 — tsc + vitest
+═══════════════════════════════════════════════════════════════════
+
+npx tsc --noEmit                                      → 0 Fehler
+npx vitest run src/components/community
+              src/components/admin/.../AdminRevenueTab.test.tsx
+              src/lib/services/__tests__/club.test.ts → 258 passed (nach handler-count 13→12 Fix)
+npx vitest run useCommunityActions.test.ts            → 66/66 passed
+
+═══════════════════════════════════════════════════════════════════
+(D) DIFF-STAT — §0 Subtraktion
+═══════════════════════════════════════════════════════════════════
+
+23 Files, +67 / -697 (netto -630 Zeilen).
+Gelöscht: src/lib/services/votes.ts · src/lib/queries/votes.ts
+Survivor (unberührt): communityPolls.ts, cast_community_poll_vote, create_community_poll,
+  CommunityPollCard, useCommunityPolls, handleCastPollVote, qk.polls.
+
+Wave 2 (gated, nach Live-Verify + CEO-Check):
+  DROP FUNCTION cast_vote(uuid,uuid,smallint)
+  DROP TABLE club_votes, vote_entries
+  db-invariants.test.ts:1057/1588/1626 entfernen
+  Verify: SELECT to_regclass('public.club_votes'), to_regclass('public.vote_entries'),
+          to_regproc('public.cast_vote(uuid,uuid,smallint)') → alle NULL
+
+(E) Live-Walk (post-Deploy Wave 1) — TODO nach Vercel-Deploy:
+  Community-Feed 'votes'-Filter → Polls · Club-MitmachenSection → Polls ·
+  AdminVotesTab → CreatePollButton (Poll erstellen) · AdminRevenueTab (3 Cards) ·
+  Console 0 neue Errors.

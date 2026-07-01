@@ -10,7 +10,6 @@ import type { CommunityState, CommunityAction } from '../types';
 
 vi.mock('@/lib/queries', () => ({
   usePosts: vi.fn(() => ({ data: undefined, isLoading: false, isError: false })),
-  useClubVotes: vi.fn(() => ({ data: undefined })),
   useLeaderboard: vi.fn(() => ({ data: undefined })),
   useUserSocialStats: vi.fn(() => ({ data: undefined })),
   useHoldings: vi.fn(() => ({ data: undefined })),
@@ -49,10 +48,6 @@ vi.mock('@/lib/services/posts', () => ({
   getUserPostVotes: vi.fn(() => Promise.resolve(new Map())),
 }));
 
-vi.mock('@/lib/services/votes', () => ({
-  getUserVotedIds: vi.fn(() => Promise.resolve(new Set())),
-}));
-
 vi.mock('@/lib/services/communityPolls', () => ({
   getUserPollVotedIds: vi.fn(() => Promise.resolve(new Set())),
 }));
@@ -76,7 +71,6 @@ vi.mock('@/components/providers/ToastProvider', () => ({
 import { useCommunityData } from '../useCommunityData';
 import {
   usePosts,
-  useClubVotes,
   useLeaderboard,
   useUserSocialStats,
   useHoldings,
@@ -88,7 +82,6 @@ import {
   useCommunityPolls,
 } from '@/lib/queries';
 import { getUserPostVotes } from '@/lib/services/posts';
-import { getUserVotedIds } from '@/lib/services/votes';
 import { getUserPollVotedIds } from '@/lib/services/communityPolls';
 import { getUserPrimaryClub } from '@/lib/services/club';
 import { getGesamtRang } from '@/lib/gamification';
@@ -133,7 +126,6 @@ function makeDefaultState(overrides: Partial<CommunityState> = {}): CommunitySta
     bountyCreating: false,
     unlockingResearchId: null,
     ratingResearchId: null,
-    votingId: null,
     pollVotingId: null,
     ...overrides,
   };
@@ -155,7 +147,6 @@ describe('useCommunityData', () => {
 
     // Reset all query hook mocks to default undefined returns
     vi.mocked(usePosts).mockReturnValue({ data: undefined, isLoading: false, isError: false } as unknown as ReturnType<typeof usePosts>);
-    vi.mocked(useClubVotes).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useClubVotes>);
     vi.mocked(useLeaderboard).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useLeaderboard>);
     vi.mocked(useUserSocialStats).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useUserSocialStats>);
     vi.mocked(useHoldings).mockReturnValue({ data: undefined } as unknown as ReturnType<typeof useHoldings>);
@@ -168,7 +159,6 @@ describe('useCommunityData', () => {
 
     // Reset service mocks
     vi.mocked(getUserPostVotes).mockResolvedValue(new Map());
-    vi.mocked(getUserVotedIds).mockResolvedValue(new Set());
     vi.mocked(getUserPollVotedIds).mockResolvedValue(new Set());
     vi.mocked(getUserPrimaryClub).mockResolvedValue(null);
     vi.mocked(getGesamtRang).mockReturnValue({
@@ -200,7 +190,6 @@ describe('useCommunityData', () => {
       // Query data should be undefined or safe defaults (implementation may default arrays to [])
       // The important contract: these fields exist and don't throw
       expect(result.current).toHaveProperty('posts');
-      expect(result.current).toHaveProperty('clubVotes');
       expect(result.current).toHaveProperty('leaderboard');
       expect(result.current).toHaveProperty('researchPosts');
       expect(result.current).toHaveProperty('bounties');
@@ -570,38 +559,7 @@ describe('useCommunityData', () => {
   });
 
   // ------------------------------------------
-  // 8. Vote ID loading side-effect
-  // ------------------------------------------
-  describe('vote ID loading side-effect', () => {
-    it('calls getUserVotedIds when userId is present', async () => {
-      vi.mocked(getUserVotedIds).mockResolvedValue(new Set(['vote-1', 'vote-2']));
-
-      renderHook(
-        () => useCommunityData(USER_ID, null, undefined, makeDefaultState(), mockDispatch),
-        { wrapper: createWrapper() },
-      );
-
-      await waitFor(() => {
-        expect(getUserVotedIds).toHaveBeenCalledWith(USER_ID);
-      });
-    });
-
-    it('does not call getUserVotedIds with undefined userId', async () => {
-      renderHook(
-        () => useCommunityData(undefined, null, undefined, makeDefaultState(), mockDispatch),
-        { wrapper: createWrapper() },
-      );
-
-      await new Promise((r) => setTimeout(r, 50));
-      const callsWithUndefined = vi.mocked(getUserVotedIds).mock.calls.filter(
-        (call) => call[0] === undefined,
-      );
-      expect(callsWithUndefined).toHaveLength(0);
-    });
-  });
-
-  // ------------------------------------------
-  // 9. Poll vote ID loading side-effect
+  // 8. Poll vote ID loading side-effect
   // ------------------------------------------
   describe('poll vote ID loading side-effect', () => {
     it('calls getUserPollVotedIds when userId is present', async () => {
@@ -635,20 +593,6 @@ describe('useCommunityData', () => {
   // 10. Query data forwarding
   // ------------------------------------------
   describe('query data forwarding', () => {
-    it('forwards clubVotes data', () => {
-      const mockVotes = [{ id: 'vote-1', title: 'MVP' }];
-      vi.mocked(useClubVotes).mockReturnValue({
-        data: mockVotes,
-      } as unknown as ReturnType<typeof useClubVotes>);
-
-      const { result } = renderHook(
-        () => useCommunityData(USER_ID, null, undefined, makeDefaultState(), mockDispatch),
-        { wrapper: createWrapper() },
-      );
-
-      expect(result.current.clubVotes).toEqual(mockVotes);
-    });
-
     it('forwards leaderboard data', () => {
       const mockLeaderboard = [{ user_id: 'u-1', xp: 500 }];
       vi.mocked(useLeaderboard).mockReturnValue({
@@ -754,7 +698,7 @@ describe('useCommunityData', () => {
   });
 
   // ------------------------------------------
-  // 11. Return shape includes state setters (myPostVotes, userVotedIds, userPollVotedIds)
+  // 11. Return shape includes state setters (myPostVotes, userPollVotedIds)
   // ------------------------------------------
   describe('state setters exposed', () => {
     it('exposes myPostVotes, setMyPostVotes', () => {
@@ -766,17 +710,6 @@ describe('useCommunityData', () => {
       expect(result.current).toHaveProperty('myPostVotes');
       expect(result.current).toHaveProperty('setMyPostVotes');
       expect(typeof result.current.setMyPostVotes).toBe('function');
-    });
-
-    it('exposes userVotedIds, setUserVotedIds', () => {
-      const { result } = renderHook(
-        () => useCommunityData(USER_ID, null, undefined, makeDefaultState(), mockDispatch),
-        { wrapper: createWrapper() },
-      );
-
-      expect(result.current).toHaveProperty('userVotedIds');
-      expect(result.current).toHaveProperty('setUserVotedIds');
-      expect(typeof result.current.setUserVotedIds).toBe('function');
     });
 
     it('exposes userPollVotedIds, setUserPollVotedIds', () => {
@@ -826,14 +759,14 @@ describe('useCommunityData', () => {
   // 13. scopeClubId parameter forwarding
   // ------------------------------------------
   describe('scopeClubId parameter', () => {
-    it('passes scopeClubId to useClubVotes', () => {
+    it('passes scopeClubId to useCommunityPolls', () => {
       renderHook(
         () => useCommunityData(USER_ID, null, CLUB_ID, makeDefaultState({ clubId: CLUB_ID }), mockDispatch),
         { wrapper: createWrapper() },
       );
 
-      // useClubVotes should receive a club ID
-      expect(useClubVotes).toHaveBeenCalled();
+      // useCommunityPolls should receive a club ID
+      expect(useCommunityPolls).toHaveBeenCalled();
     });
 
     it('passes scopeClubId to useActiveBounties', () => {

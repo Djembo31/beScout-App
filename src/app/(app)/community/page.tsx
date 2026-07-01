@@ -59,7 +59,6 @@ function communityReducer(state: CommunityState, action: CommunityAction): Commu
     case 'SET_BOUNTY_CREATING': return { ...state, bountyCreating: action.value };
     case 'SET_UNLOCKING_RESEARCH': return { ...state, unlockingResearchId: action.value };
     case 'SET_RATING_RESEARCH': return { ...state, ratingResearchId: action.value };
-    case 'SET_VOTING_ID': return { ...state, votingId: action.value };
     case 'SET_POLL_VOTING_ID': return { ...state, pollVotingId: action.value };
     default: return state;
   }
@@ -97,7 +96,6 @@ export default function CommunityPage() {
     bountyCreating: false,
     unlockingResearchId: null,
     ratingResearchId: null,
-    votingId: null,
     pollVotingId: null,
   });
 
@@ -111,7 +109,7 @@ export default function CommunityPage() {
   const actions = useCommunityActions({
     userId: uid, state, dispatch, scopeClubId,
     myPostVotes: data.myPostVotes, setMyPostVotes: data.setMyPostVotes,
-    setUserVotedIds: data.setUserVotedIds, setUserPollVotedIds: data.setUserPollVotedIds,
+    setUserPollVotedIds: data.setUserPollVotedIds,
   });
 
   if (!user) return null;
@@ -266,7 +264,6 @@ export default function CommunityPage() {
                 onContentFilterChange={(v: ContentFilter) => dispatch({ type: 'SET_CONTENT_FILTER', value: v })}
                 researchPosts={data.researchPosts}
                 bounties={data.bounties}
-                clubVotes={data.clubVotes}
                 communityPolls={data.communityPolls}
                 onUnlockResearch={actions.handleUnlockResearch}
                 unlockingResearchId={state.unlockingResearchId}
@@ -275,9 +272,6 @@ export default function CommunityPage() {
                 onBountySubmit={actions.handleBountySubmit}
                 bountySubmitting={state.bountySubmitting}
                 userTier={data.subscription?.tier}
-                userVotedIds={data.userVotedIds}
-                onCastVote={actions.handleCastVote}
-                votingId={state.votingId}
                 userPollVotedIds={data.userPollVotedIds}
                 onCastPollVote={actions.handleCastPollVote}
                 onCancelPoll={actions.handleCancelPoll}

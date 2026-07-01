@@ -6,7 +6,6 @@ paths:
   - "src/lib/services/bounties*"
   - "src/lib/services/posts*"
   - "src/lib/services/communityPolls*"
-  - "src/lib/services/votes*"
 ---
 
 ## Feed Union-Type (Single-Scroll Layout)
@@ -15,9 +14,9 @@ type FeedItem =
   | { type: 'post'; data: PostWithAuthor; date: string }
   | { type: 'research'; data: ResearchPostWithAuthor; date: string }
   | { type: 'bounty'; data: BountyWithCreator; date: string }
-  | { type: 'vote'; data: DbClubVote; date: string }
   | { type: 'poll'; data: CommunityPollWithCreator; date: string };
 type ContentFilter = 'all' | 'posts' | 'rumors' | 'research' | 'bounties' | 'votes' | 'news';
+// 'votes'-Filter zeigt community_polls (das alte club_votes-System entfernt Slice 499, §0)
 ```
 - Sorting: pinned first, dann 'new' (date), 'trending' (engagement/age^1.5), 'top' (upvotes-downvotes)
 - Search: case-insensitive ueber content, handle, title, preview, question
@@ -43,12 +42,13 @@ type ContentFilter = 'all' | 'posts' | 'rumors' | 'research' | 'bounties' | 'vot
 - `auto_close_expired_bounties` — lazy Trigger bei Deadline
 - Approval: `approve_bounty_submission` RPC → Reward + Auto-Post + Notification + Gamification
 
-## Votes & Polls
+## Polls (community_polls — einziges Voting-System seit Slice 499)
 - `options` = JSONB Array: `{label: string; votes: number}[]`
 - `option_index` = 0-basiert (Array-Index, nicht ID)
 - Active Check: `status='active' AND ends_at > now()` (BEIDE Bedingungen!)
 - Poll Cancel: nur Creator, nur wenn total_votes=0
-- Vote Gewicht: Bronze+ = 2x (`cast_vote` RPC prueft Abo)
+- Vote Gewicht: Bronze+ = 2x (`cast_community_poll_vote` RPC prueft Abo)
+- Money: bezahlt, 70/30-Split (Verein/Creator-Treasury via `book_platform_treasury`, D86/D92). Das alte `club_votes`/`cast_vote` (Sink ohne Split) ist entfernt (§0, Slice 499).
 
 ## ScoutingEvaluation
 - 5 Felder: technik, taktik, athletik, mentalitaet, potenzial (0-10)

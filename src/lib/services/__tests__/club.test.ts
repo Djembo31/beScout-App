@@ -88,7 +88,7 @@ describe('getClubPrestige', () => {
   it('calculates prestige score and tier', async () => {
     mockTable('bounties', null, null, 10);
     mockTable('bounty_submissions', null, null, 5);
-    mockTable('club_votes', null, null, 3);
+    mockTable('community_polls', null, null, 3);
     mockTable('posts', null, null, 2);
     mockTable('club_followers', null, null, 100);
     const result = await getClubPrestige('c1');
@@ -100,7 +100,7 @@ describe('getClubPrestige', () => {
   it('returns starter tier for low score', async () => {
     mockTable('bounties', null, null, 0);
     mockTable('bounty_submissions', null, null, 0);
-    mockTable('club_votes', null, null, 0);
+    mockTable('community_polls', null, null, 0);
     mockTable('posts', null, null, 0);
     mockTable('club_followers', null, null, 10);
     const result = await getClubPrestige('c1');

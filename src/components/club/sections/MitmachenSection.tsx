@@ -6,7 +6,6 @@ import { useTranslations } from 'next-intl';
 import { cn, fmtScout } from '@/lib/utils';
 import { useScoutingStats, useTopScouts } from '@/lib/queries/scouting';
 import { useActiveBounties } from '@/lib/queries/bounties';
-import { useClubVotes } from '@/lib/queries/votes';
 import { useCommunityPolls } from '@/lib/queries/polls';
 
 type Props = {
@@ -21,14 +20,13 @@ export function MitmachenSection({ clubId, userId, clubColor }: Props) {
   const { data: scoutingStats } = useScoutingStats(userId);
   const { data: topScouts } = useTopScouts(clubId, 3);
   const { data: bounties } = useActiveBounties(userId, clubId);
-  const { data: clubVotes } = useClubVotes(clubId);
   const { data: communityPolls } = useCommunityPolls(clubId);
 
   const displayBounties = (bounties ?? []).slice(0, 3);
-  const allVotes = [
-    ...(clubVotes ?? []).map(v => ({ id: v.id, question: v.question, options: v.options, total_votes: v.total_votes })),
-    ...(communityPolls ?? []).map(p => ({ id: p.id, question: p.question, options: p.options, total_votes: p.total_votes })),
-  ].slice(0, 2);
+  const allVotes = (communityPolls ?? [])
+    .filter(p => p.status === 'active')
+    .map(p => ({ id: p.id, question: p.question, options: p.options, total_votes: p.total_votes }))
+    .slice(0, 2);
   const displayScouts = topScouts ?? [];
 
   const hasProfile = !!userId && !!scoutingStats;

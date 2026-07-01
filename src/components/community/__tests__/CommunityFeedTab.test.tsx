@@ -7,7 +7,6 @@ import type {
   PostWithAuthor,
   ResearchPostWithAuthor,
   BountyWithCreator,
-  DbClubVote,
   CommunityPollWithCreator,
 } from '@/types';
 
@@ -198,27 +197,6 @@ function makeBounty(overrides: Partial<BountyWithCreator> = {}): BountyWithCreat
     creator_handle: 'club_admin',
     creator_display_name: null,
     creator_avatar_url: null,
-    ...overrides,
-  };
-}
-
-function makeClubVote(overrides: Partial<DbClubVote> = {}): DbClubVote {
-  return {
-    id: 'v1',
-    club_name: 'Test Club',
-    club_id: 'c1',
-    question: 'Who is the best player?',
-    options: [
-      { label: 'Option A', votes: 10 },
-      { label: 'Option B', votes: 20 },
-    ],
-    status: 'active',
-    total_votes: 30,
-    cost_bsd: 0,
-    starts_at: '2026-01-01T00:00:00Z',
-    ends_at: '2027-01-01T00:00:00Z',
-    created_by: 'u4',
-    created_at: '2026-01-01T00:00:00Z',
     ...overrides,
   };
 }

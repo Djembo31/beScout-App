@@ -87,7 +87,7 @@ export async function getClubPrestige(clubId: string): Promise<ClubPrestige> {
   const prestigeResults = await Promise.allSettled([
     supabase.from('bounties').select('id', { count: 'exact', head: true }).eq('club_id', clubId),
     supabase.from('bounty_submissions').select('id, bounties!inner(club_id)', { count: 'exact', head: true }).eq('status', 'approved').eq('bounties.club_id', clubId),
-    supabase.from('club_votes').select('id', { count: 'exact', head: true }).eq('club_id', clubId).eq('status', 'active'),
+    supabase.from('community_polls').select('id', { count: 'exact', head: true }).eq('club_id', clubId).eq('status', 'active'),
     supabase.from('posts').select('id', { count: 'exact', head: true }).eq('club_id', clubId).eq('post_type', 'club_news'),
     supabase.from('club_followers').select('id', { count: 'exact', head: true }).eq('club_id', clubId),
   ]);

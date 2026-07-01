@@ -11,7 +11,6 @@ const mockGetClubDashboardStats = vi.fn();
 const mockGetClubTradingFees = vi.fn();
 const mockGetPlayersByClubId = vi.fn();
 const mockCentsToBsd = vi.fn((n: number) => n / 100);
-const mockGetAllVotes = vi.fn();
 const mockFormatScout = vi.fn((n: number) => String(n));
 const mockFmtScout = vi.fn((n: number) => String(n));
 
@@ -23,10 +22,6 @@ vi.mock('@/lib/services/club', () => ({
 vi.mock('@/lib/services/players', () => ({
   getPlayersByClubId: (...args: unknown[]) => mockGetPlayersByClubId(...(args as [string])),
   centsToBsd: (...args: unknown[]) => mockCentsToBsd(...(args as [number])),
-}));
-
-vi.mock('@/lib/services/votes', () => ({
-  getAllVotes: (...args: unknown[]) => mockGetAllVotes(...args),
 }));
 
 vi.mock('@/lib/services/wallet', () => ({
@@ -54,11 +49,6 @@ const playersFixture = [
   { id: 'p2', volume_24h: 5000 },
 ];
 
-const votesFixture = [
-  { id: 'v1', total_votes: 10, cost_bsd: 100 },
-  { id: 'v2', total_votes: 5, cost_bsd: 200 },
-];
-
 const tradingFeesFixture = {
   totalClubFee: 3000,
   totalPlatformFee: 5000,
@@ -69,14 +59,12 @@ const tradingFeesFixture = {
 function setupMocksResolved() {
   mockGetClubDashboardStats.mockResolvedValue(statsFixture);
   mockGetPlayersByClubId.mockResolvedValue(playersFixture);
-  mockGetAllVotes.mockResolvedValue(votesFixture);
   mockGetClubTradingFees.mockResolvedValue(tradingFeesFixture);
 }
 
 function setupMocksNeverResolve() {
   mockGetClubDashboardStats.mockReturnValue(new Promise(() => {}));
   mockGetPlayersByClubId.mockReturnValue(new Promise(() => {}));
-  mockGetAllVotes.mockReturnValue(new Promise(() => {}));
   mockGetClubTradingFees.mockReturnValue(new Promise(() => {}));
 }
 
@@ -104,17 +92,17 @@ describe('AdminRevenueTab', () => {
   });
 
   // --- 3. Total revenue card ---
-  it('shows computed total revenue (ipo + votes + clubFee)', async () => {
+  it('shows computed total revenue (ipo + clubFee)', async () => {
     setupMocksResolved();
     renderWithProviders(<AdminRevenueTab club={club} />);
 
-    // totalRevenue = ipo_revenue_cents(50000) + voteRevenue(10*100 + 5*200 = 2000) + clubFee(3000) = 55000
+    // totalRevenue = ipo_revenue_cents(50000) + clubFee(3000) = 53000
     await waitFor(() => {
-      expect(mockFormatScout).toHaveBeenCalledWith(55000);
+      expect(mockFormatScout).toHaveBeenCalledWith(53000);
     });
 
     // The total card has text-gold class and shows the total
-    const totalCards = screen.getAllByText(/55000/);
+    const totalCards = screen.getAllByText(/53000/);
     expect(totalCards.length).toBeGreaterThanOrEqual(1);
   });
 
@@ -142,20 +130,7 @@ describe('AdminRevenueTab', () => {
     expect(screen.getByText('tradingFees')).toBeInTheDocument();
   });
 
-  // --- 6. Vote revenue card ---
-  it('shows computed vote revenue', async () => {
-    setupMocksResolved();
-    renderWithProviders(<AdminRevenueTab club={club} />);
-
-    // voteRevenue = 10*100 + 5*200 = 2000
-    await waitFor(() => {
-      expect(mockFormatScout).toHaveBeenCalledWith(2000);
-    });
-
-    expect(screen.getByText('voteRevenue')).toBeInTheDocument();
-  });
-
-  // --- 7. Fee breakdown shows all 4 sub-items ---
+  // --- 6. Fee breakdown shows all 4 sub-items ---
   it('shows fee breakdown with clubFee, pbtFee, platformFee, and volume', async () => {
     setupMocksResolved();
     renderWithProviders(<AdminRevenueTab club={club} />);
@@ -200,7 +175,6 @@ describe('AdminRevenueTab', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     mockGetClubDashboardStats.mockRejectedValue(new Error('Network error'));
     mockGetPlayersByClubId.mockRejectedValue(new Error('Network error'));
-    mockGetAllVotes.mockRejectedValue(new Error('Network error'));
     mockGetClubTradingFees.mockRejectedValue(new Error('Network error'));
 
     renderWithProviders(<AdminRevenueTab club={club} />);
@@ -246,6 +220,5 @@ describe('AdminRevenueTab', () => {
 
     expect(mockGetClubTradingFees).toHaveBeenCalledWith('club-2');
     expect(mockGetPlayersByClubId).toHaveBeenCalledWith('club-2', { activeOnly: true });
-    expect(mockGetAllVotes).toHaveBeenCalledWith('club-2');
   });
 });

@@ -10,7 +10,7 @@ import ResearchCard from '@/components/community/ResearchCard';
 import BountyCard from '@/components/community/BountyCard';
 import CommunityPollCard from '@/components/community/CommunityPollCard';
 import ReportModal from '@/components/community/ReportModal';
-import type { PostWithAuthor, ResearchPostWithAuthor, BountyWithCreator, DbClubVote, CommunityPollWithCreator } from '@/types';
+import type { PostWithAuthor, ResearchPostWithAuthor, BountyWithCreator, CommunityPollWithCreator } from '@/types';
 import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import { useBatchEquippedCosmetics } from '@/lib/queries/cosmetics';
 import { useTranslations } from 'next-intl';
@@ -26,14 +26,13 @@ type FeedItem =
   | { type: 'post'; data: PostWithAuthor; date: string }
   | { type: 'research'; data: ResearchPostWithAuthor; date: string }
   | { type: 'bounty'; data: BountyWithCreator; date: string }
-  | { type: 'vote'; data: DbClubVote; date: string }
   | { type: 'poll'; data: CommunityPollWithCreator; date: string };
 
 // ── Slice 334: Discovery-Anker (welcher Verein / Spieler steckt im Eintrag) ──
 type Anchor = { type: 'club' | 'player'; id: string; label: string };
 
 function itemClubId(item: FeedItem): string | null {
-  // Alle Feed-Typen (post/research/bounty/vote/poll) tragen club_id.
+  // Alle Feed-Typen (post/research/bounty/poll) tragen club_id.
   return item.data.club_id ?? null;
 }
 function itemPlayerId(item: FeedItem): string | null {
@@ -42,7 +41,6 @@ function itemPlayerId(item: FeedItem): string | null {
     case 'research': return item.data.player_id ?? null;
     case 'bounty': return item.data.player_id ?? null;
     case 'poll': return item.data.player_id ?? null;
-    case 'vote': return null;
   }
 }
 function itemPlayerName(item: FeedItem): string | null {
@@ -51,7 +49,6 @@ function itemPlayerName(item: FeedItem): string | null {
     case 'research': return item.data.player_name ?? null;
     case 'bounty': return item.data.player_name ?? null;
     case 'poll': return item.data.player_name ?? null;
-    case 'vote': return null;
   }
 }
 
@@ -83,7 +80,6 @@ interface CommunityFeedTabProps {
   // Additional data for unified feed
   researchPosts?: ResearchPostWithAuthor[];
   bounties?: BountyWithCreator[];
-  clubVotes?: DbClubVote[];
   communityPolls?: CommunityPollWithCreator[];
   // Research handlers
   onUnlockResearch?: (postId: string) => void;
@@ -94,67 +90,11 @@ interface CommunityFeedTabProps {
   onBountySubmit?: (bountyId: string, title: string, content: string, evaluation?: Record<string, unknown> | null) => void;
   bountySubmitting?: string | null;
   userTier?: string | null;
-  // Vote handlers
-  userVotedIds?: Set<string>;
-  onCastVote?: (voteId: string, optionIndex: number) => void;
-  votingId?: string | null;
   // Poll handlers
   userPollVotedIds?: Set<string>;
   onCastPollVote?: (pollId: string, optionIndex: number) => void;
   onCancelPoll?: (pollId: string) => void;
   pollVotingId?: string | null;
-}
-
-// ============================================
-// INLINE VOTE CARD (compact version)
-// ============================================
-
-function InlineFeedVoteCard({ vote, hasVoted, onVote, voting }: {
-  vote: DbClubVote;
-  hasVoted: boolean;
-  onVote?: (voteId: string, optionIndex: number) => void;
-  voting?: string | null;
-}) {
-  const t = useTranslations('community');
-  const totalVotes = vote.total_votes;
-  const isActive = vote.status === 'active' && new Date(vote.ends_at) > new Date();
-
-  return (
-    <Card className="overflow-hidden">
-      <div className="p-3 flex items-center justify-between bg-purple-500/[0.06] border-b border-purple-500/20">
-        <div className="flex items-center gap-2">
-          <Vote className="w-4 h-4 text-purple-400" />
-          <span className="font-bold text-sm text-purple-300">{t('clubVote')}</span>
-        </div>
-      </div>
-      <div className="p-4">
-        <h3 className="font-bold mb-3">{vote.question}</h3>
-        <div className="space-y-2 mb-3">
-          {(vote.options as { label: string; votes: number }[]).map((option, idx) => {
-            const pct = totalVotes > 0 ? Math.round((option.votes / totalVotes) * 100) : 0;
-            return (
-              <button
-                key={idx}
-                onClick={() => !hasVoted && isActive && onVote?.(vote.id, idx)}
-                disabled={hasVoted || !isActive || voting === vote.id}
-                className={cn(
-                  'w-full p-2.5 rounded-xl border transition-colors text-left text-sm relative overflow-hidden min-h-[44px]',
-                  hasVoted ? 'bg-surface-minimal border-white/10' : 'bg-surface-minimal border-white/10 hover:bg-surface-subtle'
-                )}
-              >
-                {hasVoted && <div className="absolute inset-0 bg-purple-500/10" style={{ width: `${pct}%` }} />}
-                <div className="relative flex items-center justify-between">
-                  <span>{option.label}</span>
-                  {hasVoted && <span className="font-mono font-bold text-white/50 text-xs">{pct}%</span>}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-        <div className="text-xs text-white/40">{t('votesCount', { count: totalVotes })}</div>
-      </div>
-    </Card>
-  );
 }
 
 // ============================================
@@ -194,7 +134,6 @@ export default function CommunityFeedTab({
   onContentFilterChange,
   researchPosts = [],
   bounties = [],
-  clubVotes = [],
   communityPolls = [],
   onUnlockResearch,
   unlockingResearchId,
@@ -203,9 +142,6 @@ export default function CommunityFeedTab({
   onBountySubmit,
   bountySubmitting,
   userTier,
-  userVotedIds,
-  onCastVote,
-  votingId,
   userPollVotedIds,
   onCastPollVote,
   onCancelPoll,
@@ -259,11 +195,8 @@ export default function CommunityFeedTab({
       filtered.forEach(b => items.push({ type: 'bounty', data: b, date: b.created_at }));
     }
 
-    // Votes + Polls (club votes unfiltered — club content, not user content)
+    // Polls (community polls — Abstimmungen)
     if (contentFilter === 'all' || contentFilter === 'votes') {
-      clubVotes.filter(v => v.status === 'active').forEach(v =>
-        items.push({ type: 'vote', data: v, date: v.starts_at })
-      );
       const filteredPolls = isFollowingTab ? communityPolls.filter(p => followingIds.has(p.created_by)) : communityPolls;
       filteredPolls.filter(p => p.status === 'active').forEach(p =>
         items.push({ type: 'poll', data: p, date: p.created_at })
@@ -271,7 +204,7 @@ export default function CommunityFeedTab({
     }
 
     return items;
-  }, [posts, researchPosts, bounties, clubVotes, communityPolls, contentFilter, isFollowingTab, followingIds]);
+  }, [posts, researchPosts, bounties, communityPolls, contentFilter, isFollowingTab, followingIds]);
 
   // ---- Search filter (Slice 334: matcht zusätzlich Spieler- + Vereinsname über alle Typen) ----
   const searchedItems = useMemo(() => {
@@ -301,8 +234,6 @@ export default function CommunityFeedTab({
         case 'bounty':
           return item.data.title.toLowerCase().includes(q) ||
             item.data.description.toLowerCase().includes(q);
-        case 'vote':
-          return item.data.question.toLowerCase().includes(q);
         case 'poll':
           return item.data.question.toLowerCase().includes(q);
         default:
@@ -504,16 +435,6 @@ export default function CommunityFeedTab({
                     onSubmit={onBountySubmit ?? (() => {})}
                     submitting={bountySubmitting ?? null}
                     userTier={userTier}
-                  />
-                );
-              case 'vote':
-                return (
-                  <InlineFeedVoteCard
-                    key={`vote-${item.data.id}`}
-                    vote={item.data}
-                    hasVoted={userVotedIds?.has(item.data.id) ?? false}
-                    onVote={onCastVote}
-                    voting={votingId}
                   />
                 );
               case 'poll':

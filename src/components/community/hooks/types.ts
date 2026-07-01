@@ -19,7 +19,6 @@ export type CommunityState = {
   bountyCreating: boolean;
   unlockingResearchId: string | null;
   ratingResearchId: string | null;
-  votingId: string | null;
   pollVotingId: string | null;
 };
 
@@ -40,5 +39,4 @@ export type CommunityAction =
   | { type: 'SET_BOUNTY_CREATING'; value: boolean }
   | { type: 'SET_UNLOCKING_RESEARCH'; value: string | null }
   | { type: 'SET_RATING_RESEARCH'; value: string | null }
-  | { type: 'SET_VOTING_ID'; value: string | null }
   | { type: 'SET_POLL_VOTING_ID'; value: string | null };

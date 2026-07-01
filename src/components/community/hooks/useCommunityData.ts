@@ -7,14 +7,13 @@ import type { SubscriptionTier } from '@/lib/services/clubSubscriptions';
 import { resolveExpiredResearch } from '@/lib/services/research';
 import { getClubBySlug, getUserPrimaryClub } from '@/lib/services/club';
 import { getUserPostVotes } from '@/lib/services/posts';
-import { getUserVotedIds } from '@/lib/services/votes';
 import { getUserPollVotedIds } from '@/lib/services/communityPolls';
 import { getGesamtRang } from '@/lib/gamification';
 import { logSilentCatch } from '@/lib/observability/silentRejects';
 import {
   usePlayerNames, useHoldings, usePosts, useLeaderboard,
   useUserSocialStats,
-  useClubVotes, useResearchPosts, useActiveBounties, useClubSubscription,
+  useResearchPosts, useActiveBounties, useClubSubscription,
   useUserStats, useCommunityPolls,
 } from '@/lib/queries';
 
@@ -46,7 +45,6 @@ export function useCommunityData(
   const { data: subscription } = useClubSubscription(userId, state.clubId ?? undefined);
 
   // Deferred (sidebar + below-fold — loads 500ms after mount to reduce initial burst)
-  const { data: clubVotes = [] } = useClubVotes(deferredReady ? state.clubId : null);
   const { data: leaderboard = [] } = useLeaderboard(50);
   const { data: researchPosts = [] } = useResearchPosts(deferredReady ? userId : undefined);
   const { data: bounties = [] } = useActiveBounties(deferredReady ? userId : undefined, scopeClubId);
@@ -71,7 +69,6 @@ export function useCommunityData(
 
   // ─── Map/Set State ────────────────────────
   const [myPostVotes, setMyPostVotes] = useState<Map<string, number>>(new Map());
-  const [userVotedIds, setUserVotedIds] = useState<Set<string>>(new Set());
   const [userPollVotedIds, setUserPollVotedIds] = useState<Set<string>>(new Set());
   const [subscriptionMap, setSubscriptionMap] = useState<Map<string, SubscriptionTier>>(new Map());
 
@@ -115,27 +112,18 @@ export function useCommunityData(
     return () => { cancelled = true; };
   }, [userId, posts]);
 
-  // ─── Load User Club Vote + Poll Vote IDs ──
+  // ─── Load User Poll Vote IDs ──
   useEffect(() => {
     if (!userId) return;
     let cancelled = false;
-    async function loadVoteIds() {
-      const [vIds, pIds] = await Promise.all([
-        getUserVotedIds(userId!).catch((err) => {
-          logSilentCatch('useCommunityData.getUserVotedIds', err);
-          return new Set<string>();
-        }),
-        getUserPollVotedIds(userId!).catch((err) => {
-          logSilentCatch('useCommunityData.getUserPollVotedIds', err);
-          return new Set<string>();
-        }),
-      ]);
-      if (!cancelled) {
-        setUserVotedIds(vIds);
-        setUserPollVotedIds(pIds);
-      }
+    async function loadPollVotedIds() {
+      const pIds = await getUserPollVotedIds(userId!).catch((err) => {
+        logSilentCatch('useCommunityData.getUserPollVotedIds', err);
+        return new Set<string>();
+      });
+      if (!cancelled) setUserPollVotedIds(pIds);
     }
-    loadVoteIds();
+    loadPollVotedIds();
     return () => { cancelled = true; };
   }, [userId]);
 
@@ -152,12 +140,11 @@ export function useCommunityData(
 
   return {
     posts, postsLoading, postsError,
-    clubVotes, leaderboard, researchPosts, bounties, communityPolls,
+    leaderboard, researchPosts, bounties, communityPolls,
     followingIds, ownedPlayerIds, allPlayers,
     followerCount, followingCount,
     subscription, userStats, userRangTier,
     myPostVotes, setMyPostVotes,
-    userVotedIds, setUserVotedIds,
     userPollVotedIds, setUserPollVotedIds,
     subscriptionMap,
   };

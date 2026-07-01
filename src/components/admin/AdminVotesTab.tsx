@@ -1,85 +1,23 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import { useTranslations } from 'next-intl';
-import { Plus, Users, Clock } from 'lucide-react';
-import { Card, Button, Chip, Dialog } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { Card } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
 import { CreatePollButton } from '@/components/community/CreatePollModal';
-import { getAllVotes, createVote } from '@/lib/services/votes';
-import { formatScout } from '@/lib/services/wallet';
-import type { ClubWithAdmin, DbClubVote } from '@/types';
+import type { ClubWithAdmin } from '@/types';
 
+// Slice 499 (§0-Schnitt): Das alte separate Vereins-Abstimmungs-System (ohne Treasury-Split)
+// wurde entfernt — bezahlte Community-Polls (source='club', 70% → Vereins-Treasury, D86/D92)
+// sind der kanonische Weg. Erstellte Polls erscheinen im Community-Feed.
 export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
   const { user } = useUser();
   const t = useTranslations('admin');
-  const [votes, setVotes] = useState<DbClubVote[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [question, setQuestion] = useState('');
-  const [options, setOptions] = useState(['', '']);
-  const [cost, setCost] = useState('5');
-  const [days, setDays] = useState('7');
-  const [creating, setCreating] = useState(false);
-  const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    getAllVotes(club.id).then(v => { if (!cancelled) setVotes(v); }).catch(err => console.error('[AdminVotes] loadVotes:', err)).finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [club.id]);
-
-  const handleCreate = useCallback(async () => {
-    if (!user || creating) return;
-    const validOpts = options.filter(o => o.trim());
-    if (!question.trim() || validOpts.length < 2) return;
-    setCreating(true);
-    setMsg(null);
-    try {
-      await createVote({
-        userId: user.id,
-        clubId: club.id,
-        clubName: club.name,
-        question: question.trim(),
-        options: validOpts.map(o => o.trim()),
-        costCents: Math.round(parseFloat(cost || '0') * 100),
-        durationDays: parseInt(days || '7'),
-      });
-      setModalOpen(false);
-      setQuestion('');
-      setOptions(['', '']);
-      const updated = await getAllVotes(club.id);
-      setVotes(updated);
-      setMsg({ type: 'success', text: t('voteCreated') });
-    } catch (err) {
-      setMsg({ type: 'error', text: err instanceof Error ? err.message : t('unknownError') });
-    } finally {
-      setCreating(false);
-    }
-  }, [user, creating, question, options, cost, days, club]);
-
-  const active = votes.filter(v => v.status === 'active');
-  const ended = votes.filter(v => v.status !== 'active');
 
   return (
     <div className="space-y-6">
-      {msg && (
-        <div className={cn('px-4 py-3 rounded-xl text-sm font-bold', msg.type === 'success' ? 'bg-green-500/20 border border-green-500/30 text-green-500' : 'bg-red-500/20 border border-red-500/30 text-red-300')}>{msg.text}</div>
-      )}
+      <h2 className="text-xl font-black text-balance">{t('votesTitle')}</h2>
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-black text-balance">{t('votesTitle')}</h2>
-          <p className="text-xs text-white/50">{active.length} {t('votesActive')} • {ended.length} {t('votesEnded')}</p>
-        </div>
-        <Button variant="gold" onClick={() => setModalOpen(true)}>
-          <Plus className="size-4" aria-hidden="true" />
-          {t('newVote')}
-        </Button>
-      </div>
-
-      {/* Slice 333: Bezahlte Vereins-Umfrage (Einnahmen → Treasury). Erscheint im Community-Feed. */}
       {user && (
         <Card className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-amber-500/[0.04] border-amber-500/20">
           <div>
@@ -89,81 +27,6 @@ export default function AdminVotesTab({ club }: { club: ClubWithAdmin }) {
           <CreatePollButton userId={user.id} source="club" clubId={club.id} />
         </Card>
       )}
-
-      {loading ? (
-        <div className="space-y-3">{[...Array(3)].map((_, i) => <Card key={i} className="h-24 animate-pulse motion-reduce:animate-none" />)}</div>
-      ) : votes.length === 0 ? (
-        <Card className="p-12 text-center">
-          <div className="text-white/30 font-bold">{t('noVotes')}</div>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {votes.map(vote => {
-            const isActive = vote.status === 'active' && new Date(vote.ends_at) > new Date();
-            const diffMs = new Date(vote.ends_at).getTime() - Date.now();
-            const d = Math.floor(diffMs / 86400000);
-            const h = Math.floor((diffMs % 86400000) / 3600000);
-            return (
-              <Card key={vote.id} className={cn('p-4', !isActive && 'opacity-60')}>
-                <div className="flex items-start justify-between mb-3">
-                  <div className="font-bold line-clamp-2 flex-1">{vote.question}</div>
-                  <Chip className={isActive ? 'bg-green-500/15 text-green-500 border-green-500/25' : 'bg-surface-base text-white/50 border-white/10'}>{isActive ? t('activeLabel') : t('endedLabel')}</Chip>
-                </div>
-                <div className="space-y-1.5 mb-3">
-                  {(vote.options as { label: string; votes: number }[]).map((opt, idx) => {
-                    const pct = vote.total_votes > 0 ? Math.round((opt.votes / vote.total_votes) * 100) : 0;
-                    return (
-                      <div key={idx}>
-                        <div className="flex justify-between text-xs mb-0.5">
-                          <span className="text-white/70">{opt.label}</span>
-                          <span className="font-mono">{pct}% ({opt.votes})</span>
-                        </div>
-                        <div className="w-full h-1 bg-surface-base rounded-full overflow-hidden">
-                          <div className="h-full bg-purple-500/50 rounded-full" style={{ width: `${pct}%` }} />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="flex items-center justify-between text-xs text-white/50">
-                  <span><Users className="size-3 inline mr-1" aria-hidden="true" />{vote.total_votes} {t('votesCount')}</span>
-                  <span><Clock className="size-3 inline mr-1" aria-hidden="true" />{diffMs > 0 ? `${d}d ${h}h` : t('endedLabel')}</span>
-                  {vote.cost_bsd > 0 && <span>{formatScout(vote.cost_bsd)} {t('votePerVote')}</span>}
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-
-      <Dialog open={modalOpen} title={t('newVote')} onClose={() => setModalOpen(false)}>
-        <div className="space-y-4">
-          <div>
-            <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('questionLabel')}</label>
-            <input type="text" value={question} onChange={(e) => setQuestion(e.target.value.slice(0, 200))} placeholder={t('questionPlaceholder')} className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
-          </div>
-          {options.map((opt, idx) => (
-            <div key={idx}>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('optionLabel', { idx: idx + 1 })}</label>
-              <input type="text" value={opt} onChange={(e) => { const n = [...options]; n[idx] = e.target.value.slice(0, 100); setOptions(n); }} placeholder={t('optionLabel', { idx: idx + 1 })} className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white placeholder:text-white/30 focus:outline-none focus:border-gold/40" />
-            </div>
-          ))}
-          {options.length < 4 && (
-            <Button variant="outline" size="sm" onClick={() => setOptions([...options, ''])}><Plus className="size-3.5" aria-hidden="true" />{t('addOption')}</Button>
-          )}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('costLabel')}</label>
-              <input type="number" inputMode="numeric" value={cost} onChange={(e) => setCost(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white focus:outline-none focus:border-gold/40" />
-            </div>
-            <div>
-              <label className="text-xs text-white/50 font-semibold mb-1.5 block">{t('durationLabel')}</label>
-              <input type="number" inputMode="numeric" value={days} onChange={(e) => setDays(e.target.value)} className="w-full px-4 py-2.5 rounded-xl text-sm bg-surface-base border border-white/10 text-white focus:outline-none focus:border-gold/40" />
-            </div>
-          </div>
-          <Button variant="gold" fullWidth loading={creating} onClick={handleCreate}>{t('createVote')}</Button>
-        </div>
-      </Dialog>
     </div>
   );
 }

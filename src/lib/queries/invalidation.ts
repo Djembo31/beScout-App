@@ -64,7 +64,6 @@ export function invalidateNotificationQueries(userId: string): void {
 /** Invalidate caches affected by club data changes */
 export function invalidateClubQueries(clubId?: string): void {
   if (clubId) {
-    queryClient.invalidateQueries({ queryKey: qk.votes.byClub(clubId) });
     queryClient.invalidateQueries({ queryKey: qk.events.byClub(clubId) });
     queryClient.invalidateQueries({ queryKey: qk.players.byClub(clubId) });
   }
@@ -74,7 +73,6 @@ export function invalidateClubQueries(clubId?: string): void {
 export function invalidateCommunityQueries(): void {
   queryClient.invalidateQueries({ queryKey: qk.posts.all });
   queryClient.invalidateQueries({ queryKey: qk.bounties.all });
-  queryClient.invalidateQueries({ queryKey: qk.votes.all });
   queryClient.invalidateQueries({ queryKey: qk.polls.all });
 }
 

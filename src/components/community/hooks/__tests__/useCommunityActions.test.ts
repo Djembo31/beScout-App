@@ -31,10 +31,6 @@ vi.mock('@/lib/services/bounties', () => ({
   createUserBounty: vi.fn(() => Promise.resolve({ bounty_id: 'bounty-1' })),
 }));
 
-vi.mock('@/lib/services/votes', () => ({
-  castVote: vi.fn(() => Promise.resolve({ success: true, total_votes: 10, cost: 0 })),
-}));
-
 vi.mock('@/lib/services/communityPolls', () => ({
   castCommunityPollVote: vi.fn(() => Promise.resolve({ success: true })),
   cancelCommunityPoll: vi.fn(() => Promise.resolve()),
@@ -91,7 +87,6 @@ import { useCommunityActions } from '../useCommunityActions';
 import { createPost, votePost, deletePost, adminDeletePost, adminTogglePin } from '@/lib/services/posts';
 import { createResearchPost, unlockResearch, rateResearch } from '@/lib/services/research';
 import { submitBountyResponse, createUserBounty } from '@/lib/services/bounties';
-import { castVote } from '@/lib/services/votes';
 import { castCommunityPollVote, cancelCommunityPoll } from '@/lib/services/communityPolls';
 import { invalidateResearchQueries, invalidatePollQueries, invalidateCommunityQueries } from '@/lib/queries';
 import { queryClient } from '@/lib/queryClient';
@@ -121,7 +116,6 @@ const CLUB_NAME = 'Sakaryaspor';
 const POST_ID = 'post-abc';
 const RESEARCH_ID = 'research-xyz';
 const BOUNTY_ID = 'bounty-def';
-const VOTE_ID = 'vote-ghi';
 const POLL_ID = 'poll-jkl';
 
 const defaultState: CommunityState = {
@@ -142,7 +136,6 @@ const defaultState: CommunityState = {
   bountyCreating: false,
   unlockingResearchId: null,
   ratingResearchId: null,
-  votingId: null,
   pollVotingId: null,
 };
 
@@ -153,7 +146,6 @@ function createDefaultParams(overrides?: Partial<{
   scopeClubId: string | undefined;
   myPostVotes: Map<string, number>;
   setMyPostVotes: React.Dispatch<React.SetStateAction<Map<string, number>>>;
-  setUserVotedIds: React.Dispatch<React.SetStateAction<Set<string>>>;
   setUserPollVotedIds: React.Dispatch<React.SetStateAction<Set<string>>>;
 }>) {
   return {
@@ -163,7 +155,6 @@ function createDefaultParams(overrides?: Partial<{
     scopeClubId: CLUB_ID,
     myPostVotes: new Map<string, number>(),
     setMyPostVotes: vi.fn() as React.Dispatch<React.SetStateAction<Map<string, number>>>,
-    setUserVotedIds: vi.fn() as React.Dispatch<React.SetStateAction<Set<string>>>,
     setUserPollVotedIds: vi.fn() as React.Dispatch<React.SetStateAction<Set<string>>>,
     ...overrides,
   };
@@ -182,7 +173,7 @@ describe('useCommunityActions', () => {
   // Hook basics
   // ------------------------------------------
 
-  it('returns all 13 handler functions', () => {
+  it('returns all 12 handler functions', () => {
     const params = createDefaultParams();
     const { result } = renderHook(
       () => useCommunityActions(params),
@@ -198,7 +189,6 @@ describe('useCommunityActions', () => {
     expect(typeof result.current.handleBountySubmit).toBe('function');
     expect(typeof result.current.handleUnlockResearch).toBe('function');
     expect(typeof result.current.handleRateResearch).toBe('function');
-    expect(typeof result.current.handleCastVote).toBe('function');
     expect(typeof result.current.handleCastPollVote).toBe('function');
     expect(typeof result.current.handleCancelPoll).toBe('function');
     expect(typeof result.current.handleCreateBounty).toBe('function');
@@ -854,107 +844,6 @@ describe('useCommunityActions', () => {
   });
 
   // ------------------------------------------
-  // handleCastVote
-  // ------------------------------------------
-
-  describe('handleCastVote', () => {
-    it('dispatches SET_VOTING_ID with voteId', async () => {
-      const dispatch = vi.fn();
-      const params = createDefaultParams({ dispatch });
-      const { result } = renderHook(
-        () => useCommunityActions(params),
-        { wrapper: createWrapper() },
-      );
-
-      await act(async () => {
-        await result.current.handleCastVote(VOTE_ID, 0);
-      });
-
-      const votingCalls = dispatch.mock.calls.filter(
-        (c) => c[0].type === 'SET_VOTING_ID',
-      );
-      expect(votingCalls.length).toBeGreaterThanOrEqual(1);
-      expect(votingCalls[0][0]).toEqual({ type: 'SET_VOTING_ID', value: VOTE_ID });
-    });
-
-    it('calls castVote with userId, voteId, and optionIndex', async () => {
-      const params = createDefaultParams();
-      const { result } = renderHook(
-        () => useCommunityActions(params),
-        { wrapper: createWrapper() },
-      );
-
-      await act(async () => {
-        await result.current.handleCastVote(VOTE_ID, 2);
-      });
-
-      expect(castVote).toHaveBeenCalledWith(USER_ID, VOTE_ID, 2);
-    });
-
-    it('updates userVotedIds set on success', async () => {
-      const setUserVotedIds = vi.fn();
-      const params = createDefaultParams({ setUserVotedIds });
-      const { result } = renderHook(
-        () => useCommunityActions(params),
-        { wrapper: createWrapper() },
-      );
-
-      await act(async () => {
-        await result.current.handleCastVote(VOTE_ID, 1);
-      });
-
-      expect(setUserVotedIds).toHaveBeenCalled();
-    });
-
-    it('resets voting state to null after completion', async () => {
-      const dispatch = vi.fn();
-      const params = createDefaultParams({ dispatch });
-      const { result } = renderHook(
-        () => useCommunityActions(params),
-        { wrapper: createWrapper() },
-      );
-
-      await act(async () => {
-        await result.current.handleCastVote(VOTE_ID, 0);
-      });
-
-      const resetCalls = dispatch.mock.calls.filter(
-        (c) => c[0].type === 'SET_VOTING_ID' && c[0].value === null,
-      );
-      expect(resetCalls.length).toBeGreaterThanOrEqual(1);
-    });
-
-    it('shows error toast on failure', async () => {
-      vi.mocked(castVote).mockRejectedValueOnce(new Error('Vote failed'));
-      const params = createDefaultParams();
-      const { result } = renderHook(
-        () => useCommunityActions(params),
-        { wrapper: createWrapper() },
-      );
-
-      await act(async () => {
-        await result.current.handleCastVote(VOTE_ID, 0);
-      });
-
-      expect(mockAddToast).toHaveBeenCalled();
-    });
-
-    it('does nothing when userId is undefined', async () => {
-      const params = createDefaultParams({ userId: undefined });
-      const { result } = renderHook(
-        () => useCommunityActions(params),
-        { wrapper: createWrapper() },
-      );
-
-      await act(async () => {
-        await result.current.handleCastVote(VOTE_ID, 0);
-      });
-
-      expect(castVote).not.toHaveBeenCalled();
-    });
-  });
-
-  // ------------------------------------------
   // handleCastPollVote
   // ------------------------------------------
 
@@ -1483,7 +1372,7 @@ describe('useCommunityActions', () => {
 
       // Shape should be consistent across re-renders
       expect(handlerCount1).toBe(handlerCount2);
-      expect(handlerCount1).toBe(13);
+      expect(handlerCount1).toBe(12);
     });
   });
 

@@ -1217,30 +1217,6 @@ export type DbUserAchievement = {
   unlocked_at: string;
 };
 
-export type DbClubVote = {
-  id: string;
-  club_name: string;
-  club_id: string | null;
-  question: string;
-  options: { label: string; votes: number }[];
-  status: 'active' | 'scheduled' | 'ended' | 'cancelled';
-  total_votes: number;
-  cost_bsd: number;
-  starts_at: string;
-  ends_at: string;
-  created_by: string | null;
-  created_at: string;
-};
-
-export type DbVoteEntry = {
-  id: string;
-  vote_id: string;
-  user_id: string;
-  option_index: number;
-  amount_paid: number;
-  created_at: string;
-};
-
 export type PostType = 'general' | 'player_take' | 'transfer_rumor' | 'club_news';
 
 export type DbPost = {

@@ -1,17 +1,26 @@
 # Active Slice
 
 ```
-status: idle
-slice: 498
-title: D-18 Full Consolidation — events.entry_fee + events.prize_pool DROP (Money-Schema-L, 2-Phasen)
+status: in-progress
+slice: 499
+title: W4-Konsolidierung club_votes → community_polls (§0 Schnitt, altes Voting-System raus)
 size: L
 type: Migration (+ Service + UI)
-welle: Mock→Pro Datenmodell-SSOT (D-18, §0-Schnitt, CEO Anil „Full consolidation")
-spec: worklog/specs/498-d18-event-fee-prize-consolidation.md
-proof: worklog/proofs/498-d18-drop.txt
-review: Cold-Context-Reviewer PFLICHT (Money-RPC create_user_event PATCH-AUDIT-Fokus)
-stage: PAUSIERT — De-Risking fertig (Spec+Impact-Map+Live-Verify+Money-Baseline committed); Wave-1-BUILD = nächste Aktion (CEO „frisch" 2026-07-01)
+welle: Mock→Pro W4 Follow/Discovery (§0-R1, CEO Anil „Voll konsolidieren")
+spec: worklog/specs/499-club-votes-consolidation.md
+proof: worklog/proofs/499-club-votes.txt
+review: Cold-Context-Reviewer PFLICHT (Money-Removal-Fokus: community_polls-Pfad unberührt?)
+stage: Wave 1 KOMPLETT (BUILD+REVIEW-PASS+PROVE, committed) → Deploy + Live-Walk = nächste Aktion → Wave 2 DROP gated (CEO-Check vor irreversiblem Schritt)
 ```
+
+## Slice 499 — W4 club_votes → community_polls (§0 Schnitt)
+**Befund (live-verifiziert):** club_votes = altes Voting-System, von community_polls (Superset, D86/D92-Money-Maschine, live) voll abgelöst, nie entfernt. **club_votes 0 Rows**; `cast_vote` belastet Voter OHNE Treasury/Creator-Split (reiner Sink) = money-model-divergent + reachable (live „Neu Vote"-Button) → **P1-latent**. CreatePollButton (kanonisch) liegt bereits im selben AdminVotesTab → kein Feature-Verlust.
+**Wave 1 (code-only, jetzt):** alle club_votes-Reader/Writer/Render + cast_vote-Service raus (14 Live-Files + 5 Tests). community_polls unberührt.
+**Wave 2 (gated):** DROP cast_vote + club_votes + vote_entries — CEO-Check vor irreversiblem Schritt.
+**D-18 bleibt geparkt** (verifiziert passive P2, 0/210 divergent).
+
+## Slice 498 — D-18 Full Consolidation — GEPARKT (P2, CEO-Direktive 2026-07-01)
+**Live-verifiziert passive P2-Redundanz:** entry_fee 0/210 divergent zu ticket_cost, prize_pool 0 auf allen 210 Events, 2 Test-Events. Kein aktiver Bug, keine aktive zweite Wahrheit. Große L-Money-Schema-Migration für reine Schema-Hygiene → unter neuer Direktive (nur P0/P1 bauen, klein/verifizierbar) **geparkt**, bleibt getrackt (disease-register D-18). Spec/Baseline bleiben committed für später.
 
 ## Slice 498 — D-18 Full Consolidation — DE-RISKED, Build pausiert (CEO „frisch")
 **Fertig + committed (Wave 0):** Live-Verifikation (P2-Redundanz, kein aktiver Bug) · vollständige L-Spec (`worklog/specs/498-*`) · Money-RPC-Baseline `create_user_event` (`worklog/proofs/498-d18-drop.txt`).
