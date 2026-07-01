@@ -1,0 +1,35 @@
+SLICE 498 — D-18 Full Consolidation (events.entry_fee + prize_pool DROP) — PROOF (in Arbeit)
+============================================================================================
+
+[STAND] SPEC ✅ + Impact-Map ✅ + Live-Verifikation ✅ + Money-RPC-Baseline ✅ (committed).
+BUILD (Wave 1 Code → Deploy → Verify → Wave 2 DROP) = ausstehend (focused pass).
+
+[LIVE-VERIFIKATION — D-18 ist P2-Redundanz, kein aktiver Bug]
+- 208 events: club(90)/bescout(40)/special(39)/sponsor(39) ALLE entry_fee=0/ticket_cost=0/prize_pool=0/reward_structure=NULL/currency='tickets'.
+- user(2, beide E2E-Test): entry_fee==ticket_cost (1000/1000, 500/500 → fee_matches=true), prize_pool=0, reward_structure gesetzt, currency='scout'.
+- entry_fee read-tot über Mapper (ticket_cost NOT NULL → `ticket_cost ?? entry_fee`-Fallback feuert nie); prize_pool live überall 0.
+
+[MONEY-RPC-BASELINE — create_user_event (D87, live pg_get_functiondef) — S156 PATCH-AUDIT-Anker]
+Signatur: create_user_event(p_user_id uuid, p_name text, p_entry_fee bigint, p_gameweek integer,
+  p_locks_at timestamptz, p_reward_structure jsonb, p_min_entries integer DEFAULT NULL,
+  p_max_entries integer DEFAULT NULL, p_league_id uuid DEFAULT NULL, p_lineup_rules jsonb DEFAULT NULL)
+SECURITY DEFINER, search_path='public'.
+Der zu ändernde INSERT (nur die 2 Spalten entry_fee/prize_pool raus, Rest byte-true):
+  INSERT INTO events (
+    type, name, status, currency, ticket_cost, entry_fee, prize_pool, prize_escrowed,
+    gameweek, starts_at, locks_at, reward_structure, min_entries, max_entries,
+    created_by, club_id, league_id, lineup_rules
+  ) VALUES (
+    'user', trim(p_name), 'registering', 'scout', p_entry_fee, p_entry_fee, 0, false,
+    p_gameweek, now(), p_locks_at, p_reward_structure, p_min_entries, p_max_entries,
+    p_user_id, NULL, p_league_id, p_lineup_rules
+  ) RETURNING id INTO v_event_id;
+→ Wave-1-Ziel: `entry_fee, prize_pool` aus Spaltenliste + `p_entry_fee, 0` aus VALUES entfernen.
+  ticket_cost=p_entry_fee bleibt (kanonisch). Alle Guards/Wallet-Lock/fee-charge/book_platform_treasury byte-true.
+  (Vollständiger Body-Anker im Migrations-File; force-rollback-Smoke = event angelegt, ticket_cost korrekt, Fee gebucht, ROLLBACK.)
+
+[WAVE-PLAN] siehe Spec §12. Strikt 2-Phasen: Client-Code-Deploy (SELECTs/Reads raus) + RPC-Migration
+(Writes raus) → Live-Verify (kein SELECT-Fehler, /fantasy+Admin+Club rendern) → DROP-Migration → Verify
+(information_schema 0 rows). NIE DROP vor Code-Deploy (live SELECTs → 400).
+
+[PENDING] Wave-1-Diffs · tsc/vitest · Reviewer · Deploy-Verify · DROP · information_schema-Proof · Live-Walk.
