@@ -14,20 +14,18 @@ Beta abgebrochen (zu viele Fehler, nichts lief sauber zusammen). Ganze Codebase 
 
 ## 🗺️ Landkarte — der ganze Plan auf einen Blick (schnelle Orientierung)
 ```
-TEIL A · Doku/Wissen aufräumen          ✅ so gut wie durch  (K1–K5; K6/K7 = LOW, offen)
-────────────────────────────────────────────────────────────────
-TEIL B · Code/DB heilen — 8 Wellen:
-   W0  Security (RLS / RPCs)            ✅ Kern fertig
-   W1  Trading                          ✅ fertig
-   W2  Spieltag / Scoring               ✅ fertig
-   W3  Events / Aufstellung             ✅ Kern fertig
-   W4  Follow / Discovery               ✅ fertig (Club 499+500 · User-Follow 501)
-   W5  Money-Anzeige / Wording          ✅ fertig
-   W6  Performance / Architektur     🔄 ← HIER (SSR-Speed)
-   W7  Design-System (Sweep)            ⬜ zuletzt
+TEIL A · Doku/Wissen aufräumen           ✅ so gut wie durch
+─────────────────────────────────────────────────────────────────
+TEIL B · Code/DB heilen (die MASCHINE)   ✅ praktisch durch:
+   W0–W5                                  ✅ fertig
+   W6  Performance / Ladezeit          🔄 Kern live (471-493); Groß-Refactor (SSR-Streaming) geplant
+   W7  Design-System                     → als Linse in TEIL C aufgegangen
+─────────────────────────────────────────────────────────────────
+TEIL C · Page-by-Page E2E-Glättung     🎯 ← HIER (die OBERFLÄCHE: Wahrheit + Intent, kollaborativ)
+   Ziel: JEDE Seite tut nachweislich, was der CEO will — bevor User kommen.
 ```
-**6 von 8 Wellen durch (W4 ✅ 499+500+501, Club- UND User-Follow). Aktuell W6 (Ladezeit/Architektur). Danach nur noch W7 (Design).**
-**W6-Kern-Erkenntnis (2026-07-01):** SSR (Server-Rendering) macht **einfache öffentliche Seiten** schnell (`/club` ausgeloggt −43%). Die **großen eingeloggten Seiten** sind noch zu komplex für simples SSR (volle Seite = ~15 datenabhängige Sektionen → Hydration-Fehler) → brauchen einen **below-hero-Streaming-Umbau** (eigener, delikater Schritt — kein schneller Fix).
+**Erkenntnis (2026-07-01):** TEIL B war die *Maschine* (Code/DB-Struktur, ~fertig). Der erste Beta-Anlauf scheiterte aber an der *Oberfläche* — Seiten taten nicht, was der CEO sich vorstellte. **TEIL C schließt das:** Seite für Seite gemeinsam (CEO-Intent + 7 Linsen), CEO-Live-Abnahme pro Seite. Weitere Wellen kommen bewusst dazu (CEO 2026-07-01) — TEIL C ist der Weg dahin, damit endlich User kommen (Idee validieren → Wert/Verhandlungshebel heben).
+**W6-Sequenzierung (Empfehlung):** Korrektheit vor Speed. Der große W6-SSR-Streaming-Umbau kommt **nach** den TEIL-C-Kernseiten (sonst Doppelarbeit — er würde Seiten umbauen, die TEIL C gerade erst richtig macht). Billige Perf-Wins fixt TEIL C pro Seite inline; große Perf-Funde werden pro Seite nach W6 geflaggt.
 
 ## 🗂️ Tracker-Architektur — 1 SSOT pro Ebene (damit es nicht nachwächst)
 | Ebene (updatet) | DIE Quelle | Regel |
@@ -78,7 +76,31 @@ TEIL B · Code/DB heilen — 8 Wellen:
   - ✅ **User-Follow auf React Query (Slice 501):** kanonische `useToggleFollowUser`-Mutation (1:1-Spiegel `useToggleFollowClub`) + `useIsFollowingUser` ersetzt das lokale useState-Follow in BEIDEN Surfaces (`useProfileData` + `FollowListModal`); `onSettled` invalidiert die me-scoped Keys (`stats`/`followingIds`/`followingCount`/`feed`) → Profil-/Listen-Follow reconciliert Community-„Folge ich"-Filter + Following-Feed (Cross-Surface-Fix). Reviewer PASS (kein 3. Pfad, keine me/target-Verwechslung), tsc 0 + 196 Tests. Live-Walk Gesamtflow post-Deploy.
 - **W5 — Money/State:** ✅ **D-23 (467):** `formatScout` delegiert an kanonischen `fmtScout` (EINE Formatierung, 2-dez). · ✅ **D-26 Player-Domäne (477):** `dbToPlayer` Club = FK-`club_id` statt stale Freitext (294/6,57 % live, warm-path bewiesen Adli→„BAY"); ✅ **D-26b (478):** `holdingMapper` (Eligibility-Gate geheilt) + `search.ts` (⌘K) — die 2 Mapper mit `club_id` in der Row. ✅ **D-26c Display KOMPLETT (481 no-DB offers/lineups/compare via Client-`getClub` + 482 Aggregat-RPCs trending/most-watched via Server-`COALESCE(c.name,p.club)`):** alle Render-Surfaces lesen Club FK-resolved; nur **Cold-Load-Cache-Race S286/D-03 geparkt** (Architektur-Reaktivität). · ✅ **D-24 Securities-Wording (484, CEO-approved + Live-Visual DE+TR):** „Deine Position"→„Dein Kader", Aktenkoffer→WalletCards, „Avg. Kosten"→„Ø Kaufpreis", P&L→„Wertänderung" — business.md-Slice-224-Verbot geschlossen. **→ Konsistenz-Batch D-23/24/25/26/26b/26c KOMPLETT.** · ⬜ OffersTab-Heal · ⬜ Freshness-Self-Heal · ⬜ Dead-Feature-GC (Ad-Revenue/Creator-Fund/`getMyAdPayouts` = D-14/15/16).
 - **W6 — Performance/Architektur [IN ARBEIT]:** ✅ **471 (live `3653bd31`):** SSR-Prefetch-Fundament — `getServerQueryClient` (per-Request cache()) + club-Root-Prefetch + HydrationBoundary + Provider-Request-Scoping (isServer ? frisch : Singleton). EHRLICH: kein LCP-Win allein (Reviewer-F1: ClubContent gated hinter `authLoading`, SSR immer true → Content nicht im HTML). Baseline `/club/galatasaray` LCP 4.118 ms / Load-delay 2.049 ms. · ✅ **472+473+474 (live, 2026-06-30):** Server-Auth-SSR — `getServerUser` (@supabase/ssr) seedet `initialUser` → authed Pages rendern Content im SSR-HTML. **LCP authed Home 1602 ms** (war das 5-13s authLoading-Skeleton). Blast-Radius #418/#423 (473 leagueScope-Store + 474 wallet/tickets cached-placeholder SSR-safe via `useCachedPlaceholder`) gefixt + Prod-verifiziert (home/market/fantasy/player Console-clean, 2-Account-Switch kein Cross-User-Leak). Lehre: Live-Walk fing, was tsc+Reviewer-Code-PASS durchließen. · ✅ **476 (live `96bc9341`):** /club war **seit 471 komplett kaputt** (Dual-Build: legacy-`HydrationBoundary` im RSC ↔ modern-`QueryClientProvider` → »No QueryClient set«) → `'use client'`-Wrapper `ClubHydration.tsx`, Prod-verifiziert (club-Page rendert voll). Knowledge errors-frontend S476. · ✅ **486 (live, Phase 3 datengetrieben):** d03-Trace lenkte Phase 3 um — Rest-LCP-Engpass war BILD-, nicht Daten-gebunden → `next.config formats=['avif','webp']` (app-weit) + ClubHero-Stadion `sizes`+`quality={60}`. **Stadion −45-47% Bytes** (Desktop-Retina 623→343 kB, Mobile 103→56 kB), AVIF app-weit, visuell scharf. Auflösungs-Cap measure-first zurückgehalten. · ⬜ Phase 3 Rest: weitere Hot-Pages / Auflösungs-Cap falls nötig · ⬜ **Player-Detail-Perf (ex-`bes26/27/28`, via K3/441):** 5 Player-Detail-Components `React.memo`+`useCallback` · staleTime entschärfen (Over-Refetch) · server-side Percentiles-RPC (ersetzt client `usePlayers()`, das ALLE ~632 Spieler lädt). · ✅ **493 (live `f055f31f`): /club anon-SSR LCP 2226→1269ms (−43%)** — `authLoading`-Gate-Term für server-bestätigt-anon entkoppelt (`getServerAuthState`→`ssrConfirmedAnon`) + players-Prefetch (DI); R1 REWORK→R2 PASS; errors-frontend S493. · ⛔ **494 authed /club-SSR VERSUCHT→REVERTED (`16eac5e4`):** user-scoped Prefetch → volle authed ClubContent im SSR = leere Sekundär-Daten (Standings/Events/Trades) → React #425/#422 Text-Mismatch (anon reduced-view war safe; Live-Walk fing's, tsc+Parität ließen durch; errors-frontend S494). **→ authed-SSR braucht below-hero-Streaming-Refactor (offen, non-core).** · ⏭️ **NÄCHSTES (CEO „2,dann3"):** (2) anon /club Permission-Errors gaten · (3) below-hero-Streaming.
-- **W7 — Design-System [Sweep, zuletzt]:** Card/Button-Primitive durchziehen (411 Hand-Surfaces) · Token-Vereinheitlichung.
+- **W7 — Design-System:** → als **Linse 7 (Design-Kohärenz)** in TEIL C aufgegangen (Card/Button-Primitive, Token-Vereinheitlichung werden pro Seite mitgezogen).
+
+### TEIL C — Page-by-Page E2E-Glättung (kollaborativ: Oberflächen-Wahrheit + CEO-Intent)
+
+*Warum (CEO 2026-07-01): Der erste Beta-Anlauf war eine Blamage — nicht wegen der Struktur (TEIL B ~fertig), sondern weil Seiten nicht taten, was der CEO sich vorstellte. TEIL C schließt genau diese Lücke: **jede Seite tut nachweislich, was der CEO will — korrekt, in allen Zuständen — BEVOR User kommen.** Zweck: User → Idee-Validierung → Projekt-Wert → Verhandlungshebel. Weitere Wellen kommen bewusst dazu; TEIL C ist der Weg.*
+
+**Das Ritual pro Seite (CEO Anil + CTO gemeinsam):**
+1. **Zeigen & Ausrichten** — CTO zeigt live den Ist-Zustand + die Daten dahinter; CEO sagt das Soll. → Soll-Zustand notiert.
+2. **Abgleichen** — Ist gegen Soll **und** gegen die 7 Linsen, alles gegen die Live-DB.
+3. **Glätten (e2e)** — CTO fixt alles für DIESE Seite via SHIP-Loop (Spec→Build→Review→Prove), bis Ist == Soll, korrekt in allen Zuständen.
+4. **Abnahme** — CEO sieht die Seite live laufen (visual-first). CEO-OK → nächste Seite. **Regel: „fertig" erst nach CEO-Live-Abnahme** (kein verfrühtes „ready", `feedback_no_premature_ready`).
+
+**Die 7 Prüf-Linsen pro Seite:** ① Daten-Wahrheit (jede Zahl = DB) · ② Verhalten & Freshness (Klick/Modal/Mutation korrekt + money-safe + Update-ohne-Reload + Fehler-/Leer-/Lade-Zustände) · ③ Money/Zero-Sum (Gebühren/Splits/Summen, keine `.limit`-Cap-Untererfassung) · ④ Berechtigung & Leak (jede Rolle sieht/tut nur Erlaubtes; anon-D-39-Klasse) · ⑤ Sprache & Compliance (DE+TR-Parität, business.md-Wording, Disclaimer) · ⑥ A11y & Mobile (44px, aria, Kontrast, 393px, Konsole 0) · ⑦ Design-Kohärenz (Tokens + gleiche Sache überall gleich, „Fans"-Mislabel-Klasse).
+
+**5 Abdeckungs-Achsen (Varianten pro Seite):** 7 Ligen · DE/TR · Rollen (Gast/Fan/Club-Admin/Platform-Admin/Creator) · mobil+Desktop · Neu-User↔Power-User (`feedback_polish_multi_account`).
+
+**Fund-Klassen (Pilot 2026-07-01 abgeleitet):** **A** = Anzeige-/Verhalten-Bug → Code-Fix pro Seite (SHIP). **B** = Daten-Inhalt/Frische (stale Saison, unbepreiste Clubs, erfundene Zahlen aus Flat-Mocks) → global an der Quelle + Launch-Reset, NICHT pro Seite einzeln jagen (Live-Daten wegwerfbar, `project_launch_sequence_reset`).
+
+**Cross-Ref (nicht doppeln):** ⚡ Performance = **W6** (TEIL C flaggt Perf-Funde pro Seite dorthin) · strukturelle RLS/RPC-Security = **W0** (Linse ④ prüft nur die UX-Sicht).
+
+**Register:** `worklog/notes/surface-audit-register.md` — Seiten-Inventar + Fund-Akkumulator (A/B, Prio) + Abdeckungs-Tracker (welche Seite × welche Achse abgenommen). = die Garantie, dass Übersehenes *sichtbar offen* ist, nicht *still verpasst*.
+
+**Seiten-Reihenfolge (User-Akquise-getrieben — erste 10 Min + Kern-Loop zuerst):**
+Einstieg: Welcome/Landing → Register → **Onboarding** · Kern-Loop: Home → Markt/Trading → Player-Detail → Spieltag → Club → Community → Profil · Rest: Rankings · Missionen · Inventar · Club-Admin (12 Tabs) · Platform-Admin (~18 Tabs).
+**Start (CEO 2026-07-01): New-User-Einstieg.**
 
 **Querschnitt-Konsolidierungen (in die Wellen verteilt):** Score-SSOT (`scout_scores`+`user_stats`+`bescout_scores`(tot) → 1 Quelle, W2) — ✅ **D-17 geheilt (Slice 454):** user_stats-Scores = kept-fresh Projektion von scout_scores (Divergenz 70→0 live, Projektions-Trigger, Money-Anker 0 Edits, Reviewer-Level-Kaskade geguarded). ✅ **D-11 geheilt (Slice 457):** totes `bescout_scores`+`score_events`+`award_score_points` gedroppt (live). Path 2 (user_stats-Score-Spalten droppen) = **CEO Anil 2026-06-29 VERWORFEN** („Projektion behalten" — drift-sicher, register-gesegnet) → D-17 final bewusste-zwei, Score-SSOT-Konsolidierung ABGESCHLOSSEN · 3 Kauf-RPCs angleichen + `credit_pbt` kanonisieren (W1/W5) · ✅ **2 Mission-Systeme geheilt (Slice 458): `scout_missions` (D-10) gedroppt** + `season_reset_scores` (D-13) + Dead-Scoring (D-11, Slice 457) · `players.club`: ✅ **Render-FK-Resolve Player-Domäne (477, D-26 warm-path)** — `dbToPlayer` liest FK `club_id`; Freitext-**Backfill** bleibt N/A (S303 verboten, FK = Wahrheit). Rest = D-26b Mapper + Cold-Load-Cache-Race.
 
