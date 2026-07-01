@@ -1053,8 +1053,7 @@ describe('DB Invariants', () => {
       unlock_research: ['success', 'error', 'amount_paid', 'author_earned', 'platform_fee'],
       rate_research: ['success', 'error', 'avg_rating', 'ratings_count', 'user_rating'],
 
-      // Voting (submit_player_valuation entfernt — Slice 305 Orphan-Value-Removal)
-      cast_vote: ['success', 'cost', 'total_votes'],
+      // Voting (submit_player_valuation entfernt — Slice 305; cast_vote/club_votes entfernt — Slice 499 §0)
       cast_community_poll_vote: ['success', 'error', 'cost', 'total_votes', 'creator_share'],
 
       // Posts
@@ -1585,7 +1584,6 @@ describe('DB Invariants', () => {
       // Content (public by design)
       bounties: 'Bounties Marketplace, public',
       bounty_submissions: 'Bounty-Submissions, public-by-design (Transparenz)',
-      club_votes: 'Club-Votes, Community-Transparenz',
       community_polls: 'Community-Polls, public',
       community_poll_votes: 'Poll-Votes, Community-Transparenz (nicht personifiziert)',
       post_votes: 'Post-Votes, public-by-design',
@@ -1623,7 +1621,6 @@ describe('DB Invariants', () => {
       player_gameweek_scores: 'Gameweek-Scores, public leaderboard',
       scout_scores: 'Scout-Score-Leaderboard, public',
       user_stats: 'User-Stats Leaderboard-by-design (auch in INV-26 Allowlist)',
-      vote_entries: 'Vote-Entries, Community-Transparenz',
 
       // Social-Graph (public)
       profiles: 'Public Profile, read-by-anyone (display_name, handle etc)',

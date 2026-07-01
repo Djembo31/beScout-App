@@ -60,14 +60,41 @@ Gelöscht: src/lib/services/votes.ts · src/lib/queries/votes.ts
 Survivor (unberührt): communityPolls.ts, cast_community_poll_vote, create_community_poll,
   CommunityPollCard, useCommunityPolls, handleCastPollVote, qk.polls.
 
-Wave 2 (gated, nach Live-Verify + CEO-Check):
-  DROP FUNCTION cast_vote(uuid,uuid,smallint)
-  DROP TABLE club_votes, vote_entries
-  db-invariants.test.ts:1057/1588/1626 entfernen
-  Verify: SELECT to_regclass('public.club_votes'), to_regclass('public.vote_entries'),
-          to_regproc('public.cast_vote(uuid,uuid,smallint)') → alle NULL
+═══════════════════════════════════════════════════════════════════
+(E) LIVE-WALK Wave 1 (Deploy 4860e4ab, Login ali=superadmin) — PASS
+═══════════════════════════════════════════════════════════════════
+Alle 4 Surfaces, 0 Console-Errors, Neu-Build bestätigt:
+  1. /community → community_polls rendern („Bezahlte Umfrage"-Cards), KEIN club_votes-
+     „Club-Vote"-Card; Filter „Abstimmungen" klickt sauber (0 Errors).
+  2. /club/sakaryaspor → lädt clean (S476-HydrationBoundary intakt), 0 Errors.
+  3. /club/sakaryaspor/admin → Tab „Abstimmungen" = SCHLANK: Heading + „Bezahlte
+     Vereins-Umfrage"-Card + „Vereins-Umfrage erstellen" (CreatePollButton). KEIN
+     altes „Neu Vote"-Dialog / club_votes-Liste. → Neu-Build 4860e4ab live.
+  4. Tab „Einnahmen" = 3 Cards (Gesamt/IPO/Handelsgebühren), KEINE Vote-Revenue-Card.
+     Gesamt 13.605,15 CR = IPO 7.350,06 + Club-Fee 6.255,09 (ohne votes). 0 Errors.
 
-(E) Live-Walk (post-Deploy Wave 1) — TODO nach Vercel-Deploy:
-  Community-Feed 'votes'-Filter → Polls · Club-MitmachenSection → Polls ·
-  AdminVotesTab → CreatePollButton (Poll erstellen) · AdminRevenueTab (3 Cards) ·
-  Console 0 neue Errors.
+═══════════════════════════════════════════════════════════════════
+(F) WAVE 2 (live applied, CEO „du übernimmst") — DONE + verifiziert
+═══════════════════════════════════════════════════════════════════
+Pre-DROP-Dependency-Audit (read-only): einziger nicht-triviale Dependent =
+  `refresh_user_stats` (SECDEF) las `vote_entries` für user_stats.votes_cast —
+  live-only SQL-Reader, den der Code-Grep NICHT sah (Register-Warnklasse).
+  Sonst nur FK-Kette (vote_entries→club_votes) + RLS-Policies (fallen mit Tabellen).
+
+Wave 2a — refresh_user_stats swap (Mig 20260701120000, S156 PATCH-AUDIT):
+  vote_entries → community_poll_votes (1 Zeile; Body sonst byte-true).
+  proacl POST = {postgres=X/postgres,service_role=X/postgres} = PRE (unchanged=true).
+  still_reads_vote_entries=false · now_reads_poll_votes=true · touches_money=false.
+  Force-rollback-Smoke: uid 535bbcaf… (3 Poll-Votes) → refresh_user_stats OK,
+  votes_cast=3 (match=t), alle Writes via RAISE rolled back.
+
+Wave 2b — DROP (Mig 20260701120100, child-first):
+  DROP vote_entries; DROP club_votes; DROP cast_vote(uuid,uuid,smallint).
+  Plain DROP ohne CASCADE ging durch = Dependent-Beweis.
+  Verify: to_regclass('club_votes')=NULL · to_regclass('vote_entries')=NULL ·
+  cast_vote_count=0 · community_polls/community_poll_votes intakt ·
+  cast_community_poll_vote count=1 · refresh_user_stats count=1 reads_polls=true ·
+  **remaining_body_refs=0** (kein pg_proc referenziert club_votes/vote_entries/cast_vote).
+  db-invariants.test.ts: 3 Einträge (cast_vote/club_votes/vote_entries) entfernt.
+
+→ §0-Schnitt KOMPLETT auf Code- (Wave 1) UND DB-Ebene (Wave 2).

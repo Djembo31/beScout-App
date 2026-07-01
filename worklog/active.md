@@ -1,16 +1,16 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 499
-title: W4-Konsolidierung club_votes → community_polls (§0 Schnitt, altes Voting-System raus)
+title: W4-Konsolidierung club_votes → community_polls (§0 Schnitt) — KOMPLETT (Wave 1 Code + Wave 2 DB, live)
 size: L
 type: Migration (+ Service + UI)
 welle: Mock→Pro W4 Follow/Discovery (§0-R1, CEO Anil „Voll konsolidieren")
 spec: worklog/specs/499-club-votes-consolidation.md
 proof: worklog/proofs/499-club-votes.txt
-review: Cold-Context-Reviewer PFLICHT (Money-Removal-Fokus: community_polls-Pfad unberührt?)
-stage: Wave 1 KOMPLETT (BUILD+REVIEW-PASS+PROVE, committed) → Deploy + Live-Walk = nächste Aktion → Wave 2 DROP gated (CEO-Check vor irreversiblem Schritt)
+review: worklog/reviews/499-review.md (CONCERNS→Doc-Fix→PASS)
+stage: DONE — Wave 1 (Code, Commit 4860e4ab, Live-Walk PASS) + Wave 2 (DB DROP + refresh_user_stats-Swap, live). D-18 bleibt geparkt (passive P2).
 ```
 
 ## Slice 499 — W4 club_votes → community_polls (§0 Schnitt)
