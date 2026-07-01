@@ -159,7 +159,9 @@ export default function ClubContent({ slug, ssrConfirmedAnon = false }: { slug: 
     eligible.sort((a, b) => (b.current_entries ?? 0) - (a.current_entries ?? 0));
     return eligible[0].id;
   }, [allEvents, leagueGw]);
-  const { data: pickRates } = useEventPlayerPickRates(currentEventId);
+  // get_event_player_pick_rates is REVOKE'd from anon → gate on auth (anon would 401; the
+  // Squad-Tab pick-rate map is an authed-view feature). Mirrors the useClubStanding anon-gate above.
+  const { data: pickRates } = useEventPlayerPickRates(currentEventId, !!userId);
   const pickRateMap = useMemo(() => {
     const m = new Map<string, number>();
     if (pickRates) {

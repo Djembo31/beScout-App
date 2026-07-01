@@ -1,21 +1,24 @@
 # Active Slice
 
 ```
-status: idle
-slice: 495
-title: anon /club — resolveExpiredResearch für Ausgeloggte gaten (Console permission-denied + lazy-cron-Smell)
+status: in-progress
+slice: 496
+title: D-39 — anon /club: 3 authed-only Read-RPCs für Ausgeloggte gaten (GATE, CEO Anil gewählt)
 size: XS
 type: UI (Hook)
-welle: Mock→Pro W6 / D-03 (Option 2, von Anil vorab gewählt)
-proof: worklog/proofs/495-anon-club-resolve-gate.txt
-review: self-review (XS, dokumentiertes enabled:!!userId-Gate-Pattern)
-stage: LOG (DONE — live anon-verifiziert: resolve_expired_research aus anon-Console weg)
+welle: Mock→Pro W6 / D-03 (D-39, direkte Fortsetzung 495)
+proof: worklog/proofs/496-anon-club-read-gates.txt
+review: self-review (XS, gleiches enabled:!!userId-Gate-Pattern wie 495 + Zeile-143-Precedent im selben File)
+stage: BUILD
 ```
 
-## 🔎 NEUER BEFUND (Slice-495-Walk) — anon /club feuert authed-only Read-RPCs (CEO-Direktion nötig)
-Beim Live-anon-Walk aufgedeckt: der anon-`/club`-Client feuert **3 authed-only Read-RPCs** (alle `anon_exec=false` live-verifiziert) → 401-Kaskade in der Console:
-- `get_club_news_teasers` (schon als CEO-Scope geführt) · `rpc_get_club_recent_trades` · `get_event_player_pick_rates`
-Gleiche Klasse wie der 495-Fix (authed-only Call ungated für anon). **Fix-Direktion = CEO-Produktentscheid pro RPC:** GATE-für-anon (`enabled:!!userId` — verhaltens-erhaltend, anon sieht ohnehin nichts, Console clean) ODER GRANT-anon (anon SIEHT die Daten — braucht Data-Exposure-Review: sind recent_trades/pick_rates PII-frei?). **Artefakt-Klarstellung:** get_club_by_slug-401 + AuthProvider-Retries im Zwischenlauf = Cookie-Clear-Artefakt, KEIN echtes anon-Problem.
+## Slice 496 — D-39 anon /club Read-Gates (GATE-für-anon, CEO Anil 2026-07-01)
+**Problem:** ClubContent läuft für anon (ssrConfirmedAnon-Pfad, ClubContent.tsx:183 rendert durch; PublicClubView = späterer early-return :209) → alle Top-Level-Hooks feuern für anon. 3 davon rufen authed-only RPCs (`anon_exec=false` live-verifiziert) → 401-Kaskade in der öffentlichen Club-Console.
+**Fix (GATE, verhaltens-erhaltend — anon sieht ohnehin nichts; spiegelt das Precedent `useClubStanding(user ? clubId : undefined)` ClubContent.tsx:143):**
+1. `useClubData.ts:39` — `useClubRecentTrades(clubId,5)` → `useClubRecentTrades(userId ? clubId : undefined, 5)` (`enabled:!!clubId` → false für anon).
+2. `useClubData.ts:54` — News-useEffect `if(!clubId)return` → `if(!clubId||!userId)return` + deps `[clubId,userId]`.
+3. `ClubContent.tsx:162` — `useEventPlayerPickRates(currentEventId)` → `useEventPlayerPickRates(currentEventId, !!userId)` (Hook hat enabled-Param: `!!eventId && enabled`).
+**AC:** (1) anon /club Console **0× 401** für news_teasers/recent_trades/pick_rates (live bescout.net). (2) authed /club: alle 3 feuern weiter (unverändert). (3) tsc 0 · useClubData.test + ClubContent.test grün. → schließt D-39 für /club.
 
 ## Slice 495 — anon /club resolveExpiredResearch-Gate
 

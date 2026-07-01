@@ -1,0 +1,26 @@
+SLICE 496 — D-39 anon /club Read-Gates (GATE-für-anon, CEO Anil) — PROOF
+========================================================================
+
+[PROBLEM] Slice-495-Walk + Live-DB: anon /club feuert 3 authed-only Read-RPCs (anon_exec=false):
+  get_club_news_teasers · rpc_get_club_recent_trades · get_event_player_pick_rates
+ClubContent läuft für anon (ssrConfirmedAnon-Pfad :183, PublicClubView = späterer return :209)
+→ Top-Level-Hooks feuern für anon → 401-Kaskade. CEO Anil (AskUserQuestion): GATE für anon.
+
+[FIX — 3 Files, enabled:!!userId-Muster (spiegelt useClubStanding(user ? clubId : undefined) :143)]
+1. src/components/club/hooks/useClubData.ts:39
+   - useClubRecentTrades(clubId, 5)
+   + useClubRecentTrades(userId ? clubId : undefined, 5)
+2. src/components/club/hooks/useClubData.ts:54 (News-useEffect)
+   - if (!clubId) return; ... }, [clubId]);
+   + if (!clubId || !userId) return; ... }, [clubId, userId]);
+3. src/app/(app)/club/[slug]/ClubContent.tsx:162
+   - useEventPlayerPickRates(currentEventId)
+   + useEventPlayerPickRates(currentEventId, !!userId)
+
+[STATIC PROOF]
+- npx tsc --noEmit → exit 0
+- npx vitest run useClubData.test.ts + ClubContent.test.tsx → 44/44 passed
+
+[LIVE PROOF — anon /club Console post-Deploy]  (Ziel: 0× 401 für die 3 RPCs)
+  <pending: Playwright anon bescout.net/club/<slug> (Session/SW/Cache-Clear, anon bestätigt)
+   → Console: news_teasers/recent_trades/pick_rates alle WEG. authed: alle 3 feuern weiter.>

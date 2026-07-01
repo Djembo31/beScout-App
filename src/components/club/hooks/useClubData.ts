@@ -36,7 +36,9 @@ export function useClubData({ slug, userId, filters }: UseClubDataParams): ClubD
   const { data: clubPrestige } = useClubPrestige(clubId);
   const { data: activeIpos = [] } = useActiveIpos();
   const { data: allEvents = [] } = useEvents();
-  const { data: clubTradesRaw = [] } = useClubRecentTrades(clubId, 5);
+  // rpc_get_club_recent_trades is REVOKE'd from anon → pass undefined clubId when logged out
+  // (enabled:!!clubId → no fetch), mirroring the useClubStanding(user ? clubId : undefined) precedent.
+  const { data: clubTradesRaw = [] } = useClubRecentTrades(userId ? clubId : undefined, 5);
   const { data: fanRanking, isLoading: fanRankingLoading } = useFanRanking(userId, clubId);
 
   // Resolve expired research (fire-and-forget) — authed only.
@@ -53,13 +55,15 @@ export function useClubData({ slug, userId, filters }: UseClubDataParams): ClubD
   const [clubResearch, setClubResearch] = useState<ResearchPostWithAuthor[]>([]);
 
   useEffect(() => {
-    if (!clubId) return;
+    // get_club_news_teasers is REVOKE'd from anon → skip for logged-out visitors
+    // (would 401; anon sees no club news either way).
+    if (!clubId || !userId) return;
     let cancelled = false;
     getClubNewsTeasers(clubId, 3).then(news => {
       if (!cancelled) setClubNews(news);
     }).catch(err => console.error('[Club] News fetch:', err));
     return () => { cancelled = true; };
-  }, [clubId]);
+  }, [clubId, userId]);
 
   useEffect(() => {
     if (!clubId) return;
