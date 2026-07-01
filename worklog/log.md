@@ -2,6 +2,15 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 493 | 2026-07-01 | perf(ssr): W6/D-03 — /club Hero ins SSR-HTML für Ausgeloggte (authLoading-Decouple + players-Prefetch)
+- Stage-Chain: SPEC → IMPACT(inline) → BUILD (5 Files) → REVIEW (R1 REWORK → korrigiert → R2 PASS) → PROVE (tsc + Live-Walk) → LOG. **Mock→Pro W6 / D-03 SSR.**
+- **Root-Cause (gemessen, R1-Reviewer-korrigiert):** /club LCP 2226ms, render-delay 1486ms (67%). SSR-Gate `ClubContent:178 = authLoading || loading`. BEIDE Terme blocken den Hero: `loading` (club+players — page.tsx/471 prefetcht nur club) UND `authLoading` (= `AuthProvider:172 initialUser==null`, für Ausgeloggte im SSR true, 472-Design). curl prod bestätigt: Skeleton, kein Stadion-`<img>`.
+- **Fix (Anils Option 1 literal, 2 Teile):** (1) `players` mitprefetchen (page.tsx, `getPlayersByClubId(...,supabaseAdmin)` — optionaler DI-client-Param, SSOT; players RLS `{public}` → admin==anon Row-Parität) → `loading` false. (2) `getServerAuthState` (neu, `cache()`-dedupt mit layout, `{user,resolved}`) → `ssrConfirmedAnon = resolved && user===null` → Gate `(authLoading && !ssrConfirmedAnon) || loading` → authLoading-Term für server-bestätigt-anon bypassed → PublicClubView (+ClubHero+Stadion-`<Image>`) im SSR-HTML. `resolved` schützt vor Fehl-anon bei getUser-Fehler (kein #418-Swap).
+- **PROVE (Live bescout.net, Commit f055f31f):** **anon LCP 2226→1269ms (−43%)** · render-delay 1486→545ms (−63%) · CLS 0,04 · Console anon: kein #418/#422/#425/MISSING_MESSAGE (Hydration sauber) · authed /club voll korrekt, kein PublicClubView-Leak. Proof `493-...txt`.
+- **Mess-Lehre (teuer):** die ersten 3 Traces waren der EINGELOGGTE /club (chrome-devtools-Browser hatte persistente Ali-Session → skeletont weiter, Finding #3) → schienen „flach"; erst nach Logout sauberer anon-Trace = 1269ms. → Mess-Browser-Auth-Zustand VOR jeder LCP-Messung verifizieren.
+- **Geparkt (kein 493-Regress):** eingeloggter SSR bleibt Skeleton (club-key-mismatch anon-Key vs userId, Finding #3, pre-existing 471/472) · anon Permission-Errors (`resolve_expired_research`/`get_club_news_teasers`, pre-existing) = **P2**. **Option 2 (Backdrop server-rendern) = REDUNDANT** (Option 1 hat das Bild ins SSR gebracht).
+- **Knowledge:** errors-frontend S493 (SSR-LCP-Slice muss ALLE Gate-Terme vs SSR-Zustand prüfen — authLoading für anon true; Auth-Gate-Decouple via `{user,resolved}`-Discriminator; Mess-Browser-Auth-Confound).
+
 ## 492 | 2026-07-01 | fix(perf): CLS systemisch (2) — SponsorBanner Höhen-Skeleton entfernen (0 aktive Sponsoren)
 - Stage-Chain: SPEC (inline) → BUILD (5 Files) → REVIEW (self) → PROVE (DB + tsc + grep; Feld ~24h mit 490/491) → LOG. **Mock→Pro W6; Performance; kein Money/Logik.**
 - **Befund (DB + Code):** Live `active_sponsors=0` (21 total, alle inaktiv) → `SponsorBanner` (`:92 if(!sponsor) return null`) rendert IMMER null. Auf 5 Sites (home/community/club/kader/marktplatz) als dynamic mit `loading: h-16` → 64px-Skeleton kollabiert GARANTIERT zu null = reserve-then-collapse-CLS bei jedem Load. §0: 5 weitere Sites laden dieselbe Komponente schon ohne Skeleton → 5-vs-5 von-allem-zwei.

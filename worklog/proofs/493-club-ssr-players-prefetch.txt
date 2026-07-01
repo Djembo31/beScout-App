@@ -40,5 +40,32 @@ Datum: 2026-07-01
 [AC5] Console /club aus+eingeloggt → frei #418/#422/#423/#425 + MISSING_MESSAGE. [nach Deploy]
 [AC6] /club visuell vollständig (Hero + Sektionen + Spielerliste). [nach Deploy]
 
+--- LIVE-WALK RESULTS (post-Deploy f055f31f, bescout.net, 2026-07-01) ---
+
+[curl SSR-HTML, ausgeloggt] animate-pulse 24→1 (Skeleton weg) + Stadion-img + "Ali Sami Yen"
+      im SSR-HTML → Hero server-gerendert. ✓ (necessary proof, mechanism).
+
+[AC4 LCP — chrome-devtools, AUSGELOGGT sauber (nach Logout des persistenten Ali-Sessions)]:
+      LCP 1269 ms  (Baseline ausgeloggt 2226 ms → −957ms / −43%)
+      Breakdown: TTFB 345 · Load-delay 344 · Load-dur 34 · RENDER-DELAY 545 (Baseline 1486, −63%) · CLS 0,04.
+      → Der Hero (Stadion-Bild = LCP-Node) ist jetzt im SSR-HTML → render-delay kollabiert. WIN.
+      ⚠️ CONFOUND-LEHRE: die ersten 3 Traces (3098/2343/1992ms) waren der EINGELOGGTE /club
+         (chrome-devtools-Browser hatte persistente Ali-Session) — der noch skeletont (Finding #3,
+         club-key-mismatch) → NICHT der anon-Zielpfad. Erst nach Logout = sauberer anon-Trace = 1269ms.
+         → Auth-Zustand des Mess-Browsers VOR jeder LCP-Messung verifizieren (Snapshot auf Follow-vs-Register-Button).
+
+[AC5 Console — AUSGELOGGT] KEIN React #418/#422/#423/#425, KEIN MISSING_MESSAGE → Hydration sauber. ✓
+      Vorhanden (pre-existing, NICHT 493): 401 + "permission denied for function resolve_expired_research /
+      get_club_news_teasers" — anon triggert auth-gated useClubData-Queries (liefen vor 493 client-seitig
+      identisch). → P2-Smell (anon Club-Seite: gated Functions ohne anon-Grant ODER enabled:!!user fehlt).
+
+[AC6 authed Regression — chrome-devtools, EINGELOGGT ali] /club rendert voll korrekt: Stadion-Bild +
+      GALATASARAY-h1 + "Folgen"-Button (authed ClubHero, KEIN PublicClubView-Leak) + alle Sektionen,
+      kein Crash. ✓ (Reviewer-Fall c/d bestätigt; authed unverändert = ssrConfirmedAnon=false).
+
+VERDIKT: SUCCESS — anon /club LCP −43% (2226→1269ms), Hydration sauber, authed 0 Regression.
+Residual (nächster Hebel, NICHT 493): render-delay 545ms Rest + eingeloggter SSR (Finding #3) + anon
+Permission-Errors (P2). Option 2 (Backdrop server-rendern) = REDUNDANT (Option 1 hat das Bild ins SSR gebracht).
+
 --- REVIEW ---
-worklog/reviews/493-review.md (cold-context Reviewer, SSR/Hydration-Fokus).
+worklog/reviews/493-review.md (R1 REWORK authLoading-Fund → R2 PASS Auth-Gate-Decouple).
