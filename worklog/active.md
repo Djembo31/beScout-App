@@ -1,7 +1,7 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 498
 title: D-18 Full Consolidation — events.entry_fee + events.prize_pool DROP (Money-Schema-L, 2-Phasen)
 size: L
@@ -10,11 +10,12 @@ welle: Mock→Pro Datenmodell-SSOT (D-18, §0-Schnitt, CEO Anil „Full consolid
 spec: worklog/specs/498-d18-event-fee-prize-consolidation.md
 proof: worklog/proofs/498-d18-drop.txt
 review: Cold-Context-Reviewer PFLICHT (Money-RPC create_user_event PATCH-AUDIT-Fokus)
-stage: BUILD (Wave 1 = Code: Reader/Writer/SELECTs off entry_fee/prize_pool; Wave 2 = DbEvent-Type + DROP-Migration)
+stage: PAUSIERT — De-Risking fertig (Spec+Impact-Map+Live-Verify+Money-Baseline committed); Wave-1-BUILD = nächste Aktion (CEO „frisch" 2026-07-01)
 ```
 
-## Slice 498 — D-18 Full Consolidation (Spec: worklog/specs/498-*)
-CEO Anil „Full consolidation" (P2-live-verifiziert, aber §0 + Pre-Launch). 2-Phasen-Pflicht: Code-Deploy (Reads/Writes/SELECTs killen) → Live-Verify → DROP-Migration. Money-RPC `create_user_event` PATCH-AUDIT (S156). Kanonisch: `ticket_cost`+`currency` (Fee) · `reward_structure` (Prize). Details + Impact-Map + Pre-Mortem in Spec.
+## Slice 498 — D-18 Full Consolidation — DE-RISKED, Build pausiert (CEO „frisch")
+**Fertig + committed (Wave 0):** Live-Verifikation (P2-Redundanz, kein aktiver Bug) · vollständige L-Spec (`worklog/specs/498-*`) · Money-RPC-Baseline `create_user_event` (`worklog/proofs/498-d18-drop.txt`).
+**Nächste Aktion = Wave-1-BUILD** (frischer Kopf): Reader/Writer/SELECTs off `entry_fee`/`prize_pool` (~20 Files + ~10 Test-Files), Money-RPC-INSERT-Edit (S156 gg. Baseline im Proof), tsc-grün-Commit → Deploy → Live-Verify → **Wave-2 DROP-Migration** → Verify. STRIKT 2-phasig (NIE DROP vor Code-Deploy). Alles in Spec §12/§13.
 
 ## Slice 497 — D-08 getSystemStats „Scout Total" uncapped (§0-Subtraktion)
 **Problem (Live-verifiziert):** `getSystemStats` (platformAdmin.ts:43) summiert `wallets.select('balance').limit(5000)` client-seitig → PostgREST cappt real bei **~1000** (common-errors „PostgREST-1000-cap MONEY-CRITICAL"; `.limit(5000)` ist KEIN Override). Feeds „Scout Total" im Platform-Admin (`BescoutAdminContent.tsx:63`). **Latent:** 128 Wallets heute → undercount=0; **falsch ab >1000 Wallets** (Launch-Wachstum). Kanonischer Zwilling `get_treasury_stats.total_circulating_cents` (SECDEF, admin-gated, server-SUM ohne Cap) existiert.

@@ -1,5 +1,5 @@
 <!-- auto:handoff-start -->
-# Session Handoff — Auto (2026-07-01 04:21)
+# Session Handoff — Auto (2026-07-01 11:47)
 
 > Dieser Block wird vom Stop-Hook aktualisiert. Manueller Rich-Content steht ausserhalb der Marker.
 
@@ -8,17 +8,11 @@
  M memory/session-handoff.md
 ```
 
-## Session Commits: 10
-- 16eac5e4 docs(494): Revert live-verifiziert — authed /club #425/#422 weg, anon 493-Win erhalten
-- 6b189d5a perf(ssr): Slice 494 REVERTED — authed /club SSR erzeugte #425/#422 Hydration-Regress
-- 6c74736d perf(ssr): Slice 494 (W6/D-03 Teil 2) — authed /club Hero ins SSR-HTML
-- 790b8ea9 docs(reconcile): TODO — 493 (W6/D-03 /club SSR −43% LCP) + audit:dup FP=0 erledigt
-- 198d6b3e docs(493): LOG + Knowledge — /club anon LCP 2226→1269ms (−43%) live-verifiziert
-- f055f31f perf(ssr): Slice 493 (W6/D-03) — /club Hero ins SSR-HTML für Ausgeloggte
-- ce51b9e0 chore(tooling): audit:dup FP geklärt — D-33 Tracked-Symbol timeAgo statt formatTimeAgo (FP=0)
-- 542ec43b docs(reconcile): Tracker-Wahrheit — D-22/D-02/D-11/W2 stale-Status live-korrigiert
-- bc70ab1c docs(handoff): Teil 32 Session-Close — Observability+CLS-Arc (488-492), Feld-CLS-Check pending ~24h
-- 3fc3f4a9 fix(perf): Slice 492 — CLS: SponsorBanner Höhen-Skeleton entfernen (0 aktive Sponsoren)
+## Session Commits: 4
+- 3f1a59b1 docs(498): D-18 De-Risking committed — Live-Verifikation + create_user_event Money-Baseline (S156-Anker)
+- 7b5c9c54 docs(spec): 498 — D-18 Full Consolidation Spec (events.entry_fee + prize_pool DROP, L Money-Schema)
+- ebc42e25 docs(497): LOG + Live-Proof — Admin "Scout Total" 8.509.355,24 aus get_treasury_stats; D-08 geschlossen
+- 74edf620 fix(admin): D-08 — getSystemStats "Scout Total" aus kanonischer Treasury-RPC (gecappten Client-SUM killen)
 
 <!-- auto:handoff-end -->
 
@@ -26,6 +20,14 @@
 
 # 🎯 RESUME-ANKER NÄCHSTE SESSION
 
+> **🟢 SESSION-CLOSE 2026-07-01 (Teil 34) — anon /club-Hygiene KOMPLETT (D-39) + D-08 Money-Display + D-18 de-risked-pausiert. `main`==`origin`==`3f1a59b1` (+ session-close docs). Elite-Senior/Mock→Pro.**
+> - **⏭️ DIREKT STARTEN (CEO Anil „frisch"): Slice 498 = D-18 Full Consolidation — Wave-1-BUILD.** De-Risking KOMPLETT + committed: Spec `worklog/specs/498-d18-event-fee-prize-consolidation.md` (Impact-Map + 2-Phasen-Wave-Plan + Pre-Mortem), Live-Verifikation (P2-Redundanz, kein aktiver Bug), Money-RPC-Baseline im Proof `worklog/proofs/498-d18-drop.txt` (`create_user_event` functiondef = S156-PATCH-AUDIT-Anker). **Aufgabe:** `events.entry_fee` + `events.prize_pool` DROP. Kanonisch = `ticket_cost`+`currency` (Fee) · `reward_structure` (Prize). **STRIKT 2-phasig:** (1) Client-Code (Reader/Writer/SELECTs off, ~20 Files + ~10 Test-Files) + `create_user_event`-RPC-INSERT-Edit (nur `entry_fee,prize_pool`-Spalten raus, Rest byte-true) → tsc-grün-Commit → Deploy → Live-Verify (kein SELECT-400, /fantasy+Admin+Club rendern, `fmtScout`-currency-Falle Pre-Mortem #3) → (2) DROP-Migration via `apply_migration` → `information_schema`-Verify. Reviewer-PFLICHT (Money-RPC-Fokus). **NIE DROP vor Code-Deploy.**
+> - **✅ Diese Session (5 Slices live + gepusht, alle live-verifiziert):** **495** anon /club `resolveExpiredResearch`-Mutation gegated (Console-Error weg) · **496** anon /club 3 authed-only Read-RPCs gegated (GATE, CEO-Wahl; anon-Console **8→0 Errors** live) → **D-39 KOMPLETT** (Sweep: Muster nur auf /club/[slug]) · **497** D-08 Admin „Scout Total" aus kanonischer `get_treasury_stats` statt gecapptem Client-SUM (§0-Subtraktion, live 8.509.355,24) · **498** D-18 de-risked (s.o.). Knowledge → errors-frontend **S495/S496**.
+> - **🅿️ Neu geparkt:** **D-40** (`/pitch` anon Hydration #425/#418/#423, P2 — braucht `next dev`-Repro, kein Hauptflow) · **D-09/D-29** (weitere `.limit`-Cap-Reste, latent) · GRANT-Umstellung anon /club (Produkt-Zukunftsoption).
+> - **📋 Register-Korrektur (Ehrlichkeit):** D-18 war als „aktive zweite Wahrheit" überzeichnet → live P2-Redundanz (entry_fee==ticket_cost, prize_pool=0 überall, 2 Test-Events). Register D-08✅/D-39✅/D-40-neu reconciled.
+>
+> ---
+>
 > **🟢 SESSION-CLOSE 2026-07-01 (Teil 33) — W6/D-03 /club SSR: anon-Win gebankt (−43%), authed-Versuch ehrlich zurückgerollt. `main`==`origin`==`16eac5e4`. Elite-Senior/Mock→Pro W6.**
 > - **⏭️ ANIL WÄHLTE „2, dann 3" — frischer Start hier ansetzen:**
 >   - **(2, jetzt-machbar, CTO-klein):** anon `/club` Console-Permission-Errors — `resolve_expired_research` (MUTATION, `research.ts:397`) läuft für **anon** → „permission denied". Fix = die Mutation für anon gaten (`enabled:!!userId` / nicht aufrufen). `useClubData` feuert clubNews/clubResearch für anon (`useClubData.ts:48-49`, via `getClubNewsTeasers` posts.ts:186 + `useClubResearch` research.ts:18). **`get_club_news_teasers`-anon-Grant = §3/Produkt-Entscheidung (soll anon Club-News sehen? = CEO), separat.**
