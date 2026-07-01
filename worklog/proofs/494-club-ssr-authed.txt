@@ -38,6 +38,11 @@ GROSSEN client-Baum mit vielen sekundär-daten-abhängigen Sektionen erstmals se
 alle Sektionen SSR-safe (empty-state == client-first-render) ODER below-hero-Streaming (nur Hero aus SSR,
 Rest client-gated). Live-Walk BEIDER Auth-Zustände ist Pflicht — der authed-Regress war statisch unsichtbar.
 
+--- REVERT VERIFIZIERT (post-Revert-Deploy 6b189d5a, bescout.net, eingeloggt ali) ---
+authed /club Console: **#425/#422 GONE** (nur 2 benigne pre-existing Warnungen: apple-meta-deprecation +
+[ClubCache] short-code). → 494 verursachte die Errors, Revert hat sie geklärt. authed /club zurück im
+sauberen 493-Skeleton-SSR-Zustand. anon = byte-identisch zum verifizierten 493 (1269ms, unverändert).
+
 --- REVIEW ---
-self-review + Live-Walk (der den Regress fing = der eigentliche Gate). Reverted, kein Merge-in-Prod-Schaden
-über den kurzen Deploy hinaus (sofort zurückgerollt).
+self-review + Live-Walk (der den Regress fing = der eigentliche Gate). Reverted + verifiziert, kein
+bleibender Prod-Schaden (kurzer Deploy, sofort zurückgerollt + Revert live-bestätigt).
