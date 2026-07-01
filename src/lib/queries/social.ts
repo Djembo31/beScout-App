@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { qk } from './keys';
 import { supabase } from '@/lib/supabaseClient';
-import { getFollowingFeed, getFollowerCount, getFollowingCount, getFollowingIds, getUserSocialStats } from '@/lib/services/social';
+import { getFollowingFeed, getFollowerCount, getFollowingCount, getFollowingIds, getUserSocialStats, isFollowing as checkIsFollowingUser } from '@/lib/services/social';
 import type { UserSocialStats } from '@/lib/services/social';
 import { getClubFollowerCount, isUserFollowingClub } from '@/lib/services/club';
 
@@ -129,6 +129,20 @@ export function useFollowingIds(userId: string | undefined) {
     queryKey: qk.social.followingIds(userId!),
     queryFn: () => getFollowingIds(userId!),
     enabled: !!userId,
+    staleTime: TWO_MIN,
+  });
+}
+
+/**
+ * Slice 501 (W4) — folgt der aktuelle User (followerId) dem Ziel-User (followingId)?
+ * Ersetzt den raw `isFollowing`-useState-Check in useProfileData/FollowListModal.
+ * `useToggleFollowUser` patcht diesen Key optimistisch.
+ */
+export function useIsFollowingUser(followerId: string | undefined, followingId: string | undefined) {
+  return useQuery({
+    queryKey: qk.social.isFollowing(followerId!, followingId!),
+    queryFn: () => checkIsFollowingUser(followerId!, followingId!),
+    enabled: !!followerId && !!followingId && followerId !== followingId,
     staleTime: TWO_MIN,
   });
 }

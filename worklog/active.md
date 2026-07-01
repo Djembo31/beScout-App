@@ -1,17 +1,20 @@
 # Active Slice
 
 ```
-status: idle
-slice: 500
-title: W4 Discovery-Liste in React Query + onSettled-Reconciliation — DONE (W4 KOMPLETT)
-size: S
-type: Service/Hook (+ UI-Refactor)
-welle: Mock→Pro W4 Follow/Discovery (Architektur, CEO Anil „mach W4 fertig")
-spec: worklog/specs/500-discovery-react-query.md
-proof: worklog/proofs/500-discovery-rq.txt
-review: worklog/reviews/500-review.md (self-review, Frontend-RQ-Pattern, kein Money/Security)
-stage: DONE — useClubsWithStats-Hook + clubs/page RQ-Migration + useToggleFollowClub.onSettled-Invalidate. tsc 0, Tests 7+33 grün. Item 2 (fanRanking) bereits erledigt (staleTime 30s). → W4 KOMPLETT.
+status: in-progress
+slice: 501
+title: W4-Rest User-Follow auf React Query (kanonische useToggleFollowUser für 2 Surfaces)
+size: M
+type: Service/Hook (+ 2 UI-Consumer)
+welle: Mock→Pro W4 Follow/Discovery (User-Follow-Rest, CEO Anil „zieh slice 501 durch")
+spec: worklog/specs/501-user-follow-react-query.md
+proof: worklog/proofs/501-user-follow-rq.txt
+review: worklog/reviews/501-review.md (Cold-Context PASS, 2 Nitpicks gefixt)
+stage: REVIEW-PASS + PROVE (tsc 0, 196 Tests) → Commit → Deploy → Live-Walk Gesamtflow → LOG. W4 dann EHRLICH komplett.
 ```
+
+## Slice 501 — W4-Rest User-Follow React Query (in Arbeit)
+User-Follow-Schuld in 2 Surfaces (useProfileData local useState + FollowListModal local Map, beide raw follow/unfollow ohne RQ-Invalidation → Cross-Surface-Staleness Profil-Follow ↛ Community-„Folge ich"). §0: EINE kanonische `useToggleFollowUser`-Mutation (Spiegel useToggleFollowClub) + `useIsFollowingUser`, beide Surfaces darauf. onSettled invalidiert `qk.social.stats(me)` → Community-Filter reconciled. Live-Walk Gesamtflow Pflicht.
 
 ## Slice 500 — W4 Discovery-Liste React Query (DONE)
 Discovery-Liste (`/clubs`) von page-lokalem useState/useEffect → React Query (`useClubsWithStats` + reuse `useNextFixtures`): Cache + Server-Reconciliation der follower_count via `useToggleFollowClub.onSettled`. Item 2 (fanRanking-Freshness) verifiziert **bereits erledigt** (useFanRanking staleTime 30s, FIX-06). **→ W4 (Follow/Discovery) KOMPLETT** (Voting-Konsolidierung 499 + Discovery-RQ 500 + fanRanking-done). Live-Walk /clubs = post-Deploy.

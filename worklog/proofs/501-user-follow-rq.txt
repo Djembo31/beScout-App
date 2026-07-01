@@ -1,0 +1,40 @@
+Slice 501 — W4: User-Follow auf React Query (kanonische useToggleFollowUser)
+Proof · 2026-07-01
+
+(A) BEFUND (code-verifiziert) — User-Follow-Schuld in 2 Surfaces
+  useProfileData.ts: following/followerCount/followingCount = page-lokales useState;
+    handleFollow/handleUnfollow raw followUser/unfollowUser + setState, keine RQ-Invalidation.
+  FollowListModal.tsx: followingMap lokal; raw follow/unfollow, keine RQ-Invalidation.
+  → Cross-Surface-Staleness: beide invalidieren useUserSocialStats (qk.social.stats,
+    speist Community-„Folge ich"-following_ids) NICHT.
+  queries/social.ts hatte Count/Stats-Hooks, aber KEIN useIsFollowingUser + KEINE Toggle-Mutation.
+
+(B) FIX (§0 — EINE kanonische Mutation für beide Surfaces)
+  + qk.social.isFollowing(followerId, followingId)
+  + useIsFollowingUser (queries/social.ts)
+  + NEU lib/hooks/useToggleFollowUser.ts (Spiegel useToggleFollowClub, Variable-basiertes Target):
+      onMutate optimistic: isFollowing(me,target)=follow · followerCount(target) ±1
+      onSettled invalidate (me-scoped Cross-Surface-Fix): stats(me) · followingIds(me) ·
+        followingCount(me) · feed(me)[prefix]
+  useProfileData: following/counts → RQ-Hooks; handleFollow/Unfollow → toggleFollowAsync;
+    Promise.allSettled 9→7 (counts raus); handleRefreshStats invalidiert Count-Keys.
+    Return-Shape UNVERÄNDERT (ProfileView unberührt).
+  FollowListModal: handleToggleFollow → toggleFollowAsync (lokale Map bleibt Display, Rollback).
+
+(C) AC-Verifikation
+  AC1 kein 3. Follow-Pfad: grep raw followUser(/unfollowUser( in src/ (ohne services/social.ts,
+    useToggleFollowUser.ts, __tests__) → 0 Treffer.
+  AC3 Return-Shape: tsc 0 (ProfileView-Contract unverändert kompiliert).
+  AC4 tsc + vitest: tsc 0 · profile+social+community 196 passed / 1 skipped.
+
+(D) Tests
+  npx tsc --noEmit → 0
+  npx vitest run src/components/profile src/lib/services/__tests__/social.test.ts
+    src/components/community/hooks → 196 passed, 1 skipped (8 files)
+  useProfileData.test: Follow-Tests auf RQ-Verhalten umgebaut (toggleFollowAsync-Call,
+    useIsFollowingUser-Status, counts aus Hooks, refreshStats invalidiert).
+
+(E) Live-Walk Gesamtflow (post-Deploy) — TODO:
+  Anderes Profil folgen → Button-Toggle + Follower-Count → Community-„Folge ich"-Tab
+  zeigt dessen Content (stats-Invalidation reconciled) → unfollow → sauber zurück.
+  Console 0 Errors. FollowListModal-Toggle ebenfalls.

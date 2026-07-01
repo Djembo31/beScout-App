@@ -122,6 +122,7 @@ export const qk = {
     followerCount: (uid: string) => ['social', 'followerCount', uid] as const,
     followingCount: (uid: string) => ['social', 'followingCount', uid] as const,
     followingIds: (uid: string) => ['social', 'followingIds', uid] as const,
+    isFollowing: (followerId: string, followingId: string) => ['social', 'isFollowing', followerId, followingId] as const,
     stats: (uid: string) => ['social', 'stats', uid] as const,
   },
 

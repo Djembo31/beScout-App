@@ -7,8 +7,6 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 
 const mockGetHoldings = vi.fn().mockResolvedValue([]);
 const mockGetUserStats = vi.fn().mockResolvedValue(null);
-const mockGetFollowerCount = vi.fn().mockResolvedValue(0);
-const mockGetFollowingCount = vi.fn().mockResolvedValue(0);
 const mockGetResearchPosts = vi.fn().mockResolvedValue([]);
 const mockGetAuthorTrackRecord = vi.fn().mockResolvedValue(null);
 const mockGetUserTrades = vi.fn().mockResolvedValue([]);
@@ -16,9 +14,6 @@ const mockGetUserFantasyHistory = vi.fn().mockResolvedValue([]);
 const mockGetUserAchievements = vi.fn().mockResolvedValue([]);
 const mockGetMyPayouts = vi.fn().mockResolvedValue([]);
 const mockResolveExpiredResearch = vi.fn().mockResolvedValue(0);
-const mockFollowUser = vi.fn().mockResolvedValue(undefined);
-const mockUnfollowUser = vi.fn().mockResolvedValue(undefined);
-const mockCheckIsFollowing = vi.fn().mockResolvedValue(false);
 const mockRefreshUserStats = vi.fn().mockResolvedValue(undefined);
 const mockCheckAndUnlockAchievements = vi.fn().mockResolvedValue(undefined);
 const mockGetMySubscription = vi.fn().mockResolvedValue(null);
@@ -28,6 +23,13 @@ const mockUseTransactions = vi.fn();
 const mockUseTicketTransactions = vi.fn();
 const mockTxRefetch = vi.fn();
 const mockTicketTxRefetch = vi.fn();
+
+// Slice 501: Follow ist React Query — Hooks + Toggle-Mutation direkt mocken.
+const mockUseFollowerCount = vi.fn((..._a: any[]) => ({ data: 0 as number }));
+const mockUseFollowingCount = vi.fn((..._a: any[]) => ({ data: 0 as number }));
+const mockUseIsFollowingUser = vi.fn((..._a: any[]) => ({ data: false as boolean }));
+const mockToggleFollowAsync = vi.fn().mockResolvedValue(undefined);
+const mockInvalidateQueries = vi.fn().mockResolvedValue(undefined);
 
 vi.mock('@/lib/services/wallet', () => ({
   getHoldings: (...a: any[]) => mockGetHoldings(...a),
@@ -45,12 +47,7 @@ vi.mock('@/lib/queries/tickets', () => ({
 vi.mock('@/lib/services/social', () => ({
   getUserStats: (...a: any[]) => mockGetUserStats(...a),
   refreshUserStats: (...a: any[]) => mockRefreshUserStats(...a),
-  getFollowerCount: (...a: any[]) => mockGetFollowerCount(...a),
-  getFollowingCount: (...a: any[]) => mockGetFollowingCount(...a),
   checkAndUnlockAchievements: (...a: any[]) => mockCheckAndUnlockAchievements(...a),
-  isFollowing: (...a: any[]) => mockCheckIsFollowing(...a),
-  followUser: (...a: any[]) => mockFollowUser(...a),
-  unfollowUser: (...a: any[]) => mockUnfollowUser(...a),
   getUserAchievements: (...a: any[]) => mockGetUserAchievements(...a),
 }));
 
@@ -101,6 +98,22 @@ vi.mock('@/lib/queries/streaks', () => ({
   useLoginStreak: vi.fn(() => ({ streak: 5, isLoading: false, data: null })),
 }));
 
+// Slice 501: Follow-RQ-Hooks + kanonische Toggle-Mutation + useQueryClient (direkter Call in useProfileData).
+vi.mock('@/lib/queries/social', () => ({
+  useFollowerCount: (...a: any[]) => mockUseFollowerCount(...a),
+  useFollowingCount: (...a: any[]) => mockUseFollowingCount(...a),
+  useIsFollowingUser: (...a: any[]) => mockUseIsFollowingUser(...a),
+}));
+
+vi.mock('@/lib/hooks/useToggleFollowUser', () => ({
+  useToggleFollowUser: () => ({ toggle: vi.fn(), toggleAsync: mockToggleFollowAsync, isPending: false, error: null }),
+}));
+
+vi.mock('@tanstack/react-query', async (orig) => ({
+  ...(await orig<typeof import('@tanstack/react-query')>()),
+  useQueryClient: () => ({ invalidateQueries: mockInvalidateQueries }),
+}));
+
 // ============================================
 // Import AFTER mocks
 // ============================================
@@ -134,17 +147,18 @@ describe('useProfileData', () => {
     vi.clearAllMocks();
     mockGetHoldings.mockResolvedValue([]);
     mockGetUserStats.mockResolvedValue(null);
-    mockGetFollowerCount.mockResolvedValue(0);
-    mockGetFollowingCount.mockResolvedValue(0);
     mockGetResearchPosts.mockResolvedValue([]);
     mockGetAuthorTrackRecord.mockResolvedValue(null);
     mockGetUserTrades.mockResolvedValue([]);
     mockGetUserFantasyHistory.mockResolvedValue([]);
     mockGetUserAchievements.mockResolvedValue([]);
     mockGetMyPayouts.mockResolvedValue([]);
-    mockCheckIsFollowing.mockResolvedValue(false);
     mockUseTransactions.mockReturnValue({ data: [], isLoading: false, refetch: mockTxRefetch });
     mockUseTicketTransactions.mockReturnValue({ data: [], isLoading: false, refetch: mockTicketTxRefetch });
+    mockUseFollowerCount.mockReturnValue({ data: 0 });
+    mockUseFollowingCount.mockReturnValue({ data: 0 });
+    mockUseIsFollowingUser.mockReturnValue({ data: false });
+    mockToggleFollowAsync.mockResolvedValue(undefined);
   });
 
   // ── Loading States ──
@@ -180,8 +194,9 @@ describe('useProfileData', () => {
     expect(mockGetHoldings).toHaveBeenCalledWith('u-self');
     expect(mockUseTransactions).toHaveBeenCalledWith('u-self', { limit: 50 });
     expect(mockGetUserStats).toHaveBeenCalledWith('u-self');
-    expect(mockGetFollowerCount).toHaveBeenCalledWith('u-self');
-    expect(mockGetFollowingCount).toHaveBeenCalledWith('u-self');
+    // Slice 501: follower/following counts now via React Query hooks
+    expect(mockUseFollowerCount).toHaveBeenCalledWith('u-self');
+    expect(mockUseFollowingCount).toHaveBeenCalledWith('u-self');
   });
 
   it('calls self-only services when isSelf=true', async () => {
@@ -284,43 +299,38 @@ describe('useProfileData', () => {
     expect(result.current.tab).toBe('analyst');
   });
 
-  // ── Follow Actions ──
+  // ── Follow Actions (Slice 501 — React Query) ──
 
-  it('checks follow status for other users', async () => {
-    mockCheckIsFollowing.mockResolvedValue(true);
+  it('reflects follow status from useIsFollowingUser for other users', async () => {
+    mockUseIsFollowingUser.mockReturnValue({ data: true });
     const { result } = renderHook(() => useProfileData(OTHER_PARAMS));
     await waitFor(() => expect(result.current.following).toBe(true));
-    expect(mockCheckIsFollowing).toHaveBeenCalledWith('u-self', 'u-target');
+    expect(mockUseIsFollowingUser).toHaveBeenCalledWith('u-self', 'u-target');
   });
 
-  it('does not check follow status for self', async () => {
+  it('disables follow-status query for self (both args undefined)', async () => {
     const { result } = renderHook(() => useProfileData(SELF_PARAMS));
     await waitFor(() => expect(result.current.loading).toBe(false));
-    expect(mockCheckIsFollowing).not.toHaveBeenCalled();
+    expect(mockUseIsFollowingUser).toHaveBeenCalledWith(undefined, undefined);
+    expect(result.current.following).toBe(false);
   });
 
-  it('handleFollow calls followUser and increments count', async () => {
+  it('handleFollow triggers toggleFollowUser with follow=true', async () => {
     const { result } = renderHook(() => useProfileData(OTHER_PARAMS));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => { await result.current.handleFollow(); });
 
-    expect(mockFollowUser).toHaveBeenCalledWith('u-self', 'u-target');
-    await waitFor(() => expect(result.current.following).toBe(true));
-    expect(result.current.followerCount).toBe(1);
+    expect(mockToggleFollowAsync).toHaveBeenCalledWith({ targetUserId: 'u-target', follow: true });
   });
 
-  it('handleUnfollow calls unfollowUser and decrements count', async () => {
-    mockCheckIsFollowing.mockResolvedValue(true);
-    mockGetFollowerCount.mockResolvedValue(5);
+  it('handleUnfollow triggers toggleFollowUser with follow=false', async () => {
     const { result } = renderHook(() => useProfileData(OTHER_PARAMS));
-    await waitFor(() => expect(result.current.following).toBe(true));
+    await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => { await result.current.handleUnfollow(); });
 
-    expect(mockUnfollowUser).toHaveBeenCalledWith('u-self', 'u-target');
-    await waitFor(() => expect(result.current.following).toBe(false));
-    expect(result.current.followerCount).toBe(4);
+    expect(mockToggleFollowAsync).toHaveBeenCalledWith({ targetUserId: 'u-target', follow: false });
   });
 
   it('handleFollow does nothing for self', async () => {
@@ -328,29 +338,35 @@ describe('useProfileData', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => { await result.current.handleFollow(); });
-    expect(mockFollowUser).not.toHaveBeenCalled();
+    expect(mockToggleFollowAsync).not.toHaveBeenCalled();
+  });
+
+  it('exposes follower/following counts from React Query hooks', async () => {
+    mockUseFollowerCount.mockReturnValue({ data: 10 });
+    mockUseFollowingCount.mockReturnValue({ data: 5 });
+    const { result } = renderHook(() => useProfileData(OTHER_PARAMS));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(result.current.followerCount).toBe(10);
+    expect(result.current.followingCount).toBe(5);
   });
 
   // ── Stats Refresh ──
 
-  it('handleRefreshStats refreshes user stats', async () => {
+  it('handleRefreshStats refreshes user stats + invalidates count queries', async () => {
     mockGetUserStats.mockResolvedValueOnce({ manager_score: 10, trading_score: 20, scout_score: 30 });
     const { result } = renderHook(() => useProfileData(SELF_PARAMS));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    // Setup new stats for refresh
     const newStats = { manager_score: 50, trading_score: 60, scout_score: 70 };
     mockGetUserStats.mockResolvedValueOnce(newStats);
-    mockGetFollowerCount.mockResolvedValueOnce(10);
-    mockGetFollowingCount.mockResolvedValueOnce(5);
 
     await act(async () => { await result.current.handleRefreshStats(); });
 
     expect(mockRefreshUserStats).toHaveBeenCalledWith('u-self');
     expect(mockCheckAndUnlockAchievements).toHaveBeenCalledWith('u-self');
     expect(result.current.userStats).toEqual(newStats);
-    expect(result.current.followerCount).toBe(10);
-    expect(result.current.followingCount).toBe(5);
+    // Slice 501: counts are React Query → refreshStats invalidates the keys (not setState)
+    expect(mockInvalidateQueries).toHaveBeenCalled();
   });
 
   // ── Retry ──

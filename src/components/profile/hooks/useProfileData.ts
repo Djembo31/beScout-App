@@ -4,10 +4,12 @@ import { getHoldings } from '@/lib/services/wallet';
 import { getClub } from '@/lib/clubs';
 import { getMyPayouts } from '@/lib/services/creatorFund';
 import {
-  getUserStats, refreshUserStats, getFollowerCount, getFollowingCount,
-  checkAndUnlockAchievements, isFollowing as checkIsFollowing,
-  followUser, unfollowUser,
+  getUserStats, refreshUserStats, checkAndUnlockAchievements,
 } from '@/lib/services/social';
+import { useFollowerCount, useFollowingCount, useIsFollowingUser } from '@/lib/queries/social';
+import { useToggleFollowUser } from '@/lib/hooks/useToggleFollowUser';
+import { useQueryClient } from '@tanstack/react-query';
+import { qk } from '@/lib/queries/keys';
 import { getResearchPosts, getAuthorTrackRecord, resolveExpiredResearch } from '@/lib/services/research';
 import { getUserTrades } from '@/lib/services/trading';
 import { getUserFantasyHistory } from '@/lib/services/lineups';
@@ -35,10 +37,17 @@ function isValidTab(value: string | undefined): value is ProfileTab {
 
 export function useProfileData({ targetUserId, targetProfile, isSelf, initialTab }: UseProfileDataParams): ProfileDataResult {
   const { user } = useUser();
+  const qc = useQueryClient();
 
   // ── Query Hooks (cached, invalidated by trade/research/poll mutations) ──
   const txQuery = useTransactions(targetUserId, { limit: 50 });
   const ticketTxQuery = useTicketTransactions(targetUserId, { limit: 50, enabled: isSelf });
+
+  // ── Follow (React Query, Slice 501 — ersetzt lokales useState-Follow) ──
+  const followerCount = useFollowerCount(targetUserId).data ?? 0;
+  const followingCount = useFollowingCount(targetUserId).data ?? 0;
+  const following = useIsFollowingUser(isSelf ? undefined : user?.id, isSelf ? undefined : targetUserId).data ?? false;
+  const { toggleAsync: toggleFollowAsync, isPending: followLoading } = useToggleFollowUser();
 
   // ── Data State (non-cached sources) ──
   const [holdings, setHoldings] = useState<HoldingRow[]>([]);
@@ -46,18 +55,12 @@ export function useProfileData({ targetUserId, targetProfile, isSelf, initialTab
   const [dataError, setDataError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [userStats, setUserStats] = useState<DbUserStats | null>(null);
-  const [followerCount, setFollowerCount] = useState(0);
-  const [followingCount, setFollowingCount] = useState(0);
   const [myResearch, setMyResearch] = useState<ResearchPostWithAuthor[]>([]);
   const [trackRecord, setTrackRecord] = useState<AuthorTrackRecord | null>(null);
   const [recentTrades, setRecentTrades] = useState<UserTradeWithPlayer[]>([]);
   const [fantasyResults, setFantasyResults] = useState<UserFantasyResult[]>([]);
   const [creatorPayouts, setCreatorPayouts] = useState<DbCreatorFundPayout[]>([]);
   const [clubSub, setClubSub] = useState<{ tier: string; clubName: string } | null>(null);
-
-  // ── Follow State ──
-  const [following, setFollowing] = useState(false);
-  const [followLoading, setFollowLoading] = useState(false);
 
   // ── Stats Refresh ──
   const [statsRefreshing, setStatsRefreshing] = useState(false);
@@ -92,8 +95,6 @@ export function useProfileData({ targetUserId, targetProfile, isSelf, initialTab
         const results = await Promise.allSettled([
           isSelf ? getHoldings(targetUserId) : Promise.resolve([]),
           getUserStats(targetUserId),
-          getFollowerCount(targetUserId),
-          getFollowingCount(targetUserId),
           getResearchPosts({ currentUserId: targetUserId }),
           getAuthorTrackRecord(targetUserId),
           getUserTrades(targetUserId, 10),
@@ -105,14 +106,13 @@ export function useProfileData({ targetUserId, targetProfile, isSelf, initialTab
           setHoldings(val(results[0], []) as HoldingRow[]);
           const stats = val(results[1], null);
           setUserStats(stats);
-          setFollowerCount(val(results[2], 0));
-          setFollowingCount(val(results[3], 0));
-          const researchResult = val(results[4], [] as ResearchPostWithAuthor[]);
+          // followerCount/followingCount: Slice 501 → React Query (useFollowerCount/useFollowingCount)
+          const researchResult = val(results[2], [] as ResearchPostWithAuthor[]);
           setMyResearch(isSelf ? researchResult.filter(p => p.is_own) : researchResult.filter(p => p.user_id === targetUserId));
-          setTrackRecord(val(results[5], null));
-          setRecentTrades(val(results[6], []));
-          setFantasyResults(val(results[7], []));
-          setCreatorPayouts(val(results[8], []) as DbCreatorFundPayout[]);
+          setTrackRecord(val(results[3], null));
+          setRecentTrades(val(results[4], []));
+          setFantasyResults(val(results[5], []));
+          setCreatorPayouts(val(results[6], []) as DbCreatorFundPayout[]);
           setDataError(false);
 
           if (!tabInitialized && stats) {
@@ -151,34 +151,19 @@ export function useProfileData({ targetUserId, targetProfile, isSelf, initialTab
       .catch(err => console.error('[ProfileView] getMySubscription:', err));
   }, [targetUserId, targetProfile?.favorite_club_id]);
 
-  // ── Follow Status Check ──
-  useEffect(() => {
-    if (isSelf || !user) return;
-    checkIsFollowing(user.id, targetUserId).then(setFollowing).catch(err => console.error('[ProfileView] isFollowing:', err));
-  }, [isSelf, user, targetUserId]);
-
-  // ── Follow/Unfollow Actions ──
+  // ── Follow/Unfollow Actions (Slice 501 — kanonische useToggleFollowUser; following-Status
+  //    + counts kommen aus React Query, onSettled reconciled Community-„Folge ich" + Feed) ──
   const handleFollow = useCallback(async () => {
     if (!user || isSelf) return;
-    setFollowLoading(true);
-    try {
-      await followUser(user.id, targetUserId);
-      setFollowing(true);
-      setFollowerCount(c => c + 1);
-    } catch (err) { console.error('[ProfileView] follow:', err); }
-    finally { setFollowLoading(false); }
-  }, [user, isSelf, targetUserId]);
+    try { await toggleFollowAsync({ targetUserId, follow: true }); }
+    catch (err) { console.error('[ProfileView] follow:', err); }
+  }, [user, isSelf, targetUserId, toggleFollowAsync]);
 
   const handleUnfollow = useCallback(async () => {
     if (!user || isSelf) return;
-    setFollowLoading(true);
-    try {
-      await unfollowUser(user.id, targetUserId);
-      setFollowing(false);
-      setFollowerCount(c => Math.max(0, c - 1));
-    } catch (err) { console.error('[ProfileView] unfollow:', err); }
-    finally { setFollowLoading(false); }
-  }, [user, isSelf, targetUserId]);
+    try { await toggleFollowAsync({ targetUserId, follow: false }); }
+    catch (err) { console.error('[ProfileView] unfollow:', err); }
+  }, [user, isSelf, targetUserId, toggleFollowAsync]);
 
   // ── Refresh Stats ──
   const handleRefreshStats = useCallback(async () => {
@@ -187,17 +172,16 @@ export function useProfileData({ targetUserId, targetProfile, isSelf, initialTab
     try {
       await refreshUserStats(targetUserId);
       await checkAndUnlockAchievements(targetUserId);
-      const [stats, fCount, fgCount] = await Promise.all([
-        getUserStats(targetUserId),
-        getFollowerCount(targetUserId),
-        getFollowingCount(targetUserId),
-      ]);
+      const stats = await getUserStats(targetUserId);
       setUserStats(stats);
-      setFollowerCount(fCount);
-      setFollowingCount(fgCount);
+      // Slice 501: Follower/Following-Counts sind React Query → invalidieren statt setState.
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: qk.social.followerCount(targetUserId) }),
+        qc.invalidateQueries({ queryKey: qk.social.followingCount(targetUserId) }),
+      ]);
     } catch (err) { console.error('[ProfileView] refreshStats:', err); }
     finally { setStatsRefreshing(false); }
-  }, [targetUserId, statsRefreshing]);
+  }, [targetUserId, statsRefreshing, qc]);
 
   // ── Derived Values ──
   const portfolioValueCents = holdings.reduce((s, h) => s + h.quantity * (h.player?.floor_price ?? 0), 0);

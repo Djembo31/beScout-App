@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { Loader2, UserPlus, UserMinus } from 'lucide-react';
 import { Dialog } from '@/components/ui';
 import { useUser } from '@/components/providers/AuthProvider';
-import { getFollowerList, getFollowingList, isFollowing, followUser, unfollowUser, type ProfileSummary } from '@/lib/services/social';
+import { getFollowerList, getFollowingList, isFollowing, type ProfileSummary } from '@/lib/services/social';
+import { useToggleFollowUser } from '@/lib/hooks/useToggleFollowUser';
 import { getRang } from '@/lib/gamification';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabaseClient';
@@ -28,6 +29,7 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
   const [followingMap, setFollowingMap] = useState<Map<string, boolean>>(new Map());
   const [scoresMap, setScoresMap] = useState<Map<string, number>>(new Map());
   const [toggling, setToggling] = useState<string | null>(null);
+  const { toggleAsync: toggleFollowAsync } = useToggleFollowUser();
 
   useEffect(() => {
     const load = async () => {
@@ -75,15 +77,16 @@ export default function FollowListModal({ userId, mode, onClose }: FollowListMod
   const handleToggleFollow = async (targetId: string) => {
     if (!user || toggling) return;
     setToggling(targetId);
+    const isCurrentlyFollowing = followingMap.get(targetId) ?? false;
+    // Optimistic local-Map-Update; die kanonische Mutation (Slice 501) invalidiert die
+    // me-scoped social-Caches (Community-„Folge ich" + Following-Feed reconcilen).
+    setFollowingMap(prev => new Map(prev).set(targetId, !isCurrentlyFollowing));
     try {
-      const isCurrentlyFollowing = followingMap.get(targetId) ?? false;
-      if (isCurrentlyFollowing) {
-        await unfollowUser(user.id, targetId);
-      } else {
-        await followUser(user.id, targetId);
-      }
-      setFollowingMap(prev => new Map(prev).set(targetId, !isCurrentlyFollowing));
-    } catch (err) { console.error('[FollowListModal] toggleFollow:', err); }
+      await toggleFollowAsync({ targetUserId: targetId, follow: !isCurrentlyFollowing });
+    } catch (err) {
+      console.error('[FollowListModal] toggleFollow:', err);
+      setFollowingMap(prev => new Map(prev).set(targetId, isCurrentlyFollowing)); // rollback
+    }
     setToggling(null);
   };
 
