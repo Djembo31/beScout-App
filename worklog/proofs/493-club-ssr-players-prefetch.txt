@@ -1,0 +1,44 @@
+=== Slice 493 — W6/D-03: /club Hero ins SSR-HTML (players-Prefetch) — PROOF ===
+Datum: 2026-07-01
+
+--- STATISCH (BUILD) ---
+
+[AC1] tsc --noEmit → EXIT 0 (DI-Signatur `client: SupabaseClient = supabase` typecheckt;
+      supabaseAdmin assignable, Browser-Default erhalten).
+
+[AC2] getPlayersByClubId Bestands-Caller (grep src/) — ALLE 2-arg, unverändert
+      (neuer 3. Param optional + Default = Browser-supabase):
+  - src/lib/queries/players.ts:46   usePlayersByClub → getPlayersByClubId(clubId!, { activeOnly })
+  - src/components/admin/useAdminPlayersState.ts:80,193,250,287  getPlayersByClubId(club.id)
+  - src/components/admin/AdminRevenueTab.tsx:29   getPlayersByClubId(club.id, { activeOnly: true })
+  - src/components/admin/AdminOverviewTab.tsx:50  getPlayersByClubId(club.id, { activeOnly: true })
+  - Test-Mocks (variadic) unberührt.
+  → 0 gebrochene Caller.
+
+[AC3] Neuer Server-Prefetch NUR in page.tsx:97:
+      getPlayersByClubId(clubId, { activeOnly: true }, supabaseAdmin)
+      unter `if (club?.id)`; via queryClient.prefetchQuery (wirft nicht → still degrade).
+      Key = qk.players.byClub(clubId, true) = ['players','club',clubId,true]
+      == exakt der Client-Key von usePlayersByClub(clubId, true). Shape = DbPlayer[] (identische Fn).
+
+[Row-Parität] Live-DB pg_policies players/SELECT:
+      policyname=players_select, cmd=SELECT, roles={public}, qual=true
+      → players vollständig anon-public → supabaseAdmin (RLS-bypass) liest DIESELBEN Rows
+        wie der ausgeloggte anon-Client → Hydration-Parität (kein #418-Divergenz-Risiko).
+
+[Key-Leak] supabaseAdmin NUR in page.tsx (Server) übergeben; players.ts importiert supabaseAdmin
+      NICHT (nur `import type { SupabaseClient }`) → kein service_role-Key im Client-Bundle.
+
+--- ROOT-CAUSE (gemessen, d03-ssr-ist-analyse.md post-487) ---
+  /club/galatasaray LCP 2226ms · render-delay 1486ms (67%) · Stadion-Bild @740ms fertig,
+  paintet @2226ms weil ClubContent:178 (loading-Gate = clubLoading || playersLoading) im SSR
+  ClubSkeleton rendert (players nicht geprefetcht) statt Hero → Bild nicht im SSR-HTML.
+
+--- LIVE (PROVE, post-Deploy — PENDING) ---
+[AC4] chrome-devtools performance_start_trace https://www.bescout.net/club/galatasaray (ausgeloggt)
+      → LCP < 2226ms (Ziel < ~1200ms, render-delay kollabiert). [Trace-Vergleich nach Deploy]
+[AC5] Console /club aus+eingeloggt → frei #418/#422/#423/#425 + MISSING_MESSAGE. [nach Deploy]
+[AC6] /club visuell vollständig (Hero + Sektionen + Spielerliste). [nach Deploy]
+
+--- REVIEW ---
+worklog/reviews/493-review.md (cold-context Reviewer, SSR/Hydration-Fokus).

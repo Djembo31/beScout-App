@@ -1,37 +1,29 @@
 # Active Slice
 
 ```
-status: idle
-slice: 492
-title: CLS systemisch (2) — SponsorBanner Höhen-Skeleton entfernen (0 aktive Sponsoren → immer null)
-size: S
-type: UI
-welle: Mock→Pro W6 / Performance (CLS, measure-driven)
-proof: worklog/proofs/492-sponsorbanner-cls.txt
-review: self-review (S, Angleich an 5 bestehende no-skeleton-Sites; DB-belegt always-null; kein Money/Logik)
-stage: LOG (deployed-pending: code done, Feld-CLS ~24h mit 490/491)
+status: in-progress
+slice: 493
+title: W6/D-03 — /club Hero ins SSR-HTML (authLoading-Decouple für bestätigt-anon + players-Prefetch)
+size: M
+type: Service + SSR
+welle: Mock→Pro W6 / D-03 SSR-Architektur
+proof: worklog/proofs/493-club-ssr-players-prefetch.txt
+review: worklog/reviews/493-review.md (R1 REWORK → korrigiert → R2 PASS, bedingt: Live-Walk = echter Done-Gate)
+stage: PROVE (deployed-pending: Live-Walk aus+eingeloggt)
 ```
 
-## Slice 492 — Problem (DB + Code-verifiziert)
-- **Live-DB: `active_sponsors = 0`** (21 total, alle inaktiv) → `SponsorBanner` (`:92 if (!sponsor) return null`) rendert **immer null**.
-- Auf **5 Sites** als dynamic mit `loading: () => <div h-16 …>` (64px) geladen: home `page.tsx:39`, community `:35`, club `ClubContent:20`, kader `KaderTab:24`, marktplatz `MarktplatzTab:36` → 64px-Skeleton kollabiert **garantiert** zu null = reserve-then-collapse-CLS bei JEDEM Load.
-- **§0-Smell:** 5 weitere Sites (LeaderboardPanel/HistoryTab/SpieltagTab/ProfileView/OffersTab) laden dieselbe Komponente bereits **ohne** Skeleton = korrekt. 5-vs-5 von-allem-zwei.
-- **Beitrag zu:** CLS `/` 0,282 + `/community` + `/market` (+ club/kader).
+## Slice 493 — Kurz
 
-## Lösung (5 Sites angleichen)
-- Die 5 `loading: h-16`-Sites → nur `{ ssr: false }` (kanonisch = die anderen 5). Identisch zu S491 (MissionHintList). Pattern errors-frontend **S491**.
+Spec: `worklog/specs/493-club-ssr-players-prefetch.md`.
 
-## Acceptance Criteria
-- AC1: alle 12 SponsorBanner dynamic-Sites loading-Skeleton-frei.
-- AC2: tsc 0. Render unverändert (immer null bei 0 Sponsoren; bei künftiger Aktivierung erscheint Banner ohne Vor-Reservierung).
-- AC3 (Feld, ~24h): mit 490+491 gemessen.
+**Root-Cause (gemessen + R1-korrigiert):** `/club` LCP 2226ms, render-delay 1486ms (67%). SSR-Gate `ClubContent:178` = `if (authLoading || loading)`. **BEIDE Terme gaten:** `loading` (club+players — page.tsx 471 prefetcht nur club) UND `authLoading` (= `AuthProvider:172 initialUser==null`, für Ausgeloggte im SSR **true**, 472-Design). curl aktuelle prod (ausgeloggt): Skeleton, kein `<img stadium>` im SSR-HTML.
 
-## Scope-Out
-- 21 inaktive Sponsoren = Produkt/Daten-Frage (nicht anfassen; null-Render ist korrekt). · Hero-Residual 490 (measure-gated).
+**Fix (Anils Option 1 literal — 2 Teile, beide nötig):**
+1. `players` mitprefetchen (page.tsx, `getPlayersByClubId(...,supabaseAdmin)` DI/SSOT) → `loading`-Term false.
+2. `getServerAuthState` (neu, `cache()`-dedupt mit layout, `{user,resolved}`) → `ssrConfirmedAnon = resolved && user===null` → ClubContent-Gate `(authLoading && !ssrConfirmedAnon) || loading` → authLoading-Term für server-bestätigt-anon bypassed → PublicClubView (+ClubHero+Stadion-`<Image>`) im SSR-HTML. `resolved` schützt vor Fehl-anon bei getUser-Fehler (kein #418-Swap).
 
-## Stage-Chain: SPEC(inline) → BUILD → REVIEW(self) → PROVE(tsc + grep + Feld ~24h) → LOG
+**Geparkt (R-Finding #3, pre-existing 471/472):** eingeloggter /club-SSR bleibt Skeleton (Club-Prefetch anon-Key `undefined` ≠ authed `userId`) → separater Slice. Ziel-Pfad = ausgeloggt.
 
----
-## Pending Feld-CLS-Check (in ~24h, Sentry org bescout / de.sentry.io / dataset spans, p75(measurements.cls) by transaction)
-- **490** (Home-Fork) + **491** (MissionHintList) + **492** (SponsorBanner) zusammen. War: `/` 0,282 · `/market` 0,194 · `/community` 0,065.
-- `/` <0,1 → 490 done; sonst Hero-Folge-Slice (heroMode/CTA-Banner auf dashboardReady).
+**PROVE:** tsc 0 ✓ · R2 PASS ✓ · **PENDING Live-Walk (bescout.net post-Deploy):** curl SSR-HTML enthält `<img stadium>` + chrome-devtools LCP (2226→?) + Console aus+eingeloggt (#418/#422/#425/MISSING_MESSAGE) + authed = kein PublicClubView-Leak + Row-Parität Player-Count.
+
+## Stage-Chain: SPEC → IMPACT(inline) → BUILD → REVIEW(R1 REWORK→R2 PASS) → PROVE(tsc+Live-Walk) → LOG

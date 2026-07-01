@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import type { User } from '@supabase/supabase-js';
@@ -52,13 +53,28 @@ async function getServerSupabase() {
  * returned `User` carries only the profile (id/email/metadata); access/refresh
  * tokens stay in the httpOnly cookie and are never serialized into the HTML.
  */
+// Slice 493 (W6/D-03): diskriminierte Auth-Auflösung (`resolved`) + `cache()`-Dedup.
+// - `resolved=true` NUR wenn `getUser()` erfolgreich war (user vorhanden ODER bestätigt-null).
+//   `resolved=false` bei Fehler/Exception → Aufrufer dürfen NICHT auf "confirmed anon"
+//   schließen (ein transienter getUser-Fehler bei einem EINGELOGGTEN User würde sonst
+//   fälschlich als anon gerendert → SSR PublicClubView vs Client authed = Content-Swap +
+//   Hydration-Mismatch). Das ist die 472-Vorsicht, hier für das anon-SSR-Signal bewahrt.
+// - `cache()` ist request-scoped (kein Cross-Request-Leak) → layout.tsx (Auth-Seed) +
+//   club/page.tsx (anon-Signal) teilen sich EINEN getUser()-Roundtrip (kein TTFB-Doppel).
+export const getServerAuthState = cache(
+  async (): Promise<{ user: User | null; resolved: boolean }> => {
+    try {
+      const supabase = await getServerSupabase();
+      const { data, error } = await supabase.auth.getUser();
+      if (error) return { user: null, resolved: false };
+      return { user: data.user, resolved: true };
+    } catch {
+      return { user: null, resolved: false };
+    }
+  },
+);
+
+/** Auth-User fürs SSR-Seeding, `null` bei logged-out ODER Fehler (fail-safe, unverändert). */
 export async function getServerUser(): Promise<User | null> {
-  try {
-    const supabase = await getServerSupabase();
-    const { data, error } = await supabase.auth.getUser();
-    if (error) return null;
-    return data.user;
-  } catch {
-    return null;
-  }
+  return (await getServerAuthState()).user;
 }

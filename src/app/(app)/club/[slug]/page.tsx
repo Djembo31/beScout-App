@@ -4,6 +4,8 @@ import { dehydrate } from '@tanstack/react-query';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { getServerQueryClient } from '@/lib/getServerQueryClient';
 import { qk } from '@/lib/queries/keys';
+import { getPlayersByClubId } from '@/lib/services/players';
+import { getServerAuthState } from '@/lib/supabaseServerAuth';
 import type { ClubWithAdmin } from '@/types';
 import ClubContent from './ClubContent';
 import { ClubHydration } from './ClubHydration';
@@ -82,6 +84,32 @@ export default async function ClubSlugPage({ params }: Props) {
   const stadiumUrl = club?.stadium_image_url || `/stadiums/${slug}.jpg`;
   const stadiumSrcSet = DEVICE_SIZES.map((w) => `${stadiumOptimized(stadiumUrl, w)} ${w}w`).join(', ');
 
+  // Slice 493 (W6/D-03): players mitprefetchen. Der ClubContent-loading-Gate
+  // (useClubData:166 `clubLoading || (clubId && playersLoading)`) blockte sonst den Hero
+  // im SSR (ClubContent:178 → ClubSkeleton statt Hero → LCP-Stadion-Bild NICHT im SSR-HTML
+  // → render-delay 1486ms/67% trotz 486/487). players ist public (RLS players_select
+  // qual=true) → supabaseAdmin liest dieselben Rows wie der ausgeloggte anon-Client →
+  // Hydration-Parität. Key + Shape exakt via geteilter getPlayersByClubId (DI, SSOT, S461).
+  // prefetchQuery wirft nicht → still degrade auf Client-Fetch bei Fehler (wie club oben).
+  if (club?.id) {
+    const clubId = club.id;
+    await queryClient.prefetchQuery({
+      queryKey: qk.players.byClub(clubId, true),
+      queryFn: () => getPlayersByClubId(clubId, { activeOnly: true }, supabaseAdmin),
+    });
+  }
+
+  // Slice 493 (W6/D-03): server-confirmed-anon-Signal. Der SSR-Gate (ClubContent:178)
+  // ist `authLoading || loading` — für AUSGELOGGTE ist authLoading beim SSR true
+  // (AuthProvider:172 `initialUser==null`, 472-Design). Der players-Prefetch oben macht
+  // nur `loading` false; ohne dieses Signal bliebe der Hero fürs anon-SSR im Skeleton.
+  // getServerAuthState (cache-dedupt mit layout, kein Extra-Roundtrip) sagt ClubContent, dass
+  // der Server anon bestätigt hat → Gate ignoriert authLoading NUR dann → PublicClubView
+  // (inkl. ClubHero+Stadion-<Image>) landet im SSR-HTML. Eingeloggt unberührt (anon=false).
+  // `resolved` schützt vor Fehl-anon bei transientem getUser-Fehler (kein Content-Swap).
+  const { user: serverUser, resolved: authResolved } = await getServerAuthState();
+  const ssrConfirmedAnon = authResolved && serverUser === null;
+
   // Slice 476: HydrationBoundary via Client-Wrapper (modern-Build) — direkter
   // Server-Import resolvte zum legacy-Build → Context-Mismatch zum modern
   // QueryClientProvider → »No QueryClient set« (Page-Crash seit 471). dehydrate()
@@ -90,7 +118,7 @@ export default async function ClubSlugPage({ params }: Props) {
     <>
       <PreloadStadium href={stadiumOptimized(stadiumUrl, 1920)} srcSet={stadiumSrcSet} />
       <ClubHydration state={dehydrate(queryClient)}>
-        <ClubContent slug={slug} />
+        <ClubContent slug={slug} ssrConfirmedAnon={ssrConfirmedAnon} />
       </ClubHydration>
     </>
   );

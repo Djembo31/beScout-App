@@ -92,7 +92,7 @@ const TABS: { id: ClubTab; label: string }[] = [
 // MAIN COMPONENT
 // ============================================
 
-export default function ClubContent({ slug }: { slug: string }) {
+export default function ClubContent({ slug, ssrConfirmedAnon = false }: { slug: string; ssrConfirmedAnon?: boolean }) {
   const { user, loading: authLoading } = useUser();
   const userId = user?.id;
   const queryClient = useQueryClient();
@@ -175,7 +175,12 @@ export default function ClubContent({ slug }: { slug: string }) {
     : formResults;
 
   // ── Loading / Error Guards ──
-  if (authLoading || loading) return <ClubSkeleton />;
+  // Slice 493 (W6/D-03): `ssrConfirmedAnon` (page.tsx, getServerAuthState resolved+null)
+  // entkoppelt den authLoading-Term NUR für server-bestätigt-ausgeloggte Besucher →
+  // ClubContent rendert den (public) Hero ins SSR-HTML statt ClubSkeleton (das
+  // Stadion-<Image> = LCP-Element landet damit im initialen HTML). `loading` (club+players,
+  // beide via page.tsx geprefetcht) bleibt der Gate-Term. Eingeloggt/unresolved: unverändert.
+  if ((authLoading && !ssrConfirmedAnon) || loading) return <ClubSkeleton />;
 
   if (notFound) {
     return (

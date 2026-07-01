@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { getClub } from '@/lib/clubs';
 import { getLeague } from '@/lib/leagues';
 import { mapNationalityToIso } from '@/lib/utils/countryNameToIso';
@@ -143,9 +144,12 @@ export async function searchPlayersByName(query: string, limit = 8): Promise<DbP
  */
 export async function getPlayersByClubId(
   clubId: string,
-  opts?: { activeOnly?: boolean }
+  opts?: { activeOnly?: boolean },
+  // Slice 493 (W6/D-03): optionaler Client (DI) → dieselbe Query server-seitig mit
+  // supabaseAdmin wiederverwendbar (SSR-Prefetch in club/page.tsx), Default = Browser-Client.
+  client: SupabaseClient = supabase,
 ): Promise<DbPlayer[]> {
-  let query = supabase
+  let query = client
     .from('players')
     .select(PLAYER_SELECT_COLS)
     .eq('club_id', clubId)
