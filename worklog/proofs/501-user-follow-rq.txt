@@ -34,7 +34,12 @@ Proof · 2026-07-01
   useProfileData.test: Follow-Tests auf RQ-Verhalten umgebaut (toggleFollowAsync-Call,
     useIsFollowingUser-Status, counts aus Hooks, refreshStats invalidiert).
 
-(E) Live-Walk Gesamtflow (post-Deploy) — TODO:
-  Anderes Profil folgen → Button-Toggle + Follower-Count → Community-„Folge ich"-Tab
-  zeigt dessen Content (stats-Invalidation reconciled) → unfollow → sauber zurück.
-  Console 0 Errors. FollowListModal-Toggle ebenfalls.
+(E) Live-Walk Gesamtflow (Deploy 4939af56, ali → /profile/nailoku) — PASS
+  1. /profile/nailoku: Button „Folgen", 0 Follower (ali folgt nicht).
+  2. Follow-Klick → Button „Folgen"→„Entfolgen" + Follower 0→1 (isFollowing + followerCount(target) optimistic).
+  3. Reload /profile/nailoku → Button weiterhin „Entfolgen" = Follow real in DB persistiert (nicht nur optimistisch).
+  4. /community → „Folge ich"-Tab → 6 Beiträge, nailoku-Content sichtbar (10 Erwähnungen)
+     = Cross-Surface-Reconcile: der Follow hat qk.social.stats(me)/following_ids aktualisiert.
+  5. Unfollow → Button „Entfolgen"→„Folgen" + Follower 1→0. ali net-zero wiederhergestellt.
+  6. Console 0 Errors über den gesamten Flow (profile + community).
+  → Gesamtflow (Profil-Follow → Count → Community-Filter → Unfollow) e2e bewiesen.

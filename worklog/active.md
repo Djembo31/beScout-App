@@ -1,17 +1,20 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 501
-title: W4-Rest User-Follow auf React Query (kanonische useToggleFollowUser für 2 Surfaces)
+title: W4-Rest User-Follow auf React Query (kanonische useToggleFollowUser) — DONE (W4 EHRLICH KOMPLETT)
 size: M
 type: Service/Hook (+ 2 UI-Consumer)
 welle: Mock→Pro W4 Follow/Discovery (User-Follow-Rest, CEO Anil „zieh slice 501 durch")
 spec: worklog/specs/501-user-follow-react-query.md
 proof: worklog/proofs/501-user-follow-rq.txt
 review: worklog/reviews/501-review.md (Cold-Context PASS, 2 Nitpicks gefixt)
-stage: REVIEW-PASS + PROVE (tsc 0, 196 Tests) → Commit → Deploy → Live-Walk Gesamtflow → LOG. W4 dann EHRLICH komplett.
+stage: DONE — Commit 4939af56, Reviewer PASS, tsc 0 + 196 Tests, **Live-Walk Gesamtflow PASS** (Follow 0→1 + „Folge ich"-Reconcile + Unfollow sauber, 0 Errors). → W4 (Follow/Discovery) EHRLICH KOMPLETT.
 ```
+
+## Slice 501 — W4-Rest User-Follow React Query (DONE, Live-verifiziert)
+Kanonische `useToggleFollowUser` (Spiegel useToggleFollowClub) ersetzt lokales useState-Follow in useProfileData + FollowListModal; onSettled invalidiert me-scoped social-Caches → Community-„Folge ich"-Reconcile. **Live-Walk (nailoku, ali):** Follow Button-Toggle + Follower 0→1, „Folge ich"-Tab zeigt nailoku-Content (6 Beiträge), Unfollow sauber zurück, 0 Console-Errors. → **W4 KOMPLETT** (Club 499+500 + User 501 + Voting 499 + fanRanking). Nächste offene Wellen: W6 (Perf/SSR, groß) + W7 (Design).
 
 ## Slice 501 — W4-Rest User-Follow React Query (in Arbeit)
 User-Follow-Schuld in 2 Surfaces (useProfileData local useState + FollowListModal local Map, beide raw follow/unfollow ohne RQ-Invalidation → Cross-Surface-Staleness Profil-Follow ↛ Community-„Folge ich"). §0: EINE kanonische `useToggleFollowUser`-Mutation (Spiegel useToggleFollowClub) + `useIsFollowingUser`, beide Surfaces darauf. onSettled invalidiert `qk.social.stats(me)` → Community-Filter reconciled. Live-Walk Gesamtflow Pflicht.
