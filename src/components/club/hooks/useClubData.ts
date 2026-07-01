@@ -39,10 +39,14 @@ export function useClubData({ slug, userId, filters }: UseClubDataParams): ClubD
   const { data: clubTradesRaw = [] } = useClubRecentTrades(clubId, 5);
   const { data: fanRanking, isLoading: fanRankingLoading } = useFanRanking(userId, clubId);
 
-  // Resolve expired research (fire-and-forget)
+  // Resolve expired research (fire-and-forget) — authed only.
+  // resolve_expired_research is REVOKE'd from anon (auth-gated maintenance mutation; no cron →
+  // this client trigger is the sole resolution path). Firing it for anon guarantees a
+  // permission-denied 401 in the console with zero effect → gate on userId.
   useEffect(() => {
+    if (!userId) return;
     resolveExpiredResearch().catch(err => console.error('[Club] Resolve expired research failed:', err));
-  }, []);
+  }, [userId]);
 
   // ── Club News & Research (manual fetches) ──
   const [clubNews, setClubNews] = useState<ClubNewsTeaser[]>([]);

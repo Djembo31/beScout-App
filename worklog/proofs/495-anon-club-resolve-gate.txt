@@ -1,0 +1,37 @@
+SLICE 495 — anon /club resolveExpiredResearch-Gate — PROOF
+============================================================
+
+[PROBLEM — Evidence]
+proof 493 Z.58 (live anon /club Console, 2026-07-01):
+  "401 + permission denied for function resolve_expired_research / get_club_news_teasers"
+useClubData.ts:43-45 feuerte resolveExpiredResearch() ungated bei jedem /club-Mount, auch anon.
+
+[LIVE-DB-VERIFIKATION (Projekt skzjfhvgccaeplydsunz, 2026-07-01)]
+(a) Grants — beide RPCs REVOKE anon:
+  proname                    | anon_exec | auth_exec | service_exec
+  get_club_news_teasers      | false     | true      | true
+  resolve_expired_research   | false     | true      | true
+  acl: {postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres}
+  → anon-Call scheitert deterministisch (permission denied). Korrekt gesichert.
+
+(b) pg_cron nach resolve_expired_research:
+  SELECT jobid,schedule,jobname,command FROM cron.job WHERE command ILIKE '%resolve%research%';
+  → [] (0 Zeilen)
+  → KEIN Cron. Der Client-Trigger ist der EINZIGE Auflösungspfad → nicht entfernen, nur gaten.
+
+[FIX — src/components/club/hooks/useClubData.ts]
+- useEffect(() => {
+-   resolveExpiredResearch().catch(err => console.error('[Club] Resolve expired research failed:', err));
+- }, []);
++ useEffect(() => {
++   if (!userId) return;
++   resolveExpiredResearch().catch(err => console.error('[Club] Resolve expired research failed:', err));
++ }, [userId]);
+authed: triggert weiter (einziger Pfad intakt). anon: no-op (kann's ohnehin nicht).
+
+[STATIC PROOF]
+- npx tsc --noEmit → exit 0
+- npx vitest run useClubData.test.ts → 27/27 passed
+
+[LIVE PROOF — anon /club Console post-Deploy]  (PROVE-Gate, wird nach Vercel-Deploy ergänzt)
+  <pending: chrome-devtools/playwright anon bescout.net/club/<slug> → Console 0× resolve_expired_research permission-denied>
