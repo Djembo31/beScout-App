@@ -2,6 +2,13 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 496 | 2026-07-01 | fix(club): D-39 — anon /club 3 authed-only Read-RPCs für Ausgeloggte gaten (GATE)
+- Stage-Chain: SPEC(inline) → BUILD (3 Files, 1 Gate-Muster) → REVIEW(self) → PROVE(Live anon-Walk) → LOG. **Mock→Pro W6 / D-03, D-39. CEO Anil (AskUserQuestion): GATE für anon.** Größe XS.
+- **Fix:** ClubContent läuft für anon (ssrConfirmedAnon :183, PublicClubView = späterer return :209) → Top-Level-Hooks feuern für anon; 3 riefen authed-only RPCs (`anon_exec=false` live-verifiziert) → 401-Kaskade. GATE (spiegelt in-File-Precedent `useClubStanding(user ? clubId : undefined)` :143): (1) `useClubRecentTrades(userId ? clubId : undefined, 5)` · (2) News-useEffect `if(!clubId||!userId)return` + deps `[clubId,userId]` · (3) `useEventPlayerPickRates(currentEventId, !!userId)`.
+- **PROVE (live bescout.net, Deploy 2c108615):** anon (Cookies/SW/Cache geleert, anon eindeutig: sbCookies=0/Register-CTA/firstAuthLink=/login) /club Console **8 Errors → 0** — news_teasers/recent_trades/pick_rates alle weg (+ resolve aus 495). authed unverändert **by construction** (userId present → byte-identische Args) + 44/44 vitest. tsc 0. Proof `496-anon-club-read-gates.txt`.
+- **Verhaltens-erhaltend:** anon sah news/trades/pick-rates ohnehin nie (401→leer), sieht sie weiter nicht; nur Console clean + kein sinnloser Fetch. GRANT-Option (anon SIEHT Daten) bleibt CEO-Zukunftsentscheid.
+- **Schließt D-39 für /club** (disease-register). Commit `2c108615`.
+
 ## 495 | 2026-07-01 | fix(club): anon /club — resolveExpiredResearch für Ausgeloggte gaten
 - Stage-Chain: SPEC(inline) → BUILD (1 Effect, useClubData.ts) → REVIEW(self) → PROVE(Live anon-Walk) → LOG. **Mock→Pro W6 / D-03 Option 2 (Anil vorab gewählt).** Größe XS.
 - **Fix:** `useClubData.ts` feuerte `resolveExpiredResearch()` ungated bei jedem /club-Mount, auch anon. Live-DB: `resolve_expired_research` = `anon_exec=false` (REVOKE anon) + **kein pg_cron** → anon-Call scheiterte garantiert mit 401 "permission denied" in der Console der öffentlichen Club-Seite, Client-Trigger = einziger Auflösungspfad. Gate `if (!userId) return;` + deps `[]`→`[userId]`: authed triggert weiter (Pfad intakt), anon feuert nie.

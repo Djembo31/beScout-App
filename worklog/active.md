@@ -1,7 +1,7 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 496
 title: D-39 — anon /club: 3 authed-only Read-RPCs für Ausgeloggte gaten (GATE, CEO Anil gewählt)
 size: XS
@@ -9,7 +9,7 @@ type: UI (Hook)
 welle: Mock→Pro W6 / D-03 (D-39, direkte Fortsetzung 495)
 proof: worklog/proofs/496-anon-club-read-gates.txt
 review: self-review (XS, gleiches enabled:!!userId-Gate-Pattern wie 495 + Zeile-143-Precedent im selben File)
-stage: BUILD
+stage: LOG (DONE — live anon-verifiziert: anon /club Console 8 Errors → 0; D-39 für /club geschlossen)
 ```
 
 ## Slice 496 — D-39 anon /club Read-Gates (GATE-für-anon, CEO Anil 2026-07-01)

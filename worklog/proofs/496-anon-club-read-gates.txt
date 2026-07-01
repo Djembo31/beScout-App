@@ -21,6 +21,23 @@ ClubContent läuft für anon (ssrConfirmedAnon-Pfad :183, PublicClubView = spät
 - npx tsc --noEmit → exit 0
 - npx vitest run useClubData.test.ts + ClubContent.test.tsx → 44/44 passed
 
-[LIVE PROOF — anon /club Console post-Deploy]  (Ziel: 0× 401 für die 3 RPCs)
-  <pending: Playwright anon bescout.net/club/<slug> (Session/SW/Cache-Clear, anon bestätigt)
-   → Console: news_teasers/recent_trades/pick_rates alle WEG. authed: alle 3 feuern weiter.>
+[LIVE PROOF — anon /club Console post-Deploy]  (Vercel 2c108615 Ready, Playwright bescout.net/club/galatasaray)
+Mess-Hygiene: Cookies/localStorage/SW/Caches geleert → anon EINDEUTIG bestätigt:
+  sbCookies=0 · hasRegisterOrLoginCTA=true · hasSidebarWallet=false · firstAuthLink=/login
+  (Credits-Heuristik war False-Positive: Public-Club-Seite zeigt öffentliche Spielerpreise in Credits, kein Wallet)
+
+Sauberer anon /club Console (settled 3,5s): ✅ **0 Errors** (1 Warning, unkritisch).
+  → get_club_news_teasers      : WEG (0×)
+  → rpc_get_club_recent_trades : WEG (0×)
+  → get_event_player_pick_rates: WEG (0×)
+  → resolve_expired_research   : WEG (0×, aus Slice 495)
+  VORHER (495-Walk, gleiche URL, sauberer anon): 8 Errors (401-Kaskade der 3 RPCs) → JETZT 0.
+  = D-39 für /club RESTLOS geschlossen; anon-Club-Console clean.
+
+[AUTHED — kein Regress, by construction]
+Bei userId present sind alle 3 Ausdrücke byte-identisch zum Vorzustand:
+  `userId ? clubId : undefined` = clubId · `!!userId` = true · `if(!clubId||!userId)` = `if(!clubId)`.
+→ authed-Pfad unverändert; die 44 vitest-Tests (userId:'u1'-Fixtures) decken den userId-present-Pfad ab.
+(495-Walk hatte authed /club bereits mit 0 Console-Errors bestätigt; 496 ändert authed-Verhalten nicht.)
+
+AC-Ergebnis: (1) ✅ anon /club Console 0× 401 für alle 3 RPCs (live). (2) ✅ authed unverändert (Konstruktion + Tests). (3) ✅ tsc 0 · 44/44 vitest.
