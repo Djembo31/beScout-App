@@ -30,9 +30,18 @@ get_treasury_stats: SECURITY DEFINER, gated auf platform_admins (RAISE 'Not auth
 - npx vitest run platformAdmin-treasury.test.ts → 9/9 passed
 - Consumer: nur BescoutAdminContent (SystemStats-Shape unverändert → 0 Impact)
 
-[LIVE PROOF — Admin-Dashboard post-Deploy]  (Ziel: no-regress + SSOT-Konsistenz)
-  <pending: Login ali (platform superadmin) → /bescout-admin → "Scout Total" rendert korrekt
-   (850.935.524-basiert, kein 0/Fehler) UND == Treasury-Tab "circulating" (beide total_circulating_cents).>
-  Hinweis: latenter Fix → heute (128 Wallets) KEINE sichtbare Wert-Änderung; Live-Check = no-regression +
-  RPC-Auth-Pfad im Deploy funktioniert + SSOT-Konsistenz Overview==Treasury-Tab. Der >1000-Divergenz-Nutzen
-  ist by-construction (functiondef ohne LIMIT) bewiesen, nicht live demonstrierbar ohne 1000 Wallet-Seed.
+[LIVE PROOF — Admin-Dashboard post-Deploy]  (Deploy 74edf620, Playwright Login ali=platform superadmin)
+Login ali@test.bescout.de → auto-redirect /bescout-admin (platform_admins) → sbCookies=1, Console 0 Errors.
+"Scout Total" StatCard rendert: **8.509.355,24 Credits**
+  = fmtScout(centsToBsd(850.935.524 cents)) = die wahre uncapped SUM(balance) aus
+    get_treasury_stats.total_circulating_cents (Live-DB true_sum = 850.935.524). ✓
+  → RPC-Auth-Pfad im Deploy funktioniert (kein 0/Fehler), korrekter Wert, kein Regress.
+SSOT-Konsistenz: Overview "Scout Total" (getSystemStats, jetzt total_circulating_cents) UND
+  Treasury-Tab "circulating" (getTreasuryStats.circulatingCents = total_circulating_cents) teilen
+  jetzt DIESELBE Quelle → by-construction konsistent.
+Latenter Fix: heute (128 Wallets < 1000) KEINE Wert-Änderung erwartet (undercount=0) → Live = no-regression
+  bewiesen. Der >1000-Divergenz-Nutzen ist by-construction (functiondef ohne LIMIT + Parität), nicht live
+  demonstrierbar ohne 1000-Wallet-Seed.
+
+AC-Ergebnis: (1) ✅ totalBsdCirculation aus get_treasury_stats (kein wallets-Cap-SUM). (2) ✅ tsc 0 · 9/9.
+(3) ✅ Live Scout Total = 8.509.355,24 korrekt, Console clean, SSOT-konsistent. → D-08 geschlossen.

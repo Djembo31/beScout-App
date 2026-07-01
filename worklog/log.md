@@ -2,6 +2,14 @@
 
 Chronologische Liste aller abgeschlossenen Slices. Neueste oben.
 
+## 497 | 2026-07-01 | fix(admin): D-08 — getSystemStats „Scout Total" aus kanonischer Treasury-RPC (uncapped)
+- Stage-Chain: SPEC(inline) → BUILD (1 Query-Swap, platformAdmin.ts) → REVIEW(self, §3-Money-Rigor) → PROVE(Live Admin-Walk) → LOG. **Mock→Pro Money-Konsolidierung, D-08, §0-Subtraktion. CEO Anil endorsed (Option 3).** Größe S.
+- **Fix:** `getSystemStats` summierte `wallets.select('balance').limit(5000)` client-seitig → PostgREST cappt real ~1000 (common-errors MONEY-CRITICAL, `.limit(5000)` KEIN Override) → „Scout Total" (Platform-Admin, BescoutAdminContent:63) unterzählt ab >1000 Wallets. Latent heute (128 Wallets, undercount=0). §0-Subtraktion: gecappten Client-SUM → `supabase.rpc('get_treasury_stats').total_circulating_cents` (SECDEF, admin-gated, server-SUM ohne Cap).
+- **Semantik-Parität (D87, live functiondef):** `total_circulating_cents = COALESCE(SUM(balance) FROM wallets,0)` = exakt alte `totalBsdCirculation`-Semantik, uncapped. Display-only/read, KEINE Money-Mutation. Caller platform-admin-only → RPC-Auth authorisiert. SystemStats-Shape unverändert (1 Consumer, 0 Impact).
+- **PROVE (live bescout.net, Deploy 74edf620, Login ali=platform superadmin):** `/bescout-admin` „Scout Total" = **8.509.355,24 Credits** = fmtScout(centsToBsd(850.935.524)) = wahre uncapped SUM(balance), Console 0 Errors, RPC-Auth-Pfad im Deploy funktioniert, kein Regress. SSOT-Konsistenz Overview==Treasury-Tab (beide total_circulating_cents). tsc 0 · platformAdmin-treasury 9/9. Proof `497-d08-scout-total-uncapped.txt`.
+- **Scope-Out:** D-09 (getTreasuryStats-Fallback `.limit(5000)`, nur RPC-Ausfall-Branch) + volume24h `.limit(5000)` (24h-Trades <1000) notiert, nicht mit-gefixt (kein Misch-Commit).
+- **Schließt D-08** (disease-register → geheilt). Commit `74edf620`.
+
 ## 496 | 2026-07-01 | fix(club): D-39 — anon /club 3 authed-only Read-RPCs für Ausgeloggte gaten (GATE)
 - Stage-Chain: SPEC(inline) → BUILD (3 Files, 1 Gate-Muster) → REVIEW(self) → PROVE(Live anon-Walk) → LOG. **Mock→Pro W6 / D-03, D-39. CEO Anil (AskUserQuestion): GATE für anon.** Größe XS.
 - **Fix:** ClubContent läuft für anon (ssrConfirmedAnon :183, PublicClubView = späterer return :209) → Top-Level-Hooks feuern für anon; 3 riefen authed-only RPCs (`anon_exec=false` live-verifiziert) → 401-Kaskade. GATE (spiegelt in-File-Precedent `useClubStanding(user ? clubId : undefined)` :143): (1) `useClubRecentTrades(userId ? clubId : undefined, 5)` · (2) News-useEffect `if(!clubId||!userId)return` + deps `[clubId,userId]` · (3) `useEventPlayerPickRates(currentEventId, !!userId)`.

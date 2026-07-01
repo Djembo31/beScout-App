@@ -1,7 +1,7 @@
 # Active Slice
 
 ```
-status: in-progress
+status: idle
 slice: 497
 title: D-08 — getSystemStats „Scout Total" aus kanonischer Treasury-RPC (gecappten Client-SUM killen)
 size: S
@@ -9,7 +9,7 @@ type: Service
 welle: Mock→Pro Money-Konsolidierung (D-08, §0-Subtraktion, CEO Anil endorsed)
 proof: worklog/proofs/497-d08-scout-total-uncapped.txt
 review: self-review (§3 Money, aber display-only/read; Semantik-Parität DB-bewiesen, keine Mutation)
-stage: BUILD
+stage: LOG (DONE — live: Admin „Scout Total" 8.509.355,24 aus get_treasury_stats, Console clean, D-08 zu)
 ```
 
 ## Slice 497 — D-08 getSystemStats „Scout Total" uncapped (§0-Subtraktion)
