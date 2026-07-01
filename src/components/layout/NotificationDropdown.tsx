@@ -117,7 +117,7 @@ function getNotifHref(notif: DbNotification): string | null {
   }
 }
 
-// Slice 483 (D-33): lokale timeAgo-Kopie entfernt → kanonischer formatTimeAgo aus @/lib/utils.
+// Slice 483 (D-33): lokale Relativzeit-Kopie entfernt → kanonischer formatTimeAgo aus @/lib/utils.
 
 interface NotificationDropdownProps {
   userId: string;

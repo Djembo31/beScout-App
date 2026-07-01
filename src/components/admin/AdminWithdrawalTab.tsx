@@ -15,7 +15,7 @@ const KNOWN_LEDGER_TYPES = new Set([
   'event_prize', 'poll_reward', 'bounty', 'poll_revenue',
 ]);
 
-// Slice 483 (D-33): lokale timeAgo-Variante entfernt → kanonischer formatTimeAgo aus @/lib/utils.
+// Slice 483 (D-33): lokale Relativzeit-Variante entfernt → kanonischer formatTimeAgo aus @/lib/utils.
 
 export default function AdminWithdrawalTab({ club }: { club: ClubWithAdmin }) {
   const t = useTranslations('admin');

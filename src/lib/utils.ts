@@ -33,7 +33,7 @@ export function humanTimeLeft(timestamp: number): string {
 }
 
 /** Relative time from ISO date string — "5m", "3h", "2d" or localized date.
- *  Slice 483 (D-33): kanonischer Relativzeit-Formatter (EN-leakendes timeAgo(number) entfernt). */
+ *  Slice 483 (D-33): kanonischer Relativzeit-Formatter (EN-leakende number-Variante entfernt). */
 export function formatTimeAgo(dateStr: string, nowLabel = 'just now', dateLocale = 'de-DE'): string {
   const diffMs = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diffMs / 60000);
